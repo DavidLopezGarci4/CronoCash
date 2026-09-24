@@ -65,9 +65,16 @@ export interface Settings {
 export interface FinancialTip {
   id: string;
   title: string;
-  category: 'ahorro' | 'facturacion' | 'presupuesto' | 'fiscal';
+  category: 'ahorro' | 'facturacion' | 'presupuesto' | 'fiscal' | 'dinero_rapido' | 'dinero_pasivo' | 'anti_estafas';
+  impact: 'alto' | 'medio' | 'bajo' | 'crucial';
   content: string;
-  impact: 'alto' | 'medio' | 'bajo';
+  estimatedSavingsOrEarning?: string;
+  timeNeeded?: string;
+  difficulty?: 'fácil' | 'medio' | 'avanzado';
+  actionSteps?: string[];
+  riskLevel?: 'cero_riesgo' | 'bajo' | 'alerta_estafa';
+  officialSourceOrLegalBasis?: string;
+  isApplied?: boolean;
   isRead?: boolean;
 }
 

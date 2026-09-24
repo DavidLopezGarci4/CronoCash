@@ -147,6 +147,12 @@ export const App: React.FC = () => {
     await loadData();
   };
 
+  const handleToggleTip = async (tipId: string) => {
+    await DBService.toggleTipApplied(tipId);
+    const updatedTips = await DBService.getTips();
+    setTips(updatedTips);
+  };
+
   if (isLocked) {
     return <AuthScreen onUnlocked={handleUnlocked} />;
   }
@@ -230,7 +236,13 @@ export const App: React.FC = () => {
           />
         )}
 
-        {currentTab === 'tips' && <TipsView tips={tips} />}
+        {currentTab === 'tips' && (
+          <TipsView
+            tips={tips}
+            onToggleApplied={handleToggleTip}
+            currency={settings.currency || '€'}
+          />
+        )}
       </main>
 
       {/* Navegación Inferior */}

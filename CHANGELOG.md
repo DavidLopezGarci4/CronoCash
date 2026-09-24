@@ -5,6 +5,18 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [1.6.0] - 2026-09-24
+
+### Added
+- **Suite de 14 Estrategias Financieras Maestras:** Incorporación de guías prácticas de alto impacto cubriendo Ahorro en Suministros (auditoría de potencia contratada y comparador CNMC), Telecomunicaciones (amago legal con operadoras directas), Seguros (preaviso legal de 1 mes según Ley 50/1980), Erradicación de Comisiones Bancarias Ocultas y Regla de los 30 Días contra compras impulsivas.
+- **Módulo Legal de Dinero Rápido y Excedentes:** Métodos sin riesgo para monetización de excedentes domésticos (estrategia de las 3 cajas en Wallapop/Vinted), aprovechamiento de deducciones autonómicas olvidadas en el IRPF y prestación de microservicios locales y digitales.
+- **Estrategias Protegidas de Dinero Pasivo:** Explicación y guía práctica de Cuentas Remuneradas garantizadas hasta 100.000€ por el Fondo de Garantía de Depósitos (FGD), Fondos Monetarios con diferimiento fiscal en España (art. 94 Ley 35/2006) e Inversión Indexada Global a largo plazo mediante aportaciones periódicas automatizadas (DCA).
+- **Escudo Anti-Estafas Financieras & CNMV:** Mecanismos de detección y defensa activa frente a chiringuitos financieros no regulados (consulta en registro oficial de la CNMV), regla de oro contra promesas de rentabilidad irreal y prevención de fraudes por suplantación bancaria (smishing, llamadas fraudulentas y grupos de Telegram).
+- **Interfaz Interactiva de Estrategias (`TipsView.tsx`):** Filtros por píldoras temáticas, buscador en tiempo real por palabras clave, acordeones con pasos de acción numerados, tarjetas con estimaciones económicas destacadas y botón de persistencia "Marcar como Aplicado" con métricas de progreso.
+- **Artefacto Release Firmado:** Compilación del APK de producción `app-v1.6.0-release.apk` (`versionCode 10600`, `versionName "1.6.0"`).
+
+---
+
 ## [1.5.0] - 2026-09-24
 
 ### Added

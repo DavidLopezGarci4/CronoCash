@@ -206,33 +206,250 @@ export const DEFAULT_RECURRING_SEEDS: RecurringRule[] = [
 ];
 
 export const DEFAULT_TIPS: FinancialTip[] = [
+  // --- AHORRO Y RENEGOCIACIÓN ESTRATÉGICA ---
   {
-    id: 'tip-1',
-    title: 'La Regla de las Bolsas 50/30/20',
-    category: 'presupuesto',
-    impact: 'alto',
-    content: 'Distribuye tus ingresos netos: 50% en necesidades básicas y facturas, 30% en ocio y desarrollo personal, y al menos 20% destinado al ahorro o amortización de deudas.',
-  },
-  {
-    id: 'tip-2',
-    title: 'Bolsa de Imprevistos (Buffer)',
+    id: 'tip-luz-gas',
+    title: 'Auditoría de Luz: Potencia y Comparador CNMC',
     category: 'ahorro',
     impact: 'alto',
-    content: 'Tener una bolsa amortiguadora de 300€-600€ evita tener que recurrir a tarjetas de crédito con alto interés ante averías mecánicas o visitas imprevistas al médico.',
+    estimatedSavingsOrEarning: '180€ - 420€ / año',
+    timeNeeded: '20 min',
+    difficulty: 'fácil',
+    riskLevel: 'cero_riesgo',
+    officialSourceOrLegalBasis: 'Comparador de Ofertas de Energía de la CNMC (comparador.cnmc.gob.es)',
+    content: 'La mayoría de hogares tienen contratada más potencia de la necesaria (ej. 4.6 kW o 5.7 kW cuando 3.45 kW es suficiente). Bajar un tramo de potencia ahorra de 40€ a 70€ anuales en el término fijo de por vida. Además, revisa si pagas "servicios de mantenimiento de urgencia" ocultos de 5€ a 9€/mes que casi nunca se usan.',
+    actionSteps: [
+      'Revisa el pico de potencia máxima demandada en tu distribuidora (i-DE, e-distribución, etc.).',
+      'Si nunca has superado 3.3 kW, solicita a tu comercializadora bajar la potencia contratada.',
+      'Sube tu factura al comparador oficial CNMC y descarta comercializadoras con servicios de mantenimiento forzosos.',
+    ],
   },
   {
-    id: 'tip-3',
-    title: 'Facturas con CIF/NIF Desgravables',
-    category: 'fiscal',
-    impact: 'medio',
-    content: 'Si eres autónomo o teletrabajas, solicita siempre factura formal completa (con NIF, razón social y desglose de IVA) para justificar y deducir gastos afectos a tu actividad.',
+    id: 'tip-teleco-amago',
+    title: 'Optimización de Fibra y Móvil (Amago Legal)',
+    category: 'ahorro',
+    impact: 'alto',
+    estimatedSavingsOrEarning: '240€ - 480€ / año',
+    timeNeeded: '30 min',
+    difficulty: 'fácil',
+    riskLevel: 'cero_riesgo',
+    officialSourceOrLegalBasis: 'Ley 11/2022 General de Telecomunicaciones (Portabilidad gratuita)',
+    content: 'Las grandes telecos reservan descuentos de hasta el 50% durante 12 meses para retenciones. Si pagas más de 35€/mes por fibra y una línea móvil, o bien llamas pidiendo igualar precios de operadoras low-cost (Digi, O2, Simyo) o inicias una solicitud de portabilidad para que retenciones te aplique la tarifa oculta fidelizada.',
+    actionSteps: [
+      'Verifica que no tengas permanencia activa en tu factura actual.',
+      'Compara precios de operadores directos (ej. Fibra 300Mb + 50GB por ~20-25€/mes).',
+      'Llama a fidelización de tu operador o tramita portabilidad a otra compañía para activar la contraoferta al 50%.',
+    ],
   },
   {
-    id: 'tip-4',
-    title: 'Auditoría de Suscripciones Ocultas',
+    id: 'tip-seguros-preaviso',
+    title: 'Preaviso Legal de 1 Mes en Seguros (Ley 50/1980)',
     category: 'facturacion',
+    impact: 'alto',
+    estimatedSavingsOrEarning: '120€ - 350€ / año',
+    timeNeeded: '1 hora',
+    difficulty: 'medio',
+    riskLevel: 'cero_riesgo',
+    officialSourceOrLegalBasis: 'Artículo 22 de la Ley 50/1980 de Contrato de Seguro',
+    content: 'Las aseguradoras suelen subir la prima de auto u hogar de forma tácita un 10%-25% anual. La ley te ampara para cancelar o renegociar con al menos 1 mes de preaviso antes de la fecha de vencimiento. Cotiza con 40 días de margen en comparadores y exige a tu compañía que iguale la prima del nuevo mercado.',
+    actionSteps: [
+      'Identifica la fecha de renovación de tu póliza en CronoCash.',
+      'Pon una alarma a 45 días antes del vencimiento.',
+      'Solicita cotizaciones alternativas y envía escrito fehaciente (email certificado o web) si no igualan el precio.',
+    ],
+  },
+  {
+    id: 'tip-regla-30-dias',
+    title: 'Regla de los 30 Días contra Compras Impulsivas',
+    category: 'presupuesto',
+    impact: 'alto',
+    estimatedSavingsOrEarning: '400€ - 1.200€ / año',
+    timeNeeded: 'Inmediato',
+    difficulty: 'fácil',
+    riskLevel: 'cero_riesgo',
+    officialSourceOrLegalBasis: 'Psicología conductual aplicada al consumo financiero',
+    content: 'Antes de comprar cualquier artículo no esencial superior a 50€, anótalo en una lista de deseos y espera 30 días naturales. Si trascurrido el mes aún sientes la necesidad real y cabe en tu bolsa de Ocio, cómpralo; en más del 70% de las ocasiones el impulso dopaminérgico se disipa por completo.',
+    actionSteps: [
+      'Añade una nota en tu móvil: "Lista de espera 30 días" con fecha y precio.',
+      'Elimina las tarjetas guardadas en plataformas de ecommerce para añadir fricción de pago.',
+      'Si tras 30 días lo compras, traslada el importe a tu bolsa correspondiente.',
+    ],
+  },
+  {
+    id: 'tip-cero-comisiones',
+    title: 'Erradicación de Comisiones Bancarias Ocultas',
+    category: 'ahorro',
     impact: 'medio',
-    content: 'Revisa trimestralmente tus gastos recurrentes. Cancelar plataformas o membresías de poco uso puede liberar más de 40€ al mes para tu colchón de ahorro.',
+    estimatedSavingsOrEarning: '60€ - 240€ / año',
+    timeNeeded: '15 min',
+    difficulty: 'fácil',
+    riskLevel: 'cero_riesgo',
+    officialSourceOrLegalBasis: 'Fondo de Garantía de Depósitos (FGD) y Banco de España',
+    content: 'Pagar comisión de mantenimiento, cuota anual por tarjeta de débito o transferencias ordinarias es totalmente prescindible. Existen entidades con solvencia máxima y respaldo del FGD que ofrecen cuenta 100% gratuita sin requisitos de nómina obligatoria (Openbank, ING, BBVA Online, Sabadell Online, N26).',
+    actionSteps: [
+      'Revisa tu extracto bancario de los últimos 6 meses en busca de comisiones de liquidación.',
+      'Si tu banco te cobra, solicita la exoneración o abre una cuenta online sin comisiones.',
+      'Traspasa recibos domiciliados cómodamente con el servicio gratuito de cambio de cuenta bancaria.',
+    ],
+  },
+
+  // --- GENERACIÓN DE DINERO RÁPIDO (LEGAL Y ACTIVO) ---
+  {
+    id: 'tip-segunda-mano-wallapop',
+    title: 'Venta Optimizada de Excedentes (Método de las 3 Cajas)',
+    category: 'dinero_rapido',
+    impact: 'alto',
+    estimatedSavingsOrEarning: '150€ - 800€ en 1-2 semanas',
+    timeNeeded: '2 horas',
+    difficulty: 'fácil',
+    riskLevel: 'cero_riesgo',
+    officialSourceOrLegalBasis: 'Venta de bienes usados entre particulares (no sujeta a IRPF si no hay plusvalía comercial)',
+    content: 'En casi cualquier hogar hay entre 300€ y 1.000€ inmovilizados en dispositivos electrónicos en desuso, ropa sin estrenar, herramientas y libros. Venderlos en Wallapop, Vinted o Cash Converters es legal, rápido y desahoga espacio.',
+    actionSteps: [
+      'Aplica la regla de las 3 cajas en casa: Guardar, Donar, Vender.',
+      'Limpia los objetos y haz fotos con luz natural diurna sobre fondo blanco o neutro.',
+      'Fija un precio 10%-15% por encima de lo que deseas para dar margen al comprador y usa envíos protegidos.',
+    ],
+  },
+  {
+    id: 'tip-deducciones-autonomicas',
+    title: 'Rescate de Deducciones Autonómicas en el IRPF',
+    category: 'fiscal',
+    impact: 'alto',
+    estimatedSavingsOrEarning: '150€ - 1.200€ por ejercicio',
+    timeNeeded: '45 min',
+    difficulty: 'medio',
+    riskLevel: 'cero_riesgo',
+    officialSourceOrLegalBasis: 'Agencia Estatal de Administración Tributaria (AEAT) y normativas autonómicas',
+    content: 'El borrador automático de la Renta de Hacienda NO incluye por defecto muchas deducciones autonómicas: gastos de alquiler de vivienda habitual, material escolar, gastos de guardería, abono de transporte, donaciones (desgravan hasta el 80% en los primeros 250€) o mejoras de eficiencia energética.',
+    actionSteps: [
+      'Entra en el manual de IRPF de tu Comunidad Autónoma en la web de la AEAT.',
+      'Localiza si cumples requisitos por límite de renta para deducción por alquiler o hijos.',
+      'Conserva las facturas y comprobantes bancarios para adjuntarlos a tu borrador.',
+    ],
+  },
+  {
+    id: 'tip-microservicios-habilidades',
+    title: 'Monetización de Habilidades Locales y Remotas',
+    category: 'dinero_rapido',
+    impact: 'medio',
+    estimatedSavingsOrEarning: '100€ - 600€ / mes',
+    timeNeeded: 'Flexible',
+    difficulty: 'medio',
+    riskLevel: 'cero_riesgo',
+    officialSourceOrLegalBasis: 'Prestación de servicios profesionales y límites de habitualidad tributaria',
+    content: 'Ofrecer servicios de valor directo a tu comunidad o en plataformas online: clases particulares de idiomas/refuerzo escolar, formateo y mantenimiento de ordenadores para pymes locales, transcripción o soporte administrativo digital.',
+    actionSteps: [
+      'Identifica tu habilidad con mayor demanda local (informática, idiomas, fotografía, trámites).',
+      'Publica anuncios en portales locales (Superprof, Milanuncios, tablones comunitarios).',
+      'Registra los ingresos y consulta los umbrales de facturación periódica y Seguridad Social.',
+    ],
+  },
+
+  // --- GENERACIÓN DE DINERO PASIVO (100% PROTEGIDO Y SIN HUMO) ---
+  {
+    id: 'tip-cuentas-remuneradas-fgd',
+    title: 'Cuentas Remuneradas Respaldadas por el FGD',
+    category: 'dinero_pasivo',
+    impact: 'alto',
+    estimatedSavingsOrEarning: '3% - 4% TAE asegurado',
+    timeNeeded: '15 min de alta',
+    difficulty: 'fácil',
+    riskLevel: 'cero_riesgo',
+    officialSourceOrLegalBasis: 'Fondo de Garantía de Depósitos (hasta 100.000€ por depositante y banco)',
+    content: 'Tener el colchón de ahorro o el fondo de imprevistos a interés 0% en una cuenta corriente convencional hace que pierda poder adquisitivo por la inflación. Cuentas remuneradas con ficha bancaria europea y FGD remuneran el saldo a la vista con disponibilidad del dinero en cualquier segundo.',
+    actionSteps: [
+      'Verifica que la entidad tenga código bancario oficial y esté bajo FGD europeo.',
+      'Ingresa tu colchón de ahorro de 3 a 6 meses de gastos en la cuenta remunerada.',
+      'Los intereses se abonan mensual o trimestralmente de forma automática y con retención fiscal transparente.',
+    ],
+  },
+  {
+    id: 'tip-fondos-monetarios',
+    title: 'Fondos Monetarios: Máxima Eficiencia Fiscal',
+    category: 'dinero_pasivo',
+    impact: 'alto',
+    estimatedSavingsOrEarning: 'Rendimiento cercano a tipos del BCE con diferimiento fiscal',
+    timeNeeded: '30 min',
+    difficulty: 'medio',
+    riskLevel: 'bajo',
+    officialSourceOrLegalBasis: 'Régimen de traspasos sin peaje fiscal (Art. 94 Ley 35/2006 del IRPF)',
+    content: 'Los fondos monetarios invierten en deuda pública y pagarés a cortísimo plazo de máxima solvencia (AAA). En España cuentan con una ventaja colosal: el traspaso entre fondos no tributa. Puedes reinvertir o mover dinero entre fondos sin pagar el 19%-26% de IRPF hasta que lo retires a tu cuenta.',
+    actionSteps: [
+      'Accede a una comercializadora de fondos sin custodia (MyInvestor, IronIA, etc.).',
+      'Busca fondos monetarios en euros de gestoras de primer nivel (Groupama, AXA, DWS).',
+      'Aporta tu ahorro excedente con volatilidad prácticamente nula y acumulación de interés.',
+    ],
+  },
+  {
+    id: 'tip-fondos-indexados-dca',
+    title: 'Inversión Indexada Pasiva a Largo Plazo (DCA)',
+    category: 'dinero_pasivo',
+    impact: 'alto',
+    estimatedSavingsOrEarning: '7% - 9% media histórica anualizada (horizonte > 8 años)',
+    timeNeeded: 'Automático 100%',
+    difficulty: 'medio',
+    riskLevel: 'bajo',
+    officialSourceOrLegalBasis: 'Teoría moderna de carteras e inversión indexada de muy bajo coste (Bogleheads)',
+    content: 'En lugar de intentar adivinar qué acción individual subirá o bajará, el método más probado y premiado con el Nobel es comprar el mundo entero mediante un fondo indexado global (MSCI World / S&P 500) con comisiones microscópicas (<0,18% anual). Aportando una cantidad fija cada mes (DCA), compras más cuando baja y menos cuando sube.',
+    actionSteps: [
+      'Asegúrate de tener ya constituido tu colchón de imprevistos de 3-6 meses.',
+      'Configura una orden de transferencia periódica el día 2 de cada mes (ej. 50€ a 200€).',
+      'No mires la cotización diaria: la paciencia y el interés compuesto a 10 años hacen el trabajo pesado.',
+    ],
+  },
+
+  // --- ESCUDO ANTI-ESTAFAS FINANCIERAS ---
+  {
+    id: 'tip-chiringuitos-cnmv',
+    title: 'Escudo Anti-Chiringuitos: Consulta el Registro de la CNMV',
+    category: 'anti_estafas',
+    impact: 'crucial',
+    estimatedSavingsOrEarning: 'Protección del 100% de tu patrimonio',
+    timeNeeded: '2 min de chequeo',
+    difficulty: 'fácil',
+    riskLevel: 'alerta_estafa',
+    officialSourceOrLegalBasis: 'Comisión Nacional del Mercado de Valores (cnmv.es) y Banco de España',
+    content: 'Un "chiringuito financiero" es una entidad no autorizada que capta fondos prometiendo inversiones mágicas y desaparece. Antes de confiar dinero a cualquier plataforma, broker o empresa de inversión, introduce su nombre en el buscador de entidades advertidas de la CNMV. Si no está inscrita, es ilegal y una estafa inminente.',
+    actionSteps: [
+      'Accede a cnmv.es -> Inversores -> Advertencias de la CNMV.',
+      'Introduce el nombre de la empresa, dominio web o plataforma sospechosa.',
+      'Si no figura en el registro oficial de Empresas de Servicios de Inversión (ESI), jamás transfieras un solo céntimo.',
+    ],
+  },
+  {
+    id: 'tip-regla-oro-rentabilidad',
+    title: 'La Regla de Oro: Rentabilidad Alta sin Riesgo = Estafa Segura',
+    category: 'anti_estafas',
+    impact: 'crucial',
+    estimatedSavingsOrEarning: 'Evita perder los ahorros de toda tu vida',
+    timeNeeded: 'Principio inquebrantable',
+    difficulty: 'fácil',
+    riskLevel: 'alerta_estafa',
+    officialSourceOrLegalBasis: 'Leyes matemáticas y financieras universales',
+    content: 'Cualquier oferta que te prometa un "10% mensual garantizado", "ganancias sin riesgo con trading algorítmico o cripto", o "duplicar tu dinero en 3 meses" es un esquema Ponzi matemático. Los estafadores usan los fondos de los nuevos inversores para pagar espejismos a los antiguos hasta que el sistema colapsa.',
+    actionSteps: [
+      'Compara siempre contra la tasa libre de riesgo oficial (letras del tesoro al ~3%-3.5%).',
+      'Si alguien te ofrece 5 veces más sin riesgo, desconfía al 100%.',
+      'Bloquea inmediatamente a quien te contacte por redes sociales prometiendo libertad financiera fácil.',
+    ],
+  },
+  {
+    id: 'tip-senales-alerta-fraudes',
+    title: 'Anatomía de los Fraudes Modernos (Telegram, WhatsApp y Smishing)',
+    category: 'anti_estafas',
+    impact: 'crucial',
+    estimatedSavingsOrEarning: 'Defensa activa contra ciberdelincuencia',
+    timeNeeded: 'Atención continua',
+    difficulty: 'fácil',
+    riskLevel: 'alerta_estafa',
+    officialSourceOrLegalBasis: 'INCIBE (Instituto Nacional de Ciberseguridad - Teléfono 017 gratuito)',
+    content: 'Patrones inequívocos de estafa: 1) Grupos de Telegram donde todos muestran supuestas ganancias y capturas retocadas; 2) Falsos asesores que te presionan con "urgencia porque la ventana se cierra hoy"; 3) La trampa del rescate: cuando intentas retirar tu dinero, te exigen pagar un "15% de impuestos o tasas de desbloqueo" adicionales.',
+    actionSteps: [
+      'Tu banco NUNCA te llamará pidiéndote códigos SMS de verificación (OTP). Si lo hacen, cuelga de inmediato.',
+      'Jamás pagues dinero extra para "desbloquear" una supuesta ganancia retenida.',
+      'Ante cualquier duda con un mensaje o llamada, consulta gratis al 017 de INCIBE.',
+    ],
   },
 ];
 
@@ -741,23 +958,61 @@ export class DBService {
     return result;
   }
 
-  // --- TIPS ---
+  // --- TIPS & ESTRATEGIAS FINANCIERAS ---
   static async getTips(): Promise<FinancialTip[]> {
+    let list: FinancialTip[] = [];
     try {
       const db = await this.getDB();
-      return await new Promise<FinancialTip[]>((resolve, reject) => {
+      list = await new Promise<FinancialTip[]>((resolve, reject) => {
         const tx = db.transaction(STORES.TIPS, 'readonly');
         const store = tx.objectStore(STORES.TIPS);
         const req = store.getAll();
-        req.onsuccess = () => {
-          const list: FinancialTip[] = req.result || [];
-          resolve(list.length > 0 ? list : DEFAULT_TIPS);
-        };
+        req.onsuccess = () => resolve(req.result || []);
         req.onerror = () => reject(req.error);
       });
-    } catch (e) {
-      return this.getLocalStorageItem<FinancialTip[]>('gastos_tips', DEFAULT_TIPS);
+    } catch {
+      list = this.getLocalStorageItem<FinancialTip[]>('gastos_tips', []);
     }
+
+    // Auto-fusionar con las semillas maestras para que el usuario reciba siempre las estrategias completas
+    const map = new Map<string, FinancialTip>();
+    DEFAULT_TIPS.forEach((t) => map.set(t.id, { ...t }));
+    list.forEach((t) => {
+      const existing = map.get(t.id);
+      if (existing) {
+        map.set(t.id, { ...existing, isApplied: t.isApplied, isRead: t.isRead });
+      } else {
+        map.set(t.id, t);
+      }
+    });
+
+    const merged = Array.from(map.values());
+    this.setLocalStorageItem('gastos_tips', merged);
+    return merged;
+  }
+
+  static async toggleTipApplied(id: string): Promise<boolean> {
+    const tips = await this.getTips();
+    const target = tips.find((t) => t.id === id);
+    if (!target) return false;
+
+    target.isApplied = !target.isApplied;
+    this.setLocalStorageItem('gastos_tips', tips);
+
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.TIPS, 'readwrite');
+        const store = tx.objectStore(STORES.TIPS);
+        store.put(target);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Aviso al alternar tip en IndexedDB:', e);
+    }
+
+    return Boolean(target.isApplied);
   }
 
   // --- BACKUP & EXPORT/IMPORT ---

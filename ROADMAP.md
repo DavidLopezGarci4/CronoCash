@@ -4,17 +4,22 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.5.0 (Completado) 🚀
-- [x] **Arquitectura Canónica de 2 Ranuras para Google Drive:** Soporte para `CronoCash_Actual.json` (Slot 1 principal) y `CronoCash_Previa.json` (Slot 2 de salvaguarda histórica).
-- [x] **Integración con Storage Access Framework (SAF):** Exportación y compartición fluida con `@capacitor/filesystem` y `@capacitor/share` sin credenciales de API invasivas ni caducidad de tokens.
-- [x] **Envelope de Seguridad y Checksum Determinista:** Empaquetado v1.5.0 con hash de integridad, fecha y hora en franja horaria `Europe/Madrid`, y metadatos exhaustivos de registros.
-- [x] **Comparador Previo Lado a Lado (Side-by-Side):** Pantalla inteligente de inspección que compara los datos del dispositivo actual frente a la copia seleccionada con indicadores de deltas (+/-), modo sobrescribir/fusionar y checkbox de confirmación obligatoria.
-- [x] **Acceso Rápido Integrado:** Acceso directo desde la cabecera (Header) y desde la sección de Bóveda y Ajustes.
-- [x] **Compilación y Firma Release:** Generación del APK firmado `app-v1.5.0-release.apk` con `versionCode 10500` y `versionName "1.5.0"`.
+## Estado Actual: v1.6.0 (Completado) 🚀
+- [x] **Suite de 14 Estrategias Financieras Maestras:** Ampliación exhaustiva del módulo de conocimiento cubriendo Ahorro y Renegociación implacable, Generación Legal de Dinero Rápido, Ingresos Pasivos Protegidos y Escudo Anti-Estafas Financieras.
+- [x] **Estimaciones Económicas y Respaldo Legal:** Cada estrategia incluye horquillas reales de ahorro/retorno (ej. 180€-420€ en luz, 3%-4% TAE en cuentas FGD), tiempo de dedicación, nivel de riesgo y fundamento jurídico (CNMC, Ley 50/1980, AEAT, CNMV e INCIBE).
+- [x] **Filtros por Categoría y Buscador en Tiempo Real:** Interfaz enriquecida con filtrado por píldoras temáticas y búsqueda instantánea por palabras clave.
+- [x] **Pasos de Acción Desplegables y Seguimiento Activo:** Acordeones interactivos con instrucciones paso a paso numeradas y botón persistente "Marcar como Aplicado" para auditar el porcentaje de ejecución y ahorro acumulado.
+- [x] **Compilación y Firma Release:** Generación del APK firmado `app-v1.6.0-release.apk` con `versionCode 10600` y `versionName "1.6.0"`.
 
 ---
 
 ## Historial de Versiones Anteriores
+
+### 📦 v1.5.0 (Completado)
+- [x] Arquitectura Canónica de 2 Ranuras para Google Drive (`CronoCash_Actual.json` y `CronoCash_Previa.json`).
+- [x] Integración con Storage Access Framework (SAF) y `@capacitor/share` sin claves de API invasivas.
+- [x] Envelope de seguridad v1.5.0 con checksum determinista y fecha en franja horaria `Europe/Madrid`.
+- [x] Comparador Previo Lado a Lado (Side-by-Side) con indicador de deltas y modos sobrescribir/fusionar.
 
 ### 📦 v1.4.0 (Completado)
 - [x] Motor de notificaciones locales con 3 canales Android (`crono_bills_alerts`, `crono_daily_review`, `crono_budget_alerts`).
@@ -47,12 +52,6 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 ---
 
 ## Próximas Versiones Planificadas
-
-### 🎯 Versión v1.6.0 — Consejos de Ahorro e Ideas Legales de Ingresos Pasivos
-- [ ] Guías de renegociación de contratos (luz, fibra, seguros).
-- [ ] Métodos 50/30/20 y Kakebo.
-- [ ] Vías legales de ingresos rápidos y pasivos (cuentas remuneradas FGD, fondos monetarios, venta de excedentes).
-- [ ] Escudo anti-estafas financieras.
 
 ### 🎯 Versión v1.7.0 — Release Final y Entrega Definitiva
 - [ ] Auditoría integral de rendimiento y optimización de bundles.
