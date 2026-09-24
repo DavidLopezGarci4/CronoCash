@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+:root {
+  --safe-top: max(0.7cm, env(safe-area-inset-top, 0px));
+  --safe-bottom: max(0.7cm, env(safe-area-inset-bottom, 0px));
+}
+
+/* Parche crítico para teclados virtuales y selección en Android WebView */
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+/* Clases de franjas de seguridad para barra de estado y barra de navegación */
+.safe-top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--safe-top);
+  background-color: #050811;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.safe-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--safe-bottom);
+  background-color: #050811;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Estilos de scrollbar elegantes para móvil y web */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}

@@ -1,0 +1,80 @@
+export interface Bucket {
+  id: string;
+  name: string;
+  budgetLimit: number;
+  color: string;
+  icon: string;
+  isBuffer: boolean;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface Expense {
+  id: string;
+  title: string;
+  amount: number;
+  date: string; // ISO date 'YYYY-MM-DD' o timestamp
+  bucketId: string;
+  isInvoice: boolean; // Si cuenta con factura oficial / desgravable
+  invoiceNumber?: string;
+  supplier?: string; // Proveedor / Acreedor / Comercio
+  taxRate?: number; // IVA % (ej: 21, 10, 4, 0)
+  taxAmount?: number;
+  notes?: string;
+  receiptUri?: string;
+  status: 'paid' | 'pending';
+  recurringRuleId?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface RecurringRule {
+  id: string;
+  title: string;
+  amount: number;
+  bucketId: string;
+  frequency: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  dayOfMonth?: number; // 1 - 31
+  dayOfWeek?: number; // 0 - 6
+  startDate: string;
+  endDate?: string;
+  isActive: boolean;
+  autoCreateExpense: boolean;
+  notes?: string;
+  lastGeneratedDate?: string;
+}
+
+export interface Settings {
+  id: string;
+  pinSeguridad?: string;
+  bloqueoPinActivo: boolean;
+  biometriaActiva: boolean;
+  guardarContrasenaAuto: boolean;
+  currency: string;
+  monthlyIncome: number;
+  userFullName?: string;
+  companyName?: string;
+  taxId?: string; // NIF / CIF
+  notificationsEnabled: boolean;
+  theme: 'dark' | 'light';
+  updatedAt: string;
+}
+
+export interface FinancialTip {
+  id: string;
+  title: string;
+  category: 'ahorro' | 'facturacion' | 'presupuesto' | 'fiscal';
+  content: string;
+  impact: 'alto' | 'medio' | 'bajo';
+  isRead?: boolean;
+}
+
+export interface BackupEnvelope {
+  version: string;
+  exportedAt: string;
+  expenses: Expense[];
+  buckets: Bucket[];
+  recurringRules: RecurringRule[];
+  settings: Settings;
+  tips: FinancialTip[];
+}

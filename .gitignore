@@ -1,0 +1,10 @@
+node_modules/
+dist/
+android/.idea/
+android/app/build/
+android/app/release/
+*.apk
+*.jks
+.env
+.DS_Store
+Thumbs.db
