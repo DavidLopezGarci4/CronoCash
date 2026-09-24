@@ -4,18 +4,22 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.2.0 (Completado) 🚀
-- [x] **Gestor Avanzado de Gastos Recurrentes:** Soporte completo para frecuencias semanal, mensual, trimestral y anual con asignación de día de cobro.
-- [x] **Motor Predictivo de Fechas & Cuenta Atrás:** Algoritmo que calcula la fecha exacta del próximo cobro y los días restantes con semáforo de proximidad ("¡Vence HOY!", "¡Mañana!", "En X días").
-- [x] **Auditoría & Detector de Gastos Vampiro:** Módulo de análisis que detecta suscripciones prescindibles, calcula el impacto anual acumulado y el potencial de ahorro al migrar a planes anuales o cancelar.
-- [x] **Dashboard de Compromisos Financieros:** Visualización superior de gasto recurrente mensual comprometido, proyección anual total y ficha de cobro inminente.
-- [x] **Smart Seeds de Recurrentes en 1 Clic:** Plantilla maestra precargada con 7 recibos indispensables (Hipoteca, Luz, Agua, Fibra, Seguro Coche, Gimnasio y Streaming).
-- [x] **Acción de Pago Inmediato:** Botón "Registrar Pago" para asentar el recibo directamente en el libro de gastos reales con 1 toque.
-- [x] **Compilación y Firma Release:** Generación del APK firmado `app-v1.2.0-release.apk` con `versionCode 10200` y `versionName "1.2.0"`.
+## Estado Actual: v1.3.0 (Completado) 🚀
+- [x] **Calendario Reactivo Puro con `date-fns` v4:** Vistas intercambiables entre rejilla mensual y vista semanal sin dependencias pesadas.
+- [x] **Runway de Cash-Flow & Semáforo de Liquidez:** Estimación del saldo remanente a fin de mes cotejando ingresos, gastos ejecutados y facturas comprometidas pendientes.
+- [x] **Interacción y Desglose por Día:** Al pulsar cualquier día del calendario, panel inferior con gastos registrados y vencimientos previstos con acción directa "Pagar".
+- [x] **Comparador Anual (YoY - Year over Year):** Pestaña especializada para contrastar el gasto de dos años (ej. 2026 vs 2025), variación porcentual total y desglose gráfico mes a mes.
+- [x] **Compilación y Firma Release:** Generación del APK firmado `app-v1.3.0-release.apk` con `versionCode 10300` y `versionName "1.3.0"`.
 
 ---
 
 ## Historial de Versiones Anteriores
+
+### 📦 v1.2.0 (Completado)
+- [x] Gestor avanzado de gastos recurrentes con cálculo predictivo de vencimientos y cuenta atrás semafórica.
+- [x] Panel de auditoría y detector de gastos vampiro con cálculo de ahorro anual acumulado.
+- [x] Smart Seeds de 7 facturas clave con asignación automática a bolsas.
+- [x] Acción inmediata de asentamiento de pago hacia el libro de gastos reales.
 
 ### 📦 v1.1.0 (Completado)
 - [x] Iconografía oficial Android en todos los mipmap y edición Verticons Card Pack 2:3.
@@ -31,11 +35,6 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 ---
 
 ## Próximas Versiones Planificadas
-
-### 🎯 Versión v1.3.0 — Calendario Predictivo & Runway de Cash-Flow
-- [ ] Calendario reactivo basado en `date-fns` v4 (vista mensual y semanal).
-- [ ] Visualización de saldo proyectado día a día según vencimientos programados.
-- [ ] Comparador anual (YoY - Year over Year) para evaluar evolución del gasto respecto al año previo.
 
 ### 🎯 Versión v1.4.0 — Motor de Notificaciones Exactas
 - [ ] Notificaciones locales con canales Android y soporte para `SCHEDULE_EXACT_ALARM`.

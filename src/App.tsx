@@ -206,7 +206,9 @@ export const App: React.FC = () => {
             expenses={expenses}
             recurringRules={recurringRules}
             buckets={buckets}
+            settings={settings}
             currency={settings.currency || '€'}
+            onAddExpense={handleSaveExpense}
           />
         )}
 

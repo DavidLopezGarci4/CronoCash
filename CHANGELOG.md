@@ -5,15 +5,25 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [1.3.0] - 2026-09-24
+
+### Added
+- **Calendario Reactivo Dual (Mes y Semana):** Motor de calendario adaptativo con `date-fns` v4 sin librerías pesadas, con puntos de actividad e importes resumidos por celda.
+- **Runway de Cash-Flow en Tiempo Real:** Cálculo proyectado del saldo remanente a fin de mes cotejando ingresos configurados, gastos reales y facturas recurrentes pendientes.
+- **Interacción y Desglose por Día:** Panel inferior interactivo al seleccionar cualquier día con lista de gastos y vencimientos programados con acción "Pagar" para asentamiento con 1 toque.
+- **Comparador Anual (YoY - Year over Year):** Pestaña analítica para comparar el gasto total de dos ejercicios anuales, tasa de variación interanual y evolución mes a mes con barras comparativas.
+- **Artefacto Release Firmado:** Compilación del APK firmado `app-v1.3.0-release.apk` (`versionCode 10300`, `versionName "1.3.0"`).
+
+---
+
 ## [1.2.0] - 2026-09-24
 
 ### Added
 - **Gestor Completo de Gastos Recurrentes:** Soporte flexible de periodicidades (semanal, mensual, trimestral y anual) con asignación de día de cargo y bolsa.
 - **Motor Predictivo de Cobros & Cuenta Atrás:** Algoritmo dinámico que calcula la fecha de vencimiento más próxima y los días restantes con badges semafóricos inteligentes ("¡Vence HOY!", "¡Mañana!", "En X días").
 - **Detector & Auditoría de Gastos Vampiro:** Panel interactivo para auditar suscripciones inactivas o repetidas, calculando el ahorro potencial al migrar a planes anuales o dar de baja.
-- **Smart Seeds de Recurrentes en 1 Clic:** Plantilla maestra con 7 recibos clave precargados para España y Europa (Hipoteca/Alquiler, Luz, Agua, Fibra/Móvil, Seguro Coche, Gimnasio y Streaming).
+- **Smart Seeds de Recurrentes en 1 Clic:** Plantilla maestra con 7 recibos clave precargados para España y Europa.
 - **Acción Inmediata de Asentamiento:** Botón "Registrar Pago" para convertir de forma inmediata un recibo en un gasto real deducido en su bolsa presupuestaria.
-- **Artefacto Release Firmado:** Compilación del APK firmado `app-v1.2.0-release.apk` (`versionCode 10200`, `versionName "1.2.0"`).
 
 ---
 
