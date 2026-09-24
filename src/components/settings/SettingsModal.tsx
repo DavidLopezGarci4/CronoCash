@@ -14,6 +14,7 @@ import {
   Bell,
   Clock,
   Sparkles,
+  Cloud,
 } from 'lucide-react';
 import { Settings, BackupEnvelope } from '../../types';
 import { DBService } from '../../services/db';
@@ -26,6 +27,7 @@ interface SettingsModalProps {
   settings: Settings;
   onSettingsSaved: (updated: Settings) => void;
   onDataRestored: () => void;
+  onOpenBackup?: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -34,6 +36,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   settings,
   onSettingsSaved,
   onDataRestored,
+  onOpenBackup,
 }) => {
   const [userFullName, setUserFullName] = useState(settings.userFullName || '');
   const [companyName, setCompanyName] = useState(settings.companyName || '');
@@ -340,10 +343,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           {/* Copias de Seguridad */}
           <div className="space-y-3 p-3 bg-slate-900/80 border border-slate-800 rounded-2xl">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Download className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Copias de Seguridad (Backup JSON)</span>
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <Cloud className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Copias de Seguridad</span>
+              </h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Drive 2 Ranuras
+              </span>
+            </div>
+
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Protege tus datos con la estrategia canónica de 2 ranuras en Google Drive o restaura con comparador inteligente previo a sobrescribir.
+            </p>
+
+            {onOpenBackup && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenBackup();
+                }}
+                className="w-full py-2.5 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+              >
+                <Cloud className="w-4 h-4 text-emerald-400" />
+                <span>Abrir Gestor Google Drive & Comparador</span>
+              </button>
+            )}
 
             {importMessage && (
               <div
@@ -364,12 +390,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 <Download className="w-4 h-4 text-emerald-400" />
-                <span>{exportSuccess ? '¡Descargado!' : 'Exportar Backup'}</span>
+                <span>{exportSuccess ? '¡Descargado!' : 'Exportar Local'}</span>
               </button>
 
               <label className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 transition-all cursor-pointer">
                 <Upload className="w-4 h-4 text-teal-400" />
-                <span>Restaurar JSON</span>
+                <span>Restaurar Rápido</span>
                 <input
                   type="file"
                   accept=".json,application/json"

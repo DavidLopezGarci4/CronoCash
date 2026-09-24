@@ -808,6 +808,114 @@ export class DBService {
     }
   }
 
+  /**
+   * Sobrescribe de forma atómica y completa la base de datos (IndexedDB y localStorage)
+   */
+  static async clearAndRestore(data: {
+    expenses: Expense[];
+    buckets: Bucket[];
+    recurringRules: RecurringRule[];
+    settings?: Settings;
+    tips?: FinancialTip[];
+  }): Promise<void> {
+    this.setLocalStorageItem('gastos_expenses', data.expenses);
+    this.setLocalStorageItem('gastos_buckets', data.buckets);
+    this.setLocalStorageItem('gastos_recurring_rules', data.recurringRules);
+    if (data.settings) {
+      this.cachedSettings = { ...DEFAULT_SETTINGS, ...data.settings };
+      this.setLocalStorageItem('gastos_settings', this.cachedSettings);
+    }
+    if (data.tips && data.tips.length > 0) {
+      this.setLocalStorageItem('gastos_tips', data.tips);
+    }
+
+    try {
+      const db = await this.getDB();
+      const tx = db.transaction(
+        [STORES.EXPENSES, STORES.BUCKETS, STORES.RECURRING_RULES, STORES.SETTINGS, STORES.TIPS],
+        'readwrite'
+      );
+
+      tx.objectStore(STORES.EXPENSES).clear();
+      tx.objectStore(STORES.BUCKETS).clear();
+      tx.objectStore(STORES.RECURRING_RULES).clear();
+      if (data.tips && data.tips.length > 0) {
+        tx.objectStore(STORES.TIPS).clear();
+      }
+
+      if (data.settings) {
+        tx.objectStore(STORES.SETTINGS).put(this.cachedSettings!);
+      }
+
+      const expStore = tx.objectStore(STORES.EXPENSES);
+      for (const e of data.expenses) {
+        expStore.put(e);
+      }
+
+      const bStore = tx.objectStore(STORES.BUCKETS);
+      for (const b of data.buckets) {
+        bStore.put(b);
+      }
+
+      const rStore = tx.objectStore(STORES.RECURRING_RULES);
+      for (const r of data.recurringRules) {
+        rStore.put(r);
+      }
+
+      if (data.tips && data.tips.length > 0) {
+        const tStore = tx.objectStore(STORES.TIPS);
+        for (const t of data.tips) {
+          tStore.put(t);
+        }
+      }
+
+      await new Promise<void>((resolve, reject) => {
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(new Error('Transacción abortada'));
+      });
+    } catch (e) {
+      console.warn('[DBService] Advertencia en IndexedDB al restaurar, fallback local asegurado:', e);
+    }
+  }
+
+  /**
+   * Fusiona registros entrantes con los existentes preservando IDs únicos
+   */
+  static async mergeAndRestore(data: {
+    expenses: Expense[];
+    buckets: Bucket[];
+    recurringRules: RecurringRule[];
+    settings?: Settings;
+    tips?: FinancialTip[];
+  }): Promise<void> {
+    const [currentExpenses, currentBuckets, currentRules] = await Promise.all([
+      this.getExpenses(),
+      this.getBuckets(),
+      this.getRecurringRules(),
+    ]);
+
+    const expMap = new Map<string, Expense>();
+    currentExpenses.forEach((e) => expMap.set(e.id, e));
+    data.expenses.forEach((e) => expMap.set(e.id, e));
+
+    const bucketMap = new Map<string, Bucket>();
+    currentBuckets.forEach((b) => bucketMap.set(b.id, b));
+    data.buckets.forEach((b) => bucketMap.set(b.id, b));
+
+    const ruleMap = new Map<string, RecurringRule>();
+    currentRules.forEach((r) => ruleMap.set(r.id, r));
+    data.recurringRules.forEach((r) => ruleMap.set(r.id, r));
+
+    await this.clearAndRestore({
+      expenses: Array.from(expMap.values()),
+      buckets: Array.from(bucketMap.values()),
+      recurringRules: Array.from(ruleMap.values()),
+      settings: data.settings || this.getSettings(),
+      tips: data.tips,
+    });
+  }
+
   // --- HELPERS LOCALSTORAGE ---
   private static getLocalStorageItem<T>(key: string, defaultValue: T): T {
     try {

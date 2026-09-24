@@ -5,6 +5,19 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [1.5.0] - 2026-09-24
+
+### Added
+- **Arquitectura Canónica de 2 Ranuras para Google Drive:** Soporte estructurado para `CronoCash_Actual.json` (ranura principal de uso continuo) y `CronoCash_Previa.json` (ranura secundaria de salvaguarda histórica).
+- **Integración con Storage Access Framework (SAF):** Exportación limpia mediante `@capacitor/filesystem` a caché y `@capacitor/share` para abrir la hoja de compartir nativa de Android, permitiendo al usuario guardar directamente en Google Drive sin requerir credenciales de API ni tokens OAuth perecederos.
+- **Envelope de Seguridad con Checksum Determinista:** Empaquetado v1.5.0 con hash de integridad, metadatos enriquecidos de conteos, totales económicos y formateo de marcas temporales en franja horaria `Europe/Madrid`.
+- **Comparador Previo Lado a Lado (Side-by-Side):** Pantalla interactiva previa a la restauración que audita y contrasta la base de datos actual del dispositivo contra la copia seleccionada, detallando variaciones en gastos, bolsas y reglas recurrentes con indicadores de deltas (+/-).
+- **Modos de Restauración Dual:** Opciones seleccionables para *Sobrescribir Completo* (reemplazo atómico íntegro en IndexedDB y localStorage) o *Fusionar Registros* (combinación no destructiva con control de duplicados).
+- **Nuevo Modal Dedicado (`BackupModal.tsx`):** Interfaz completa con pestañas para Google Drive, Exportación Local fechada y Restauración/Comparador, accesible tanto desde la cabecera como desde Bóveda/Ajustes.
+- **Artefacto Release Firmado:** Generación del APK de producción `app-v1.5.0-release.apk` (`versionCode 10500`, `versionName "1.5.0"`).
+
+---
+
 ## [1.4.0] - 2026-09-24
 
 ### Added

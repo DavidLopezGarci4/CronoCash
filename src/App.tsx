@@ -13,6 +13,7 @@ import { CalendarView } from './components/calendar/CalendarView';
 import { TipsView } from './components/tips/TipsView';
 import { ExpenseModal } from './components/expenses/ExpenseModal';
 import { SettingsModal } from './components/settings/SettingsModal';
+import { BackupModal } from './components/backup/BackupModal';
 
 export const App: React.FC = () => {
   // Estado de Bloqueo / Autenticación
@@ -35,6 +36,7 @@ export const App: React.FC = () => {
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [backupModalOpen, setBackupModalOpen] = useState(false);
 
   // Carga inicial de datos desde IndexedDB
   const loadData = async () => {
@@ -171,6 +173,7 @@ export const App: React.FC = () => {
         totalExpensesMonth={totalExpensesMonth}
         onLock={handleManualLock}
         onOpenSettings={() => setSettingsModalOpen(true)}
+        onOpenBackup={() => setBackupModalOpen(true)}
       />
 
       {/* Contenido Principal */}
@@ -256,6 +259,17 @@ export const App: React.FC = () => {
           settings={settings}
           onSettingsSaved={(updated) => setSettings(updated)}
           onDataRestored={loadData}
+          onOpenBackup={() => setBackupModalOpen(true)}
+        />
+      )}
+
+      {/* Modal de Copias de Seguridad (Google Drive 2 Ranuras) */}
+      {backupModalOpen && (
+        <BackupModal
+          isOpen={backupModalOpen}
+          onClose={() => setBackupModalOpen(false)}
+          onDataRestored={loadData}
+          currency={settings.currency || '€'}
         />
       )}
     </div>

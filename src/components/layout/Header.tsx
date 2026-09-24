@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lock, Settings as SettingsIcon, TrendingUp, TrendingDown, Shield } from 'lucide-react';
+import { Lock, Settings as SettingsIcon, TrendingUp, TrendingDown, Cloud } from 'lucide-react';
 import { Settings } from '../../types';
 
 interface HeaderProps {
@@ -7,6 +7,7 @@ interface HeaderProps {
   totalExpensesMonth: number;
   onLock: () => void;
   onOpenSettings: () => void;
+  onOpenBackup: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -14,6 +15,7 @@ export const Header: React.FC<HeaderProps> = ({
   totalExpensesMonth,
   onLock,
   onOpenSettings,
+  onOpenBackup,
 }) => {
   const currency = settings.currency || '€';
   const income = settings.monthlyIncome || 0;
@@ -57,6 +59,15 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
           </div>
+
+          {/* Botón Copias de Seguridad */}
+          <button
+            onClick={onOpenBackup}
+            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 transition-all border border-emerald-500/30 cursor-pointer shadow-xs"
+            title="Copias de Seguridad (Google Drive 2 Ranuras)"
+          >
+            <Cloud className="w-4 h-4" />
+          </button>
 
           {/* Botón Ajustes */}
           <button
