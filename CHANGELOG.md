@@ -5,6 +5,15 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [1.7.0] - 2026-09-24
+
+### Added
+- **Manual de Usuario y Documentación Maestra (`docs/FAQ.md`):** Creación del documento canónico de preguntas frecuentes y guía de herramientas organizado estrictamente en 8 secciones temáticas concisas sin obsolescencias ni datos deprecados (Seguridad biométrica, Bolsas y Rollover, Recurrentes y Gastos Vampiro, Calendario y Runway, Notificaciones y Alarmas exactas, Google Drive Backup 2 ranuras, Estrategias financieras y Escudo Anti-Estafas, e Iconografía oficial/Verticons).
+- **Auditoría Integral de Rendimiento & Hardening:** Verificación de integridad de todos los módulos, ausencia de fugas de memoria, comprobación de concurrencia en transacciones IndexedDB y sincronización transparente con `localStorage`.
+- **Artefacto Release Final Firmado:** Compilación del APK definitivo de producción `app-v1.7.0-release.apk` (`versionCode 10700`, `versionName "1.7.0"`).
+
+---
+
 ## [1.6.0] - 2026-09-24
 
 ### Added

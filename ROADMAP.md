@@ -4,16 +4,27 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.6.0 (Completado) 🚀
-- [x] **Suite de 14 Estrategias Financieras Maestras:** Ampliación exhaustiva del módulo de conocimiento cubriendo Ahorro y Renegociación implacable, Generación Legal de Dinero Rápido, Ingresos Pasivos Protegidos y Escudo Anti-Estafas Financieras.
-- [x] **Estimaciones Económicas y Respaldo Legal:** Cada estrategia incluye horquillas reales de ahorro/retorno (ej. 180€-420€ en luz, 3%-4% TAE en cuentas FGD), tiempo de dedicación, nivel de riesgo y fundamento jurídico (CNMC, Ley 50/1980, AEAT, CNMV e INCIBE).
-- [x] **Filtros por Categoría y Buscador en Tiempo Real:** Interfaz enriquecida con filtrado por píldoras temáticas y búsqueda instantánea por palabras clave.
-- [x] **Pasos de Acción Desplegables y Seguimiento Activo:** Acordeones interactivos con instrucciones paso a paso numeradas y botón persistente "Marcar como Aplicado" para auditar el porcentaje de ejecución y ahorro acumulado.
-- [x] **Compilación y Firma Release:** Generación del APK firmado `app-v1.6.0-release.apk` con `versionCode 10600` y `versionName "1.6.0"`.
+## Estado Actual: v1.7.0 — Release Final & Entrega Definitiva (Completado) 🏆
+- [x] **Auditoría Integral de Rendimiento & Bundle Optimization:** Verificación exhaustiva de todos los módulos (Dashboard, Bolsas, Recurrentes, Calendario, Notificaciones, Google Drive Backup y Estrategias). Cero errores de TypeScript, compilación ultra-optimizada con Vite 6 y Tailwind v4.
+- [x] **Documentación Maestra de Usuario (`docs/FAQ.md`):** Generación de la guía exhaustiva de preguntas frecuentes y manual de uso operativo estructurado en 8 secciones temáticas concisas sin datos obsoletos.
+- [x] **Suite de Seguridad y Privacidad Local:** Autenticación biométrica nativa de huella (`androidx.biometric:1.1.0`), PIN numérico en teclado táctil virtual integrado, auto-bloqueo preventivo en segundo plano y candado manual instantáneo.
+- [x] **Sistema de Presupuesto Elastic Envelopes:** 8 bolsas maestras precargadas, vasos comunicantes hápticos para rebalanceo de límites y rollover mensual de excedentes hacia colchón de ahorro.
+- [x] **Motor Predictivo de Recurrentes y Gastos Vampiro:** Cálculo de vencimientos con badges semafóricos (*¡Vence HOY!*, *¡Mañana!*, *En X días*), asentamiento en 1 toque y panel de auditoría de suscripciones con cálculo de ahorro anual.
+- [x] **Calendario Reactivo y Runway de Cash-Flow:** Vistas dinámicas de mes y semana con `date-fns` v4, semáforo de liquidez proyectada a fin de mes e histórico comparativo interanual (YoY).
+- [x] **Sistema de Alarmas Exactas Android:** 3 canales dedicados, preavisos a 3 días y día de cobro, repaso diario nocturno (21:30) y deep-linking directo al abrir notificaciones.
+- [x] **Copias de Seguridad en Google Drive (2 Ranuras):** Ranura principal `CronoCash_Actual.json` y secundaria `CronoCash_Previa.json` vía SAF (`@capacitor/share`), checksum determinista y comparador inteligente lado a lado (Side-by-Side).
+- [x] **Módulo de Estrategias y Escudo Anti-Estafas:** 14 guías prácticas de ahorro, renegociación, excedentes en Wallapop, deducciones autonómicas, cuentas remuneradas con FGD, fondos monetarios y prevención de fraudes con registro CNMV e INCIBE.
+- [x] **Iconografía Oficial y Verticons:** Iconos Android adaptativos en todas las densidades de mipmap y tarjeta vertical Verticons 2:3 en alta resolución con visor integrado.
+- [x] **Compilación y Firma Release:** Generación del APK final firmado `app-v1.7.0-release.apk` con `versionCode 10700` y `versionName "1.7.0"`.
 
 ---
 
-## Historial de Versiones Anteriores
+## Historial Completo de Versiones
+
+### 📦 v1.6.0 (Completado)
+- [x] Suite de 14 Estrategias Financieras Maestras (Ahorro, Dinero Rápido, Dinero Pasivo y Escudo Anti-Estafas).
+- [x] Horquillas de ahorro económico y respaldo legal oficial (CNMC, Ley 50/1980, AEAT, CNMV, FGD).
+- [x] Filtros temáticos, buscador instantáneo, pasos desplegables y botón persistente de marcado.
 
 ### 📦 v1.5.0 (Completado)
 - [x] Arquitectura Canónica de 2 Ranuras para Google Drive (`CronoCash_Actual.json` y `CronoCash_Previa.json`).
@@ -48,11 +59,3 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 - [x] Persistencia en IndexedDB estructurado con auto-sembrado inicial y fallback a LocalStorage.
 - [x] Autenticación biométrica nativa (`androidx.biometric:1.1.0` en Android Jetpack) con fallback a PIN numérico táctil y auto-bloqueo.
 - [x] Layout móvil con insets de `safe-area`, corrección de teclado Android y navegación accesible.
-
----
-
-## Próximas Versiones Planificadas
-
-### 🎯 Versión v1.7.0 — Release Final y Entrega Definitiva
-- [ ] Auditoría integral de rendimiento y optimización de bundles.
-- [ ] Empaquetado de producción final y documentación exhaustiva de usuario.
