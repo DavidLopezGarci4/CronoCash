@@ -35,7 +35,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div>
             <h1 className="text-base font-black tracking-tight text-white flex items-center gap-1.5 leading-none">
-              Gastos Facturación
+              CronoCash
             </h1>
             <p className="text-[11px] font-semibold text-emerald-400 mt-1 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

@@ -185,6 +185,7 @@ export const App: React.FC = () => {
             currency={settings.currency || '€'}
             onSaveBucket={handleSaveBucket}
             onDeleteBucket={handleDeleteBucket}
+            onRefresh={loadData}
           />
         )}
 

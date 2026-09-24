@@ -29,53 +29,83 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export const DEFAULT_BUCKETS: Bucket[] = [
   {
-    id: 'bucket-fijos',
-    name: 'Facturas y Suministros',
-    budgetLimit: 750,
+    id: 'bucket-vivienda',
+    name: 'Vivienda & Hipoteca / Alquiler',
+    budgetLimit: 650,
     color: '#3b82f6', // blue
-    icon: 'FileText',
+    icon: 'Home',
     isBuffer: false,
-    notes: 'Luz, agua, internet, alquiler y suscripciones obligatorias',
+    notes: 'Cuota de hipoteca o alquiler mensual, IBI y comunidad',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'bucket-suministros',
+    name: 'Suministros (Luz, Gas, Agua)',
+    budgetLimit: 160,
+    color: '#f59e0b', // amber
+    icon: 'Zap',
+    isBuffer: false,
+    notes: 'Electricidad, gas natural, agua y tasa de basuras',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'bucket-super',
-    name: 'Alimentación y Hogar',
-    budgetLimit: 450,
+    name: 'Alimentación y Supermercado',
+    budgetLimit: 380,
     color: '#10b981', // emerald
     icon: 'ShoppingCart',
     isBuffer: false,
-    notes: 'Supermercado, droguería y compras básicas',
+    notes: 'Alimentación, droguería y compras básicas del hogar',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'bucket-transporte',
-    name: 'Transporte y Movilidad',
-    budgetLimit: 180,
-    color: '#f59e0b', // amber
+    name: 'Combustible y Movilidad',
+    budgetLimit: 150,
+    color: '#06b6d4', // cyan
     icon: 'Car',
     isBuffer: false,
-    notes: 'Combustible, billetes de transporte, parking y peajes',
+    notes: 'Gasolina, diésel, transporte público, parkings y peajes',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'bucket-seguros',
+    name: 'Seguros (Coche, Hogar, Salud)',
+    budgetLimit: 95,
+    color: '#8b5cf6', // purple
+    icon: 'ShieldCheck',
+    isBuffer: false,
+    notes: 'Pólizas de seguro de auto, vivienda, decesos y coberturas médicas',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'bucket-teleco',
+    name: 'Telecomunicaciones y Fibra',
+    budgetLimit: 70,
+    color: '#ec4899', // pink
+    icon: 'Smartphone',
+    isBuffer: false,
+    notes: 'Fibra óptica en casa, líneas móviles y plataformas streaming',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'bucket-ocio',
-    name: 'Ocio y Estilo de Vida',
-    budgetLimit: 250,
-    color: '#ec4899', // pink
-    icon: 'Coffee',
+    name: 'Ocio y Restauración',
+    budgetLimit: 180,
+    color: '#f97316', // orange
+    icon: 'Utensils',
     isBuffer: false,
-    notes: 'Restaurantes, salidas, cine y caprichos personales',
+    notes: 'Restaurantes, cafés, cine, escapadas y caprichos personales',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'bucket-colchon',
-    name: 'Colchón de Imprevistos',
-    budgetLimit: 300,
-    color: '#8b5cf6', // purple
-    icon: 'ShieldAlert',
+    name: 'Colchón de Ahorro e Imprevistos',
+    budgetLimit: 250,
+    color: '#14b8a6', // teal
+    icon: 'PiggyBank',
     isBuffer: true,
-    notes: 'Fondo de emergencia para averías y contingencias inmediatas',
+    notes: 'Bolsa amortiguadora para imprevistos, averías y acumulación de ahorro',
     createdAt: new Date().toISOString(),
   },
 ];
@@ -385,6 +415,142 @@ export class DBService {
       console.warn('[DBService] Error al borrar bolsa:', e);
     }
   }
+
+  /**
+   * Carga o fusiona la Plantilla Maestra de 8 Bolsas (Smart Seeds)
+   */
+  static async applyMasterSeeds(mode: 'replace' | 'append' = 'append'): Promise<Bucket[]> {
+    let result: Bucket[];
+    if (mode === 'replace') {
+      result = [...DEFAULT_BUCKETS];
+    } else {
+      const current = await this.getBuckets();
+      const currentNames = new Set(current.map((b) => b.name.toLowerCase()));
+      const toAdd = DEFAULT_BUCKETS.filter((b) => !currentNames.has(b.name.toLowerCase()));
+      result = [...current, ...toAdd];
+    }
+
+    this.setLocalStorageItem('gastos_buckets', result);
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.BUCKETS, 'readwrite');
+        const store = tx.objectStore(STORES.BUCKETS);
+        if (mode === 'replace') {
+          store.clear();
+        }
+        for (const b of result) {
+          store.put(b);
+        }
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al aplicar semillas maestras en IndexedDB:', e);
+    }
+    return result;
+  }
+
+  /**
+   * Vasos Comunicantes: Trasvase elástico de límite presupuestario entre dos bolsas
+   */
+  static async transferBucketBalance(
+    fromBucketId: string,
+    toBucketId: string,
+    amount: number
+  ): Promise<{ fromBucket: Bucket; toBucket: Bucket }> {
+    if (amount <= 0) throw new Error('El importe a transferir debe ser mayor a 0');
+    if (fromBucketId === toBucketId) throw new Error('No puedes transferir a la misma bolsa');
+
+    const buckets = await this.getBuckets();
+    const fromIdx = buckets.findIndex((b) => b.id === fromBucketId);
+    const toIdx = buckets.findIndex((b) => b.id === toBucketId);
+
+    if (fromIdx < 0 || toIdx < 0) throw new Error('Una de las bolsas seleccionadas no existe');
+
+    const fromBucket = { ...buckets[fromIdx] };
+    const toBucket = { ...buckets[toIdx] };
+
+    // Disminuir límite en origen y aumentarlo en destino
+    fromBucket.budgetLimit = Math.max(0, Math.round((fromBucket.budgetLimit - amount) * 100) / 100);
+    toBucket.budgetLimit = Math.round((toBucket.budgetLimit + amount) * 100) / 100;
+
+    buckets[fromIdx] = fromBucket;
+    buckets[toIdx] = toBucket;
+
+    this.setLocalStorageItem('gastos_buckets', buckets);
+
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.BUCKETS, 'readwrite');
+        const store = tx.objectStore(STORES.BUCKETS);
+        store.put(fromBucket);
+        store.put(toBucket);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al registrar vasos comunicantes en IndexedDB:', e);
+    }
+
+    return { fromBucket, toBucket };
+  }
+
+  /**
+   * Rollover de Ahorro: Suma los remanentes no consumidos de las bolsas del mes y los transfiere al Colchón de Ahorro
+   */
+  static async executeMonthlyRollover(
+    currentMonthPrefix: string,
+    targetBufferBucketId?: string
+  ): Promise<{ surplusTotal: number; transferredTo: string; bucketCount: number }> {
+    const buckets = await this.getBuckets();
+    const expenses = await this.getExpenses();
+    const monthExpenses = expenses.filter((e) => (e.date || '').startsWith(currentMonthPrefix));
+
+    // Buscar la bolsa amortiguadora de destino (o la primera con isBuffer === true)
+    let bufferBucket = targetBufferBucketId
+      ? buckets.find((b) => b.id === targetBufferBucketId)
+      : buckets.find((b) => b.isBuffer);
+
+    if (!bufferBucket && buckets.length > 0) {
+      bufferBucket = buckets[buckets.length - 1];
+    }
+
+    if (!bufferBucket) {
+      throw new Error('No existe una bolsa de Colchón o Ahorro para recibir el rollover');
+    }
+
+    let surplusTotal = 0;
+    let countedBuckets = 0;
+
+    // Calcular remanentes positivos de bolsas que no sean el colchón
+    for (const b of buckets) {
+      if (b.id === bufferBucket.id) continue;
+      const spent = monthExpenses
+        .filter((e) => e.bucketId === b.id)
+        .reduce((sum, e) => sum + e.amount, 0);
+      const remaining = b.budgetLimit - spent;
+      if (remaining > 0) {
+        surplusTotal += remaining;
+        countedBuckets++;
+      }
+    }
+
+    surplusTotal = Math.round(surplusTotal * 100) / 100;
+
+    if (surplusTotal > 0) {
+      bufferBucket.budgetLimit = Math.round((bufferBucket.budgetLimit + surplusTotal) * 100) / 100;
+      await this.saveBucket(bufferBucket);
+    }
+
+    return {
+      surplusTotal,
+      transferredTo: bufferBucket.name,
+      bucketCount: countedBuckets,
+    };
+  }
+
 
   // --- RECURRING RULES ---
   static async getRecurringRules(): Promise<RecurringRule[]> {

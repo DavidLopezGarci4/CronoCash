@@ -99,7 +99,8 @@ if (!fs.existsSync(releaseDir)) {
 
 // Rutas requeridas por la especificación
 const targetVersionedApk = path.join(releaseDir, `app-v${version}-release.apk`);
-const targetNamedApk = path.join(releaseDir, `gastos-facturacion-v${version}-release.apk`);
+const targetNamedApk = path.join(releaseDir, `crono-cash-v${version}-release.apk`);
+const targetLegacyApk = path.join(releaseDir, `gastos-facturacion-v${version}-release.apk`);
 const targetReleaseApk = path.join(releaseDir, 'app-release.apk');
 
 console.log('🔑 Firmando APK de producción con apksigner...');
@@ -109,6 +110,7 @@ execSync(signCmd, { env, stdio: 'inherit' });
 // Copias con nombres estandarizados
 fs.copyFileSync(targetVersionedApk, targetReleaseApk);
 fs.copyFileSync(targetVersionedApk, targetNamedApk);
+fs.copyFileSync(targetVersionedApk, targetLegacyApk);
 
 // 6. Verificación y estadísticas
 const stats = fs.statSync(targetVersionedApk);
