@@ -42,6 +42,8 @@ export interface RecurringRule {
   autoCreateExpense: boolean;
   notes?: string;
   lastGeneratedDate?: string;
+  isVampire?: boolean;
+  icon?: string;
 }
 
 export interface Settings {

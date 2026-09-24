@@ -197,6 +197,7 @@ export const App: React.FC = () => {
             onSaveRule={handleSaveRecurringRule}
             onDeleteRule={handleDeleteRecurringRule}
             onApplyRuleNow={handleApplyRecurringNow}
+            onRefresh={loadData}
           />
         )}
 

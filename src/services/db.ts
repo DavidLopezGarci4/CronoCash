@@ -110,6 +110,101 @@ export const DEFAULT_BUCKETS: Bucket[] = [
   },
 ];
 
+export const DEFAULT_RECURRING_SEEDS: RecurringRule[] = [
+  {
+    id: 'rec-hipoteca',
+    title: 'Hipoteca / Alquiler Vivienda',
+    amount: 650,
+    bucketId: 'bucket-vivienda',
+    frequency: 'monthly',
+    dayOfMonth: 1,
+    startDate: new Date().toISOString().split('T')[0],
+    isActive: true,
+    autoCreateExpense: true,
+    icon: 'Home',
+    notes: 'Recibo domiciliado de cuota hipotecaria o arrendamiento',
+  },
+  {
+    id: 'rec-luz',
+    title: 'Electricidad y Suministros (Luz)',
+    amount: 75,
+    bucketId: 'bucket-suministros',
+    frequency: 'monthly',
+    dayOfMonth: 10,
+    startDate: new Date().toISOString().split('T')[0],
+    isActive: true,
+    autoCreateExpense: true,
+    icon: 'Zap',
+    notes: 'Factura mensual de luz en mercado regulado/libre',
+  },
+  {
+    id: 'rec-agua',
+    title: 'Recibo de Agua y Saneamiento',
+    amount: 32,
+    bucketId: 'bucket-suministros',
+    frequency: 'monthly',
+    dayOfMonth: 15,
+    startDate: new Date().toISOString().split('T')[0],
+    isActive: true,
+    autoCreateExpense: true,
+    icon: 'Zap',
+    notes: 'Canal de distribución de agua y tasa de basuras',
+  },
+  {
+    id: 'rec-fibra',
+    title: 'Fibra Óptica + 2 Líneas Móvil',
+    amount: 48,
+    bucketId: 'bucket-teleco',
+    frequency: 'monthly',
+    dayOfMonth: 5,
+    startDate: new Date().toISOString().split('T')[0],
+    isActive: true,
+    autoCreateExpense: true,
+    icon: 'Smartphone',
+    notes: 'Operador de telecomunicaciones (Fibra y datos ilimitados)',
+  },
+  {
+    id: 'rec-seguro-coche',
+    title: 'Seguro Anual del Vehículo',
+    amount: 320,
+    bucketId: 'bucket-seguros',
+    frequency: 'yearly',
+    dayOfMonth: 20,
+    startDate: new Date().toISOString().split('T')[0],
+    isActive: true,
+    autoCreateExpense: true,
+    icon: 'Car',
+    notes: 'Póliza de seguro a todo riesgo o terceros con lunas',
+  },
+  {
+    id: 'rec-gimnasio',
+    title: 'Cuota Gimnasio / Salud Deportiva',
+    amount: 39.9,
+    bucketId: 'bucket-ocio',
+    frequency: 'monthly',
+    dayOfMonth: 2,
+    startDate: new Date().toISOString().split('T')[0],
+    isActive: true,
+    autoCreateExpense: true,
+    icon: 'Utensils',
+    notes: 'Membresía mensual deportiva',
+  },
+  {
+    id: 'rec-streaming',
+    title: 'Suscripción Streaming Multimedia',
+    amount: 12.99,
+    bucketId: 'bucket-teleco',
+    frequency: 'monthly',
+    dayOfMonth: 8,
+    startDate: new Date().toISOString().split('T')[0],
+    isActive: true,
+    autoCreateExpense: true,
+    icon: 'Smartphone',
+    isVampire: true,
+    notes: 'Gasto vampiro: susceptible de migración a plan anual con 2 meses gratis',
+  },
+];
+
 export const DEFAULT_TIPS: FinancialTip[] = [
   {
     id: 'tip-1',
@@ -609,6 +704,41 @@ export class DBService {
     } catch (e) {
       console.warn('[DBService] Error al borrar regla recurrente:', e);
     }
+  }
+
+  /**
+   * Carga o fusiona las Facturas Recurrentes Maestras (Smart Seeds)
+   */
+  static async applyRecurringSeeds(mode: 'replace' | 'append' = 'append'): Promise<RecurringRule[]> {
+    let result: RecurringRule[];
+    if (mode === 'replace') {
+      result = [...DEFAULT_RECURRING_SEEDS];
+    } else {
+      const current = await this.getRecurringRules();
+      const currentTitles = new Set(current.map((r) => r.title.toLowerCase()));
+      const toAdd = DEFAULT_RECURRING_SEEDS.filter((r) => !currentTitles.has(r.title.toLowerCase()));
+      result = [...current, ...toAdd];
+    }
+
+    this.setLocalStorageItem('gastos_recurring_rules', result);
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.RECURRING_RULES, 'readwrite');
+        const store = tx.objectStore(STORES.RECURRING_RULES);
+        if (mode === 'replace') {
+          store.clear();
+        }
+        for (const r of result) {
+          store.put(r);
+        }
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al aplicar semillas de recurrentes:', e);
+    }
+    return result;
   }
 
   // --- TIPS ---
