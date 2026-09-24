@@ -11,10 +11,14 @@ import {
   User,
   DollarSign,
   AlertTriangle,
+  Bell,
+  Clock,
+  Sparkles,
 } from 'lucide-react';
 import { Settings, BackupEnvelope } from '../../types';
 import { DBService } from '../../services/db';
 import { AuthService } from '../../services/auth';
+import { NotificationService } from '../../services/notificationService';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -42,12 +46,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [guardarContrasenaAuto, setGuardarContrasenaAuto] = useState(
     settings.guardarContrasenaAuto || false
   );
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    settings.notificationsEnabled ?? true
+  );
+  const [notificationHour, setNotificationHour] = useState('21:30');
+  const [testSent, setTestSent] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [importMessage, setImportMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(
     null
   );
 
   if (!isOpen) return null;
+
+  const handleTestNotification = async () => {
+    setTestSent(true);
+    await NotificationService.sendTestNotification(3);
+    setTimeout(() => setTestSent(false), 3500);
+  };
 
   const handleSaveGeneral = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,10 +73,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       taxId: taxId.trim(),
       monthlyIncome: parseFloat(monthlyIncome.replace(',', '.')) || 0,
       currency,
+      notificationsEnabled,
       biometriaActiva,
       guardarContrasenaAuto,
       updatedAt: new Date().toISOString(),
     };
+
+    // Programar o actualizar recordatorio diario
+    await NotificationService.scheduleDailyReviewReminder(notificationsEnabled, notificationHour);
 
     // Si el usuario introdujo un nuevo PIN
     if (newPin.trim()) {
@@ -256,6 +275,67 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span className="text-xs text-slate-300">Permitir desbloqueo con Huella Dactilar</span>
               </label>
             </div>
+          </div>
+
+          {/* Notificaciones y Alarmas Programadas */}
+          <div className="space-y-3 p-3 bg-slate-900/80 border border-slate-800 rounded-2xl">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Bell className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Notificaciones y Alarmas</span>
+              </span>
+              <button
+                type="button"
+                onClick={handleTestNotification}
+                disabled={testSent}
+                className="px-2 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all"
+              >
+                <Sparkles className="w-3 h-3 text-emerald-400" />
+                <span>{testSent ? '¡Enviada (3s)!' : 'Probar Alarma'}</span>
+              </button>
+            </h3>
+
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={notificationsEnabled}
+                onChange={(e) => setNotificationsEnabled(e.target.checked)}
+                className="rounded text-emerald-500 focus:ring-0"
+              />
+              <span className="text-xs text-slate-300 font-semibold">
+                Activar avisos de cobro y recordatorio nocturno
+              </span>
+            </label>
+
+            {notificationsEnabled && (
+              <div className="pt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                  <div className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-blue-400" />
+                    <span>Cierre Diario de Gastos</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="time"
+                      value={notificationHour}
+                      onChange={(e) => setNotificationHour(e.target.value)}
+                      className="px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-white"
+                    />
+                    <span className="text-[10px] text-slate-400">Revisión de compras del día</span>
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                  <div className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
+                    <Bell className="w-3 h-3 text-amber-400" />
+                    <span>Avisos Escalonados de Recibos</span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 leading-tight">
+                    Alarma automática <strong>3 días antes</strong> y a las <strong>09:00</strong> el día del cargo.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Copias de Seguridad */}

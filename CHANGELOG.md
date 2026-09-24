@@ -5,6 +5,18 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [1.4.0] - 2026-09-24
+
+### Added
+- **Motor de Notificaciones Locales y Canales Android:** Creación de 3 canales nativos de alta prioridad (`crono_bills_alerts`, `crono_daily_review`, `crono_budget_alerts`) con permisos en tiempo de ejecución (Android 13+) y alarmas exactas (`SCHEDULE_EXACT_ALARM`).
+- **Avisos Escalonados Pre-Cobro:** Programación de alertas automáticas 3 días antes (a las 09:30 AM) y el día del vencimiento a las 09:00 AM para cada recibo y factura activa.
+- **Recordatorio Nocturno de Cierre Diario:** Alarma diaria programable (21:30) para asentar gastos menores o compras del día en las bolsas.
+- **Deep Linking Interactivo:** Al pulsar una notificación de recibo, la app se abre y navega directamente a la vista de Recurrentes o Dashboard.
+- **Panel de Notificaciones en Ajustes:** Interruptor maestro de avisos, selector de hora de revisión y botón "Probar Alarma" con disparo de prueba en 3 segundos.
+- **Artefacto Release Firmado:** Compilación del APK firmado `app-v1.4.0-release.apk` (`versionCode 10400`, `versionName "1.4.0"`).
+
+---
+
 ## [1.3.0] - 2026-09-24
 
 ### Added
@@ -12,7 +24,6 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 - **Runway de Cash-Flow en Tiempo Real:** Cálculo proyectado del saldo remanente a fin de mes cotejando ingresos configurados, gastos reales y facturas recurrentes pendientes.
 - **Interacción y Desglose por Día:** Panel inferior interactivo al seleccionar cualquier día con lista de gastos y vencimientos programados con acción "Pagar" para asentamiento con 1 toque.
 - **Comparador Anual (YoY - Year over Year):** Pestaña analítica para comparar el gasto total de dos ejercicios anuales, tasa de variación interanual y evolución mes a mes con barras comparativas.
-- **Artefacto Release Firmado:** Compilación del APK firmado `app-v1.3.0-release.apk` (`versionCode 10300`, `versionName "1.3.0"`).
 
 ---
 

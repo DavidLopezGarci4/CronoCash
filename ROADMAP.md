@@ -4,22 +4,27 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.3.0 (Completado) 🚀
-- [x] **Calendario Reactivo Puro con `date-fns` v4:** Vistas intercambiables entre rejilla mensual y vista semanal sin dependencias pesadas.
-- [x] **Runway de Cash-Flow & Semáforo de Liquidez:** Estimación del saldo remanente a fin de mes cotejando ingresos, gastos ejecutados y facturas comprometidas pendientes.
-- [x] **Interacción y Desglose por Día:** Al pulsar cualquier día del calendario, panel inferior con gastos registrados y vencimientos previstos con acción directa "Pagar".
-- [x] **Comparador Anual (YoY - Year over Year):** Pestaña especializada para contrastar el gasto de dos años (ej. 2026 vs 2025), variación porcentual total y desglose gráfico mes a mes.
-- [x] **Compilación y Firma Release:** Generación del APK firmado `app-v1.3.0-release.apk` con `versionCode 10300` y `versionName "1.3.0"`.
+## Estado Actual: v1.4.0 (Completado) 🚀
+- [x] **Motor de Notificaciones Locales y Canales Android:** Creación de 3 canales nativos de alta prioridad (`crono_bills_alerts`, `crono_daily_review`, `crono_budget_alerts`) con permisos en tiempo de ejecución (Android 13+) y alarmas exactas (`SCHEDULE_EXACT_ALARM`).
+- [x] **Avisos Escalonados Pre-Cobro:** Programación de alertas automáticas 3 días antes (a las 09:30 AM) y el día del vencimiento a las 09:00 AM para cada recibo y factura activa.
+- [x] **Recordatorio Nocturno de Cierre Diario:** Alarma diaria programable (21:30) para asentar gastos menores o compras del día en las bolsas.
+- [x] **Deep Linking Interactivo:** Al pulsar una notificación de recibo, la app se abre y navega directamente a la vista de Recurrentes o Dashboard.
+- [x] **Panel de Notificaciones en Ajustes:** Interruptor maestro de avisos, selector de hora de revisión y botón "Probar Alarma" con disparo de prueba en 3 segundos.
+- [x] **Compilación y Firma Release:** Generación del APK firmado `app-v1.4.0-release.apk` con `versionCode 10400` y `versionName "1.4.0"`.
 
 ---
 
 ## Historial de Versiones Anteriores
 
+### 📦 v1.3.0 (Completado)
+- [x] Calendario reactivo dual (mes y semana) con `date-fns` v4 sin dependencias pesadas.
+- [x] Runway de Cash-Flow y semáforo de liquidez proyectada a fin de mes.
+- [x] Desglose interactivo por día y comparador anual (YoY) con evolución mes a mes.
+
 ### 📦 v1.2.0 (Completado)
 - [x] Gestor avanzado de gastos recurrentes con cálculo predictivo de vencimientos y cuenta atrás semafórica.
 - [x] Panel de auditoría y detector de gastos vampiro con cálculo de ahorro anual acumulado.
-- [x] Smart Seeds de 7 facturas clave con asignación automática a bolsas.
-- [x] Acción inmediata de asentamiento de pago hacia el libro de gastos reales.
+- [x] Smart Seeds de 7 facturas clave con asignación automática a bolsas y asentamiento con 1 toque.
 
 ### 📦 v1.1.0 (Completado)
 - [x] Iconografía oficial Android en todos los mipmap y edición Verticons Card Pack 2:3.
@@ -35,11 +40,6 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 ---
 
 ## Próximas Versiones Planificadas
-
-### 🎯 Versión v1.4.0 — Motor de Notificaciones Exactas
-- [ ] Notificaciones locales con canales Android y soporte para `SCHEDULE_EXACT_ALARM`.
-- [ ] Alertas escalonadas (3 días antes y el día del cargo).
-- [ ] Notificación nocturna de cierre diario (21:30) para registrar movimientos del día.
 
 ### 🎯 Versión v1.5.0 — Copias de Seguridad en Google Drive (2 Ranuras Canónicas)
 - [ ] Respaldo a Google Drive mediante SAF y Share Sheet (`@capacitor/share` + `@capacitor/filesystem`).

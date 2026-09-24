@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AuthService } from './services/auth';
 import { DBService } from './services/db';
+import { NotificationService } from './services/notificationService';
 import { Expense, Bucket, RecurringRule, Settings, FinancialTip } from './types';
 import { AuthScreen } from './components/auth/AuthScreen';
 import { Header } from './components/layout/Header';
@@ -52,7 +53,21 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     loadData();
+    NotificationService.init((actionType) => {
+      if (actionType === 'open_recurring') {
+        setCurrentTab('recurring');
+      } else if (actionType === 'open_dashboard') {
+        setCurrentTab('dashboard');
+      }
+    });
   }, []);
+
+  // Sincronizar alarmas de facturas recurrentes con Android
+  useEffect(() => {
+    if (recurringRules.length > 0 && settings.notificationsEnabled) {
+      NotificationService.scheduleRecurringBillReminders(recurringRules);
+    }
+  }, [recurringRules, settings.notificationsEnabled]);
 
   // Bloqueo al pasar a segundo plano
   useEffect(() => {
