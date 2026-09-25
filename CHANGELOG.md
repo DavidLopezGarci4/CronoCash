@@ -3,6 +3,16 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.1] - 2026-09-26
+
+### Fixed & Enhanced
+- **Bordes al Ras en Edición Verticons Pack:** Eliminación total del marco exterior negro plano sin textura alrededor de la tarjeta Verticons. El marco de neón esmeralda y cian ahora corre exactamente por el límite perimetral de la tarjeta 2:3.
+- **Acabado en Fibra de Carbono en Esquinas:** Reemplazo de los bordes vacíos por textura continua de fibra de carbono aeroespacial y placas de titanio oscuro cepillado, garantizando una estética limpia sin vacíos negros.
+- **Variante PNG con Transparencia Ultra HD (800x1200):** Generación de `public/verticon-icon.png` con canal alfa 100% transparente en el exterior de las esquinas redondeadas, permitiendo que la tarjeta flote limpiamente sobre cualquier launcher (Nova, Niagara, Smart Launcher) sin cuadros negros de fondo.
+- **Generador de Mipmaps Android Refinado (`generate-verticon-icons.ps1`):** Los iconos `ic_launcher.png`, `ic_launcher_round.png` y `ic_launcher_foreground.png` ahora se generan con la tarjeta al ras sin marcos oscuros parásitos.
+- **Descarga Dual en Visor de la App (`BucketsView.tsx`):** El modal de iconos ahora ofrece descarga directa tanto en PNG transparente como en JPG al ras en alta definición.
+- **Artefactos Release Dual v1.8.1:** Compilación y firma de `app-v1.8.1-release.apk` (Estándar) y `app-v1.8.1-verticon-release.apk` (Verticons 2:3) con `versionCode 10801` y `versionName "1.8.1"`.
+
 ---
 
 ## [1.8.0] - 2026-09-26

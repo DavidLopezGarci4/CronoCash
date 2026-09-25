@@ -4,17 +4,21 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.8.0 — Grafo de Arquitectura & Salud del Stack en Vivo 🌐
-- [x] **Manifiesto Declarativo TecnoRed (`stack.config.json`):** Definición formal de las 6 tecnologías nucleares de CronoCash: React 19 (UI Runtime), Capacitor Mobile (Puente Nativo), IndexedDB & Filesystem (Persistencia Local ACID), Google Drive API (Bóveda Cloud 2 Ranuras), Tailwind CSS & Lucide (Diseño Atómico) y Biometría & Alarmas (Hardware).
-- [x] **Componente Visual Autónomo (`AppArchitectureGraph.tsx`):** Canvas 2D a 60 FPS con esferas flotantes interactivas, cables elásticos en telaraña con curvas Bézier oscilantes y pulsos de energía que conectan los módulos.
-- [x] **Anillos de Salud en Tiempo Real & Telemetría:** Chequeos pasivos concurrentes: latencia de IndexedDB en milisegundos, estado de React 19, plataforma Capacitor, disponibilidad de red para Google Drive y componentes compilados.
-- [x] **Cajón de Inspección y Diagnóstico en Caliente:** Al tocar cualquier esfera se despliega el panel de telemetría con opción de re-ejecutar diagnóstico pasivo en caliente.
-- [x] **Carga Diferida Ultra-Optimizada (Lazy Loading):** Integrado de forma no invasiva en `SettingsModal.tsx` con `React.lazy` y `<Suspense>` en un chunk aislado de solo 6.57 kB (gzip), con cero impacto en el arranque inicial.
-- [x] **Compilación y Firma Release:** Generación de ambos APKs firmados `app-v1.8.0-release.apk` (Estándar) y `app-v1.8.0-verticon-release.apk` (Verticons) con `versionCode 10800` y `versionName "1.8.0"`.
+## Estado Actual: v1.8.1 — Iconos Verticons al Ras & Perfeccionamiento Visual 💎
+- [x] **Bordes al Ras en Verticons Pack 2:3:** Supresión del marco exterior plano sin textura; el marco de neón esmeralda se sitúa exactamente sobre el límite de la tarjeta 2:3.
+- [x] **Acabado en Fibra de Carbono en Esquinas:** Integración de textura de fibra de carbono aeroespacial y paneles de titanio oscuro en las cuatro esquinas, erradicando los bordes vacíos.
+- [x] **Icono PNG con Transparencia Ultra HD (800x1200):** Canal alfa transparente exterior para que la tarjeta flote de manera nativa en Nova, Niagara y Smart Launcher sin cuadros negros de fondo.
+- [x] **Descarga Dual en la App (`BucketsView.tsx`):** Selector de descarga inmediata en PNG transparente y JPG al ras en alta definición.
+- [x] **Compilación y Firma Release Dual:** Generación y firma de ambos APKs `app-v1.8.1-release.apk` (Estándar) y `app-v1.8.1-verticon-release.apk` (Verticons 2:3) con `versionCode 10801` y `versionName "1.8.1"`.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.8.0 (Completado)
+- [x] Manifiesto declarativo TecnoRed `stack.config.json` con las 6 tecnologías nucleares.
+- [x] Componente interactivo `AppArchitectureGraph.tsx` con física de partículas a 60 FPS y anillos de salud.
+- [x] Carga diferida ultra-optimizada en `SettingsModal.tsx` con chunk aislado de 6.57 kB (gzip).
 
 ### 📦 v1.7.0 (Completado)
 - [x] Release final previa y manual maestro de usuario `docs/FAQ.md` en 8 ejes temáticos.

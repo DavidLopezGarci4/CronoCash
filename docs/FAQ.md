@@ -115,8 +115,8 @@
 
 ### ¿Dónde se ubican los iconos de la aplicación?
 * **Mipmaps nativos:** Iconos redondos, adaptativos y cuadrados generados en todas las densidades de pantalla (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`).
-* **Edición Verticons Pack:** Tarjeta vertical en proporción 2:3 de alta resolución con acabado en fibra de carbono y marco de neón esmeralda ubicada en `public/verticon-icon.jpg`.
-* **Visor integrado:** Accesible desde la app para previsualizar y guardar los iconos en tu galería para lanzadores personalizados (Nova Launcher, Niagara, etc.).
+* **Edición Verticons Pack:** Tarjeta vertical en proporción 2:3 en ultra alta definición con marco de neón esmeralda al ras del borde y textura de fibra de carbono aeroespacial, disponible en `public/verticon-icon.png` (transparente para launchers sin fondo negro) y `public/verticon-icon.jpg`.
+* **Visor integrado:** Accesible desde la app para previsualizar y guardar los iconos en tu galería en PNG o JPG para lanzadores personalizados (Nova Launcher, Niagara, etc.).
 
 ---
 

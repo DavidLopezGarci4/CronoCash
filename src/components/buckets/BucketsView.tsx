@@ -825,24 +825,34 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                     <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Verticons Card Pack</span>
                   </span>
-                  <div className="w-20 h-28 rounded-2xl overflow-hidden shadow-2xl border border-cyan-400/50 bg-slate-950">
+                  <div className="w-20 h-30 rounded-2xl overflow-hidden shadow-2xl border border-cyan-400/50 bg-slate-950/60 p-0.5">
                     <img
-                      src="/verticon-icon.jpg"
+                      src="/verticon-icon.png"
                       alt="CronoCash Verticons"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(52,211,153,0.3)]"
                     />
                   </div>
-                  <span className="text-[11px] text-slate-400">
-                    Tarjeta vertical 2:3 con marco de neón y fibra de carbono
+                  <span className="text-[11px] text-slate-400 text-center">
+                    Tarjeta vertical 2:3 al ras con marco de neón esmeralda y fibra de carbono (sin marcos negros)
                   </span>
-                  <a
-                    href="/verticon-icon.jpg"
-                    download="crono-cash-verticon.jpg"
-                    className="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-xs font-bold text-cyan-300 flex items-center gap-1 border border-cyan-500/40"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Descargar Verticon</span>
-                  </a>
+                  <div className="flex gap-2">
+                    <a
+                      href="/verticon-icon.png"
+                      download="crono-cash-verticon.png"
+                      className="px-2.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-xs font-bold text-cyan-300 flex items-center gap-1 border border-cyan-500/40"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>PNG Transparente</span>
+                    </a>
+                    <a
+                      href="/verticon-icon.jpg"
+                      download="crono-cash-verticon.jpg"
+                      className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 flex items-center gap-1 border border-slate-700"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>JPG</span>
+                    </a>
+                  </div>
                 </div>
               </div>
 

@@ -22,6 +22,10 @@ const androidSdk = path.join(process.env.LOCALAPPDATA, 'Android', 'Sdk');
 console.log(`☕ Usando JDK: ${javaHome}`);
 console.log(`📱 Usando Android SDK: ${androidSdk}`);
 
+const psExe = fs.existsSync('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe')
+  ? 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
+  : 'powershell';
+
 const env = {
   ...process.env,
   JAVA_HOME: javaHome,
@@ -89,7 +93,7 @@ console.log('\n------------------------------------------------------------');
 console.log('🎨 PASO 1/2: Generando APK con Icono Estándar (Squircle)');
 console.log('------------------------------------------------------------');
 
-execSync('powershell -ExecutionPolicy Bypass -File .\\scripts\\generate-standard-icons.ps1', {
+execSync(`"${psExe}" -ExecutionPolicy Bypass -File .\\scripts\\generate-standard-icons.ps1`, {
   cwd: rootDir,
   env,
   stdio: 'inherit',
@@ -132,7 +136,7 @@ console.log('\n------------------------------------------------------------');
 console.log('💎 PASO 2/2: Generando APK con Icono Verticons (Card 2:3)');
 console.log('------------------------------------------------------------');
 
-execSync('powershell -ExecutionPolicy Bypass -File .\\scripts\\generate-verticon-icons.ps1', {
+execSync(`"${psExe}" -ExecutionPolicy Bypass -File .\\scripts\\generate-verticon-icons.ps1`, {
   cwd: rootDir,
   env,
   stdio: 'inherit',
@@ -168,7 +172,7 @@ console.log(`✅ APK Verticons generado: ${path.basename(targetVerticonApk)} (${
 // =========================================================================
 // RESTAURAR ICONOS ESTÁNDAR PARA EL REPOSITORIO
 // =========================================================================
-execSync('powershell -ExecutionPolicy Bypass -File .\\scripts\\generate-standard-icons.ps1', {
+execSync(`"${psExe}" -ExecutionPolicy Bypass -File .\\scripts\\generate-standard-icons.ps1`, {
   cwd: rootDir,
   env,
   stdio: 'inherit',
