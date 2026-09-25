@@ -27,7 +27,11 @@ import {
   Coffee,
   Fuel,
   Info,
+  Loader2,
 } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import { Bucket, Expense } from '../../types';
 import { DBService } from '../../services/db';
 
@@ -72,6 +76,56 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const [vasosModalOpen, setVasoModalOpen] = useState(false);
   const [rolloverModalOpen, setRolloverModalOpen] = useState(false);
   const [verticonsModalOpen, setVerticonsModalOpen] = useState(false);
+  const [downloadingFile, setDownloadingFile] = useState<string | null>(null);
+
+  const handleDownloadImage = async (imagePath: string, fileName: string, title: string) => {
+    setDownloadingFile(fileName);
+    try {
+      const response = await fetch(imagePath);
+      if (!response.ok) throw new Error('No se pudo obtener el archivo de imagen.');
+      const blob = await response.blob();
+
+      if (Capacitor.isNativePlatform()) {
+        const reader = new FileReader();
+        const base64Data = await new Promise<string>((resolve, reject) => {
+          reader.onloadend = () => {
+            const res = reader.result as string;
+            const base64 = res.split(',')[1] || res;
+            resolve(base64);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
+        const fileResult = await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Cache,
+        });
+
+        await Share.share({
+          title,
+          text: `Icono CronoCash: ${fileName}`,
+          url: fileResult.uri,
+          dialogTitle: `Guardar o compartir ${fileName}`,
+        });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+    } catch (err) {
+      console.error('Error al descargar o compartir icono:', err);
+      alert('No se pudo guardar la imagen en el dispositivo.');
+    } finally {
+      setDownloadingFile(null);
+    }
+  };
 
   // Formulario Bolsa
   const [name, setName] = useState('');
@@ -809,14 +863,19 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   <span className="text-[11px] text-slate-400">
                     Adaptive Squircle 1:1 integrado en el instalador Android
                   </span>
-                  <a
-                    href="/logo.jpg"
-                    download="crono-cash-launcher.jpg"
-                    className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 flex items-center gap-1 border border-slate-700"
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadImage('/logo.jpg', 'crono-cash-launcher.jpg', 'Icono CronoCash Oficial')}
+                    disabled={downloadingFile === 'crono-cash-launcher.jpg'}
+                    className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-xs font-bold text-slate-200 flex items-center gap-1 border border-slate-700 cursor-pointer disabled:opacity-50 transition-all shadow-md"
                   >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Descargar JPG</span>
-                  </a>
+                    {downloadingFile === 'crono-cash-launcher.jpg' ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                    ) : (
+                      <Download className="w-3.5 h-3.5" />
+                    )}
+                    <span>{downloadingFile === 'crono-cash-launcher.jpg' ? 'Guardando...' : 'Descargar JPG'}</span>
+                  </button>
                 </div>
 
                 {/* 2. Verticons Card Edition */}
@@ -836,22 +895,32 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                     Tarjeta vertical 2:3 al ras con marco de neón esmeralda y fibra de carbono (sin marcos negros)
                   </span>
                   <div className="flex gap-2">
-                    <a
-                      href="/verticon-icon.png"
-                      download="crono-cash-verticon.png"
-                      className="px-2.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-xs font-bold text-cyan-300 flex items-center gap-1 border border-cyan-500/40"
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadImage('/verticon-icon.png', 'crono-cash-verticon.png', 'Tarjeta Verticons Transparente')}
+                      disabled={downloadingFile === 'crono-cash-verticon.png'}
+                      className="px-2.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 active:scale-95 text-xs font-bold text-cyan-300 flex items-center gap-1 border border-cyan-500/40 cursor-pointer disabled:opacity-50 transition-all shadow-md"
                     >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>PNG Transparente</span>
-                    </a>
-                    <a
-                      href="/verticon-icon.jpg"
-                      download="crono-cash-verticon.jpg"
-                      className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 flex items-center gap-1 border border-slate-700"
+                      {downloadingFile === 'crono-cash-verticon.png' ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+                      ) : (
+                        <Download className="w-3.5 h-3.5" />
+                      )}
+                      <span>{downloadingFile === 'crono-cash-verticon.png' ? 'Guardando...' : 'PNG Transparente'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadImage('/verticon-icon.jpg', 'crono-cash-verticon.jpg', 'Tarjeta Verticons JPG')}
+                      disabled={downloadingFile === 'crono-cash-verticon.jpg'}
+                      className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-xs font-bold text-slate-300 flex items-center gap-1 border border-slate-700 cursor-pointer disabled:opacity-50 transition-all shadow-md"
                     >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>JPG</span>
-                    </a>
+                      {downloadingFile === 'crono-cash-verticon.jpg' ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
+                      ) : (
+                        <Download className="w-3.5 h-3.5" />
+                      )}
+                      <span>{downloadingFile === 'crono-cash-verticon.jpg' ? 'Guardando...' : 'JPG'}</span>
+                    </button>
                   </div>
                 </div>
               </div>

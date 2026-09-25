@@ -2,6 +2,15 @@
 
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [1.8.2] - 2026-09-26
+
+### Fixed
+- **Descarga Nativa de Iconos en Android (`BucketsView.tsx`):** Sustitución de las etiquetas estándar `<a>` con atributo `download` (inoperativas en WebView de Android) por un puente reactivo que utiliza `@capacitor/filesystem` (conversión a base64 y guardado en almacenamiento accesible) y `@capacitor/share` (hoja de guardado/compartir nativa de Android).
+- **Indicador de Carga Interactivo:** Estado reactivo con spinner (`Loader2`) y bloqueo contra toques dobles durante la preparación del activo de imagen.
+- **Soporte Universal Multi-Plataforma:** Garantía de guardado para el Icono Launcher Squircle Oficial (`logo.jpg`), Tarjeta Verticons PNG transparente (`verticon-icon.png`) y Tarjeta Verticons JPG al ras (`verticon-icon.jpg`).
+- **Artefactos Release Dual v1.8.2:** Compilación y firma de `app-v1.8.2-release.apk` (Estándar) y `app-v1.8.2-verticon-release.apk` (Verticons 2:3) con `versionCode 10802` y `versionName "1.8.2"`.
+
+---
 
 ## [1.8.1] - 2026-09-26
 

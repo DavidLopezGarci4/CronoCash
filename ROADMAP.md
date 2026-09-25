@@ -4,16 +4,19 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.8.1 — Iconos Verticons al Ras & Perfeccionamiento Visual 💎
-- [x] **Bordes al Ras en Verticons Pack 2:3:** Supresión del marco exterior plano sin textura; el marco de neón esmeralda se sitúa exactamente sobre el límite de la tarjeta 2:3.
-- [x] **Acabado en Fibra de Carbono en Esquinas:** Integración de textura de fibra de carbono aeroespacial y paneles de titanio oscuro en las cuatro esquinas, erradicando los bordes vacíos.
-- [x] **Icono PNG con Transparencia Ultra HD (800x1200):** Canal alfa transparente exterior para que la tarjeta flote de manera nativa en Nova, Niagara y Smart Launcher sin cuadros negros de fondo.
-- [x] **Descarga Dual en la App (`BucketsView.tsx`):** Selector de descarga inmediata en PNG transparente y JPG al ras en alta definición.
-- [x] **Compilación y Firma Release Dual:** Generación y firma de ambos APKs `app-v1.8.1-release.apk` (Estándar) y `app-v1.8.1-verticon-release.apk` (Verticons 2:3) con `versionCode 10801` y `versionName "1.8.1"`.
+## Estado Actual: v1.8.2 — Descarga Nativa de Iconos en Android Bridge 📥
+- [x] **Puente Nativo de Descarga/Guardado (`BucketsView.tsx`):** Sustitución de etiquetas `<a>` con `download` por llamadas asíncronas con `@capacitor/filesystem` (conversión de Blob a Base64) y `@capacitor/share` (hoja del sistema Android).
+- [x] **Compatibilidad Completa con Android WebView:** El usuario ahora puede pulsar "Descargar JPG" o "PNG Transparente" en el APK instalado y guardar de inmediato el icono en su Galería, Fotos, Drive o Archivos.
+- [x] **Feedback Táctil & Anti-Doble Toque:** Botones interactivos con spinner de carga (`Loader2`) y deshabilitación durante la transferencia.
+- [x] **Compilación y Firma Release Dual v1.8.2:** Generación y firma de ambos APKs `app-v1.8.2-release.apk` (Estándar) y `app-v1.8.2-verticon-release.apk` (Verticons 2:3) con `versionCode 10802` y `versionName "1.8.2"`.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.8.1 (Completado)
+- [x] Bordes de neón al ras perimetral en Verticons Pack 2:3 sin marco negro plano.
+- [x] Acabado en fibra de carbono en esquinas y variante PNG con transparencia 800x1200.
 
 ### 📦 v1.8.0 (Completado)
 - [x] Manifiesto declarativo TecnoRed `stack.config.json` con las 6 tecnologías nucleares.
