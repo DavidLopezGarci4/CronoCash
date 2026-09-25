@@ -1,0 +1,82 @@
+{
+  "appName": "CronoCash",
+  "version": "1.7.0",
+  "category": "Bóveda Financiera & Gestión de Gastos",
+  "description": "Arquitectura modular híbrida offline-first con persistencia ACID local y respaldo seguro en la nube.",
+  "nodes": [
+    {
+      "id": "react",
+      "label": "React 19",
+      "version": "^19.0.0",
+      "role": "Runtime UI Declarativo y Motor de Componentes",
+      "category": "local_web_apps",
+      "color": "#3b82f6",
+      "icon": "Atom",
+      "healthType": "runtime",
+      "details": "Motor de renderizado concurrente y árbol virtual de componentes con estado reactivo."
+    },
+    {
+      "id": "capacitor",
+      "label": "Capacitor Mobile",
+      "version": "^7.0.1",
+      "role": "Puente Nativo Multiplataforma Android / Web",
+      "category": "mobile_apps",
+      "color": "#10b981",
+      "icon": "Smartphone",
+      "healthType": "native_bridge",
+      "details": "Capa de abstracción de hardware y empaquetado nativo para Android (APK/AAB) y WebView."
+    },
+    {
+      "id": "storage",
+      "label": "IndexedDB & Filesystem",
+      "version": "v1.0 ACID",
+      "role": "Persistencia Local Transaccional y Bóveda Cifrada",
+      "category": "local_persistence",
+      "color": "#f59e0b",
+      "icon": "Database",
+      "healthType": "storage",
+      "details": "Base de datos transaccional local con soporte de snapshots JSON y bóveda con clave PIN/PBKDF2."
+    },
+    {
+      "id": "cloud_backup",
+      "label": "Google Drive Cloud API",
+      "version": "2-Slot Sync",
+      "role": "Bóveda Externa en Nube (2 Ranuras y Comparador)",
+      "category": "cloud_persistence",
+      "color": "#8b5cf6",
+      "icon": "Cloud",
+      "healthType": "network",
+      "details": "Estrategia canónica de respaldo en nube (Ranura Actual y Ranura Previa) con comparador diferencial."
+    },
+    {
+      "id": "ui_styling",
+      "label": "Tailwind CSS & Lucide",
+      "version": "^4.0.9",
+      "role": "Diseño Atómico, Glassmorphism e Iconografía SVG",
+      "category": "graphics_multimedia",
+      "color": "#ec4899",
+      "icon": "Palette",
+      "healthType": "static",
+      "details": "Sistema de estilos utilitarios compilados en tiempo de construcción y glifos vectoriales Lucide."
+    },
+    {
+      "id": "native_hardware",
+      "label": "Biometría & Alarmas",
+      "version": "Capacitor Plugins",
+      "role": "Sensores Biométricos (Huella) y Notificaciones",
+      "category": "mobile_apps",
+      "color": "#14b8a6",
+      "icon": "Fingerprint",
+      "healthType": "hardware",
+      "details": "Desbloqueo biométrico nativo (Fingerprint/Biometrics) y alarmas de revisión de recibos."
+    }
+  ],
+  "links": [
+    { "source": "capacitor", "target": "react", "relation": "aloja_webview" },
+    { "source": "react", "target": "storage", "relation": "persiste_acid" },
+    { "source": "react", "target": "ui_styling", "relation": "renderiza_ui" },
+    { "source": "storage", "target": "cloud_backup", "relation": "respaldo_2_ranuras" },
+    { "source": "capacitor", "target": "native_hardware", "relation": "acceso_sensores" },
+    { "source": "capacitor", "target": "storage", "relation": "acceso_filesystem" }
+  ]
+}

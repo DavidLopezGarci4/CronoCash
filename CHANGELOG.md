@@ -5,6 +5,17 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [1.8.0] - 2026-09-26
+
+### Added
+- **Manifiesto Declarativo TecnoRed (`stack.config.json`):** Registro auditable de las 6 tecnologías maestras que componen CronoCash (React 19, Capacitor Mobile, IndexedDB/Filesystem, Google Drive API, Tailwind CSS/Lucide y Biometría/Alarmas de Hardware).
+- **Componente Visual Interactivo (`AppArchitectureGraph.tsx`):** Renderizador Canvas 2D a 60 FPS con física elástica de partículas que no escapan del cursor/toque, conectadas por cables tensados con curvas Bézier oscilantes y pulsos de energía.
+- **Anillos de Salud en Tiempo Real & Telemetría en Caliente:** Monitoreo concurrente con anillos concéntricos coloreados (verde/ámbar/índigo) con telemetría de latencia en milisegundos para IndexedDB, runtime de React 19, estado de Capacitor y disponibilidad de red.
+- **Cajón de Diagnóstico & Carga Diferida (Lazy Loading):** Inspección detallada al tocar cada nodo tecnológico e integración no invasiva en `SettingsModal.tsx` con `React.lazy` y `<Suspense>` en un chunk aislado de solo 6.57 kB (gzip).
+- **Artefactos Release Dual Firmados:** Compilación y firma simultánea de `app-v1.8.0-release.apk` (Estándar) y `app-v1.8.0-verticon-release.apk` (Verticons 2:3) con `versionCode 10800` y `versionName "1.8.0"`.
+
+---
+
 ## [1.7.0] - 2026-09-24
 
 ### Added

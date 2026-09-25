@@ -14,6 +14,7 @@
 6. [Copias de Seguridad en Google Drive (2 Ranuras) y Comparador Lado a Lado](#6-copias-de-seguridad-en-google-drive-2-ranuras-y-comparador-lado-a-lado)
 7. [Estrategias Financieras, Ingresos Pasivos y Escudo Anti-Estafas](#7-estrategias-financieras-ingresos-pasivos-y-escudo-anti-estafas)
 8. [Iconografía Oficial Android y Tarjeta Verticons](#8-iconografía-oficial-android-y-tarjeta-verticons)
+9. [Arquitectura del Stack y Salud en Tiempo Real](#9-arquitectura-del-stack-y-salud-en-tiempo-real)
 
 ---
 
@@ -116,3 +117,21 @@
 * **Mipmaps nativos:** Iconos redondos, adaptativos y cuadrados generados en todas las densidades de pantalla (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`).
 * **Edición Verticons Pack:** Tarjeta vertical en proporción 2:3 de alta resolución con acabado en fibra de carbono y marco de neón esmeralda ubicada en `public/verticon-icon.jpg`.
 * **Visor integrado:** Accesible desde la app para previsualizar y guardar los iconos en tu galería para lanzadores personalizados (Nova Launcher, Niagara, etc.).
+
+---
+
+## 9. Arquitectura del Stack y Salud en Tiempo Real
+
+### ¿Qué es el Grafo de Arquitectura y Salud del Stack?
+* **Visualizador Canvas 2D interactivo:** Representa las 6 tecnologías nucleares de CronoCash (React 19, Capacitor, IndexedDB, Google Drive, Tailwind CSS/Lucide y Biometría/Alarmas) mediante esferas flotantes unidas por cables tensados con curvas Bézier y pulsos de energía.
+* **Física táctil adaptativa:** Las esferas responden al arrastre con el dedo o ratón con cinemática suave a 60 FPS sin escapar de la pantalla.
+* **Cero impacto en rendimiento:** Utiliza carga diferida (`React.lazy` y `<Suspense>`) con un peso de solo 6.57 kB comprimido, ejecutándose únicamente cuando abres la herramienta en Ajustes.
+
+### ¿Qué indican los anillos de salud en tiempo real?
+* **Verde (Óptimo):** Componente activo y respondiendo con telemetría en milisegundos (ej. latencia de lectura/escritura en IndexedDB, React 19 concurrente y Capacitor nativo en Android).
+* **Ámbar (Modo Local / Desconectado):** El dispositivo no cuenta con conexión a Internet para copias en Google Drive, funcionando en modo 100% autónomo y seguro.
+* **Índigo (Estático / Compilado):** Capas de diseño y librerías de interfaz empaquetadas en producción sin dependencias de red.
+
+### ¿Cómo realizar un diagnóstico en caliente?
+* **Inspección individual:** Toca cualquier esfera del mapa para desplegar su cajón de diagnóstico con versión, rol arquitectónico y latencia.
+* **Re-ejecución pasiva:** Pulsa el botón *"Re-ejecutar Diagnóstico"* para medir de nuevo en caliente el tiempo de respuesta del almacenamiento y las conexiones.

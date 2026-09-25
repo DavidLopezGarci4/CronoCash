@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import {
   X,
   Shield,
@@ -15,11 +15,15 @@ import {
   Clock,
   Sparkles,
   Cloud,
+  Layers,
+  ChevronRight,
 } from 'lucide-react';
 import { Settings, BackupEnvelope } from '../../types';
 import { DBService } from '../../services/db';
 import { AuthService } from '../../services/auth';
 import { NotificationService } from '../../services/notificationService';
+
+const AppArchitectureGraph = React.lazy(() => import('./AppArchitectureGraph'));
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -58,6 +62,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [importMessage, setImportMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(
     null
   );
+  const [showTechStack, setShowTechStack] = useState(false);
 
   if (!isOpen) return null;
 
@@ -406,6 +411,41 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
+          {/* Arquitectura del Sistema & Salud del Stack */}
+          <div className="space-y-2 p-3 bg-slate-900/80 border border-slate-800 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Transparencia & Arquitectura</span>
+              </h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-emerald-500/30 font-semibold">
+                Gentle AI
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowTechStack(true)}
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-950/60 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/40 transition-all text-left group cursor-pointer"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 group-hover:scale-105 transition-transform">
+                  <Layers className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>Arquitectura y Salud del Stack</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  </div>
+                  <p className="text-[10px] text-slate-400">
+                    Grafo interactivo de tecnologías, dependencias y telemetría en tiempo real
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+            </button>
+          </div>
+
           {/* Botones de acción */}
           <div className="pt-2 flex justify-end space-x-2">
             <button
@@ -424,6 +464,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
         </form>
+
+        {showTechStack && (
+          <Suspense fallback={null}>
+            <AppArchitectureGraph
+              isOpen={showTechStack}
+              onClose={() => setShowTechStack(false)}
+            />
+          </Suspense>
+        )}
       </div>
     </div>
   );
