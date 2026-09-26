@@ -15,6 +15,7 @@
 7. [Estrategias Financieras, Ingresos Pasivos y Escudo Anti-Estafas](#7-estrategias-financieras-ingresos-pasivos-y-escudo-anti-estafas)
 8. [Iconografía Oficial Android y Tarjeta Verticons](#8-iconografía-oficial-android-y-tarjeta-verticons)
 9. [Arquitectura del Stack y Salud en Tiempo Real](#9-arquitectura-del-stack-y-salud-en-tiempo-real)
+10. [Motor Safe-to-Spend y Asistente Cover Overspending](#10-motor-safe-to-spend-y-asistente-cover-overspending)
 
 ---
 
@@ -135,3 +136,32 @@
 ### ¿Cómo realizar un diagnóstico en caliente?
 * **Inspección individual:** Toca cualquier esfera del mapa para desplegar su cajón de diagnóstico con versión, rol arquitectónico y latencia.
 * **Re-ejecución pasiva:** Pulsa el botón *"Re-ejecutar Diagnóstico"* para medir de nuevo en caliente el tiempo de respuesta del almacenamiento y las conexiones.
+
+---
+
+## 10. Motor Safe-to-Spend y Asistente Cover Overspending
+
+### ¿Qué es el límite "Safe-to-Spend" (Gasto Seguro Diario)?
+* **Métrica predictiva anti-sorpresas:** Calcula exactamente cuánto dinero puedes gastar al día hasta el último día del mes sin comprometer tus facturas pendientes ni tocar tu colchón de emergencia.
+* **Fórmula matemática transparente:** `Gasto Diario Seguro = (Ingresos - Gastos Pagados - Recurrentes Pendientes - Colchón Blindado) / Días Restantes del Mes`.
+* **Aislamiento de compromisos futuros:** Si tienes facturas programadas a fin de mes (alquiler, luz, seguros), el motor las reserva de inmediato para que jamás te creas más solvente de lo que realmente eres.
+* **Protección del Colchón:** El saldo asignado a bolsas de ahorro o imprevistos marcadas como amortiguador (`isBuffer: true`) queda aislado del cómputo diario.
+
+### ¿Qué significa el Ritmo de Consumo (Burn-Rate)?
+* **Comparador de velocidad de gasto:** Compara el porcentaje real consumido del presupuesto frente al porcentaje de días transcurridos del mes.
+* **Semáforo de ritmo:**
+  * 🟢 **Ritmo Óptimo:** Tu gasto avanza por debajo o igual al calendario; vas a cerrar el mes con superávit.
+  * 🟡 **En Ritmo:** Consumo ligeramente superior al calendario; conviene moderar compras no prioritarias.
+  * 🔴 **Alerta de Agotamiento:** Gasto acelerado; el motor te avisa antes de que entres en números rojos.
+
+### ¿Cómo funciona el Simulador de Compras por Impulso?
+* **Ensayo de gasto sin riesgo:** En la tarjeta de Safe-to-Spend del Dashboard, puedes pulsar botones rápidos (+20€, +50€, +100€) o introducir un importe arbitrario.
+* **Simulación en tiempo real:** Muestra de forma inmediata cómo quedaría tu límite diario y cuántos días de supervivencia mantendrías si decides realizar ese desembolso imprevisto.
+
+### ¿Qué es el Asistente "Cover Overspending" y cómo equilibra las bolsas?
+* **Detección proactiva de desvíos:** Si alguna categoría supera su límite presupuestado, aparece automáticamente un aviso destacado en la vista de Bolsas.
+* **Reequilibrio en 1 toque:** Al pulsar *"Equilibrar"*, el asistente te ofrece 3 vías inteligentes:
+  1. *Compensar desde Colchón de Emergencias:* Absorbe el sobrecoste sin tocar las asignaciones de otras categorías operativas.
+  2. *Compensar desde Mayor Superávit:* Extrae los fondos sobrantes de la bolsa que tenga mayor holgura acumulada.
+  3. *Prorratear entre Bolsas con Margen:* Reparte la compensación de forma equitativa y proporcional entre todas las bolsas saludables.
+* **Presupuesto Base Cero intacto:** Ningún euro se crea ni se destruye; el asistente ajusta los límites entre sobres garantizando que la suma total mensual se mantenga cuadrada.

@@ -28,12 +28,14 @@ import {
   Fuel,
   Info,
   Loader2,
+  AlertTriangle,
 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { Bucket, Expense } from '../../types';
 import { DBService } from '../../services/db';
+import { CoverOverspendingModal } from './CoverOverspendingModal';
 
 interface BucketsViewProps {
   buckets: Bucket[];
@@ -76,6 +78,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const [vasosModalOpen, setVasoModalOpen] = useState(false);
   const [rolloverModalOpen, setRolloverModalOpen] = useState(false);
   const [verticonsModalOpen, setVerticonsModalOpen] = useState(false);
+  const [coverOverspendingOpen, setCoverOverspendingOpen] = useState(false);
   const [downloadingFile, setDownloadingFile] = useState<string | null>(null);
 
   const handleDownloadImage = async (imagePath: string, fileName: string, title: string) => {
@@ -298,6 +301,21 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
       return rem > 0 ? sum + rem : sum;
     }, 0);
 
+  // Detección de sobregiros para el Asistente Inteligente Cover Overspending
+  const overspentBuckets = buckets.filter((b) => {
+    const spent = currentExpenses
+      .filter((e) => e.bucketId === b.id)
+      .reduce((s, e) => s + e.amount, 0);
+    return spent > b.budgetLimit;
+  });
+
+  const totalOverspending = overspentBuckets.reduce((acc, b) => {
+    const spent = currentExpenses
+      .filter((e) => e.bucketId === b.id)
+      .reduce((s, e) => s + e.amount, 0);
+    return acc + (spent - b.budgetLimit);
+  }, 0);
+
   return (
     <div className="space-y-6 pb-28">
       {/* Cabecera y Acciones Rápidas */}
@@ -356,6 +374,36 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Banner Asistente Cover Overspending si hay déficit */}
+      {overspentBuckets.length > 0 && (
+        <div className="p-4 rounded-3xl bg-gradient-to-r from-rose-500/20 via-slate-900 to-rose-500/10 border border-rose-500/40 flex items-center justify-between gap-3 shadow-xl shadow-rose-950/30 backdrop-blur-md animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-rose-500/25 text-rose-400 border border-rose-500/40 shadow-inner">
+              <AlertTriangle className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-rose-300 flex items-center gap-1.5">
+                <span>{overspentBuckets.length} {overspentBuckets.length === 1 ? 'bolsa en sobregiro' : 'bolsas en sobregiro'}</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/30 text-rose-200 font-bold border border-rose-500/40">
+                  +{totalOverspending.toFixed(2)} {currency}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Reequilibra tus vasos comunicantes automáticamente con 1 solo toque guiado.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setCoverOverspendingOpen(true)}
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-400 hover:to-pink-400 active:scale-95 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-rose-950/40 transition-all cursor-pointer whitespace-nowrap"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Equilibrar</span>
+          </button>
+        </div>
+      )}
 
       {/* Tarjeta de Resumen Global de Bolsas & Banner de Rollover */}
       <div className="p-4 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 shadow-xl space-y-3">
@@ -958,6 +1006,18 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* MODAL 5: Asistente Cover Overspending */}
+      {coverOverspendingOpen && (
+        <CoverOverspendingModal
+          isOpen={coverOverspendingOpen}
+          onClose={() => setCoverOverspendingOpen(false)}
+          buckets={buckets}
+          expenses={expenses}
+          currency={currency}
+          onRefresh={onRefresh}
+        />
       )}
     </div>
   );

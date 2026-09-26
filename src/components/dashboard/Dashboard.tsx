@@ -13,26 +13,32 @@ import {
   ShieldAlert,
   ArrowUpRight,
 } from 'lucide-react';
-import { Expense, Bucket, Settings } from '../../types';
+import { Expense, Bucket, Settings, RecurringRule } from '../../types';
+import { SafeToSpendService } from '../../services/safeToSpendService';
+import { SafeToSpendWidget } from './SafeToSpendWidget';
 
 interface DashboardProps {
   expenses: Expense[];
   buckets: Bucket[];
+  recurringRules?: RecurringRule[];
   settings: Settings;
   onAddExpense: () => void;
   onEditExpense: (expense: Expense) => void;
   onDeleteExpense: (id: string) => void;
   onSelectBucketTab: () => void;
+  onSelectRecurringTab?: () => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
   expenses,
   buckets,
+  recurringRules = [],
   settings,
   onAddExpense,
   onEditExpense,
   onDeleteExpense,
   onSelectBucketTab,
+  onSelectRecurringTab,
 }) => {
   const [filterType, setFilterType] = useState<'all' | 'invoices' | 'pending'>('all');
   const currency = settings.currency || '€';
@@ -46,6 +52,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const totalSpentMonth = currentMonthExpenses.reduce((acc, curr) => acc + curr.amount, 0);
   const remainingBudget = monthlyIncome - totalSpentMonth;
+
+  // Cálculo del motor Safe-to-Spend
+  const safeMetrics = SafeToSpendService.calculate(
+    expenses,
+    recurringRules,
+    buckets,
+    monthlyIncome
+  );
 
   // Facturas e IVA desgravable
   const invoiceExpenses = currentMonthExpenses.filter((e) => e.isInvoice);
@@ -61,6 +75,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="space-y-6 pb-24">
+      {/* 0. Widget Hero de Gasto Diario Seguro (Safe-to-Spend) */}
+      <SafeToSpendWidget
+        metrics={safeMetrics}
+        currency={currency}
+        onOpenRecurringTab={onSelectRecurringTab}
+        onOpenBucketsTab={onSelectBucketTab}
+      />
+
       {/* 1. Tarjetas de Resumen Financiero */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {/* Gastos Totales */}

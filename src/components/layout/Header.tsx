@@ -1,10 +1,11 @@
 import React from 'react';
-import { Lock, Settings as SettingsIcon, TrendingUp, TrendingDown, Cloud } from 'lucide-react';
+import { Lock, Settings as SettingsIcon, TrendingUp, TrendingDown, Cloud, Sparkles } from 'lucide-react';
 import { Settings } from '../../types';
 
 interface HeaderProps {
   settings: Settings;
   totalExpensesMonth: number;
+  dailySafeToSpend?: number;
   onLock: () => void;
   onOpenSettings: () => void;
   onOpenBackup: () => void;
@@ -13,6 +14,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   settings,
   totalExpensesMonth,
+  dailySafeToSpend,
   onLock,
   onOpenSettings,
   onOpenBackup,
@@ -46,8 +48,20 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Balance rápido del Mes */}
+        {/* Balance rápido del Mes & Safe-to-Spend */}
         <div className="flex items-center space-x-2">
+          {dailySafeToSpend !== undefined && (
+            <div className="flex flex-col items-end px-2.5 py-1 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl border border-emerald-500/20 shadow-xs">
+              <span className="text-[9px] uppercase font-bold text-emerald-400 tracking-wider flex items-center gap-1">
+                <Sparkles className="w-2.5 h-2.5 text-emerald-400" />
+                <span>Hoy</span>
+              </span>
+              <span className="text-xs font-mono font-bold text-emerald-300">
+                {dailySafeToSpend.toFixed(2)} {currency}
+              </span>
+            </div>
+          )}
+
           <div className="hidden sm:flex flex-col items-end px-3 py-1 bg-slate-900/80 rounded-xl border border-slate-800">
             <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
               Disponible Mes

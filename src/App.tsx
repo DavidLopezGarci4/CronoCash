@@ -3,6 +3,7 @@ import { AuthService } from './services/auth';
 import { DBService } from './services/db';
 import { NotificationService } from './services/notificationService';
 import { Expense, Bucket, RecurringRule, Settings, FinancialTip } from './types';
+import { SafeToSpendService } from './services/safeToSpendService';
 import { AuthScreen } from './components/auth/AuthScreen';
 import { Header } from './components/layout/Header';
 import { BottomNav, NavTab } from './components/layout/BottomNav';
@@ -159,11 +160,18 @@ export const App: React.FC = () => {
     return <AuthScreen onUnlocked={handleUnlocked} />;
   }
 
-  // Cálculos para la cabecera
+  // Cálculos para la cabecera y motor Safe-to-Spend
   const currentMonthPrefix = new Date().toISOString().substring(0, 7);
   const totalExpensesMonth = expenses
     .filter((e) => (e.date || '').startsWith(currentMonthPrefix))
     .reduce((sum, e) => sum + e.amount, 0);
+
+  const safeMetrics = SafeToSpendService.calculate(
+    expenses,
+    recurringRules,
+    buckets,
+    settings.monthlyIncome || 0
+  );
 
   return (
     <div
@@ -179,6 +187,7 @@ export const App: React.FC = () => {
       <Header
         settings={settings}
         totalExpensesMonth={totalExpensesMonth}
+        dailySafeToSpend={safeMetrics.dailySafeToSpend}
         onLock={handleManualLock}
         onOpenSettings={() => setSettingsModalOpen(true)}
         onOpenBackup={() => setBackupModalOpen(true)}
@@ -190,6 +199,7 @@ export const App: React.FC = () => {
           <Dashboard
             expenses={expenses}
             buckets={buckets}
+            recurringRules={recurringRules}
             settings={settings}
             onAddExpense={() => {
               setEditingExpense(null);
@@ -201,6 +211,7 @@ export const App: React.FC = () => {
             }}
             onDeleteExpense={handleDeleteExpense}
             onSelectBucketTab={() => setCurrentTab('buckets')}
+            onSelectRecurringTab={() => setCurrentTab('recurring')}
           />
         )}
 

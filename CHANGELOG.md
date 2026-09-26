@@ -2,6 +2,28 @@
 
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.9.0] - 2026-09-26
+
+### Added
+- **Motor "Safe-to-Spend" & Burn-Rate Predictivo en Tiempo Real (`safeToSpendService.ts`, `SafeToSpendWidget.tsx`):**
+  - **Cálculo Diario Dinámico:** Algoritmo que calcula con precisión matemática el margen de gasto seguro diario (`dailySafeToSpend = netAvailable / daysRemaining`).
+  - **Aislamiento Inteligente de Compromisos:** Deducción automática de facturas recurrentes pendientes del mes para evitar doble cómputo, y salvaguarda blindada del *Colchón de Emergencias* (`isBuffer: true`).
+  - **Termómetro de Ritmo de Consumo (Burn-Rate):** Comparador visual del ritmo de gasto actual frente al ritmo teórico esperado según el día del mes, con estados semafóricos (🟢 Óptimo, 🟡 En Ritmo, 🔴 Alerta de Agotamiento).
+  - **Simulador Interactivo de Compras por Impulso:** Permite al usuario simular el impacto de compras imprevistas (+20€, +50€, +100€ o importe personalizado) antes de gastar, mostrando cómo se recalculan los días de supervivencia y el margen diario.
+  - **Métrica Heroica en Cabecera:** Píldora reflectiva anclada en el `Header` superior (`Hoy: XX.XX €`) para consulta inmediata sin entrar en menús.
+- **Asistente Interactivo de Reequilibrio "Cover Overspending" (`CoverOverspendingModal.tsx`, `BucketsView.tsx`):**
+  - **Detección Automática de Sobregastos:** Banner contextual reactivo en la vista de Bolsas que alerta de cualquier categoría con saldo negativo o superación del límite.
+  - **3 Estrategias de Reequilibrio en 1 Toque:**
+    1. *Compensar desde Colchón de Emergencias:* Absorbe el desvío desde la bolsa colchón sin descompensar las categorías operativas del mes.
+    2. *Compensar desde Mayor Superávit:* Transfiere automáticamente fondos desde la bolsa que cuenta con mayor margen disponible.
+    3. *Prorratear entre Bolsas con Margen:* Distribuye el exceso de gasto de forma proporcional entre todas las bolsas saludables.
+  - **Ajuste Atómico Presupuesto Base Cero:** Modifica los límites de las bolsas en IndexedDB manteniendo la suma global de ingresos y gastos 100% equilibrada.
+- **Artefactos Release Dual v1.9.0 Firmados:**
+  - Compilación y firma simultánea de `app-v1.9.0-release.apk` (Estándar) y `app-v1.9.0-verticon-release.apk` (Verticons Card 2:3) con `versionCode 10900` y `versionName "1.9.0"`.
+
+---
+
 ## [1.8.2] - 2026-09-26
 
 ### Fixed
