@@ -1,0 +1,167 @@
+{
+  "currentVersion": "1.13.0",
+  "buildNumber": 11300,
+  "lastUpdated": "2026-09-26",
+  "appName": "CronoCash",
+  "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
+  "privacyBadge": "100% Local y Privado • Sin Rastreadores • Sin Servidores Externos",
+  "developer": "TecnoRed & Antigravity Lab",
+  "license": "Licencia Abierta Personal / Uso Privado",
+  "versions": [
+    {
+      "version": "1.13.0",
+      "build": 11300,
+      "date": "26 Sep 2026",
+      "title": "Centro Acerca de & Novedades con Historial Humano",
+      "isCurrent": true,
+      "highlights": [
+        "🌟 Acerca de & Novedades: Nueva sección interactiva en Ajustes para consultar la ficha de identidad, versión y licencias de la app.",
+        "📜 Historial Explicado para Humanos: Explora en lenguaje sencillo y sin tecnicismos qué incluye cada versión y actualización de tu APK.",
+        "🌐 Conexión con Salud del Stack: Acceso directo al monitor de telemetría y salud de la arquitectura en tiempo real."
+      ]
+    },
+    {
+      "version": "1.12.0",
+      "build": 11200,
+      "date": "26 Sep 2026",
+      "title": "Informes Ejecutivos PDF y Cuadro Fiscal Trimestral",
+      "highlights": [
+        "📄 Informes en PDF en 1 Toque: Genera y comparte resúmenes mensuales profesionales de tus gastos e ingresos para archivar o enviar por WhatsApp.",
+        "🏛️ Cuadro Fiscal para Autónomos y Familias: Calcula la estimación de tus impuestos trimestrales (IRPF Modelo 130 e IVA Modelo 303) con cuenta atrás de fechas límite de Hacienda.",
+        "📑 Libro de Facturas en Excel: Descarga un listado ordenado y compatible con Excel/CSV de todas tus facturas registradas listo para entregar a tu gestoría."
+      ]
+    },
+    {
+      "version": "1.11.0",
+      "build": 11100,
+      "date": "26 Sep 2026",
+      "title": "Metas de Ahorro 'Sinking Funds' con Ritmo de Crucero",
+      "highlights": [
+        "🎯 Metas para Gastos Anuales: Planifica pagos no mensuales (seguro del coche, IBI, averías o vacaciones) sabiendo exactamente cuánto apartar cada mes.",
+        "🛡️ Blindaje de Ahorro: El dinero destinado a tus metas queda reservado del disponible diario de Safe-to-Spend para evitar gastarlo por impulso.",
+        "💸 Asistente Sweep & Fund: Reparte el dinero que te sobra a fin de mes entre tus distintas metas de ahorro con un solo toque según su prioridad."
+      ]
+    },
+    {
+      "version": "1.10.0",
+      "build": 11000,
+      "date": "26 Sep 2026",
+      "title": "Importador Bancario Universal Offline y Reglas Inteligentes",
+      "highlights": [
+        "⚡ Importador Bancario en CSV: Carga el extracto de tu banco (BBVA, Santander, CaixaBank, ING, etc.) de forma masiva sin teclear gastos a mano.",
+        "🤖 Reglas de Auto-Categorización: Clasifica automáticamente compras en comercios habituales (Mercadona, Repsol, Iberdrola, Netflix) en su bolsa correspondiente.",
+        "🔒 Detección Anti-Duplicados: Si subes un extracto con fechas solapadas, el sistema descarta los movimientos ya existentes de forma transparente."
+      ]
+    },
+    {
+      "version": "1.9.0",
+      "build": 10900,
+      "date": "26 Sep 2026",
+      "title": "Motor Safe-to-Spend y Asistente Cover Overspending",
+      "highlights": [
+        "🛡️ Gasto Seguro Diario: Indicador reflectivo que te dice cuánto puedes gastar hoy sin comprometer facturas pendientes ni tocar tu colchón.",
+        "🛍️ Simulador de Compras por Impulso: Ensaya el impacto de un capricho o compra imprevista antes de realizarla para saber cuántos días de supervivencia mantienes.",
+        "⚖️ Asistente Cover Overspending: Detecta categorías en números rojos y las reequilibra transfiriendo sobrantes de otras bolsas en 1 toque."
+      ]
+    },
+    {
+      "version": "1.8.2",
+      "build": 10802,
+      "date": "26 Sep 2026",
+      "title": "Descarga Nativa de Iconos en Android Bridge",
+      "highlights": [
+        "📥 Guardado en Galería: Descarga directa de los iconos oficiales y tarjetas Verticons en la memoria de tu dispositivo Android o compártelos con tus lanzadores favoritos."
+      ]
+    },
+    {
+      "version": "1.8.1",
+      "build": 10801,
+      "date": "26 Sep 2026",
+      "title": "Iconos Verticons Pack 2:3 al Ras",
+      "highlights": [
+        "💎 Diseño Perimetral de Neón: Tarjeta Verticons 2:3 con borde de luz al límite perimetral sin marcos oscuros y variante PNG con transparencia limpia para cualquier launcher."
+      ]
+    },
+    {
+      "version": "1.8.0",
+      "build": 10800,
+      "date": "26 Sep 2026",
+      "title": "Grafo de Arquitectura y Salud en Tiempo Real",
+      "highlights": [
+        "🌐 Monitor Visual 2D: Mapa interactivo a 60 FPS que muestra las tecnologías nucleares de la app y mide la latencia de respuesta de tu almacenamiento en milisegundos."
+      ]
+    },
+    {
+      "version": "1.7.0",
+      "build": 10700,
+      "date": "24 Sep 2026",
+      "title": "Manual Maestro de Usuario y Centro de Ayuda FAQ",
+      "highlights": [
+        "📖 Guía Operativa Completa: Preguntas frecuentes organizadas en 13 áreas temáticas para resolver cualquier duda sobre el funcionamiento de la app sin tecnicismos."
+      ]
+    },
+    {
+      "version": "1.6.0",
+      "build": 10600,
+      "date": "24 Sep 2026",
+      "title": "Suite de 14 Estrategias Financieras y Escudo Anti-Estafas",
+      "highlights": [
+        "💡 Consejos de Ahorro y Dinero Extra: Guías paso a paso para renegociar contratos de luz, telefonía y seguros, junto con pautas de defensa contra fraudes y chiringuitos financieros."
+      ]
+    },
+    {
+      "version": "1.5.0",
+      "build": 10500,
+      "date": "24 Sep 2026",
+      "title": "Copias de Seguridad en Google Drive de 2 Ranuras",
+      "highlights": [
+        "☁️ Bóveda Cloud Segura: Respaldo y restauración transparente en Google Drive con ranuras canónicas (Actual y Previa) para blindar tus datos ante cambios de teléfono."
+      ]
+    },
+    {
+      "version": "1.4.0",
+      "build": 10400,
+      "date": "24 Sep 2026",
+      "title": "Alertas de Facturas y Recordatorio Nocturno",
+      "highlights": [
+        "🔔 Notificaciones Exactas: Avisos escalonados a 3 días y el día de cobro de tus facturas, junto con un recordatorio a las 21:30 para registrar gastos diarios."
+      ]
+    },
+    {
+      "version": "1.3.0",
+      "build": 10300,
+      "date": "24 Sep 2026",
+      "title": "Calendario Predictivo y Semáforo de Liquidez",
+      "highlights": [
+        "📅 Visor de Cash-Flow: Calendario mensual y semanal que anticipa los días con mayor concentración de recibos y proyecta si cerrarás el mes en positivo."
+      ]
+    },
+    {
+      "version": "1.2.0",
+      "build": 10200,
+      "date": "24 Sep 2026",
+      "title": "Gestor de Recurrentes y Detector de Gastos Vampiro",
+      "highlights": [
+        "🔄 Control de Suscripciones: Cuenta atrás visual de cobros periódicos y detector de membresías olvidadas con cálculo del dinero que ahorras al cancelarlas."
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "build": 10100,
+      "date": "24 Sep 2026",
+      "title": "Bolsas de Presupuesto con Vasos Comunicantes",
+      "highlights": [
+        "💰 8 Bolsas Maestras: Distribución elástica de tus ingresos en sobres presupuestarios con trasvase directo entre categorías y acumulación de sobrantes para el ahorro."
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "build": 10000,
+      "date": "24 Sep 2026",
+      "title": "Lanzamiento Fundacional con Biometría Nativa",
+      "highlights": [
+        "🔐 Seguridad Máxima: Desbloqueo rápido por huella dactilar de Android, teclado táctil PIN anti-espías y persistencia 100% local en tu dispositivo."
+      ]
+    }
+  ]
+}

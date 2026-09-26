@@ -3,6 +3,22 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2026-09-26
+
+### Added
+- **Skill Global de Novedades y Acerca de (`app-about-changelog`, `AboutModal.tsx`, `changelog.user.json`):**
+  - **Manifiesto Declarativo de Usuario (`src/config/changelog.user.json`):** Historial completo y desacoplado del changelog técnico de desarrollo, con explicaciones directas, comprensibles y sin jerga de las 14 versiones lanzadas (v1.0.0 a v1.13.0).
+  - **Modal Interactivo "Acerca de CronoCash & Novedades" (`AboutModal.tsx`):**
+    - Ficha de identidad con logotipo oficial, versión SemVer visible, número de compilación interno, estado de privacidad (100% Local & Seguro) y plataforma.
+    - Tarjeta heroica con las novedades destacadas de la versión instalada en la APK.
+    - Acordeón cronológico interactivo para explorar el historial de versiones anteriores con un solo toque.
+    - Enlace directo al monitor de telemetría y salud del stack (`AppArchitectureGraph`).
+    - Ficha legal de licencia abierta y compromiso de privacidad sin servidores externos.
+  - **Integración en Ajustes (`SettingsModal.tsx`):** Acceso prioritario directo con badge interactivo "NUEVO" y acceso unificado.
+  - **Artefactos Release Dual v1.13.0 Firmados:** Compilación y firma de `app-v1.13.0-release.apk` (Estándar) y `app-v1.13.0-verticon-release.apk` (Verticons Card 2:3) con `versionCode 11300` y `versionName "1.13.0"`.
+
+---
+
 ## [1.12.0] - 2026-09-26
 
 ### Added

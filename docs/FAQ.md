@@ -19,6 +19,7 @@
 11. [Importador Universal Bancario Offline CSV y Reglas Inteligentes](#11-importador-universal-bancario-offline-csv-y-reglas-inteligentes)
 12. [Metas de Ahorro y Fondos de Amortización ("Sinking Funds")](#12-metas-de-ahorro-y-fondos-de-amortización-sinking-funds)
 13. [Informes Ejecutivos PDF y Cuadro Fiscal Trimestral (Mod. 130/303)](#13-informes-ejecutivos-pdf-y-cuadro-fiscal-trimestral-mod-130303)
+14. [Centro Acerca de y Novedades de la App](#14-centro-acerca-de-y-novedades-de-la-app)
 
 ---
 
@@ -234,4 +235,20 @@
 
 ### ¿Cómo exportar el Libro Registro Oficial de Facturas?
 * **Descarga en CSV normalizado:** Puedes pulsar *"Descargar Libro de Facturas (CSV)"* para obtener un archivo estructurado con BOM UTF-8 (compatible con Excel y software contable) que desglosa Fecha, Número de Factura, Proveedor, Concepto, Base Imponible, Tipo impositivo de IVA (%), Cuota de IVA y Total.
+
+---
+
+## 14. Centro Acerca de y Novedades de la App
+
+### ¿Qué es el Centro "Acerca de & Novedades"?
+* **Ficha de identidad transparente:** Te muestra en cualquier momento la versión instalada en tu dispositivo (`v1.13.0`), el número de compilación interno (`Build 11300`), la plataforma de ejecución y el certificado de privacidad (100% local sin servidores).
+* **Novedades de la versión instalada:** Al actualizar la aplicación, puedes abrir este panel en Ajustes para ver de un vistazo qué funciones nuevas tienes disponibles.
+
+### ¿Cómo funciona el Historial Explicado para Humanos?
+* **Cero tecnicismos:** A diferencia del registro técnico de programación, este historial describe cada versión en lenguaje sencillo, directo y conciso (de 1 a 3 viñetas por versión) enfocado en lo que puedes hacer como usuario.
+* **Exploración cronológica:** Cuenta con un desplegable interactivo para consultar la evolución de la app desde la versión 1.0.0 hasta la actualidad.
+
+### ¿Cómo acceder al monitor de arquitectura y salud?
+* **Enlace directo al stack:** Desde la propia pantalla de "Acerca de", dispones de un acceso directo para abrir el grafo visual 2D y verificar la salud de tu base de datos y la velocidad de respuesta del sistema en tiempo real.
+
 

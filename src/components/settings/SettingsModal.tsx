@@ -23,6 +23,7 @@ import { Settings, BackupEnvelope } from '../../types';
 import { DBService } from '../../services/db';
 import { AuthService } from '../../services/auth';
 import { NotificationService } from '../../services/notificationService';
+import { AboutModal } from '../about/AboutModal';
 
 const AppArchitectureGraph = React.lazy(() => import('./AppArchitectureGraph'));
 
@@ -70,6 +71,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     null
   );
   const [showTechStack, setShowTechStack] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
 
   if (!isOpen) return null;
 
@@ -481,14 +483,49 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
+          {/* Acerca de & Novedades de la App (Skill app-about-changelog) */}
+          <div className="space-y-2 p-3 bg-slate-900/80 border border-slate-800 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Información & Novedades</span>
+              </h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+                v1.13.0
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowAboutModal(true)}
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-950/60 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/40 transition-all text-left group cursor-pointer"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 text-emerald-400 border border-emerald-500/30 group-hover:scale-105 transition-transform">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>Acerca de CronoCash & Novedades</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  </div>
+                  <p className="text-[10px] text-slate-400">
+                    Historial de versiones explicado para humanos, ficha técnica y licencia
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+            </button>
+          </div>
+
           {/* Arquitectura del Sistema & Salud del Stack */}
           <div className="space-y-2 p-3 bg-slate-900/80 border border-slate-800 rounded-2xl">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-emerald-400" />
+                <Layers className="w-3.5 h-3.5 text-blue-400" />
                 <span>Transparencia & Arquitectura</span>
               </h3>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-emerald-500/30 font-semibold">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-blue-400 border border-blue-500/30 font-semibold">
                 Gentle AI
               </span>
             </div>
@@ -496,23 +533,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={() => setShowTechStack(true)}
-              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-950/60 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/40 transition-all text-left group cursor-pointer"
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-950/60 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/40 transition-all text-left group cursor-pointer"
             >
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 group-hover:scale-105 transition-transform">
+                <div className="p-2 rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/25 group-hover:scale-105 transition-transform">
                   <Layers className="w-4 h-4" />
                 </div>
                 <div>
                   <div className="text-xs font-bold text-white flex items-center gap-1.5">
                     <span>Arquitectura y Salud del Stack</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
                   </div>
                   <p className="text-[10px] text-slate-400">
                     Grafo interactivo de tecnologías, dependencias y telemetría en tiempo real
                   </p>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all" />
             </button>
           </div>
 
@@ -542,6 +579,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               onClose={() => setShowTechStack(false)}
             />
           </Suspense>
+        )}
+
+        {showAboutModal && (
+          <AboutModal
+            isOpen={showAboutModal}
+            onClose={() => setShowAboutModal(false)}
+            onOpenArchitecture={() => setShowTechStack(true)}
+          />
         )}
       </div>
     </div>

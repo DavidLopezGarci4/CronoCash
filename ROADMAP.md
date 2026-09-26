@@ -4,16 +4,21 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.12.0 — Executive PDF Reports & Quarterly Tax Board Mod. 130 / 303 📑
-- [x] **Servicio de Cálculo Fiscal Trimestral (`taxService.ts`):** Determinación automática de plazos AEAT (20 Abril, 20 Julio, 20 Octubre, 30 Enero), cálculo estimativo de Modelo 130 (IRPF 20%) y Modelo 303 (IVA repercutido vs soportado) y exportación oficial de libro de facturas en CSV con BOM UTF-8.
-- [x] **Generador de Informes Ejecutivos en PDF (`pdfReportService.ts`):** Motor 100% offline con `jspdf` estilo dark-accent/clean slate A4. Informes mensuales con KPIs, desglose por bolsas, sinking funds, Top 5 gastos, y cuadro fiscal trimestral con desglose línea a línea de facturas deducibles.
-- [x] **Soporte Multiplataforma de Compartición y Descarga:** Descarga transparente en Web/PWA y almacenamiento en caché con invocación de la hoja nativa de compartir de Android (`@capacitor/filesystem` y `@capacitor/share`).
-- [x] **Modal Interactivo de Informes & Fiscalidad (`ReportsModal.tsx`):** UI dark mode con 2 pestañas interactivas, selectores de periodo, semáforo de vencimiento AEAT y botones de descarga/exportación.
-- [x] **Integración Global de Navegación:** Botón directo en Dashboard, panel de acceso en Ajustes y enrutamiento en `App.tsx`.
+## Estado Actual: v1.13.0 — Centro Acerca de & Novedades con Historial Humano 🌟
+- [x] **Skill Global Obligatoria (`app-about-changelog`):** Protocolo y especificación para mantener la doble capa de changelog (técnico en repo vs amigable in-app).
+- [x] **Manifiesto de Usuario (`changelog.user.json`):** Resumen conciso, sin jerga y centrado en valor de las 14 versiones de la aplicación (v1.0.0 a v1.13.0).
+- [x] **Componente Interactivo `AboutModal.tsx`:** Ficha de identidad con badges (Versión, Build, 100% Local), tarjeta de novedades destacadas de la APK instalada, historial cronológico colapsable en acordeón y enlace al monitor de salud del stack.
+- [x] **Integración en Ajustes (`SettingsModal.tsx`):** Acceso prioritario directo con badge interactivo "NUEVO".
+- [x] **Compilación y Firma Release Dual v1.13.0:** Generación y firma de ambos APKs `app-v1.13.0-release.apk` (Estándar) y `app-v1.13.0-verticon-release.apk` (Verticons 2:3) con `versionCode 11300` y `versionName "1.13.0"`.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.12.0 (Completado)
+- [x] Servicio de Cálculo Fiscal Trimestral (`taxService.ts`) con plazos AEAT y simulador Mod. 130 / Mod. 303.
+- [x] Generador de Informes Ejecutivos en PDF (`pdfReportService.ts`) y Libro de Facturas en CSV.
+- [x] Modal Interactivo de Informes & Fiscalidad (`ReportsModal.tsx`) y soporte de compartir nativo Android.
 
 ### 📦 v1.11.0 (Completado)
 - [x] Motor de Ritmo de Crucero (`sinkingFundsService.ts`) y Blindaje Safe-to-Spend.
