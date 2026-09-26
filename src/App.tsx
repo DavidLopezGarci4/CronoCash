@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthService } from './services/auth';
 import { DBService } from './services/db';
 import { NotificationService } from './services/notificationService';
-import { Expense, Bucket, RecurringRule, Settings, FinancialTip, SmartRule } from './types';
+import { Expense, Bucket, RecurringRule, Settings, FinancialTip, SmartRule, SavingsGoal } from './types';
 import { SafeToSpendService } from './services/safeToSpendService';
 import { AuthScreen } from './components/auth/AuthScreen';
 import { Header } from './components/layout/Header';
@@ -17,6 +17,8 @@ import { SettingsModal } from './components/settings/SettingsModal';
 import { BackupModal } from './components/backup/BackupModal';
 import { CsvImportModal } from './components/importer/CsvImportModal';
 import { SmartRulesModal } from './components/importer/SmartRulesModal';
+import { GoalsModal } from './components/goals/GoalsModal';
+import { ReportsModal } from './components/reports/ReportsModal';
 
 export const App: React.FC = () => {
   // Estado de Bloqueo / Autenticación
@@ -35,6 +37,7 @@ export const App: React.FC = () => {
   const [settings, setSettings] = useState<Settings>(() => DBService.getSettings());
   const [tips, setTips] = useState<FinancialTip[]>([]);
   const [smartRules, setSmartRules] = useState<SmartRule[]>([]);
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
 
   // Modales
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
@@ -43,15 +46,18 @@ export const App: React.FC = () => {
   const [backupModalOpen, setBackupModalOpen] = useState(false);
   const [csvModalOpen, setCsvModalOpen] = useState(false);
   const [smartRulesModalOpen, setSmartRulesModalOpen] = useState(false);
+  const [goalsModalOpen, setGoalsModalOpen] = useState(false);
+  const [reportsModalOpen, setReportsModalOpen] = useState(false);
 
   // Carga inicial de datos desde IndexedDB
   const loadData = async () => {
-    const [eList, bList, rList, tList, sList] = await Promise.all([
+    const [eList, bList, rList, tList, sList, gList] = await Promise.all([
       DBService.getExpenses(),
       DBService.getBuckets(),
       DBService.getRecurringRules(),
       DBService.getTips(),
       DBService.getSmartRules(),
+      DBService.getSavingsGoals(),
     ]);
     const storedSettings = DBService.getSettings();
     setExpenses(eList);
@@ -59,6 +65,7 @@ export const App: React.FC = () => {
     setRecurringRules(rList);
     setTips(tList);
     setSmartRules(sList);
+    setSavingsGoals(gList);
     setSettings(storedSettings);
 
     // Sincronizar recordatorios y facturas programadas en segundo plano
@@ -163,6 +170,27 @@ export const App: React.FC = () => {
     setTips(updatedTips);
   };
 
+  // CRUD Metas de Ahorro
+  const handleSaveSavingsGoal = async (goal: SavingsGoal) => {
+    await DBService.saveSavingsGoal(goal);
+    await loadData();
+  };
+
+  const handleDeleteSavingsGoal = async (id: string) => {
+    await DBService.deleteSavingsGoal(id);
+    await loadData();
+  };
+
+  const handleAddGoalContribution = async (
+    goalId: string,
+    amount: number,
+    source: 'manual' | 'rollover' | 'safe_to_spend_surplus',
+    notes?: string
+  ) => {
+    await DBService.addGoalContribution(goalId, amount, source, notes);
+    await loadData();
+  };
+
   if (isLocked) {
     return <AuthScreen onUnlocked={handleUnlocked} />;
   }
@@ -177,7 +205,9 @@ export const App: React.FC = () => {
     expenses,
     recurringRules,
     buckets,
-    settings.monthlyIncome || 0
+    settings.monthlyIncome || 0,
+    new Date(),
+    savingsGoals
   );
 
   return (
@@ -198,6 +228,7 @@ export const App: React.FC = () => {
         onLock={handleManualLock}
         onOpenSettings={() => setSettingsModalOpen(true)}
         onOpenBackup={() => setBackupModalOpen(true)}
+        onOpenGoals={() => setGoalsModalOpen(true)}
       />
 
       {/* Contenido Principal */}
@@ -207,6 +238,7 @@ export const App: React.FC = () => {
             expenses={expenses}
             buckets={buckets}
             recurringRules={recurringRules}
+            savingsGoals={savingsGoals}
             settings={settings}
             onAddExpense={() => {
               setEditingExpense(null);
@@ -220,6 +252,8 @@ export const App: React.FC = () => {
             onSelectBucketTab={() => setCurrentTab('buckets')}
             onSelectRecurringTab={() => setCurrentTab('recurring')}
             onOpenImporter={() => setCsvModalOpen(true)}
+            onOpenGoalsModal={() => setGoalsModalOpen(true)}
+            onOpenReports={() => setReportsModalOpen(true)}
           />
         )}
 
@@ -232,6 +266,7 @@ export const App: React.FC = () => {
             onDeleteBucket={handleDeleteBucket}
             onRefresh={loadData}
             onOpenSmartRules={() => setSmartRulesModalOpen(true)}
+            onOpenGoals={() => setGoalsModalOpen(true)}
           />
         )}
 
@@ -298,6 +333,7 @@ export const App: React.FC = () => {
           onDataRestored={loadData}
           onOpenBackup={() => setBackupModalOpen(true)}
           onOpenSmartRules={() => setSmartRulesModalOpen(true)}
+          onOpenReports={() => setReportsModalOpen(true)}
         />
       )}
 
@@ -336,6 +372,35 @@ export const App: React.FC = () => {
           rules={smartRules}
           buckets={buckets}
           onRulesUpdated={loadData}
+        />
+      )}
+
+      {/* Modal de Metas & Sinking Funds */}
+      {goalsModalOpen && (
+        <GoalsModal
+          isOpen={goalsModalOpen}
+          onClose={() => setGoalsModalOpen(false)}
+          goals={savingsGoals}
+          buckets={buckets}
+          currency={settings.currency || '€'}
+          surplusAvailable={safeMetrics.netAvailable}
+          onSaveGoal={handleSaveSavingsGoal}
+          onDeleteGoal={handleDeleteSavingsGoal}
+          onAddContribution={handleAddGoalContribution}
+          onRefresh={loadData}
+        />
+      )}
+
+      {/* Modal de Informes Ejecutivos & Fiscalidad */}
+      {reportsModalOpen && (
+        <ReportsModal
+          isOpen={reportsModalOpen}
+          onClose={() => setReportsModalOpen(false)}
+          expenses={expenses}
+          buckets={buckets}
+          settings={settings}
+          goals={savingsGoals}
+          currency={settings.currency || '€'}
         />
       )}
     </div>

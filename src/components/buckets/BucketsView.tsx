@@ -29,6 +29,7 @@ import {
   Info,
   Loader2,
   AlertTriangle,
+  Target,
 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -45,6 +46,7 @@ interface BucketsViewProps {
   onDeleteBucket: (id: string) => void;
   onRefresh: () => void;
   onOpenSmartRules?: () => void;
+  onOpenGoals?: () => void;
 }
 
 // Mapa de iconos dinámicos Lucide
@@ -73,6 +75,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   onDeleteBucket,
   onRefresh,
   onOpenSmartRules,
+  onOpenGoals,
 }) => {
   // Modales
   const [modalOpen, setModalOpen] = useState(false);
@@ -360,6 +363,18 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             >
               <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
               <span>Reglas Inteligentes</span>
+            </button>
+          )}
+
+          {onOpenGoals && (
+            <button
+              type="button"
+              onClick={onOpenGoals}
+              className="px-3 py-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
+              title="Metas de Ahorro y Sinking Funds"
+            >
+              <Target className="w-3.5 h-3.5 text-purple-400" />
+              <span>Metas & Sinking Funds</span>
             </button>
           )}
 

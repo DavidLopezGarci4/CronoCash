@@ -92,6 +92,33 @@ export interface FinancialTip {
   isRead?: boolean;
 }
 
+export interface GoalContribution {
+  id: string;
+  amount: number;
+  date: string; // ISO 'YYYY-MM-DD'
+  notes?: string;
+  source: 'manual' | 'rollover' | 'safe_to_spend_surplus';
+}
+
+export interface SavingsGoal {
+  id: string;
+  title: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate: string; // ISO 'YYYY-MM-DD'
+  category: 'essential' | 'maintenance' | 'lifestyle' | 'emergency';
+  priority: number; // 1 (alta), 2 (media), 3 (baja)
+  color: string;
+  icon: string;
+  bucketId?: string;
+  autoDeductFromSafeToSpend: boolean;
+  isCompleted: boolean;
+  notes?: string;
+  contributions: GoalContribution[];
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface BackupEnvelope {
   version: string;
   exportedAt: string;
@@ -101,4 +128,28 @@ export interface BackupEnvelope {
   settings: Settings;
   tips: FinancialTip[];
   smartRules?: SmartRule[];
+  savingsGoals?: SavingsGoal[];
 }
+
+export type Quarter = 1 | 2 | 3 | 4;
+
+export interface TaxReport {
+  quarter: Quarter;
+  year: number;
+  startDate: string;
+  endDate: string;
+  deadlineDate: string;
+  daysUntilDeadline: number;
+  isDeadlinePassed: boolean;
+  grossIncome: number;
+  deductibleExpenses: number;
+  nonDeductibleExpenses: number;
+  netYield: number;
+  model130EstimatedTax: number;
+  ivaRepercutido: number;
+  ivaSoportado: number;
+  model303Result: number;
+  invoiceCount: number;
+  invoices: Expense[];
+}
+

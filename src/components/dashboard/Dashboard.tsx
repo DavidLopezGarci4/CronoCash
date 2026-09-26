@@ -13,8 +13,9 @@ import {
   ShieldAlert,
   ArrowUpRight,
   FileSpreadsheet,
+  Target,
 } from 'lucide-react';
-import { Expense, Bucket, Settings, RecurringRule } from '../../types';
+import { Expense, Bucket, Settings, RecurringRule, SavingsGoal } from '../../types';
 import { SafeToSpendService } from '../../services/safeToSpendService';
 import { SafeToSpendWidget } from './SafeToSpendWidget';
 
@@ -22,6 +23,7 @@ interface DashboardProps {
   expenses: Expense[];
   buckets: Bucket[];
   recurringRules?: RecurringRule[];
+  savingsGoals?: SavingsGoal[];
   settings: Settings;
   onAddExpense: () => void;
   onEditExpense: (expense: Expense) => void;
@@ -29,12 +31,15 @@ interface DashboardProps {
   onSelectBucketTab: () => void;
   onSelectRecurringTab?: () => void;
   onOpenImporter?: () => void;
+  onOpenGoalsModal?: () => void;
+  onOpenReports?: () => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
   expenses,
   buckets,
   recurringRules = [],
+  savingsGoals = [],
   settings,
   onAddExpense,
   onEditExpense,
@@ -42,6 +47,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onSelectBucketTab,
   onSelectRecurringTab,
   onOpenImporter,
+  onOpenGoalsModal,
+  onOpenReports,
 }) => {
   const [filterType, setFilterType] = useState<'all' | 'invoices' | 'pending'>('all');
   const currency = settings.currency || '€';
@@ -61,8 +68,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
     expenses,
     recurringRules,
     buckets,
-    monthlyIncome
+    monthlyIncome,
+    new Date(),
+    savingsGoals
   );
+
+  const totalSavedGoals = savingsGoals.reduce((sum, g) => sum + (g.currentAmount || 0), 0);
 
   // Facturas e IVA desgravable
   const invoiceExpenses = currentMonthExpenses.filter((e) => e.isInvoice);
@@ -84,7 +95,49 @@ export const Dashboard: React.FC<DashboardProps> = ({
         currency={currency}
         onOpenRecurringTab={onSelectRecurringTab}
         onOpenBucketsTab={onSelectBucketTab}
+        onOpenGoalsModal={onOpenGoalsModal}
       />
+
+      {/* Widget Resumen Metas & Sinking Funds */}
+      <div className="p-4 rounded-3xl bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 border border-purple-500/30 shadow-lg flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/30 shadow-inner">
+            <Target className="w-5 h-5 stroke-[2.5]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs font-black uppercase tracking-wider text-purple-300">
+                Metas & Sinking Funds
+              </h3>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                {savingsGoals.length} {savingsGoals.length === 1 ? 'meta' : 'metas'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 font-medium mt-0.5">
+              Acumulado:{' '}
+              <strong className="font-mono text-emerald-400 font-bold">
+                {totalSavedGoals.toFixed(2)} {currency}
+              </strong>
+              {safeMetrics.committedGoalsMonthly > 0 && (
+                <span className="text-slate-400 ml-2 font-mono text-[11px]">
+                  (Crucero: -{safeMetrics.committedGoalsMonthly.toFixed(2)} {currency}/mes)
+                </span>
+              )}
+            </p>
+          </div>
+        </div>
+
+        {onOpenGoalsModal && (
+          <button
+            type="button"
+            onClick={onOpenGoalsModal}
+            className="px-3.5 py-2 rounded-2xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+          >
+            <span>Gestionar Metas</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-purple-400" />
+          </button>
+        )}
+      </div>
 
       {/* 1. Tarjetas de Resumen Financiero */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -171,6 +224,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <p className="text-xs text-slate-400">Monitoreo activo por bolsas financieras</p>
         </div>
         <div className="flex items-center gap-2">
+          {onOpenReports && (
+            <button
+              onClick={onOpenReports}
+              className="px-3.5 py-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 hover:border-blue-500/40 text-blue-300 font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer transition-all"
+              title="Informes ejecutivos en PDF y Cuadro Fiscal Trimestral Mod. 130 / 303"
+            >
+              <FileText className="w-4 h-4 text-blue-400" />
+              <span>Informes & Fiscalidad</span>
+            </button>
+          )}
           {onOpenImporter && (
             <button
               onClick={onOpenImporter}

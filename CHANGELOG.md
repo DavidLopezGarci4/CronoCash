@@ -3,6 +3,45 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] - 2026-09-26
+
+### Added
+- **Executive PDF Reports & Quarterly Tax Board Mod. 130 / 303 (`taxService.ts`, `pdfReportService.ts`, `ReportsModal.tsx`):**
+  - **Servicio de Cálculo Fiscal Trimestral (`TaxService`):**
+    - Desglose por trimestres oficiales (1T: Ene-Mar, 2T: Abr-Jun, 3T: Jul-Sep, 4T: Oct-Dic) con determinación automática de plazos de la AEAT (20 de Abril, 20 de Julio, 20 de Octubre y 30 de Enero del año siguiente).
+    - Detección reactiva de días naturales restantes para liquidación o aviso semafórico de plazo vencido con prevención de recargos art. 27 LGT.
+    - Cuadro resumen para el **Modelo 130** (IRPF Autónomos en Estimación Directa): ingresos computables, gastos deducibles justificados con factura, rendimiento neto y cálculo del pago fraccionado a cuenta al 20% (Casilla 07).
+    - Cuadro resumen para el **Modelo 303** (Autoliquidación Periódica IVA): IVA devengado/repercutido al 21%, IVA deducible/soportado en facturas recibidas y resultado neto con calificación automática ("A Ingresar" vs "A Compensar").
+    - Exportación oficial del **Libro Registro de Facturas Recibidas en CSV** con BOM UTF-8 (compatible con Excel y asesorías contables).
+  - **Servicio de Generación de Informes PDF Ejecutivos (`PdfReportService`):**
+    - Motor 100% offline basado en `jspdf` con diseño institucional *dark-accent / clean slate* en formato A4 vertical.
+    - **Informe Ejecutivo Mensual:** Portada ejecutiva con identificación de empresa/titular y NIF, tarjeta de 5 KPIs (Ingresos, Gastos Totales, Balance Neto, Tasa de Ahorro y Asignación Diaria Media), tabla completa de ejecución presupuestaria por Bolsas, estado de Sinking Funds y Top 5 mayores desembolsos del mes.
+    - **Informe Fiscal Trimestral:** Cabecera azul fiscal, banner de plazo AEAT, tarjetas comparativas de Modelos 130 y 303, y tabla paginada con desglose línea a línea de facturas deducibles (Fecha, Nº Factura, Proveedor, Concepto, Base, IVA %, Cuota y Total).
+    - Paginación dinámica institucional ("Página X de Y") y sello criptográfico de verificación/auditoría checksum (`CC-XXXX-YYYY`).
+    - Puente de distribución multiplataforma: descarga directa en Web/PWA y guardado nativo con hoja de compartir de Android (`@capacitor/filesystem` y `@capacitor/share`).
+  - **Componente de UI Modal de Informes & Fiscalidad (`ReportsModal.tsx`):**
+    - Modal en dark mode con 2 pestañas: *Informe Ejecutivo Mensual* (con selector de mes/año, KPIs reactivos y progreso de bolsas) y *Cuadro Fiscal Trimestral* (con selector de trimestre 1T-4T, semáforo de plazos AEAT, desglose de modelos 130/303 y visor de facturas).
+    - Botones de acción con spinners interactivos: *"Descargar / Compartir Informe PDF"*, *"Exportar Informe Fiscal PDF"* y *"Descargar Libro de Facturas (CSV)"*.
+  - **Navegación e Integración Global:**
+    - Botón de acceso directo *"Informes & Fiscalidad"* en la botonera de acciones del Dashboard.
+    - Acceso dedicado en el panel de Ajustes y Bóveda (`SettingsModal`).
+    - Enrutado de estado reactivo en `App.tsx`.
+
+---
+
+## [1.11.0] - 2026-09-26
+
+### Added
+- **Sinking Funds Engine & Autonomous Savings Goals (`sinkingFundsService.ts`, `GoalsModal.tsx`, `GoalFormModal.tsx`, `SweepSurplusModal.tsx`, `QuickContributeModal.tsx`):**
+  - **Cálculo Autónomo de Ritmo de Crucero (`calculateCruisePace`):** Determinación precisa de cuota mensual y ritmo diario recomendado en función de la fecha límite (`targetDate`) y saldo acumulado, con telemetría semafórica (`on_track`, `behind`, `completed`, `critical`).
+  - **Blindaje Integrado en Motor Safe-to-Spend (`safeToSpendService.ts`):** Deducción matemática de cuotas de crucero mensuales activas (`autoDeductFromSafeToSpend: true`) en el cálculo de liquidez disponible neta, visualizado en el desglose matemático con la línea `🛡️ Metas de Ahorro Protegidas (Crucero): -XX.XX €`.
+  - **Sweep & Fund — Reparto Proporcional de Excedentes:** Distribución de superávit mensual ponderada por prioridad (Prioridad 1 peso 3x, Prioridad 2 peso 2x, Prioridad 3 peso 1x) con previsualización reactiva y asignación instantánea.
+  - **Persistencia en IndexedDB v3 (`db.ts`):** Almacén `savings_goals` con índices por categoría y estado de compleción, fallback en `localStorage`, integración completa en `BackupEnvelope` e inyección de 4 semillas maestras (Seguro Coche, IBI, Vacaciones y Averías).
+  - **Experiencia de Usuario Integral:** Widget de acceso rápido en Dashboard con acumulado en tiempo real, accesos directos desde Header y vista de Bolsas, y panel de aportaciones táctiles en 1 toque (`QuickContributeModal`).
+  - **Artefactos Release Dual v1.11.0 Firmados:** Compilación y firma simultánea de `app-v1.11.0-release.apk` (Estándar) y `app-v1.11.0-verticon-release.apk` (Verticons Card 2:3) con `versionCode 11100` y `versionName "1.11.0"`.
+
+---
+
 ## [1.10.0] - 2026-09-26
 
 ### Added

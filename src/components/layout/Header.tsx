@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lock, Settings as SettingsIcon, TrendingUp, TrendingDown, Cloud, Sparkles } from 'lucide-react';
+import { Lock, Settings as SettingsIcon, TrendingUp, TrendingDown, Cloud, Sparkles, Target } from 'lucide-react';
 import { Settings } from '../../types';
 
 interface HeaderProps {
@@ -9,6 +9,7 @@ interface HeaderProps {
   onLock: () => void;
   onOpenSettings: () => void;
   onOpenBackup: () => void;
+  onOpenGoals?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -18,6 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
   onLock,
   onOpenSettings,
   onOpenBackup,
+  onOpenGoals,
 }) => {
   const currency = settings.currency || '€';
   const income = settings.monthlyIncome || 0;
@@ -73,6 +75,17 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
           </div>
+
+          {/* Botón Metas de Ahorro */}
+          {onOpenGoals && (
+            <button
+              onClick={onOpenGoals}
+              className="p-2 rounded-xl bg-slate-800/80 hover:bg-purple-950/40 text-purple-300 hover:text-purple-200 transition-all border border-purple-500/30 cursor-pointer shadow-xs"
+              title="Metas de Ahorro & Sinking Funds"
+            >
+              <Target className="w-4 h-4" />
+            </button>
+          )}
 
           {/* Botón Copias de Seguridad */}
           <button

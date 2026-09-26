@@ -4,30 +4,27 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.10.0 — Importador Universal Bancario Offline CSV & Smart Rules Engine ⚡
-- [x] **Parser Bancario Heurístico (`csvImporterService.ts`):** Detección automática de delimitador (`;`, `,`, `\t`), fechas españolas (`DD/MM/YYYY`) e importes (`1.250,50 €`, columnas separadas Debe/Haber o importe único con signo).
-- [x] **Deduplicador Criptográfico SHA-256:** Generación de hash determinista por movimiento bancario (`fecha + concepto + importe`) mediante Web Crypto API para descartar transacciones solapadas.
-- [x] **Motor de Reglas Inteligentes (`SmartRulesModal.tsx`):** Almacén `smart_rules` en IndexedDB v2 con 12+ semillas de comercios españoles (Mercadona, Repsol, Iberdrola, Vodafone, Netflix, etc.) y asignación automática por prioridad.
-- [x] **Bandeja de Entrada Pre-Asentamiento (`CsvImportModal.tsx`):** Staging con contadores en tiempo real (válidos, duplicados, auto-asignados), selector de bolsas, toggle de factura y guardado de reglas al vuelo.
-- [x] **Compilación y Firma Release Dual v1.10.0:** Generación y firma de ambos APKs `app-v1.10.0-release.apk` (Estándar) y `app-v1.10.0-verticon-release.apk` (Verticons 2:3) con `versionCode 11000` y `versionName "1.10.0"`.
-
----
-
-## Cola de Mejoras Planificadas (Post-Benchmarking Scout)
-
-### 🎯 Fase 11: Metas de Ahorro "Sinking Funds" con Ritmo de Crucero (Próxima)
-- [ ] Fondos de amortización para gastos previsibles futuros (Vacaciones, IBI, Seguro Anual, Navidad, Reparaciones).
-- [ ] Cálculo automático de aportación periódica recomendada y barra de progreso temporal.
-- [ ] Asignación de excedentes mensuales con 1 toque hacia metas prioritarias.
-
-### 📊 Fase 12: Generador Ejecutivo de Informes PDF & Cuadro Fiscal Trimestral
-- [ ] Exportación de informes mensuales y trimestrales ejecutivos en PDF descargables.
-- [ ] Cuadro fiscal preliminar para autónomos y profesionales (Mod. 130 IRPF y Mod. 303 IVA estimado).
-- [ ] Resumen gráfico de facturas emitidas, recibidas y retenciones aplicadas.
+## Estado Actual: v1.12.0 — Executive PDF Reports & Quarterly Tax Board Mod. 130 / 303 📑
+- [x] **Servicio de Cálculo Fiscal Trimestral (`taxService.ts`):** Determinación automática de plazos AEAT (20 Abril, 20 Julio, 20 Octubre, 30 Enero), cálculo estimativo de Modelo 130 (IRPF 20%) y Modelo 303 (IVA repercutido vs soportado) y exportación oficial de libro de facturas en CSV con BOM UTF-8.
+- [x] **Generador de Informes Ejecutivos en PDF (`pdfReportService.ts`):** Motor 100% offline con `jspdf` estilo dark-accent/clean slate A4. Informes mensuales con KPIs, desglose por bolsas, sinking funds, Top 5 gastos, y cuadro fiscal trimestral con desglose línea a línea de facturas deducibles.
+- [x] **Soporte Multiplataforma de Compartición y Descarga:** Descarga transparente en Web/PWA y almacenamiento en caché con invocación de la hoja nativa de compartir de Android (`@capacitor/filesystem` y `@capacitor/share`).
+- [x] **Modal Interactivo de Informes & Fiscalidad (`ReportsModal.tsx`):** UI dark mode con 2 pestañas interactivas, selectores de periodo, semáforo de vencimiento AEAT y botones de descarga/exportación.
+- [x] **Integración Global de Navegación:** Botón directo en Dashboard, panel de acceso en Ajustes y enrutamiento en `App.tsx`.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.11.0 (Completado)
+- [x] Motor de Ritmo de Crucero (`sinkingFundsService.ts`) y Blindaje Safe-to-Spend.
+- [x] Asistente "Sweep & Fund" (`SweepSurplusModal.tsx`) y Persistencia IndexedDB v3 (`db.ts`).
+- [x] Suite de UI para Metas (`GoalsModal.tsx`, `GoalFormModal.tsx`, `QuickContributeModal.tsx`).
+- [x] Compilación y firma release dual v1.11.0 (`versionCode 11100`).
+
+### 📦 v1.10.0 (Completado)
+- [x] Parser Bancario Heurístico (`csvImporterService.ts`) y Deduplicador Criptográfico SHA-256.
+- [x] Motor de Reglas Inteligentes (`SmartRulesModal.tsx`) y Bandeja de Entrada Pre-Asentamiento (`CsvImportModal.tsx`).
+- [x] Compilación y firma release dual v1.10.0 (`versionCode 11000`).
 
 ### 📦 v1.9.0 (Completado)
 - [x] Motor Predictivo Safe-to-Spend (`safeToSpendService.ts`) y Widget de Ritmo de Consumo (`SafeToSpendWidget.tsx`).

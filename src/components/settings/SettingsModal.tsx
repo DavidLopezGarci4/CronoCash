@@ -17,6 +17,7 @@ import {
   Cloud,
   Layers,
   ChevronRight,
+  FileText,
 } from 'lucide-react';
 import { Settings, BackupEnvelope } from '../../types';
 import { DBService } from '../../services/db';
@@ -33,6 +34,7 @@ interface SettingsModalProps {
   onDataRestored: () => void;
   onOpenBackup?: () => void;
   onOpenSmartRules?: () => void;
+  onOpenReports?: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -43,6 +45,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onDataRestored,
   onOpenBackup,
   onOpenSmartRules,
+  onOpenReports,
 }) => {
   const [userFullName, setUserFullName] = useState(settings.userFullName || '');
   const [companyName, setCompanyName] = useState(settings.companyName || '');
@@ -378,6 +381,37 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               >
                 <Sparkles className="w-4 h-4 text-cyan-400" />
                 <span>Gestionar Reglas de Categorización</span>
+              </button>
+            )}
+          </div>
+
+          {/* Informes de Dirección y Cuadro Fiscal Trimestral */}
+          <div className="space-y-3 p-3 bg-slate-900/80 border border-slate-800 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-blue-400" />
+                <span>Informes & Fiscalidad (PDF / CSV)</span>
+              </h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                Mod. 130 / 303
+              </span>
+            </div>
+
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Genera informes ejecutivos de dirección en PDF para cualquier mes o consulta la liquidación trimestral para la AEAT con exportación del libro de facturas.
+            </p>
+
+            {onOpenReports && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenReports();
+                }}
+                className="w-full py-2.5 px-3 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 text-blue-300 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+              >
+                <FileText className="w-4 h-4 text-blue-400" />
+                <span>Abrir Informes de Dirección & Fiscalidad</span>
               </button>
             )}
           </div>

@@ -1,7 +1,7 @@
-import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule } from '../types';
+import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule, SavingsGoal, GoalContribution } from '../types';
 
 const DB_NAME = 'GastosFacturacionDB';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 const STORES = {
   EXPENSES: 'expenses',
@@ -10,7 +10,111 @@ const STORES = {
   SETTINGS: 'settings',
   TIPS: 'tips',
   SMART_RULES: 'smart_rules',
+  SAVINGS_GOALS: 'savings_goals',
 } as const;
+
+export const DEFAULT_SAVINGS_GOALS_SEEDS: SavingsGoal[] = [
+  {
+    id: 'goal-seguro-coche',
+    title: 'Seguro Anual Coche',
+    targetAmount: 480,
+    currentAmount: 160,
+    targetDate: `${new Date().getFullYear() + 1}-03-15`,
+    category: 'maintenance',
+    priority: 1,
+    color: '#3b82f6',
+    icon: 'Car',
+    bucketId: 'bucket-seguros',
+    autoDeductFromSafeToSpend: true,
+    isCompleted: false,
+    notes: 'Póliza anual de vehículo reservada con cuota crucero',
+    contributions: [
+      {
+        id: 'contrib-seed-seguro-1',
+        amount: 160,
+        date: new Date().toISOString().split('T')[0],
+        source: 'manual',
+        notes: 'Fondo inicial acumulado',
+      },
+    ],
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'goal-ibi-tasas',
+    title: 'IBI / Tasas Municipales',
+    targetAmount: 350,
+    currentAmount: 150,
+    targetDate: `${new Date().getFullYear() + 1}-05-20`,
+    category: 'essential',
+    priority: 1,
+    color: '#f59e0b',
+    icon: 'Home',
+    bucketId: 'bucket-vivienda',
+    autoDeductFromSafeToSpend: true,
+    isCompleted: false,
+    notes: 'Impuesto sobre Bienes Inmuebles y tasa de vados/basuras',
+    contributions: [
+      {
+        id: 'contrib-seed-ibi-1',
+        amount: 150,
+        date: new Date().toISOString().split('T')[0],
+        source: 'manual',
+        notes: 'Reserva previa asignada',
+      },
+    ],
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'goal-vacaciones',
+    title: 'Vacaciones de Verano',
+    targetAmount: 1200,
+    currentAmount: 400,
+    targetDate: `${new Date().getFullYear() + 1}-07-01`,
+    category: 'lifestyle',
+    priority: 2,
+    color: '#10b981',
+    icon: 'Palmtree',
+    bucketId: 'bucket-ocio',
+    autoDeductFromSafeToSpend: true,
+    isCompleted: false,
+    notes: 'Viajes, estancia estival y desconexión familiar',
+    contributions: [
+      {
+        id: 'contrib-seed-vacaciones-1',
+        amount: 400,
+        date: new Date().toISOString().split('T')[0],
+        source: 'manual',
+        notes: 'Aportación inicial para vuelo y hotel',
+      },
+    ],
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'goal-averias',
+    title: 'Fondo Averías e Imprevistos',
+    targetAmount: 600,
+    currentAmount: 250,
+    targetDate: `${new Date().getFullYear() + 1}-09-30`,
+    category: 'emergency',
+    priority: 1,
+    color: '#8b5cf6',
+    icon: 'ShieldAlert',
+    bucketId: 'bucket-colchon',
+    autoDeductFromSafeToSpend: true,
+    isCompleted: false,
+    notes: 'Electrodomésticos, fontanería o mantenimiento de urgencia',
+    contributions: [
+      {
+        id: 'contrib-seed-averias-1',
+        amount: 250,
+        date: new Date().toISOString().split('T')[0],
+        source: 'manual',
+        notes: 'Colchón de seguridad amortiguador',
+      },
+    ],
+    createdAt: new Date().toISOString(),
+  },
+];
 
 export const DEFAULT_SETTINGS: Settings = {
   id: 'default_settings',
@@ -558,6 +662,12 @@ export class DBService {
         if (!db.objectStoreNames.contains(STORES.SMART_RULES)) {
           db.createObjectStore(STORES.SMART_RULES, { keyPath: 'id' });
         }
+
+        if (!db.objectStoreNames.contains(STORES.SAVINGS_GOALS)) {
+          const goalStore = db.createObjectStore(STORES.SAVINGS_GOALS, { keyPath: 'id' });
+          goalStore.createIndex('category', 'category', { unique: false });
+          goalStore.createIndex('isCompleted', 'isCompleted', { unique: false });
+        }
       };
 
       request.onsuccess = async () => {
@@ -634,6 +744,22 @@ export class DBService {
           }
         }
       };
+
+      // 5. Savings Goals
+      if (db.objectStoreNames.contains(STORES.SAVINGS_GOALS)) {
+        const goalsTx = db.transaction(STORES.SAVINGS_GOALS, 'readonly');
+        const goalsStore = goalsTx.objectStore(STORES.SAVINGS_GOALS);
+        const goalsCount = goalsStore.count();
+        goalsCount.onsuccess = () => {
+          if (goalsCount.result === 0) {
+            const writeTx = db.transaction(STORES.SAVINGS_GOALS, 'readwrite');
+            const writeStore = writeTx.objectStore(STORES.SAVINGS_GOALS);
+            for (const g of DEFAULT_SAVINGS_GOALS_SEEDS) {
+              writeStore.put(g);
+            }
+          }
+        };
+      }
     } catch (e) {
       console.warn('[DBService] Advertencia sembrando defaults:', e);
     }
@@ -1221,18 +1347,135 @@ export class DBService {
     return result;
   }
 
+  // --- SAVINGS GOALS (Metas & Sinking Funds) ---
+  static async getSavingsGoals(): Promise<SavingsGoal[]> {
+    try {
+      const db = await this.getDB();
+      return await new Promise<SavingsGoal[]>((resolve, reject) => {
+        const tx = db.transaction(STORES.SAVINGS_GOALS, 'readonly');
+        const store = tx.objectStore(STORES.SAVINGS_GOALS);
+        const req = store.getAll();
+        req.onsuccess = () => {
+          const list = req.result as SavingsGoal[];
+          if (!list || list.length === 0) {
+            const local = DBService.getLocalStorageItem<SavingsGoal[]>('gastos_savings_goals', DEFAULT_SAVINGS_GOALS_SEEDS);
+            resolve(local);
+          } else {
+            resolve(list);
+          }
+        };
+        req.onerror = () => reject(req.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Fallback localStorage para savings_goals:', e);
+      return this.getLocalStorageItem<SavingsGoal[]>('gastos_savings_goals', DEFAULT_SAVINGS_GOALS_SEEDS);
+    }
+  }
+
+  static async saveSavingsGoal(goal: SavingsGoal): Promise<void> {
+    const goals = await this.getSavingsGoals();
+    const idx = goals.findIndex((g) => g.id === goal.id);
+    if (idx >= 0) {
+      goals[idx] = { ...goal, updatedAt: new Date().toISOString() };
+    } else {
+      goals.push(goal);
+    }
+    this.setLocalStorageItem('gastos_savings_goals', goals);
+
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.SAVINGS_GOALS, 'readwrite');
+        const store = tx.objectStore(STORES.SAVINGS_GOALS);
+        const req = store.put(goal);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al guardar meta de ahorro en IndexedDB:', e);
+    }
+  }
+
+  static async deleteSavingsGoal(id: string): Promise<void> {
+    const goals = await this.getSavingsGoals();
+    const filtered = goals.filter((g) => g.id !== id);
+    this.setLocalStorageItem('gastos_savings_goals', filtered);
+
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.SAVINGS_GOALS, 'readwrite');
+        const store = tx.objectStore(STORES.SAVINGS_GOALS);
+        const req = store.delete(id);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al borrar meta de ahorro:', e);
+    }
+  }
+
+  static async addGoalContribution(
+    goalId: string,
+    amount: number,
+    source: 'manual' | 'rollover' | 'safe_to_spend_surplus',
+    notes?: string
+  ): Promise<void> {
+    if (amount <= 0) return;
+
+    const goals = await this.getSavingsGoals();
+    const target = goals.find((g) => g.id === goalId);
+    if (!target) {
+      throw new Error(`Meta con ID ${goalId} no encontrada.`);
+    }
+
+    const contribution: GoalContribution = {
+      id: `contrib_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      amount,
+      date: new Date().toISOString().split('T')[0],
+      notes: notes || undefined,
+      source,
+    };
+
+    target.contributions = [...(target.contributions || []), contribution];
+    target.currentAmount = Math.round((target.currentAmount + amount) * 100) / 100;
+    if (target.currentAmount >= target.targetAmount) {
+      target.isCompleted = true;
+    }
+    target.updatedAt = new Date().toISOString();
+
+    await this.saveSavingsGoal(target);
+
+    // Si tiene bolsa vinculada (bucketId), registrar opcionalmente el movimiento como Expense
+    if (target.bucketId) {
+      const expense: Expense = {
+        id: `exp_goal_${Date.now()}`,
+        title: `Aportación a Meta: ${target.title}`,
+        amount,
+        date: new Date().toISOString().split('T')[0],
+        bucketId: target.bucketId,
+        isInvoice: false,
+        status: 'paid',
+        notes: notes ? `Aportación: ${notes} (${source})` : `Aportación a meta de ahorro (${source})`,
+        createdAt: new Date().toISOString(),
+      };
+      await this.saveExpense(expense);
+    }
+  }
+
   // --- BACKUP & EXPORT/IMPORT ---
   static async exportBackupEnvelope(): Promise<BackupEnvelope> {
-    const [expenses, buckets, recurringRules, tips, smartRules] = await Promise.all([
+    const [expenses, buckets, recurringRules, tips, smartRules, savingsGoals] = await Promise.all([
       this.getExpenses(),
       this.getBuckets(),
       this.getRecurringRules(),
       this.getTips(),
       this.getSmartRules(),
+      this.getSavingsGoals(),
     ]);
 
     return {
-      version: '1.10.0',
+      version: '1.11.0',
       exportedAt: new Date().toISOString(),
       expenses,
       buckets,
@@ -1240,6 +1483,7 @@ export class DBService {
       settings: this.getSettings(),
       tips,
       smartRules,
+      savingsGoals,
     };
   }
 
@@ -1275,6 +1519,12 @@ export class DBService {
         await this.saveSmartRule(rule);
       }
     }
+
+    if (Array.isArray(envelope.savingsGoals)) {
+      for (const goal of envelope.savingsGoals) {
+        await this.saveSavingsGoal(goal);
+      }
+    }
   }
 
   /**
@@ -1287,6 +1537,7 @@ export class DBService {
     settings?: Settings;
     tips?: FinancialTip[];
     smartRules?: SmartRule[];
+    savingsGoals?: SavingsGoal[];
   }): Promise<void> {
     this.setLocalStorageItem('gastos_expenses', data.expenses);
     this.setLocalStorageItem('gastos_buckets', data.buckets);
@@ -1301,6 +1552,9 @@ export class DBService {
     if (data.smartRules && data.smartRules.length > 0) {
       this.setLocalStorageItem('gastos_smart_rules', data.smartRules);
     }
+    if (data.savingsGoals && data.savingsGoals.length > 0) {
+      this.setLocalStorageItem('gastos_savings_goals', data.savingsGoals);
+    }
 
     try {
       const db = await this.getDB();
@@ -1311,6 +1565,7 @@ export class DBService {
         STORES.SETTINGS,
         STORES.TIPS,
         STORES.SMART_RULES,
+        STORES.SAVINGS_GOALS,
       ];
       const tx = db.transaction(storesToTransact, 'readwrite');
 
@@ -1322,6 +1577,9 @@ export class DBService {
       }
       if (data.smartRules && data.smartRules.length > 0) {
         tx.objectStore(STORES.SMART_RULES).clear();
+      }
+      if (data.savingsGoals && data.savingsGoals.length > 0) {
+        tx.objectStore(STORES.SAVINGS_GOALS).clear();
       }
 
       if (data.settings) {
@@ -1357,6 +1615,13 @@ export class DBService {
         }
       }
 
+      if (data.savingsGoals && data.savingsGoals.length > 0) {
+        const gStore = tx.objectStore(STORES.SAVINGS_GOALS);
+        for (const g of data.savingsGoals) {
+          gStore.put(g);
+        }
+      }
+
       await new Promise<void>((resolve, reject) => {
         tx.oncomplete = () => resolve();
         tx.onerror = () => reject(tx.error);
@@ -1377,12 +1642,14 @@ export class DBService {
     settings?: Settings;
     tips?: FinancialTip[];
     smartRules?: SmartRule[];
+    savingsGoals?: SavingsGoal[];
   }): Promise<void> {
-    const [currentExpenses, currentBuckets, currentRules, currentSmartRules] = await Promise.all([
+    const [currentExpenses, currentBuckets, currentRules, currentSmartRules, currentGoals] = await Promise.all([
       this.getExpenses(),
       this.getBuckets(),
       this.getRecurringRules(),
       this.getSmartRules(),
+      this.getSavingsGoals(),
     ]);
 
     const expMap = new Map<string, Expense>();
@@ -1403,6 +1670,12 @@ export class DBService {
       data.smartRules.forEach((s) => smartMap.set(s.id, s));
     }
 
+    const goalMap = new Map<string, SavingsGoal>();
+    currentGoals.forEach((g) => goalMap.set(g.id, g));
+    if (data.savingsGoals) {
+      data.savingsGoals.forEach((g) => goalMap.set(g.id, g));
+    }
+
     await this.clearAndRestore({
       expenses: Array.from(expMap.values()),
       buckets: Array.from(bucketMap.values()),
@@ -1410,6 +1683,7 @@ export class DBService {
       settings: data.settings || this.getSettings(),
       tips: data.tips,
       smartRules: Array.from(smartMap.values()),
+      savingsGoals: Array.from(goalMap.values()),
     });
   }
 

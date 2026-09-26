@@ -17,6 +17,8 @@
 9. [Arquitectura del Stack y Salud en Tiempo Real](#9-arquitectura-del-stack-y-salud-en-tiempo-real)
 10. [Motor Safe-to-Spend y Asistente Cover Overspending](#10-motor-safe-to-spend-y-asistente-cover-overspending)
 11. [Importador Universal Bancario Offline CSV y Reglas Inteligentes](#11-importador-universal-bancario-offline-csv-y-reglas-inteligentes)
+12. [Metas de Ahorro y Fondos de Amortización ("Sinking Funds")](#12-metas-de-ahorro-y-fondos-de-amortización-sinking-funds)
+13. [Informes Ejecutivos PDF y Cuadro Fiscal Trimestral (Mod. 130/303)](#13-informes-ejecutivos-pdf-y-cuadro-fiscal-trimestral-mod-130303)
 
 ---
 
@@ -189,3 +191,47 @@
 * **Reglas semánticas por prioridad:** Asocia patrones de texto en el concepto (ej. `"MERCADONA"`, `"REPSOL"`, `"IBERDROLA"`) con su bolsa presupuestaria correspondiente.
 * **Semillas maestras españolas:** La app incluye más de una docena de reglas precargadas para las principales cadenas de alimentación, gasolineras, suministros, telecomunicaciones, plataformas de streaming y seguros en España.
 * **Gestor completo:** Accesible desde el Dashboard, Bolsas y Ajustes para consultar, activar, pausar o crear reglas personalizadas.
+
+---
+
+## 12. Metas de Ahorro y Fondos de Amortización ("Sinking Funds")
+
+### ¿Qué son los "Sinking Funds" (Fondos de Amortización)?
+* **Ahorro previsor para gastos fijos no mensuales:** Permiten planificar desembolsos de periodicidad aperiódica o anual (seguro del vehículo, IBI, vacaciones, gastos escolares o reparaciones imprevistas) dividiendo el coste total en cuotas mensuales asumibles.
+* **Prevención de quiebras presupuestarias:** Evitan que la llegada de un recibo anual de 500€ destruya el balance financiero de ese mes.
+
+### ¿Cómo calcula el sistema el "Ritmo de Crucero"?
+* **Fórmula matemática dinámica:** `Cuota Mensual = (Importe Objetivo - Saldo Acumulado) / Meses Restantes hasta la Fecha Límite`.
+* **Recálculo reactivo:** Cada vez que realizas una aportación puntual o avanza el calendario, el motor actualiza la cuota requerida por mes y por día.
+* **Semáforos de salud:** Cada meta muestra si marchas `En ritmo` (verde), `Requiere atención` (ámbar si te has quedado atrás en el calendario) o `¡Vencida/Crítica!` (rojo).
+
+### ¿Cómo se conectan las metas con el motor Safe-to-Spend?
+* **Blindaje automático del ahorro:** Al activar el interruptor *"Proteger en Safe-to-Spend"*, la cuota de crucero mensual de esa meta se resta automáticamente del disponible diario.
+* **Gasto sin culpa:** El dinero destinado a tus metas queda blindado; lo que el semáforo diario de Safe-to-Spend te dice que puedes gastar hoy es dinero 100% libre y seguro.
+
+### ¿Qué es el Asistente "Sweep & Fund" (Barrido de Superávit)?
+* **Reparto de excedentes con 1 toque:** Al finalizar el mes, si has acumulado superávit en tu Safe-to-Spend, este asistente distribuye el saldo sobrante entre tus metas activas.
+* **Ponderación por prioridad:** Las metas esenciales (Prioridad 1) reciben 3 veces más ponderación que las de ocio (Prioridad 3), asegurando que los compromisos críticos se cubran primero.
+
+---
+
+## 13. Informes Ejecutivos PDF y Cuadro Fiscal Trimestral (Mod. 130/303)
+
+### ¿Cómo genero un Informe Ejecutivo Mensual en PDF?
+* **Generación 100% offline:** Utiliza el motor vectorial cliente `jspdf` para construir en milisegundos un documento institucional A4 sin enviar datos a ningún servidor externo.
+* **Diseño institucional de alta fidelidad:** Contiene cabecera con datos de la empresa o titular, NIF/CIF, tarjeta de 5 KPIs financieros (Ingresos, Gastos Totales, Balance Neto, Tasa de Ahorro y Gasto Diario Seguro Medio), tabla de ejecución por Bolsas, estado de Sinking Funds y Top 5 mayores gastos.
+* **Descarga y compartición directa:** En dispositivos Android, el PDF se genera en memoria y activa la hoja de compartir nativa (`@capacitor/share`), permitiendo enviarlo por WhatsApp, guardarlo en Google Drive o archivarlo en Descargas. En navegador web, inicia una descarga directa.
+
+### ¿Qué incluye el Cuadro Fiscal Trimestral para Autónomos y Particulares?
+* **Agrupación por trimestres oficiales (1T, 2T, 3T, 4T):** Filtra automáticamente las facturas e ingresos comprendidos en cada periodo natural de la Agencia Tributaria (AEAT).
+* **Semáforo de plazos oficiales:** Muestra los días naturales que restan hasta el vencimiento oficial de la presentación (20 de abril, 20 de julio, 20 de octubre, 30 de enero) con avisos de urgencia.
+* **Simulador Modelo 130 (IRPF Fraccionado Estimación Directa):**
+  * Computa ingresos brutos, resta gastos debidamente justificados con factura (`isInvoice: true`) y calcula el rendimiento neto acumulado.
+  * Estima el pago a cuenta oficial del 20% (Casilla 07) para evitar sorpresas tributarias a fin de trimestre.
+* **Simulador Modelo 303 (Liquidación Trimestral de IVA):**
+  * Desglosa el IVA devengado/repercutido al 21% y el IVA soportado/deducible de las facturas registradas.
+  * Ofrece el resultado líquido con calificación transparente: *"A Ingresar"* (si repercutiste más IVA del que soportaste) o *"A Compensar / Devolver"* (si tienes saldo a tu favor).
+
+### ¿Cómo exportar el Libro Registro Oficial de Facturas?
+* **Descarga en CSV normalizado:** Puedes pulsar *"Descargar Libro de Facturas (CSV)"* para obtener un archivo estructurado con BOM UTF-8 (compatible con Excel y software contable) que desglosa Fecha, Número de Factura, Proveedor, Concepto, Base Imponible, Tipo impositivo de IVA (%), Cuota de IVA y Total.
+

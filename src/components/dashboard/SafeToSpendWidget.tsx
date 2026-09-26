@@ -19,6 +19,7 @@ interface SafeToSpendWidgetProps {
   currency: string;
   onOpenRecurringTab?: () => void;
   onOpenBucketsTab?: () => void;
+  onOpenGoalsModal?: () => void;
 }
 
 export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
@@ -26,6 +27,7 @@ export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
   currency,
   onOpenRecurringTab,
   onOpenBucketsTab,
+  onOpenGoalsModal,
 }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [simulatorOpen, setSimulatorOpen] = useState(false);
@@ -284,6 +286,24 @@ export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
               </div>
               <span className="text-blue-400 font-bold">-{metrics.bufferReserved.toFixed(2)} {currency}</span>
             </div>
+
+            {metrics.committedGoalsMonthly > 0 && (
+              <div className="flex justify-between items-center text-slate-300">
+                <div className="flex items-center gap-1">
+                  <span className="text-slate-400">🛡️ Metas de Ahorro Protegidas (Crucero):</span>
+                  {onOpenGoalsModal && (
+                    <button
+                      type="button"
+                      onClick={onOpenGoalsModal}
+                      className="text-[10px] text-cyan-400 hover:underline"
+                    >
+                      (metas)
+                    </button>
+                  )}
+                </div>
+                <span className="text-purple-400 font-bold">-{metrics.committedGoalsMonthly.toFixed(2)} {currency}</span>
+              </div>
+            )}
 
             <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-slate-200 font-bold">
               <span>= Liquidez disponible real:</span>

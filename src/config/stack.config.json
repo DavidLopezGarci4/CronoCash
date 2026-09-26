@@ -1,6 +1,6 @@
 {
   "appName": "CronoCash",
-  "version": "1.7.0",
+  "version": "1.12.0",
   "category": "Bóveda Financiera & Gestión de Gastos",
   "description": "Arquitectura modular híbrida offline-first con persistencia ACID local y respaldo seguro en la nube.",
   "nodes": [

@@ -1,4 +1,5 @@
-import { Expense, RecurringRule, Bucket } from '../types';
+import { Expense, RecurringRule, Bucket, SavingsGoal } from '../types';
+import { SinkingFundsService } from './sinkingFundsService';
 
 export interface PendingBill {
   id: string;
@@ -15,6 +16,7 @@ export interface SafeToSpendMetrics {
   pendingBillsCount: number;
   pendingBills: PendingBill[];
   bufferReserved: number;
+  committedGoalsMonthly: number;
   netAvailable: number;
   totalDaysInMonth: number;
   currentDay: number;
@@ -35,7 +37,8 @@ export class SafeToSpendService {
     recurringRules: RecurringRule[],
     buckets: Bucket[],
     monthlyIncome: number,
-    referenceDate = new Date()
+    referenceDate = new Date(),
+    savingsGoals: SavingsGoal[] = []
   ): SafeToSpendMetrics {
     const year = referenceDate.getFullYear();
     const month = referenceDate.getMonth(); // 0-11
@@ -88,10 +91,16 @@ export class SafeToSpendService {
     const bufferBuckets = buckets.filter((b) => b.isBuffer);
     const bufferReserved = bufferBuckets.reduce((acc, curr) => acc + (curr.budgetLimit || 0), 0);
 
+    // Cuota mensual comprometida para Metas de Ahorro con deducción activa
+    const committedGoalsMonthly = SinkingFundsService.calculateTotalCommittedMonthly(
+      savingsGoals,
+      referenceDate
+    );
+
     // Liquidez Neta Real Disponible para el resto del mes
     const netAvailable = Math.max(
       0,
-      monthlyIncome - totalSpentMonth - pendingRecurringTotal - bufferReserved
+      monthlyIncome - totalSpentMonth - pendingRecurringTotal - bufferReserved - committedGoalsMonthly
     );
 
     // Safe-to-Spend diario
@@ -127,6 +136,7 @@ export class SafeToSpendService {
       pendingBillsCount: pendingBills.length,
       pendingBills,
       bufferReserved,
+      committedGoalsMonthly,
       netAvailable,
       totalDaysInMonth,
       currentDay,
