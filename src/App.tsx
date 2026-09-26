@@ -46,11 +46,15 @@ export const App: React.FC = () => {
       DBService.getRecurringRules(),
       DBService.getTips(),
     ]);
+    const storedSettings = DBService.getSettings();
     setExpenses(eList);
     setBuckets(bList);
     setRecurringRules(rList);
     setTips(tList);
-    setSettings(DBService.getSettings());
+    setSettings(storedSettings);
+
+    // Sincronizar recordatorios y facturas programadas en segundo plano
+    await NotificationService.syncAllScheduledReminders(storedSettings, rList);
   };
 
   useEffect(() => {
@@ -64,12 +68,10 @@ export const App: React.FC = () => {
     });
   }, []);
 
-  // Sincronizar alarmas de facturas recurrentes con Android
+  // Sincronizar alarmas de facturas recurrentes y recordatorio diario con Android
   useEffect(() => {
-    if (recurringRules.length > 0 && settings.notificationsEnabled) {
-      NotificationService.scheduleRecurringBillReminders(recurringRules);
-    }
-  }, [recurringRules, settings.notificationsEnabled]);
+    NotificationService.syncAllScheduledReminders(settings, recurringRules);
+  }, [recurringRules, settings.notificationsEnabled, settings.notificationHour]);
 
   // Bloqueo al pasar a segundo plano
   useEffect(() => {
@@ -269,7 +271,10 @@ export const App: React.FC = () => {
           isOpen={settingsModalOpen}
           onClose={() => setSettingsModalOpen(false)}
           settings={settings}
-          onSettingsSaved={(updated) => setSettings(updated)}
+          onSettingsSaved={(updated) => {
+            setSettings(updated);
+            NotificationService.syncAllScheduledReminders(updated, recurringRules);
+          }}
           onDataRestored={loadData}
           onOpenBackup={() => setBackupModalOpen(true)}
         />

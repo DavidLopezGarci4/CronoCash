@@ -56,7 +56,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [notificationsEnabled, setNotificationsEnabled] = useState(
     settings.notificationsEnabled ?? true
   );
-  const [notificationHour, setNotificationHour] = useState('21:30');
+  const [notificationHour, setNotificationHour] = useState(
+    settings.notificationHour || '21:30'
+  );
   const [testSent, setTestSent] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [importMessage, setImportMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(
@@ -82,6 +84,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       monthlyIncome: parseFloat(monthlyIncome.replace(',', '.')) || 0,
       currency,
       notificationsEnabled,
+      notificationHour,
       biometriaActiva,
       guardarContrasenaAuto,
       updatedAt: new Date().toISOString(),

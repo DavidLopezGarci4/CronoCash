@@ -1,6 +1,6 @@
 import { LocalNotifications, PermissionStatus } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
-import { RecurringRule } from '../types';
+import { RecurringRule, Settings } from '../types';
 
 export const CRONO_BILLS_CHANNEL_ID = 'crono_bills_alerts';
 export const CRONO_DAILY_CHANNEL_ID = 'crono_daily_review';
@@ -16,16 +16,10 @@ export class NotificationService {
   private static actionListenerRegistered = false;
 
   /**
-   * Inicializa canales de Android y oyente de acciones interactivas
+   * Asegura que los canales nativos de alta prioridad existan en Android
    */
-  static async init(onAction?: (actionType: string) => void): Promise<void> {
-    if (this.isInitialized) return;
-    this.isInitialized = true;
-
-    if (!Capacitor.isNativePlatform()) {
-      return;
-    }
-
+  static async ensureChannels(): Promise<void> {
+    if (!Capacitor.isNativePlatform()) return;
     try {
       // 1. Canal para vencimientos y facturas (Alta prioridad)
       await LocalNotifications.createChannel({
@@ -39,16 +33,16 @@ export class NotificationService {
         lights: true,
       });
 
-      // 2. Canal para revisión nocturna de gastos
+      // 2. Canal para revisión nocturna de gastos (Alta prioridad)
       await LocalNotifications.createChannel({
         id: CRONO_DAILY_CHANNEL_ID,
         name: 'Recordatorio Diario de Gastos',
         description: 'Aviso nocturno para asentar compras y gastos diarios pendientes',
-        importance: 3, // DEFAULT
-        visibility: 1,
+        importance: 4, // HIGH
+        visibility: 1, // PUBLIC
         sound: 'default',
         vibration: true,
-        lights: false,
+        lights: true,
       });
 
       // 3. Canal para alertas de presupuesto y bolsas
@@ -56,12 +50,30 @@ export class NotificationService {
         id: CRONO_BUDGET_CHANNEL_ID,
         name: 'Control de Bolsas de Presupuesto',
         description: 'Alertas cuando una bolsa supera el 85% o el 100% de su límite',
-        importance: 4,
-        visibility: 1,
+        importance: 4, // HIGH
+        visibility: 1, // PUBLIC
         sound: 'default',
         vibration: true,
         lights: true,
       });
+    } catch (e) {
+      console.warn('[NotificationService] Error al crear canales de notificación:', e);
+    }
+  }
+
+  /**
+   * Inicializa canales de Android y oyente de acciones interactivas
+   */
+  static async init(onAction?: (actionType: string) => void): Promise<void> {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
+    if (!Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    try {
+      await this.ensureChannels();
 
       // Registrar oyente al pulsar una notificación
       if (onAction && !this.actionListenerRegistered) {
@@ -72,7 +84,7 @@ export class NotificationService {
         });
       }
     } catch (e) {
-      console.warn('[NotificationService] Error al crear canales de notificación:', e);
+      console.warn('[NotificationService] Error al inicializar servicio de notificaciones:', e);
     }
   }
 
@@ -161,7 +173,8 @@ export class NotificationService {
         if (req.display !== 'granted') return false;
       }
 
-      const { hour, minute, nextDate } = this.getNextScheduleTime(timeStr);
+      await this.ensureChannels();
+      const { hour, minute } = this.getNextScheduleTime(timeStr);
 
       await LocalNotifications.schedule({
         notifications: [
@@ -171,11 +184,8 @@ export class NotificationService {
             body: '¿Has realizado compras hoy? Revisa y registra tus tickets o gastos para mantener al día tus bolsas.',
             channelId: CRONO_DAILY_CHANNEL_ID,
             schedule: {
-              at: nextDate,
-              repeats: true,
-              every: 'day',
-              allowWhileIdle: true,
               on: { hour, minute },
+              allowWhileIdle: true,
             },
             extra: {
               action: 'open_dashboard',
@@ -282,6 +292,7 @@ export class NotificationService {
       }
 
       if (notificationsToSchedule.length > 0) {
+        await this.ensureChannels();
         await LocalNotifications.schedule({ notifications: notificationsToSchedule });
       }
 
@@ -290,6 +301,18 @@ export class NotificationService {
       console.error('[NotificationService] Error al programar avisos de facturas:', e);
       return 0;
     }
+  }
+
+  /**
+   * Sincroniza todos los recordatorios programados recurrentes según la configuración
+   */
+  static async syncAllScheduledReminders(settings: Settings, rules: RecurringRule[] = []): Promise<void> {
+    const isDailyEnabled = settings.notificationsEnabled ?? true;
+    const timeStr = settings.notificationHour || '21:30';
+    await Promise.all([
+      this.scheduleDailyReviewReminder(isDailyEnabled, timeStr),
+      this.scheduleRecurringBillReminders(rules),
+    ]);
   }
 
   /**
@@ -318,6 +341,7 @@ export class NotificationService {
         if (req.display !== 'granted') return false;
       }
 
+      await this.ensureChannels();
       await LocalNotifications.schedule({
         notifications: [
           {

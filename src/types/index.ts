@@ -58,6 +58,7 @@ export interface Settings {
   companyName?: string;
   taxId?: string; // NIF / CIF
   notificationsEnabled: boolean;
+  notificationHour?: string;
   theme: 'dark' | 'light';
   updatedAt: string;
 }
