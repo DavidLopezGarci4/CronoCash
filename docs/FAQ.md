@@ -1,6 +1,7 @@
 # Preguntas Frecuentes y Guía de Herramientas (FAQ) — CronoCash 📖
 
-> Guía de referencia rápida, operativa y resolución de dudas sobre todas las funciones y herramientas activas en la versión oficial de **CronoCash** (Android APK y PWA).
+> Guía de referencia rápida, operativa y resolución de dudas sobre todas las funciones y herramientas activas en la versión oficial de **CronoCash** (Android APK y PWA).  
+> **Versión Actual:** `v1.13.0` (Build 11300) • **Actualizado:** 26 de Septiembre de 2026 • **Módulos Auditados:** 14/14
 
 ---
 
