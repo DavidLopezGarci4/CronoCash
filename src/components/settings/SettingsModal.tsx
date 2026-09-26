@@ -32,6 +32,7 @@ interface SettingsModalProps {
   onSettingsSaved: (updated: Settings) => void;
   onDataRestored: () => void;
   onOpenBackup?: () => void;
+  onOpenSmartRules?: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -41,6 +42,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onSettingsSaved,
   onDataRestored,
   onOpenBackup,
+  onOpenSmartRules,
 }) => {
   const [userFullName, setUserFullName] = useState(settings.userFullName || '');
   const [companyName, setCompanyName] = useState(settings.companyName || '');
@@ -346,6 +348,37 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </p>
                 </div>
               </div>
+            )}
+          </div>
+
+          {/* Reglas Inteligentes de Categorización */}
+          <div className="space-y-3 p-3 bg-slate-900/80 border border-slate-800 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Auto-Categorización Inteligente</span>
+              </h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                Offline Rules
+              </span>
+            </div>
+
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Reglas automáticas de coincidencia por patrón de comercio para clasificar tus gastos y extractos bancarios en su bolsa correspondiente.
+            </p>
+
+            {onOpenSmartRules && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenSmartRules();
+                }}
+                className="w-full py-2.5 px-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+              >
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                <span>Gestionar Reglas de Categorización</span>
+              </button>
             )}
           </div>
 

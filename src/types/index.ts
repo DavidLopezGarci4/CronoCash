@@ -24,8 +24,21 @@ export interface Expense {
   receiptUri?: string;
   status: 'paid' | 'pending';
   recurringRuleId?: string;
+  rawHash?: string;
+  importBatchId?: string;
   createdAt: string;
   updatedAt?: string;
+}
+
+export interface SmartRule {
+  id: string;
+  pattern: string; // Ej: "MERCADONA"
+  matchType: 'contains' | 'exact' | 'startsWith' | 'regex';
+  bucketId: string;
+  isInvoice?: boolean;
+  priority: number;
+  isActive: boolean;
+  createdAt: string;
 }
 
 export interface RecurringRule {
@@ -87,4 +100,5 @@ export interface BackupEnvelope {
   recurringRules: RecurringRule[];
   settings: Settings;
   tips: FinancialTip[];
+  smartRules?: SmartRule[];
 }

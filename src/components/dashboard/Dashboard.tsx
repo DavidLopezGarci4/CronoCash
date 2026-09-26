@@ -12,6 +12,7 @@ import {
   Edit2,
   ShieldAlert,
   ArrowUpRight,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { Expense, Bucket, Settings, RecurringRule } from '../../types';
 import { SafeToSpendService } from '../../services/safeToSpendService';
@@ -27,6 +28,7 @@ interface DashboardProps {
   onDeleteExpense: (id: string) => void;
   onSelectBucketTab: () => void;
   onSelectRecurringTab?: () => void;
+  onOpenImporter?: () => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -39,6 +41,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onDeleteExpense,
   onSelectBucketTab,
   onSelectRecurringTab,
+  onOpenImporter,
 }) => {
   const [filterType, setFilterType] = useState<'all' | 'invoices' | 'pending'>('all');
   const currency = settings.currency || '€';
@@ -162,18 +165,30 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </div>
 
       {/* Botón Flotante / Destacado Añadir Gasto */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-black tracking-tight text-white">Estado de Presupuestos</h2>
           <p className="text-xs text-slate-400">Monitoreo activo por bolsas financieras</p>
         </div>
-        <button
-          onClick={onAddExpense}
-          className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-95 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 cursor-pointer transition-all"
-        >
-          <Plus className="w-4 h-4 stroke-[3]" />
-          <span>Nuevo Gasto</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {onOpenImporter && (
+            <button
+              onClick={onOpenImporter}
+              className="px-3.5 py-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 hover:border-emerald-500/40 text-emerald-300 font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer transition-all"
+              title="Importar extracto bancario en CSV con deduplicación y auto-reglas"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+              <span>Importar Banco (CSV)</span>
+            </button>
+          )}
+          <button
+            onClick={onAddExpense}
+            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-95 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 cursor-pointer transition-all"
+          >
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span>Nuevo Gasto</span>
+          </button>
+        </div>
       </div>
 
       {/* 2. Barra de Progreso de Bolsas (Buckets) */}

@@ -44,6 +44,7 @@ interface BucketsViewProps {
   onSaveBucket: (bucket: Bucket) => void;
   onDeleteBucket: (id: string) => void;
   onRefresh: () => void;
+  onOpenSmartRules?: () => void;
 }
 
 // Mapa de iconos dinámicos Lucide
@@ -71,6 +72,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   onSaveBucket,
   onDeleteBucket,
   onRefresh,
+  onOpenSmartRules,
 }) => {
   // Modales
   const [modalOpen, setModalOpen] = useState(false);
@@ -348,6 +350,18 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Smart Seeds</span>
           </button>
+
+          {onOpenSmartRules && (
+            <button
+              type="button"
+              onClick={onOpenSmartRules}
+              className="px-3 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
+              title="Gestionar reglas automáticas de asignación de extractos bancarios"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Reglas Inteligentes</span>
+            </button>
+          )}
 
           <button
             onClick={() => {

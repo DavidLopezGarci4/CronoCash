@@ -3,6 +3,28 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2026-09-26
+
+### Added
+- **Importador Universal Bancario Offline CSV (`csvImporterService.ts`, `CsvImportModal.tsx`):**
+  - **Heurística de Ingesta Inteligente:** Detección automática del delimitador (`;`, `,`, `\t`), juego de caracteres y formatos de fecha habituales en entidades bancarias españolas (`DD/MM/YYYY`, `DD-MM-YYYY`, `YYYY-MM-DD`).
+  - **Tratamiento Avanzado de Importes:** Soporte completo de coma decimal española (`1.250,50` o `-45,99`) y normalización de columnas separadas `Debe`/`Haber` o importe único firmado.
+  - **Deduplicador Criptográfico SHA-256:** Generación determinista de hash SHA-256 por cada movimiento bancario (`fecha + concepto + importe`) mediante Web Crypto API para descartar de forma transparente transacciones previamente registradas o solapadas.
+  - **Bandeja de Entrada Pre-Asentamiento (Staging Table):** Tabla interactiva con métricas en tiempo real de gastos detectados, válidos, duplicados y auto-clasificados, con selector de bolsas por fila, toggle de factura desgravable y asignación en bloque con 1 toque.
+  - **Generación de Reglas al Vuelo:** Interruptor interactivo en la bandeja de importación para persistir automáticamente las asociaciones comercio-bolsa realizadas como nuevas reglas para futuros extractos.
+- **Motor de Reglas Inteligentes Declarativas (`SmartRulesModal.tsx`, `db.ts`):**
+  - **Almacén `smart_rules` en IndexedDB v2:** Nueva tabla con índice y sincronización dual con `localStorage`.
+  - **Semillas Maestras para el Mercado Español:** Reglas precargadas cubriendo supermercados (Mercadona, Carrefour, Lidl, Dia), movilidad (Repsol, Cepsa, BP, Renfe, Metro), suministros (Iberdrola, Endesa, Naturgy, Canal de Isabel II), telecomunicaciones (Movistar, Vodafone, Orange, Digi), ocio (Netflix, Spotify, Prime Video), seguros (Mapfre, Sanitas, Mutua Madrileña) y vivienda (Hipoteca, Alquiler, Comunidad).
+  - **Gestor Visual de Reglas:** Interfaz completa para consultar, activar/desactivar, filtrar por bolsa, crear reglas personalizadas o restablecer las semillas oficiales recomendadas.
+- **Accesos y Navegación Integrada:**
+  - Botón *"Importar Banco (CSV)"* en la cabecera del Dashboard principal.
+  - Acceso directo a *"Reglas Inteligentes"* en la barra de herramientas de la vista de Bolsas.
+  - Sección dedicada de auto-categorización en Ajustes.
+- **Artefactos Release Dual v1.10.0 Firmados:**
+  - Compilación y firma simultánea de `app-v1.10.0-release.apk` (Estándar) y `app-v1.10.0-verticon-release.apk` (Verticons Card 2:3) con `versionCode 11000` y `versionName "1.10.0"`.
+
+---
+
 ## [1.9.0] - 2026-09-26
 
 ### Added

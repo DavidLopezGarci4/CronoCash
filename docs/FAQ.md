@@ -16,6 +16,7 @@
 8. [Iconografía Oficial Android y Tarjeta Verticons](#8-iconografía-oficial-android-y-tarjeta-verticons)
 9. [Arquitectura del Stack y Salud en Tiempo Real](#9-arquitectura-del-stack-y-salud-en-tiempo-real)
 10. [Motor Safe-to-Spend y Asistente Cover Overspending](#10-motor-safe-to-spend-y-asistente-cover-overspending)
+11. [Importador Universal Bancario Offline CSV y Reglas Inteligentes](#11-importador-universal-bancario-offline-csv-y-reglas-inteligentes)
 
 ---
 
@@ -165,3 +166,26 @@
   2. *Compensar desde Mayor Superávit:* Extrae los fondos sobrantes de la bolsa que tenga mayor holgura acumulada.
   3. *Prorratear entre Bolsas con Margen:* Reparte la compensación de forma equitativa y proporcional entre todas las bolsas saludables.
 * **Presupuesto Base Cero intacto:** Ningún euro se crea ni se destruye; el asistente ajusta los límites entre sobres garantizando que la suma total mensual se mantenga cuadrada.
+
+---
+
+## 11. Importador Universal Bancario Offline CSV y Reglas Inteligentes
+
+### ¿Cómo funciona el Importador de Extractos Bancarios CSV?
+* **Privacidad 100% offline:** El extracto bancario se procesa de forma íntegra en la memoria de tu dispositivo mediante Web Workers y Web Crypto API; ningún dato bancario o personal sale a Internet.
+* **Compatibilidad universal con bancos:** Detecta automáticamente delimitadores (`;`, `,`, tabuladores) y formatos de fecha/importe habituales de entidades como Santander, BBVA, CaixaBank, ING, Sabadell, Openbank, Revolut o N26.
+* **Soporte de Debe y Haber:** Maneja tanto extractos con una columna única de importe con signo como archivos con columnas independientes de cargo (debe) y abono (haber).
+
+### ¿Cómo previene CronoCash que se dupliquen gastos ya existentes?
+* **Deduplicador determinista SHA-256:** Cada movimiento genera una firma criptográfica única basada en su fecha, concepto normalizado e importe.
+* **Descarte automático de solapamientos:** Si importas un extracto que incluye días que ya habías importado previamente, el sistema detecta las transacciones coincidentes, las marca como duplicadas y las deselecciona por defecto.
+
+### ¿Qué es la Bandeja de Revisión (Staging Table)?
+* **Control antes de asentar:** Antes de registrar los gastos en tu presupuesto, se muestra una tabla interactiva con contadores en tiempo real: gastos detectados, nuevos válidos, duplicados descartados y auto-clasificados por regla.
+* **Ajuste en 1 toque:** Puedes cambiar la bolsa asignada a cualquier fila, marcarla como deducible fiscal o desmarcarla para omitirla.
+* **Creación de reglas al vuelo:** Puedes activar la casilla *"Guardar asignaciones como nuevas reglas automáticas"* para que el sistema recuerde la bolsa elegida en futuros extractos bancarios.
+
+### ¿Cómo configurar las Reglas Inteligentes de Auto-Categorización?
+* **Reglas semánticas por prioridad:** Asocia patrones de texto en el concepto (ej. `"MERCADONA"`, `"REPSOL"`, `"IBERDROLA"`) con su bolsa presupuestaria correspondiente.
+* **Semillas maestras españolas:** La app incluye más de una docena de reglas precargadas para las principales cadenas de alimentación, gasolineras, suministros, telecomunicaciones, plataformas de streaming y seguros en España.
+* **Gestor completo:** Accesible desde el Dashboard, Bolsas y Ajustes para consultar, activar, pausar o crear reglas personalizadas.

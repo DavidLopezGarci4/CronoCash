@@ -1,7 +1,7 @@
-import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope } from '../types';
+import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule } from '../types';
 
 const DB_NAME = 'GastosFacturacionDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 const STORES = {
   EXPENSES: 'expenses',
@@ -9,6 +9,7 @@ const STORES = {
   RECURRING_RULES: 'recurring_rules',
   SETTINGS: 'settings',
   TIPS: 'tips',
+  SMART_RULES: 'smart_rules',
 } as const;
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -453,6 +454,65 @@ export const DEFAULT_TIPS: FinancialTip[] = [
   },
 ];
 
+export const INITIAL_SMART_RULES: SmartRule[] = [
+  // Supermercado / Alimentación
+  { id: 'rule-mercadona', pattern: 'MERCADONA', matchType: 'contains', bucketId: 'bucket-super', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-carrefour', pattern: 'CARREFOUR', matchType: 'contains', bucketId: 'bucket-super', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-lidl', pattern: 'LIDL', matchType: 'contains', bucketId: 'bucket-super', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-dia', pattern: 'DIA', matchType: 'contains', bucketId: 'bucket-super', priority: 5, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-alcampo', pattern: 'ALCAMPO', matchType: 'contains', bucketId: 'bucket-super', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-eroski', pattern: 'EROSKI', matchType: 'contains', bucketId: 'bucket-super', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-consum', pattern: 'CONSUM', matchType: 'contains', bucketId: 'bucket-super', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+
+  // Movilidad / Combustible
+  { id: 'rule-repsol', pattern: 'REPSOL', matchType: 'contains', bucketId: 'bucket-transporte', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-cepsa', pattern: 'CEPSA', matchType: 'contains', bucketId: 'bucket-transporte', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-bp', pattern: 'BP', matchType: 'contains', bucketId: 'bucket-transporte', priority: 5, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-shell', pattern: 'SHELL', matchType: 'contains', bucketId: 'bucket-transporte', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-renfe', pattern: 'RENFE', matchType: 'contains', bucketId: 'bucket-transporte', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-metro', pattern: 'METRO', matchType: 'contains', bucketId: 'bucket-transporte', priority: 8, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-emt', pattern: 'EMT', matchType: 'contains', bucketId: 'bucket-transporte', priority: 8, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-gasolinera', pattern: 'GASOLINERA', matchType: 'contains', bucketId: 'bucket-transporte', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-peaje', pattern: 'PEAJE', matchType: 'contains', bucketId: 'bucket-transporte', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+
+  // Suministros
+  { id: 'rule-iberdrola', pattern: 'IBERDROLA', matchType: 'contains', bucketId: 'bucket-suministros', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-endesa', pattern: 'ENDESA', matchType: 'contains', bucketId: 'bucket-suministros', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-naturgy', pattern: 'NATURGY', matchType: 'contains', bucketId: 'bucket-suministros', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-totalenergies', pattern: 'TOTALENERGIES', matchType: 'contains', bucketId: 'bucket-suministros', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-aqualia', pattern: 'AQUALIA', matchType: 'contains', bucketId: 'bucket-suministros', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-canal-isabel', pattern: 'CANAL DE ISABEL', matchType: 'contains', bucketId: 'bucket-suministros', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+
+  // Telecomunicaciones
+  { id: 'rule-vodafone', pattern: 'VODAFONE', matchType: 'contains', bucketId: 'bucket-teleco', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-movistar', pattern: 'MOVISTAR', matchType: 'contains', bucketId: 'bucket-teleco', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-orange', pattern: 'ORANGE', matchType: 'contains', bucketId: 'bucket-teleco', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-digi', pattern: 'DIGI', matchType: 'contains', bucketId: 'bucket-teleco', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-o2', pattern: 'O2', matchType: 'contains', bucketId: 'bucket-teleco', priority: 6, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-yoigo', pattern: 'YOIGO', matchType: 'contains', bucketId: 'bucket-teleco', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-masmovil', pattern: 'MASMOVIL', matchType: 'contains', bucketId: 'bucket-teleco', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+
+  // Ocio & Suscripciones
+  { id: 'rule-netflix', pattern: 'NETFLIX', matchType: 'contains', bucketId: 'bucket-ocio', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-spotify', pattern: 'SPOTIFY', matchType: 'contains', bucketId: 'bucket-ocio', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-prime', pattern: 'PRIME VIDEO', matchType: 'contains', bucketId: 'bucket-ocio', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-disney', pattern: 'DISNEY', matchType: 'contains', bucketId: 'bucket-ocio', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-hbo', pattern: 'HBO', matchType: 'contains', bucketId: 'bucket-ocio', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+
+  // Seguros
+  { id: 'rule-mapfre', pattern: 'MAPFRE', matchType: 'contains', bucketId: 'bucket-seguros', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-sanitas', pattern: 'SANITAS', matchType: 'contains', bucketId: 'bucket-seguros', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-adeslas', pattern: 'ADESLAS', matchType: 'contains', bucketId: 'bucket-seguros', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-mutua', pattern: 'MUTUA MAD', matchType: 'contains', bucketId: 'bucket-seguros', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-lineadirecta', pattern: 'LINEA DIRECTA', matchType: 'contains', bucketId: 'bucket-seguros', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-axa', pattern: 'AXA', matchType: 'contains', bucketId: 'bucket-seguros', priority: 10, isActive: true, isInvoice: true, createdAt: '2025-01-01T00:00:00.000Z' },
+
+  // Vivienda
+  { id: 'rule-hipoteca', pattern: 'HIPOTECA', matchType: 'contains', bucketId: 'bucket-vivienda', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-alquiler', pattern: 'ALQUILER', matchType: 'contains', bucketId: 'bucket-vivienda', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'rule-comunidad', pattern: 'COMUNIDAD', matchType: 'contains', bucketId: 'bucket-vivienda', priority: 10, isActive: true, createdAt: '2025-01-01T00:00:00.000Z' },
+];
+
 export class DBService {
   private static dbPromise: Promise<IDBDatabase> | null = null;
   private static cachedSettings: Settings = { ...DEFAULT_SETTINGS };
@@ -493,6 +553,10 @@ export class DBService {
 
         if (!db.objectStoreNames.contains(STORES.TIPS)) {
           db.createObjectStore(STORES.TIPS, { keyPath: 'id' });
+        }
+
+        if (!db.objectStoreNames.contains(STORES.SMART_RULES)) {
+          db.createObjectStore(STORES.SMART_RULES, { keyPath: 'id' });
         }
       };
 
@@ -553,6 +617,20 @@ export class DBService {
           const writeStore = writeTx.objectStore(STORES.TIPS);
           for (const t of DEFAULT_TIPS) {
             writeStore.put(t);
+          }
+        }
+      };
+
+      // 4. Smart Rules
+      const rulesTx = db.transaction(STORES.SMART_RULES, 'readonly');
+      const rulesStore = rulesTx.objectStore(STORES.SMART_RULES);
+      const rulesCount = rulesStore.count();
+      rulesCount.onsuccess = () => {
+        if (rulesCount.result === 0) {
+          const writeTx = db.transaction(STORES.SMART_RULES, 'readwrite');
+          const writeStore = writeTx.objectStore(STORES.SMART_RULES);
+          for (const r of INITIAL_SMART_RULES) {
+            writeStore.put(r);
           }
         }
       };
@@ -658,6 +736,33 @@ export class DBService {
       });
     } catch (e) {
       console.warn('[DBService] Borrado en fallback ejecutado:', e);
+    }
+  }
+
+  static async saveExpensesBatch(newExpenses: Expense[]): Promise<void> {
+    if (!newExpenses || newExpenses.length === 0) return;
+    const current = await this.getExpenses();
+    const map = new Map<string, Expense>();
+    current.forEach((e) => map.set(e.id, e));
+    newExpenses.forEach((e) => map.set(e.id, e));
+    const merged = Array.from(map.values());
+    merged.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    this.setLocalStorageItem('gastos_expenses', merged);
+
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.EXPENSES, 'readwrite');
+        const store = tx.objectStore(STORES.EXPENSES);
+        for (const e of newExpenses) {
+          store.put(e);
+        }
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(new Error('Transacción de guardado por lotes abortada'));
+      });
+    } catch (e) {
+      console.warn('[DBService] Error en saveExpensesBatch en IndexedDB:', e);
     }
   }
 
@@ -1015,23 +1120,126 @@ export class DBService {
     return Boolean(target.isApplied);
   }
 
+  // --- SMART RULES (Categorización Inteligente Offline) ---
+  static async getSmartRules(): Promise<SmartRule[]> {
+    try {
+      const db = await this.getDB();
+      const list = await new Promise<SmartRule[]>((resolve, reject) => {
+        const tx = db.transaction(STORES.SMART_RULES, 'readonly');
+        const store = tx.objectStore(STORES.SMART_RULES);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+      if (list.length === 0) {
+        await this.applySmartRulesSeeds('replace');
+        return INITIAL_SMART_RULES;
+      }
+      return list;
+    } catch (e) {
+      const fallback = this.getLocalStorageItem<SmartRule[]>('gastos_smart_rules', INITIAL_SMART_RULES);
+      if (!fallback || fallback.length === 0) {
+        this.setLocalStorageItem('gastos_smart_rules', INITIAL_SMART_RULES);
+        return INITIAL_SMART_RULES;
+      }
+      return fallback;
+    }
+  }
+
+  static async saveSmartRule(rule: SmartRule): Promise<void> {
+    const rules = await this.getSmartRules();
+    const idx = rules.findIndex((r) => r.id === rule.id);
+    if (idx >= 0) {
+      rules[idx] = rule;
+    } else {
+      rules.push(rule);
+    }
+    this.setLocalStorageItem('gastos_smart_rules', rules);
+
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.SMART_RULES, 'readwrite');
+        const store = tx.objectStore(STORES.SMART_RULES);
+        const req = store.put(rule);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al guardar regla inteligente en IndexedDB:', e);
+    }
+  }
+
+  static async deleteSmartRule(id: string): Promise<void> {
+    const rules = await this.getSmartRules();
+    const filtered = rules.filter((r) => r.id !== id);
+    this.setLocalStorageItem('gastos_smart_rules', filtered);
+
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.SMART_RULES, 'readwrite');
+        const store = tx.objectStore(STORES.SMART_RULES);
+        const req = store.delete(id);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al borrar regla inteligente:', e);
+    }
+  }
+
+  static async applySmartRulesSeeds(mode: 'replace' | 'append' = 'append'): Promise<SmartRule[]> {
+    let result: SmartRule[];
+    if (mode === 'replace') {
+      result = [...INITIAL_SMART_RULES];
+    } else {
+      const current = await this.getSmartRules();
+      const currentPatterns = new Set(current.map((r) => r.pattern.toLowerCase()));
+      const toAdd = INITIAL_SMART_RULES.filter((r) => !currentPatterns.has(r.pattern.toLowerCase()));
+      result = [...current, ...toAdd];
+    }
+
+    this.setLocalStorageItem('gastos_smart_rules', result);
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.SMART_RULES, 'readwrite');
+        const store = tx.objectStore(STORES.SMART_RULES);
+        if (mode === 'replace') {
+          store.clear();
+        }
+        for (const r of result) {
+          store.put(r);
+        }
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al aplicar semillas de smart rules en IndexedDB:', e);
+    }
+    return result;
+  }
+
   // --- BACKUP & EXPORT/IMPORT ---
   static async exportBackupEnvelope(): Promise<BackupEnvelope> {
-    const [expenses, buckets, recurringRules, tips] = await Promise.all([
+    const [expenses, buckets, recurringRules, tips, smartRules] = await Promise.all([
       this.getExpenses(),
       this.getBuckets(),
       this.getRecurringRules(),
       this.getTips(),
+      this.getSmartRules(),
     ]);
 
     return {
-      version: '1.0.0',
+      version: '1.10.0',
       exportedAt: new Date().toISOString(),
       expenses,
       buckets,
       recurringRules,
       settings: this.getSettings(),
       tips,
+      smartRules,
     };
   }
 
@@ -1061,6 +1269,12 @@ export class DBService {
         await this.saveRecurringRule(r);
       }
     }
+
+    if (Array.isArray(envelope.smartRules)) {
+      for (const rule of envelope.smartRules) {
+        await this.saveSmartRule(rule);
+      }
+    }
   }
 
   /**
@@ -1072,6 +1286,7 @@ export class DBService {
     recurringRules: RecurringRule[];
     settings?: Settings;
     tips?: FinancialTip[];
+    smartRules?: SmartRule[];
   }): Promise<void> {
     this.setLocalStorageItem('gastos_expenses', data.expenses);
     this.setLocalStorageItem('gastos_buckets', data.buckets);
@@ -1083,19 +1298,30 @@ export class DBService {
     if (data.tips && data.tips.length > 0) {
       this.setLocalStorageItem('gastos_tips', data.tips);
     }
+    if (data.smartRules && data.smartRules.length > 0) {
+      this.setLocalStorageItem('gastos_smart_rules', data.smartRules);
+    }
 
     try {
       const db = await this.getDB();
-      const tx = db.transaction(
-        [STORES.EXPENSES, STORES.BUCKETS, STORES.RECURRING_RULES, STORES.SETTINGS, STORES.TIPS],
-        'readwrite'
-      );
+      const storesToTransact = [
+        STORES.EXPENSES,
+        STORES.BUCKETS,
+        STORES.RECURRING_RULES,
+        STORES.SETTINGS,
+        STORES.TIPS,
+        STORES.SMART_RULES,
+      ];
+      const tx = db.transaction(storesToTransact, 'readwrite');
 
       tx.objectStore(STORES.EXPENSES).clear();
       tx.objectStore(STORES.BUCKETS).clear();
       tx.objectStore(STORES.RECURRING_RULES).clear();
       if (data.tips && data.tips.length > 0) {
         tx.objectStore(STORES.TIPS).clear();
+      }
+      if (data.smartRules && data.smartRules.length > 0) {
+        tx.objectStore(STORES.SMART_RULES).clear();
       }
 
       if (data.settings) {
@@ -1124,6 +1350,13 @@ export class DBService {
         }
       }
 
+      if (data.smartRules && data.smartRules.length > 0) {
+        const sStore = tx.objectStore(STORES.SMART_RULES);
+        for (const rule of data.smartRules) {
+          sStore.put(rule);
+        }
+      }
+
       await new Promise<void>((resolve, reject) => {
         tx.oncomplete = () => resolve();
         tx.onerror = () => reject(tx.error);
@@ -1143,11 +1376,13 @@ export class DBService {
     recurringRules: RecurringRule[];
     settings?: Settings;
     tips?: FinancialTip[];
+    smartRules?: SmartRule[];
   }): Promise<void> {
-    const [currentExpenses, currentBuckets, currentRules] = await Promise.all([
+    const [currentExpenses, currentBuckets, currentRules, currentSmartRules] = await Promise.all([
       this.getExpenses(),
       this.getBuckets(),
       this.getRecurringRules(),
+      this.getSmartRules(),
     ]);
 
     const expMap = new Map<string, Expense>();
@@ -1162,12 +1397,19 @@ export class DBService {
     currentRules.forEach((r) => ruleMap.set(r.id, r));
     data.recurringRules.forEach((r) => ruleMap.set(r.id, r));
 
+    const smartMap = new Map<string, SmartRule>();
+    currentSmartRules.forEach((s) => smartMap.set(s.id, s));
+    if (data.smartRules) {
+      data.smartRules.forEach((s) => smartMap.set(s.id, s));
+    }
+
     await this.clearAndRestore({
       expenses: Array.from(expMap.values()),
       buckets: Array.from(bucketMap.values()),
       recurringRules: Array.from(ruleMap.values()),
       settings: data.settings || this.getSettings(),
       tips: data.tips,
+      smartRules: Array.from(smartMap.values()),
     });
   }
 

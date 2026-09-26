@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthService } from './services/auth';
 import { DBService } from './services/db';
 import { NotificationService } from './services/notificationService';
-import { Expense, Bucket, RecurringRule, Settings, FinancialTip } from './types';
+import { Expense, Bucket, RecurringRule, Settings, FinancialTip, SmartRule } from './types';
 import { SafeToSpendService } from './services/safeToSpendService';
 import { AuthScreen } from './components/auth/AuthScreen';
 import { Header } from './components/layout/Header';
@@ -15,6 +15,8 @@ import { TipsView } from './components/tips/TipsView';
 import { ExpenseModal } from './components/expenses/ExpenseModal';
 import { SettingsModal } from './components/settings/SettingsModal';
 import { BackupModal } from './components/backup/BackupModal';
+import { CsvImportModal } from './components/importer/CsvImportModal';
+import { SmartRulesModal } from './components/importer/SmartRulesModal';
 
 export const App: React.FC = () => {
   // Estado de Bloqueo / Autenticación
@@ -32,26 +34,31 @@ export const App: React.FC = () => {
   const [recurringRules, setRecurringRules] = useState<RecurringRule[]>([]);
   const [settings, setSettings] = useState<Settings>(() => DBService.getSettings());
   const [tips, setTips] = useState<FinancialTip[]>([]);
+  const [smartRules, setSmartRules] = useState<SmartRule[]>([]);
 
   // Modales
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [backupModalOpen, setBackupModalOpen] = useState(false);
+  const [csvModalOpen, setCsvModalOpen] = useState(false);
+  const [smartRulesModalOpen, setSmartRulesModalOpen] = useState(false);
 
   // Carga inicial de datos desde IndexedDB
   const loadData = async () => {
-    const [eList, bList, rList, tList] = await Promise.all([
+    const [eList, bList, rList, tList, sList] = await Promise.all([
       DBService.getExpenses(),
       DBService.getBuckets(),
       DBService.getRecurringRules(),
       DBService.getTips(),
+      DBService.getSmartRules(),
     ]);
     const storedSettings = DBService.getSettings();
     setExpenses(eList);
     setBuckets(bList);
     setRecurringRules(rList);
     setTips(tList);
+    setSmartRules(sList);
     setSettings(storedSettings);
 
     // Sincronizar recordatorios y facturas programadas en segundo plano
@@ -212,6 +219,7 @@ export const App: React.FC = () => {
             onDeleteExpense={handleDeleteExpense}
             onSelectBucketTab={() => setCurrentTab('buckets')}
             onSelectRecurringTab={() => setCurrentTab('recurring')}
+            onOpenImporter={() => setCsvModalOpen(true)}
           />
         )}
 
@@ -223,6 +231,7 @@ export const App: React.FC = () => {
             onSaveBucket={handleSaveBucket}
             onDeleteBucket={handleDeleteBucket}
             onRefresh={loadData}
+            onOpenSmartRules={() => setSmartRulesModalOpen(true)}
           />
         )}
 
@@ -288,6 +297,7 @@ export const App: React.FC = () => {
           }}
           onDataRestored={loadData}
           onOpenBackup={() => setBackupModalOpen(true)}
+          onOpenSmartRules={() => setSmartRulesModalOpen(true)}
         />
       )}
 
@@ -298,6 +308,34 @@ export const App: React.FC = () => {
           onClose={() => setBackupModalOpen(false)}
           onDataRestored={loadData}
           currency={settings.currency || '€'}
+        />
+      )}
+
+      {/* Modal de Importación Bancaria CSV */}
+      {csvModalOpen && (
+        <CsvImportModal
+          isOpen={csvModalOpen}
+          onClose={() => setCsvModalOpen(false)}
+          expenses={expenses}
+          buckets={buckets}
+          rules={smartRules}
+          currency={settings.currency || '€'}
+          onImportComplete={loadData}
+          onOpenRulesManager={() => {
+            setCsvModalOpen(false);
+            setSmartRulesModalOpen(true);
+          }}
+        />
+      )}
+
+      {/* Modal de Gestión de Reglas Inteligentes */}
+      {smartRulesModalOpen && (
+        <SmartRulesModal
+          isOpen={smartRulesModalOpen}
+          onClose={() => setSmartRulesModalOpen(false)}
+          rules={smartRules}
+          buckets={buckets}
+          onRulesUpdated={loadData}
         />
       )}
     </div>

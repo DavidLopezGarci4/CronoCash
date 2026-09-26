@@ -4,24 +4,18 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.9.0 — Motor Safe-to-Spend & Asistente Cover Overspending 🛡️
-- [x] **Motor Predictivo Safe-to-Spend (`safeToSpendService.ts`):** Deducción matemática de compromisos pendientes del mes, protección de colchón y cálculo de asignación diaria segura (`dailySafeToSpend`).
-- [x] **Widget de Ritmo de Consumo (`SafeToSpendWidget.tsx`):** Medición de Burn-Rate vs Ritmo esperado según el día del mes con estados semafóricos y desglose transparente.
-- [x] **Simulador de Compras por Impulso:** Interfaz interactiva para calcular el impacto de gastos imprevistos (+20€, +50€, +100€) en la supervivencia del mes.
-- [x] **Asistente Cover Overspending (`CoverOverspendingModal.tsx`):** Reequilibrio automático de bolsas en sobregasto con 3 estrategias (Colchón de Emergencias, Mayor Superávit o Prorrateo equitativo).
-- [x] **Cabecera Reflectiva:** Píldora de saldo disponible "Hoy: XX.XX €" integrada en el `Header`.
-- [x] **Compilación y Firma Release Dual v1.9.0:** Generación y firma de ambos APKs `app-v1.9.0-release.apk` (Estándar) y `app-v1.9.0-verticon-release.apk` (Verticons 2:3) con `versionCode 10900` y `versionName "1.9.0"`.
+## Estado Actual: v1.10.0 — Importador Universal Bancario Offline CSV & Smart Rules Engine ⚡
+- [x] **Parser Bancario Heurístico (`csvImporterService.ts`):** Detección automática de delimitador (`;`, `,`, `\t`), fechas españolas (`DD/MM/YYYY`) e importes (`1.250,50 €`, columnas separadas Debe/Haber o importe único con signo).
+- [x] **Deduplicador Criptográfico SHA-256:** Generación de hash determinista por movimiento bancario (`fecha + concepto + importe`) mediante Web Crypto API para descartar transacciones solapadas.
+- [x] **Motor de Reglas Inteligentes (`SmartRulesModal.tsx`):** Almacén `smart_rules` en IndexedDB v2 con 12+ semillas de comercios españoles (Mercadona, Repsol, Iberdrola, Vodafone, Netflix, etc.) y asignación automática por prioridad.
+- [x] **Bandeja de Entrada Pre-Asentamiento (`CsvImportModal.tsx`):** Staging con contadores en tiempo real (válidos, duplicados, auto-asignados), selector de bolsas, toggle de factura y guardado de reglas al vuelo.
+- [x] **Compilación y Firma Release Dual v1.10.0:** Generación y firma de ambos APKs `app-v1.10.0-release.apk` (Estándar) y `app-v1.10.0-verticon-release.apk` (Verticons 2:3) con `versionCode 11000` y `versionName "1.10.0"`.
 
 ---
 
 ## Cola de Mejoras Planificadas (Post-Benchmarking Scout)
 
-### 🚀 Fase 10: Importador Universal Bancario Offline CSV + Smart Rules Engine (Próxima)
-- [ ] Importador universal de extractos bancarios CSV offline (BBVA, Santander, CaixaBank, ING, Sabadell, Openbank, Revolut, N26, etc.).
-- [ ] Hasheo determinista SHA-256 por fila para detección y descarte instantáneo de transacciones duplicadas.
-- [ ] Motor de reglas inteligentes declarativas con condiciones compuestas (SI concepto contiene 'MERCADONA' ENTONCES asignar a 'Supermercado' y deducir de bolsa correspondiente).
-
-### 🎯 Fase 11: Metas de Ahorro "Sinking Funds" con Ritmo de Crucero
+### 🎯 Fase 11: Metas de Ahorro "Sinking Funds" con Ritmo de Crucero (Próxima)
 - [ ] Fondos de amortización para gastos previsibles futuros (Vacaciones, IBI, Seguro Anual, Navidad, Reparaciones).
 - [ ] Cálculo automático de aportación periódica recomendada y barra de progreso temporal.
 - [ ] Asignación de excedentes mensuales con 1 toque hacia metas prioritarias.
@@ -34,6 +28,11 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.9.0 (Completado)
+- [x] Motor Predictivo Safe-to-Spend (`safeToSpendService.ts`) y Widget de Ritmo de Consumo (`SafeToSpendWidget.tsx`).
+- [x] Simulador de Compras por Impulso (+20€, +50€, +100€) y Píldora heroica "Hoy: XX.XX €" en Header.
+- [x] Asistente Cover Overspending (`CoverOverspendingModal.tsx`) con 3 estrategias de reequilibrio.
 
 ### 📦 v1.8.2 (Completado)
 - [x] Puente Nativo de Descarga/Guardado (`BucketsView.tsx`) con `@capacitor/filesystem` y `@capacitor/share`.
