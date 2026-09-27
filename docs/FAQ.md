@@ -51,12 +51,24 @@
 
 ---
 
-## 3. Gastos Recurrentes y Detector de Gastos Vampiro
+## 3. Gastos Recurrentes, Tareas Periódicas y Detector Vampiro
 
-### ¿Cómo gestiona CronoCash las suscripciones y facturas fijas?
-* **Periodicidades flexibles:** Permite programar recibos semanales, mensuales, trimestrales o anuales indicando el día de cobro exacto.
-* **Cuenta atrás semafórica:** Cada recibo muestra una insignia dinámica con su proximidad (🔴 *¡Vence HOY!*, 🟠 *¡Mañana!*, 🟡 *En X días*).
-* **Asentamiento en 1 toque:** Al pulsar *"Registrar Pago"*, el recibo se convierte de forma automática en un gasto real deducido de su bolsa presupuestaria.
+### ¿Cómo gestiona CronoCash las tareas periódicas, facturas y costes estimados?
+* **Tipos de coste flexibles:** Permite definir *Gastos Fijos* (recibos estables), *Costes Estimados* (facturas de importe variable, visitas veterinarias, regalos de cumpleaños) y *Tareas sin Coste* (cambio de lentillas, citas médicas, desparasitación de mascotas).
+* **Categorías funcionales:** Clasificación visual entre Recibos, Suscripciones, Impuestos, Salud, Mantenimiento y Personal.
+* **Soporte anual y mensual exacto:** Para compromisos anuales (seguro del coche, IBI, cumpleaños) permite indicar tanto el mes del año como el día de cobro exacto.
+* **Cuenta atrás semafórica:** Cada acto muestra una insignia dinámica con su proximidad (🔴 *¡Toca HOY!*, 🟠 *¡Mañana!*, 🟡 *En X días*).
+
+### ¿Cómo funciona el desplazamiento adaptativo de fechas futuras?
+* **Adaptación automática al día real:** Si tienes programado un cambio de lentillas el día 27, pero lo realizas el 29 e indicas esa fecha, las recurrencias y notificaciones de los meses siguientes se moverán automáticamente al día 29.
+* **Flexibilidad total:** Si en cualquier ocasión te adelantas o te retrasas unos días, al confirmar la fecha real el sistema reprograma todas las alertas futuras con los mismos preavisos fijados (1 mes, 1 semana, mismo día).
+* **Opción de control:** Puedes activar o desactivar este comportamiento adaptativo de forma individual en cada tarea.
+
+### ¿Cómo se confirma o actualiza el coste estimado el día del acto?
+* **Modal de validación rápida:** Al pulsar sobre la notificación o en el botón *"Confirmar / Ajustar"* del calendario o de la lista de recurrentes, se abre el modal interactivo.
+* **Importe editable:** Muestra el importe estimado inicialmente; si el recibo o la consulta veterinaria vino por un valor distinto, puedes corregirlo en el momento antes de guardarlo.
+* **Actualización de la base:** Puedes marcar si deseas actualizar también la estimación base de la regla para próximas ocasiones.
+* **Completar tareas sin gasto:** Si es una tarea sin coste (ej. lentillas o revisión en garantía), se marca completada sin restar dinero de tus presupuestos.
 
 ### ¿Qué es el Detector de Gastos Vampiro?
 * **Auditoría de suscripciones zombi:** Identifica servicios de streaming, membresías de gimnasio u ocio infrautilizados o duplicados.
@@ -67,8 +79,9 @@
 ## 4. Calendario Reactivo, Cash-Flow Runway y Comparador YoY
 
 ### ¿Qué información ofrece el Calendario reactivo?
-* **Vista dual Mes y Semana:** Motor ultraligero con `date-fns` v4 que muestra puntos de actividad e importes diarios sin ralentizar el terminal.
-* **Desglose diario interactivo:** Al tocar cualquier celda del calendario, se abre el panel inferior con los gastos ejecutados ese día y los cargos programados con opción directa de pago.
+* **Vista dual Mes y Semana:** Motor ultraligero con `date-fns` v4 que muestra puntos de actividad diferenciados por color (azul para facturas, violeta para salud/tareas, verde para gastos reales).
+* **Proyección estricta de periodicidades:** Las reglas anuales y trimestrales solo se pintan en el mes y día exactos que corresponden a su vencimiento.
+* **Desglose diario interactivo:** Al tocar cualquier celda del calendario, el panel inferior permite ver los gastos ejecutados y validar directamente los actos programados con el modal de ajuste de coste.
 
 ### ¿Qué es el "Cash-Flow Runway"?
 * **Previsión de liquidez a fin de mes:** Calcula en tiempo real tu saldo proyectado (`Ingresos - Gastos Reales - Recibos Comprometidos`) con semáforo de viabilidad financiera.
@@ -81,14 +94,14 @@
 ## 5. Notificaciones y Alarmas Exactas de Cobro
 
 ### ¿Cómo se configuran los avisos en Android?
-* **3 canales oficiales de notificación:** `crono_bills_alerts` (Cobros), `crono_daily_review` (Cierre diario) y `crono_budget_alerts` (Límites de bolsa).
+* **4 canales oficiales de notificación:** `crono_bills_alerts` (Cobros bancarios y seguros), `crono_tasks_alerts` (Tareas, salud y recordatorios preventivos), `crono_daily_review` (Cierre nocturno diario) y `crono_budget_alerts` (Límites de bolsa).
 * **Compatibilidad Android 13+:** Solicita permisos en tiempo de ejecución (`POST_NOTIFICATIONS`) y opera con alarmas de precisión con `SCHEDULE_EXACT_ALARM`.
 
-### ¿Cuáles son las alertas preprogramadas?
-* **Preaviso a 3 días:** Alerta a las 09:30 AM recordando el importe y fecha del próximo recibo para verificar fondos en tu banco.
-* **Aviso el día de cobro:** Alarma a las 09:00 AM el mismo día que entra la factura.
-* **Repaso diario nocturno:** Notificación a las 21:30 (configurable en Ajustes) para recordar anotar gastos menores en efectivo o tarjeta.
-* **Deep-linking:** Tocar cualquier notificación abre CronoCash y navega inmediatamente a la vista de Recurrentes.
+### ¿Qué opciones de aviso escalonado con antelación ofrece CronoCash?
+* **Preavisos multietapa configurables:** Puedes elegir para cada acto avisos con el mismo día, 1 día antes, 3 días antes, 1 semana antes, 2 semanas antes, 1 mes antes (vital para cancelar seguros) o 1 trimestre antes (para provisionar gastos grandes).
+* **Hora preferida:** Permite fijar la hora exacta de la alarma (ej. 09:00 AM) para no recibir notificaciones en horarios inoportunos.
+* **Plazos fiscales automáticos:** Sincroniza automáticamente los plazos oficiales de la Agencia Tributaria (Modelos 130 y 303) avisándote 1 mes, 1 semana y el mismo día límite.
+* **Deep-linking interactivo:** Tocar la notificación abre inmediatamente el modal de confirmación para validar o corregir el importe cobrado con un solo toque.
 
 ---
 

@@ -1,7 +1,7 @@
 {
-  "currentVersion": "1.13.0",
-  "buildNumber": 11300,
-  "lastUpdated": "2026-09-26",
+  "currentVersion": "1.14.0",
+  "buildNumber": 11400,
+  "lastUpdated": "2026-09-27",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
   "privacyBadge": "100% Local y Privado • Sin Rastreadores • Sin Servidores Externos",
@@ -9,11 +9,25 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.14.0",
+      "build": 11400,
+      "date": "27 Sep 2026",
+      "title": "Tareas Recurrentes, Alertas Escalonadas y Ciclos Adaptativos",
+      "isCurrent": true,
+      "highlights": [
+        "🩺 Tareas Periódicas y Salud: Añade compromisos como cambios de lentillas, vacunas veterinarias, revisiones o cumpleaños con coste estimado o sin coste directo.",
+        "🔔 Avisos Escalonados con Antelación: Configura alertas multietapa para el mismo día, 1 día antes, 3 días, 1 semana, 2 semanas, 1 mes (seguros) o 1 trimestre (90 días para previsión).",
+        "🔄 Desplazamiento Adaptativo de Fechas: Si cambias lentillas o pagas el día 29 en vez del 27, el sistema adapta automáticamente los meses siguientes para avisarte siempre a partir del día 29.",
+        "⚖️ Confirmación o Ajuste de Coste en el Día: Valida en un toque si el gasto real coincidió con el estimado o corrígelo antes de asentarlo en tus cuentas.",
+        "🏛️ Sincronización Fiscal Oficial: Alarmas automáticas para los 4 trimestres de la Agencia Tributaria (Modelos 130 y 303)."
+      ]
+    },
+    {
       "version": "1.13.0",
       "build": 11300,
       "date": "26 Sep 2026",
       "title": "Centro Acerca de & Novedades con Historial Humano",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "🌟 Acerca de & Novedades: Nueva sección interactiva en Ajustes para consultar la ficha de identidad, versión y licencias de la app.",
         "📜 Historial Explicado para Humanos: Explora en lenguaje sencillo y sin tecnicismos qué incluye cada versión y actualización de tu APK.",

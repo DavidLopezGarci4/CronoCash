@@ -41,13 +41,35 @@ export interface SmartRule {
   createdAt: string;
 }
 
+export type RecurringCostType = 'fixed' | 'estimated' | 'none';
+
+export type ReminderOffset =
+  | 'same_day'
+  | '1_day'
+  | '3_days'
+  | '1_week'
+  | '2_weeks'
+  | '1_month'
+  | '1_quarter';
+
+export type RecurringCategoryType =
+  | 'bill'          // Suministros, facturas, alquiler
+  | 'subscription'  // Suscripciones, streaming, gimnasio
+  | 'tax'           // Impuestos, tasas, IBI, trimestres AEAT
+  | 'health'        // Lentillas, medicación, citas médicas
+  | 'maintenance'   // Revisiones, ITV, veterinario, vacunas
+  | 'personal';     // Cumpleaños, aniversarios, celebraciones
+
 export interface RecurringRule {
   id: string;
   title: string;
   amount: number;
+  costType?: RecurringCostType;
+  categoryType?: RecurringCategoryType;
   bucketId: string;
   frequency: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
   dayOfMonth?: number; // 1 - 31
+  monthOfYear?: number; // 1 - 12 (específico para periodicidad anual)
   dayOfWeek?: number; // 0 - 6
   startDate: string;
   endDate?: string;
@@ -57,6 +79,9 @@ export interface RecurringRule {
   lastGeneratedDate?: string;
   isVampire?: boolean;
   icon?: string;
+  reminderOffsets?: ReminderOffset[];
+  reminderTime?: string; // 'HH:MM'
+  autoAdaptNextDates?: boolean; // Si al completar/registrar se adapta automáticamente el ciclo futuro
 }
 
 export interface Settings {

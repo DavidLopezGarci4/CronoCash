@@ -1,15 +1,70 @@
 import { LocalNotifications, PermissionStatus } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
-import { RecurringRule, Settings } from '../types';
+import { RecurringRule, ReminderOffset, Settings } from '../types';
+import { TaxService } from './taxService';
 
 export const CRONO_BILLS_CHANNEL_ID = 'crono_bills_alerts';
 export const CRONO_DAILY_CHANNEL_ID = 'crono_daily_review';
 export const CRONO_BUDGET_CHANNEL_ID = 'crono_budget_alerts';
+export const CRONO_TASKS_CHANNEL_ID = 'crono_tasks_alerts';
 
 export const DAILY_REVIEW_NOTIFICATION_ID = 2001;
 export const TEST_NOTIFICATION_ID = 2002;
-export const RECURRING_PRE_BASE_ID = 3000;
-export const RECURRING_DAY_BASE_ID = 4000;
+export const RECURRING_ID_MIN = 10000;
+export const RECURRING_ID_MAX = 899999;
+export const TAX_NOTIFICATION_BASE_ID = 900000;
+
+export function offsetToDays(offset: ReminderOffset): number {
+  switch (offset) {
+    case 'same_day':
+      return 0;
+    case '1_day':
+      return 1;
+    case '3_days':
+      return 3;
+    case '1_week':
+      return 7;
+    case '2_weeks':
+      return 14;
+    case '1_month':
+      return 30;
+    case '1_quarter':
+      return 90;
+    default:
+      return 0;
+  }
+}
+
+export function offsetToLabel(offset: ReminderOffset): string {
+  switch (offset) {
+    case 'same_day':
+      return 'hoy';
+    case '1_day':
+      return '1 día';
+    case '3_days':
+      return '3 días';
+    case '1_week':
+      return '1 semana';
+    case '2_weeks':
+      return '2 semanas';
+    case '1_month':
+      return '1 mes';
+    case '1_quarter':
+      return '1 trimestre (90 días)';
+    default:
+      return 'unos días';
+  }
+}
+
+export function getNotificationId(key: string, suffix: string = ''): number {
+  const str = `${key}_${suffix}`;
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return RECURRING_ID_MIN + Math.abs(hash % (RECURRING_ID_MAX - RECURRING_ID_MIN));
+}
 
 export class NotificationService {
   private static isInitialized = false;
@@ -25,7 +80,7 @@ export class NotificationService {
       await LocalNotifications.createChannel({
         id: CRONO_BILLS_CHANNEL_ID,
         name: 'Vencimientos y Facturas Recurrentes',
-        description: 'Avisos previos (3 días antes) y alertas el día del cargo de facturas',
+        description: 'Avisos previos y alertas el día del cargo de facturas y seguros',
         importance: 4, // HIGH
         visibility: 1, // PUBLIC
         sound: 'default',
@@ -56,6 +111,18 @@ export class NotificationService {
         vibration: true,
         lights: true,
       });
+
+      // 4. Canal para tareas periódicas, salud y recordatorios preventivos
+      await LocalNotifications.createChannel({
+        id: CRONO_TASKS_CHANNEL_ID,
+        name: 'Tareas, Salud y Recordatorios Preventivos',
+        description: 'Avisos escalonados para lentillas, vacunas, mantenimientos, citas y actos recurrentes',
+        importance: 4, // HIGH
+        visibility: 1, // PUBLIC
+        sound: 'default',
+        vibration: true,
+        lights: true,
+      });
     } catch (e) {
       console.warn('[NotificationService] Error al crear canales de notificación:', e);
     }
@@ -64,7 +131,7 @@ export class NotificationService {
   /**
    * Inicializa canales de Android y oyente de acciones interactivas
    */
-  static async init(onAction?: (actionType: string) => void): Promise<void> {
+  static async init(onAction?: (actionType: string, extra?: Record<string, any>) => void): Promise<void> {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
@@ -80,7 +147,7 @@ export class NotificationService {
         this.actionListenerRegistered = true;
         await LocalNotifications.addListener('localNotificationActionPerformed', (action) => {
           const actionType = action.notification.extra?.action || 'open_app';
-          onAction(actionType);
+          onAction(actionType, action.notification.extra);
         });
       }
     } catch (e) {
@@ -204,9 +271,62 @@ export class NotificationService {
   }
 
   /**
-   * Programa avisos escalonados para las facturas recurrentes activas:
-   * 1. Aviso previo 3 días antes a las 09:30 AM
-   * 2. Aviso el mismo día del cargo a las 09:00 AM
+   * Calcula la próxima fecha de ocurrencia del evento según su frecuencia y configuración
+   */
+  static computeNextOccurrence(rule: RecurringRule, fromDate = new Date()): Date {
+    const year = fromDate.getFullYear();
+    const month = fromDate.getMonth(); // 0-11
+    const dayOfMonth = Math.min(Math.max(1, rule.dayOfMonth || 1), 28);
+    const [hourStr, minStr] = (rule.reminderTime || '09:00').split(':');
+    const hour = parseInt(hourStr || '9', 10);
+    const minute = parseInt(minStr || '0', 10);
+
+    if (rule.frequency === 'yearly') {
+      const monthOfYear = rule.monthOfYear || (rule.startDate ? new Date(rule.startDate).getMonth() + 1 : 1);
+      let target = new Date(year, monthOfYear - 1, dayOfMonth, hour, minute, 0, 0);
+      if (target.getTime() <= fromDate.getTime()) {
+        target = new Date(year + 1, monthOfYear - 1, dayOfMonth, hour, minute, 0, 0);
+      }
+      return target;
+    }
+
+    if (rule.frequency === 'quarterly') {
+      const startM = rule.startDate ? new Date(rule.startDate).getMonth() : 0;
+      for (let offsetMonths = 0; offsetMonths <= 12; offsetMonths++) {
+        const checkM = (month + offsetMonths);
+        if (Math.abs(checkM - startM) % 3 === 0) {
+          const target = new Date(year, checkM, dayOfMonth, hour, minute, 0, 0);
+          if (target.getTime() > fromDate.getTime()) {
+            return target;
+          }
+        }
+      }
+    }
+
+    if (rule.frequency === 'weekly') {
+      const targetDayOfWeek = rule.dayOfWeek ?? (rule.startDate ? new Date(rule.startDate).getDay() : 1);
+      const currentDayOfWeek = fromDate.getDay();
+      let diff = (targetDayOfWeek - currentDayOfWeek + 7) % 7;
+      if (diff === 0) {
+        const candidateToday = new Date(year, month, fromDate.getDate(), hour, minute, 0, 0);
+        if (candidateToday.getTime() <= fromDate.getTime()) {
+          diff = 7;
+        }
+      }
+      const target = new Date(year, month, fromDate.getDate() + diff, hour, minute, 0, 0);
+      return target;
+    }
+
+    // Default: 'monthly'
+    let target = new Date(year, month, dayOfMonth, hour, minute, 0, 0);
+    if (target.getTime() <= fromDate.getTime()) {
+      target = new Date(year, month + 1, dayOfMonth, hour, minute, 0, 0);
+    }
+    return target;
+  }
+
+  /**
+   * Programa avisos escalonados para actos y tareas recurrentes (mismo día, 1 día, 3 días, 1 semana, 1 mes, 1 trimestre)
    */
   static async scheduleRecurringBillReminders(rules: RecurringRule[]): Promise<number> {
     if (!Capacitor.isNativePlatform()) return 0;
@@ -218,76 +338,101 @@ export class NotificationService {
         if (req.display !== 'granted') return 0;
       }
 
-      // Cancelar notificaciones de recurrentes anteriores
+      // Cancelar notificaciones previas en el rango gestionado
       const pending = await LocalNotifications.getPending();
       const recurringPendingIds = pending.notifications
-        .filter((n) => n.id >= RECURRING_PRE_BASE_ID && n.id < 5000)
+        .filter((n) => (n.id >= RECURRING_ID_MIN && n.id <= RECURRING_ID_MAX) || (n.id >= 3000 && n.id < 5000))
         .map((n) => ({ id: n.id }));
 
       if (recurringPendingIds.length > 0) {
         await LocalNotifications.cancel({ notifications: recurringPendingIds });
       }
 
-      const activeRules = rules.filter((r) => r.isActive);
+      const activeRules = rules.filter((r) => r.isActive !== false);
       const notificationsToSchedule = [];
-      const today = new Date();
-      const currentYear = today.getFullYear();
-      const currentMonth = today.getMonth();
+      const now = new Date();
+      const maxWindowTime = now.getTime() + 90 * 24 * 60 * 60 * 1000; // Ventana de 90 días
 
       let scheduledCount = 0;
 
-      for (let i = 0; i < activeRules.length; i++) {
-        const rule = activeRules[i];
-        const dayOfMonth = Math.min(Math.max(1, rule.dayOfMonth || 1), 28);
+      for (const rule of activeRules) {
+        const nextOccurrence = this.computeNextOccurrence(rule, now);
+        const offsets: ReminderOffset[] = rule.reminderOffsets && rule.reminderOffsets.length > 0
+          ? rule.reminderOffsets
+          : ['3_days', 'same_day'];
 
-        // Fecha de cobro en este mes o en el siguiente
-        let billDate = new Date(currentYear, currentMonth, dayOfMonth, 9, 0, 0);
-        if (billDate.getTime() < today.getTime()) {
-          billDate = new Date(currentYear, currentMonth + 1, dayOfMonth, 9, 0, 0);
-        }
+        const isTaskWithoutCost = rule.costType === 'none' || !rule.amount || rule.amount <= 0;
+        const isEstimatedCost = rule.costType === 'estimated';
+        const isHealthOrMaintenance = rule.categoryType === 'health' || rule.categoryType === 'maintenance' || rule.categoryType === 'personal';
+        const channelId = isTaskWithoutCost || isHealthOrMaintenance ? CRONO_TASKS_CHANNEL_ID : CRONO_BILLS_CHANNEL_ID;
 
-        // 1. Alerta el mismo día del cargo a las 09:00
-        notificationsToSchedule.push({
-          id: RECURRING_DAY_BASE_ID + i,
-          title: `💳 Cargo Hoy: ${rule.title}`,
-          body: `Hoy se cobra tu recibo de ${rule.amount.toFixed(2)} €. Comprueba tu saldo proyectado en CronoCash.`,
-          channelId: CRONO_BILLS_CHANNEL_ID,
-          schedule: {
-            at: billDate,
-            allowWhileIdle: true,
-          },
-          extra: {
-            action: 'open_recurring',
-            ruleId: rule.id,
-          },
-          smallIcon: 'ic_launcher',
-          sound: 'default',
-        });
-        scheduledCount++;
+        const [hourStr, minStr] = (rule.reminderTime || '09:00').split(':');
+        const hour = parseInt(hourStr || '9', 10);
+        const minute = parseInt(minStr || '0', 10);
 
-        // 2. Alerta pre-cobro 3 días antes a las 09:30 AM
-        const preDate = new Date(billDate);
-        preDate.setDate(preDate.getDate() - 3);
-        preDate.setHours(9, 30, 0, 0);
+        for (const offset of offsets) {
+          const daysBefore = offsetToDays(offset);
+          const triggerDate = new Date(nextOccurrence);
+          triggerDate.setDate(triggerDate.getDate() - daysBefore);
+          triggerDate.setHours(hour, minute, 0, 0);
 
-        if (preDate.getTime() > today.getTime()) {
-          notificationsToSchedule.push({
-            id: RECURRING_PRE_BASE_ID + i,
-            title: `🔔 En 3 días vence: ${rule.title}`,
-            body: `Recibo previsto de ${rule.amount.toFixed(2)} €. Saldo proyectado listo en tu bolsa.`,
-            channelId: CRONO_BILLS_CHANNEL_ID,
-            schedule: {
-              at: preDate,
-              allowWhileIdle: true,
-            },
-            extra: {
-              action: 'open_recurring',
-              ruleId: rule.id,
-            },
-            smallIcon: 'ic_launcher',
-            sound: 'default',
-          });
-          scheduledCount++;
+          // Solo agendar si es en el futuro y dentro de la ventana de 90 días
+          if (triggerDate.getTime() > now.getTime() && triggerDate.getTime() <= maxWindowTime) {
+            const notifId = getNotificationId(rule.id, offset);
+            const formattedDate = nextOccurrence.toLocaleDateString('es-ES', {
+              day: 'numeric',
+              month: 'long',
+            });
+
+            let title = '';
+            let body = '';
+
+            if (offset === 'same_day') {
+              if (isTaskWithoutCost) {
+                title = `🩺 Tarea Hoy: ${rule.title}`;
+                body = `Hoy toca: ${rule.title}. Pulsa para marcarla como realizada o registrarla.`;
+              } else if (isEstimatedCost) {
+                title = `⚖️ Cargo Estimado Hoy: ${rule.title}`;
+                body = `Coste estimado: ${rule.amount.toFixed(2)} €. Pulsa para confirmar o actualizar el importe real cobrado.`;
+              } else {
+                title = `💳 Cargo Hoy: ${rule.title}`;
+                body = `Hoy se cobra tu recibo de ${rule.amount.toFixed(2)} €. Saldo proyectado listo en tu bolsa.`;
+              }
+            } else {
+              const leadStr = offsetToLabel(offset);
+              if (isTaskWithoutCost) {
+                title = `🔔 En ${leadStr} toca: ${rule.title}`;
+                body = `Recordatorio preventivo: programado para el ${formattedDate}. Prepárate con tiempo.`;
+              } else if (isEstimatedCost) {
+                title = `🔔 En ${leadStr} vence: ${rule.title}`;
+                body = `Gasto estimado de ${rule.amount.toFixed(2)} € para el ${formattedDate}. Prevé tu saldo en CronoCash.`;
+              } else {
+                title = `🔔 En ${leadStr} vence: ${rule.title}`;
+                body = `Recibo previsto de ${rule.amount.toFixed(2)} € para el ${formattedDate}. Saldo en tu bolsa.`;
+              }
+            }
+
+            notificationsToSchedule.push({
+              id: notifId,
+              title,
+              body,
+              channelId,
+              schedule: {
+                at: triggerDate,
+                allowWhileIdle: true,
+              },
+              extra: {
+                action: 'confirm_recurring',
+                ruleId: rule.id,
+                offset,
+                costType: rule.costType || (rule.amount > 0 ? 'fixed' : 'none'),
+                dueDate: nextOccurrence.toISOString().split('T')[0],
+              },
+              smallIcon: 'ic_launcher',
+              sound: 'default',
+            });
+            scheduledCount++;
+          }
         }
       }
 
@@ -298,7 +443,77 @@ export class NotificationService {
 
       return scheduledCount;
     } catch (e) {
-      console.error('[NotificationService] Error al programar avisos de facturas:', e);
+      console.error('[NotificationService] Error al programar avisos escalonados de tareas/facturas:', e);
+      return 0;
+    }
+  }
+
+  /**
+   * Programa avisos para las fechas límite de liquidación tributaria (Modelos 130 y 303 AEAT)
+   */
+  static async scheduleTaxDeadlines(): Promise<number> {
+    if (!Capacitor.isNativePlatform()) return 0;
+
+    try {
+      const now = new Date();
+      const deadlines = TaxService.getAllUpcomingTaxDeadlines(now);
+      const notificationsToSchedule = [];
+
+      for (const item of deadlines) {
+        const deadlineDate = new Date(`${item.deadlineDate}T09:00:00`);
+        if (deadlineDate.getTime() <= now.getTime()) continue;
+
+        const offsets: Array<{ offset: ReminderOffset; days: number }> = [
+          { offset: '1_month', days: 30 },
+          { offset: '1_week', days: 7 },
+          { offset: 'same_day', days: 0 },
+        ];
+
+        for (const { offset, days } of offsets) {
+          const trigger = new Date(deadlineDate);
+          trigger.setDate(trigger.getDate() - days);
+          trigger.setHours(9, 0, 0, 0);
+
+          if (trigger.getTime() > now.getTime() && trigger.getTime() <= now.getTime() + 90 * 86400000) {
+            const notifId = getNotificationId(`tax_${item.quarter}_${item.year}`, offset);
+            const leadStr = offsetToLabel(offset);
+            const title = offset === 'same_day'
+              ? `🏛️ Plazo Fiscal Hoy: ${item.name}`
+              : `🏛️ En ${leadStr}: Plazo ${item.name}`;
+
+            const body = offset === 'same_day'
+              ? `Hoy concluye el plazo voluntario oficial en la AEAT para el T${item.quarter} ${item.year}.`
+              : `Fecha límite de presentación: ${item.deadlineDate}. Revisa tus deducciones e IVA en CronoCash.`;
+
+            notificationsToSchedule.push({
+              id: notifId,
+              title,
+              body,
+              channelId: CRONO_BILLS_CHANNEL_ID,
+              schedule: {
+                at: trigger,
+                allowWhileIdle: true,
+              },
+              extra: {
+                action: 'open_taxes',
+                quarter: item.quarter,
+                year: item.year,
+              },
+              smallIcon: 'ic_launcher',
+              sound: 'default',
+            });
+          }
+        }
+      }
+
+      if (notificationsToSchedule.length > 0) {
+        await this.ensureChannels();
+        await LocalNotifications.schedule({ notifications: notificationsToSchedule });
+      }
+
+      return notificationsToSchedule.length;
+    } catch (e) {
+      console.warn('[NotificationService] Error al programar plazos fiscales:', e);
       return 0;
     }
   }
@@ -312,6 +527,7 @@ export class NotificationService {
     await Promise.all([
       this.scheduleDailyReviewReminder(isDailyEnabled, timeStr),
       this.scheduleRecurringBillReminders(rules),
+      this.scheduleTaxDeadlines(),
     ]);
   }
 
@@ -347,7 +563,7 @@ export class NotificationService {
           {
             id: TEST_NOTIFICATION_ID,
             title: '🔔 Prueba Exitosa — CronoCash',
-            body: 'Las alarmas exactas y avisos de facturación funcionan a la perfección en tu móvil Android.',
+            body: 'Las alarmas exactas y avisos escalonados funcionan a la perfección en tu móvil Android.',
             channelId: CRONO_BILLS_CHANNEL_ID,
             schedule: {
               at: fireDate,

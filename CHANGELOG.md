@@ -3,6 +3,22 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2026-09-27
+
+### Added
+- **Sistema de Tareas Recurrentes, Costes Estimados y Notificaciones Escalonadas Multi-Fase:**
+  - **Tipología de Costes (`costType`):** Soporte integral para `fixed` (recibos fijos), `estimated` (costes aproximados de suministros, consultas o regalos) y `none` (tareas periódicas de salud, lentillas o revisiones sin impacto financiero).
+  - **Categorías Funcionales (`categoryType`):** Clasificación en `bill` (recibos/suministros), `subscription` (streaming/gimnasio), `tax` (impuestos/tasas), `health` (lentillas, medicación, citas médicas), `maintenance` (ITV, revisiones, veterinario/vacunas) y `personal` (cumpleaños, aniversarios).
+  - **Preavisos Escalonados Configurables (`reminderOffsets` & `reminderTime`):** Configuración individual para alertas el mismo día, 1 día antes, 3 días antes, 1 semana antes, 2 semanas antes, 1 mes antes (preaviso para cancelación de seguros) o 1 trimestre antes (90 días para previsión de gastos cuantiosos).
+  - **Desplazamiento Dinámico y Adaptativo de Fechas Futuras (`autoAdaptNextDates`):** Al completar o registrar una tarea en una fecha distinta a la prevista (ej. cambio de lentillas el día 29 en vez del 27), el sistema adapta automáticamente la base del ciclo para los meses siguientes, manteniendo los preavisos configurados.
+  - **Nuevo Canal de Notificaciones Android de Alta Prioridad (`crono_tasks_alerts`):** Canal nativo dedicado para tareas, salud y recordatorios preventivos con sonido, vibración y visualización flotante.
+  - **Modal Interactivo "Confirmar / Ajustar Coste" (`ConfirmRecurringExpenseModal.tsx`):** Permite validar el coste estimado en un solo toque, ajustar el importe definitivo de la factura o completar la tarea sin coste, actualizando las alarmas pendientes.
+  - **Sincronización Automática de Plazos Fiscales AEAT (`TaxService` & `NotificationService`):** Agendamiento automático de alarmas escalonadas (1 mes, 1 semana y día de vencimiento) para los 4 trimestres del Modelo 130 y 303.
+  - **Corrección de Proyección en Calendario (`CalendarView.tsx`):** Helper `isRuleOnDate` para proyectar reglas anuales y trimestrales únicamente en el mes y día correspondiente, con badges y puntos de actividad cromáticos.
+  - **Aislamiento en Safe-to-Spend (`SafeToSpendService.ts`):** Exclusión de tareas sin coste del débito de liquidez diaria y reserva preventiva para costes estimados pendientes del mes en curso.
+
+---
+
 ## [1.13.0] - 2026-09-26
 
 ### Added

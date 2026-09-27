@@ -40,6 +40,36 @@ interface CalendarViewProps {
   settings?: Settings;
   currency: string;
   onAddExpense?: (expense: Expense) => void;
+  onRequestConfirmRecurring?: (rule: RecurringRule, targetDate?: string) => void;
+}
+
+export function isRuleOnDate(rule: RecurringRule, date: Date): boolean {
+  if (!rule.isActive) return false;
+  const dayNum = date.getDate();
+  const monthNum = date.getMonth() + 1; // 1 - 12
+  const dayOfWeek = date.getDay(); // 0 - 6
+
+  if (rule.frequency === 'yearly') {
+    const targetMonth = rule.monthOfYear || (rule.startDate ? new Date(rule.startDate).getMonth() + 1 : 1);
+    const targetDay = rule.dayOfMonth || 1;
+    return targetMonth === monthNum && targetDay === dayNum;
+  }
+
+  if (rule.frequency === 'quarterly') {
+    const targetDay = rule.dayOfMonth || 1;
+    if (targetDay !== dayNum) return false;
+    const startM = rule.startDate ? new Date(rule.startDate).getMonth() + 1 : 1;
+    return Math.abs(monthNum - startM) % 3 === 0;
+  }
+
+  if (rule.frequency === 'weekly') {
+    const targetDayOfWeek = rule.dayOfWeek ?? (rule.startDate ? new Date(rule.startDate).getDay() : 1);
+    return dayOfWeek === targetDayOfWeek;
+  }
+
+  // Por defecto mensual:
+  const targetDay = rule.dayOfMonth || 1;
+  return targetDay === dayNum;
 }
 
 type ViewPeriod = 'month' | 'week' | 'yoy';
@@ -51,6 +81,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   settings,
   currency,
   onAddExpense,
+  onRequestConfirmRecurring,
 }) => {
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState<Date>(() => new Date());
@@ -107,9 +138,21 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const expensesInMonth = expenses.filter((e) => (e.date || '').startsWith(formattedMonthStr));
   const totalMonthSpent = expensesInMonth.reduce((acc, curr) => acc + curr.amount, 0);
 
-  // Recurrentes mensuales esperados
+  // Recurrentes comprometidos esperados en este mes (excluyendo tareas sin coste)
+  const currentMonthNum = currentDate.getMonth() + 1;
   const monthlyRecurringTotal = recurringRules
-    .filter((r) => r.isActive && r.frequency === 'monthly')
+    .filter((r) => {
+      if (!r.isActive || r.costType === 'none' || !r.amount || r.amount <= 0) return false;
+      if (r.frequency === 'yearly') {
+        const targetM = r.monthOfYear || (r.startDate ? new Date(r.startDate).getMonth() + 1 : 1);
+        return targetM === currentMonthNum;
+      }
+      if (r.frequency === 'quarterly') {
+        const startM = r.startDate ? new Date(r.startDate).getMonth() + 1 : 1;
+        return Math.abs(currentMonthNum - startM) % 3 === 0;
+      }
+      return true; // monthly o weekly
+    })
     .reduce((acc, curr) => acc + curr.amount, 0);
 
   // Ingreso mensual para el cálculo de Cash-Flow Runway
@@ -118,23 +161,26 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
   // Detalle del día seleccionado
   const selectedDayStr = format(selectedDay, 'yyyy-MM-dd');
-  const selectedDayNum = selectedDay.getDate();
   const selectedDayExpenses = expenses.filter((e) => e.date === selectedDayStr);
   const selectedDayTotalSpent = selectedDayExpenses.reduce((sum, e) => sum + e.amount, 0);
 
-  // Recurrentes que caen en el día seleccionado
-  const selectedDayRecurring = recurringRules.filter(
-    (r) => r.isActive && r.dayOfMonth === selectedDayNum
-  );
-  const selectedDayRecurringTotal = selectedDayRecurring.reduce((sum, r) => sum + r.amount, 0);
+  // Recurrentes que caen en el día seleccionado respetando frecuencia
+  const selectedDayRecurring = recurringRules.filter((r) => isRuleOnDate(r, selectedDay));
+  const selectedDayRecurringTotal = selectedDayRecurring
+    .filter((r) => r.costType !== 'none' && r.amount > 0)
+    .reduce((sum, r) => sum + r.amount, 0);
 
-  // Función para registrar un recurrente del día seleccionado directamente como gasto
+  // Función para registrar o confirmar un recurrente del día seleccionado
   const handlePayRecurringNow = (rule: RecurringRule) => {
+    if (onRequestConfirmRecurring) {
+      onRequestConfirmRecurring(rule, selectedDayStr);
+      return;
+    }
     if (!onAddExpense) return;
     const expense: Expense = {
       id: `exp_cal_${Date.now()}`,
       title: rule.title,
-      amount: rule.amount,
+      amount: rule.amount || 0,
       date: selectedDayStr,
       bucketId: rule.bucketId,
       isInvoice: false,
@@ -348,11 +394,15 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 const totalDaySpent = dayExpenses.reduce((sum, e) => sum + e.amount, 0);
 
                 // Recurrentes de este día
-                const dayRecurring = recurringRules.filter(
-                  (r) => r.isActive && r.dayOfMonth === dayNum
-                );
-                const totalDayRecurring = dayRecurring.reduce((sum, r) => sum + r.amount, 0);
+                const dayRecurring = recurringRules.filter((r) => isRuleOnDate(r, day));
+                const totalDayRecurring = dayRecurring
+                  .filter((r) => r.costType !== 'none' && r.amount > 0)
+                  .reduce((sum, r) => sum + r.amount, 0);
 
+                const hasHealthOrTask = dayRecurring.some(
+                  (r) => r.costType === 'none' || r.categoryType === 'health' || r.categoryType === 'maintenance' || r.categoryType === 'personal'
+                );
+                const hasFinancialBill = dayRecurring.some((r) => r.costType !== 'none' && r.amount > 0);
                 const hasActivity = dayExpenses.length > 0 || dayRecurring.length > 0;
 
                 return (
@@ -385,10 +435,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
                       {/* Puntos de evento */}
                       <div className="flex items-center space-x-1">
-                        {dayRecurring.length > 0 && (
+                        {hasHealthOrTask && (
+                          <span
+                            className="w-2 h-2 rounded-full bg-purple-400 shadow-xs shadow-purple-400/50"
+                            title="Tareas o citas periódicas programadas"
+                          />
+                        )}
+                        {hasFinancialBill && (
                           <span
                             className="w-2 h-2 rounded-full bg-blue-400 shadow-xs shadow-blue-400/50"
-                            title={`${dayRecurring.length} facturas previstas`}
+                            title="Facturas o gastos previstos"
                           />
                         )}
                         {dayExpenses.length > 0 && (
@@ -442,39 +498,69 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               </div>
             </div>
 
-            {/* Listado de Facturas Recurrentes Programadas para hoy */}
+            {/* Listado de Actos y Vencimientos Programados para este día */}
             {selectedDayRecurring.length > 0 && (
               <div className="space-y-2">
                 <span className="text-xs font-bold text-blue-400 flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>Vencimientos Recurrentes Previstos para este Día:</span>
+                  <span>Actos y Recordatorios Previstos para este Día:</span>
                 </span>
 
                 <div className="space-y-2">
                   {selectedDayRecurring.map((rule) => {
                     const bucket = buckets.find((b) => b.id === rule.bucketId);
+                    const isTask = rule.costType === 'none' || !rule.amount || rule.amount <= 0;
+                    const isEstimated = rule.costType === 'estimated';
+
+                    let categoryBadge = '💳 Recibo';
+                    if (rule.categoryType === 'health') categoryBadge = '🩺 Salud / Lentillas';
+                    else if (rule.categoryType === 'maintenance') categoryBadge = '🔧 Mantenimiento';
+                    else if (rule.categoryType === 'tax') categoryBadge = '🏛️ Impuesto';
+                    else if (rule.categoryType === 'personal') categoryBadge = '🎂 Personal';
+                    else if (rule.categoryType === 'subscription') categoryBadge = '🔁 Suscripción';
+
                     return (
                       <div
                         key={rule.id}
-                        className="p-3 rounded-2xl bg-blue-950/20 border border-blue-500/30 flex items-center justify-between"
+                        className={`p-3 rounded-2xl border flex items-center justify-between ${
+                          isTask
+                            ? 'bg-purple-950/20 border-purple-500/30'
+                            : isEstimated
+                            ? 'bg-amber-950/20 border-amber-500/30'
+                            : 'bg-blue-950/20 border-blue-500/30'
+                        }`}
                       >
                         <div>
-                          <div className="text-xs font-bold text-white">{rule.title}</div>
-                          <div className="text-[10px] text-blue-300">
-                            {bucket?.name || 'General'} • Cuota {rule.frequency}
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-white">{rule.title}</span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">
+                              {categoryBadge}
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-slate-400 mt-0.5">
+                            {bucket?.name || 'General'} • {rule.frequency}
+                            {rule.reminderOffsets && rule.reminderOffsets.length > 0 && (
+                              <span className="text-slate-500"> • {rule.reminderOffsets.length} alertas</span>
+                            )}
                           </div>
                         </div>
 
                         <div className="flex items-center space-x-2">
                           <span className="text-xs font-mono font-bold text-white mr-1">
-                            {rule.amount.toFixed(2)} {currency}
+                            {isTask ? (
+                              <span className="text-purple-300 text-[11px] font-semibold">Sin coste</span>
+                            ) : isEstimated ? (
+                              <span className="text-amber-300 font-black">~{rule.amount.toFixed(2)} {currency}</span>
+                            ) : (
+                              <span>{rule.amount.toFixed(2)} {currency}</span>
+                            )}
                           </span>
                           <button
                             onClick={() => handlePayRecurringNow(rule)}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                            className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all active:scale-95"
                           >
                             <Play className="w-3 h-3 fill-current" />
-                            <span>Pagar</span>
+                            <span>{isTask ? 'Completar' : isEstimated ? 'Confirmar' : 'Pagar'}</span>
                           </button>
                         </div>
                       </div>

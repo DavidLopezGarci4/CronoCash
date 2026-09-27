@@ -19,6 +19,7 @@ import { CsvImportModal } from './components/importer/CsvImportModal';
 import { SmartRulesModal } from './components/importer/SmartRulesModal';
 import { GoalsModal } from './components/goals/GoalsModal';
 import { ReportsModal } from './components/reports/ReportsModal';
+import { ConfirmRecurringExpenseModal } from './components/expenses/ConfirmRecurringExpenseModal';
 
 export const App: React.FC = () => {
   // Estado de Bloqueo / Autenticación
@@ -48,6 +49,9 @@ export const App: React.FC = () => {
   const [smartRulesModalOpen, setSmartRulesModalOpen] = useState(false);
   const [goalsModalOpen, setGoalsModalOpen] = useState(false);
   const [reportsModalOpen, setReportsModalOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmRule, setConfirmRule] = useState<RecurringRule | null>(null);
+  const [confirmDate, setConfirmDate] = useState<string>('');
 
   // Carga inicial de datos desde IndexedDB
   const loadData = async () => {
@@ -74,11 +78,24 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     loadData();
-    NotificationService.init((actionType) => {
-      if (actionType === 'open_recurring') {
+    NotificationService.init((actionType, extra) => {
+      if (actionType === 'confirm_recurring' && extra?.ruleId) {
+        DBService.getRecurringRules().then((rules) => {
+          const found = rules.find((r) => r.id === extra.ruleId);
+          if (found) {
+            setConfirmRule(found);
+            setConfirmDate(extra.dueDate || new Date().toISOString().split('T')[0]);
+            setConfirmModalOpen(true);
+          } else {
+            setCurrentTab('recurring');
+          }
+        });
+      } else if (actionType === 'open_recurring') {
         setCurrentTab('recurring');
       } else if (actionType === 'open_dashboard') {
         setCurrentTab('dashboard');
+      } else if (actionType === 'open_taxes') {
+        setReportsModalOpen(true);
       }
     });
   }, []);
@@ -148,20 +165,101 @@ export const App: React.FC = () => {
   };
 
   const handleApplyRecurringNow = async (rule: RecurringRule) => {
+    handleOpenConfirmRecurring(rule);
+  };
+
+  const handleOpenConfirmRecurring = (rule: RecurringRule, targetDate?: string) => {
+    setConfirmRule(rule);
+    setConfirmDate(targetDate || new Date().toISOString().split('T')[0]);
+    setConfirmModalOpen(true);
+  };
+
+  const handleConfirmExpenseFromRecurring = async (data: {
+    ruleId: string;
+    amount: number;
+    date: string;
+    bucketId: string;
+    isInvoice: boolean;
+    updateRuleBaseAmount: boolean;
+    adaptFutureDates: boolean;
+  }) => {
+    const targetRule = recurringRules.find((r) => r.id === data.ruleId);
+    if (!targetRule) return;
+
+    // 1. Guardar gasto real
     const expense: Expense = {
       id: `exp_rec_${Date.now()}`,
-      title: rule.title,
-      amount: rule.amount,
-      date: new Date().toISOString().split('T')[0],
-      bucketId: rule.bucketId,
-      isInvoice: false,
+      title: targetRule.title,
+      amount: data.amount,
+      date: data.date,
+      bucketId: data.bucketId,
+      isInvoice: data.isInvoice,
       status: 'paid',
-      recurringRuleId: rule.id,
-      notes: `Generado automáticamente desde recurrente: ${rule.title}`,
+      recurringRuleId: targetRule.id,
+      notes: `Confirmado desde recurrente: ${targetRule.title}`,
       createdAt: new Date().toISOString(),
     };
     await DBService.saveExpense(expense);
+
+    // 2. Si se solicitó actualizar la regla base o adaptarla dinámicamente al nuevo día:
+    let updatedRule: RecurringRule = {
+      ...targetRule,
+      lastGeneratedDate: data.date,
+    };
+
+    if (data.updateRuleBaseAmount && data.amount > 0) {
+      updatedRule.amount = data.amount;
+    }
+
+    if (data.adaptFutureDates && data.date) {
+      const parts = data.date.split('-');
+      const newDay = parseInt(parts[2], 10);
+      const newMonth = parseInt(parts[1], 10);
+      if (!isNaN(newDay) && newDay >= 1 && newDay <= 31) {
+        updatedRule.dayOfMonth = newDay;
+      }
+      if (updatedRule.frequency === 'yearly' && !isNaN(newMonth)) {
+        updatedRule.monthOfYear = newMonth;
+      }
+    }
+
+    await DBService.saveRecurringRule(updatedRule);
     await loadData();
+    await NotificationService.scheduleRecurringBillReminders(
+      recurringRules.map((r) => (r.id === updatedRule.id ? updatedRule : r))
+    );
+  };
+
+  const handleCompleteTaskWithoutExpense = async (data: {
+    ruleId: string;
+    date: string;
+    adaptFutureDates: boolean;
+  }) => {
+    const targetRule = recurringRules.find((r) => r.id === data.ruleId);
+    if (!targetRule) return;
+
+    let updatedRule: RecurringRule = {
+      ...targetRule,
+      lastGeneratedDate: data.date,
+    };
+
+    if (data.adaptFutureDates && data.date) {
+      const parts = data.date.split('-');
+      const newDay = parseInt(parts[2], 10);
+      const newMonth = parseInt(parts[1], 10);
+      if (!isNaN(newDay) && newDay >= 1 && newDay <= 31) {
+        updatedRule.dayOfMonth = newDay;
+      }
+      if (updatedRule.frequency === 'yearly' && !isNaN(newMonth)) {
+        updatedRule.monthOfYear = newMonth;
+      }
+    }
+
+    await DBService.saveRecurringRule(updatedRule);
+    await loadData();
+    await NotificationService.scheduleRecurringBillReminders(
+      recurringRules.map((r) => (r.id === updatedRule.id ? updatedRule : r))
+    );
   };
 
   const handleToggleTip = async (tipId: string) => {
@@ -280,6 +378,7 @@ export const App: React.FC = () => {
             onSaveRule={handleSaveRecurringRule}
             onDeleteRule={handleDeleteRecurringRule}
             onApplyRuleNow={handleApplyRecurringNow}
+            onRequestConfirmRecurring={handleOpenConfirmRecurring}
             onRefresh={loadData}
           />
         )}
@@ -292,6 +391,7 @@ export const App: React.FC = () => {
             settings={settings}
             currency={settings.currency || '€'}
             onAddExpense={handleSaveExpense}
+            onRequestConfirmRecurring={handleOpenConfirmRecurring}
           />
         )}
 
@@ -403,6 +503,23 @@ export const App: React.FC = () => {
           settings={settings}
           goals={savingsGoals}
           currency={settings.currency || '€'}
+        />
+      )}
+
+      {/* Modal de Confirmación y Ajuste de Actos Recurrentes */}
+      {confirmModalOpen && confirmRule && (
+        <ConfirmRecurringExpenseModal
+          isOpen={confirmModalOpen}
+          onClose={() => {
+            setConfirmModalOpen(false);
+            setConfirmRule(null);
+          }}
+          rule={confirmRule}
+          initialDate={confirmDate}
+          buckets={buckets}
+          currency={settings.currency || '€'}
+          onConfirmExpense={handleConfirmExpenseFromRecurring}
+          onCompleteTaskWithoutExpense={handleCompleteTaskWithoutExpense}
         />
       )}
     </div>

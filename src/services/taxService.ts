@@ -38,6 +38,36 @@ export class TaxService {
   }
 
   /**
+   * Obtiene la lista de plazos oficiales de la AEAT para el año en curso y próximo
+   */
+  static getAllUpcomingTaxDeadlines(currentDate = new Date()): Array<{
+    quarter: Quarter;
+    year: number;
+    deadlineDate: string;
+    name: string;
+  }> {
+    const y = currentDate.getFullYear();
+    const result: Array<{
+      quarter: Quarter;
+      year: number;
+      deadlineDate: string;
+      name: string;
+    }> = [];
+    for (const year of [y, y + 1]) {
+      for (const q of [1, 2, 3, 4] as Quarter[]) {
+        const { deadlineDate } = this.getQuarterDateRange(q, year);
+        result.push({
+          quarter: q,
+          year,
+          deadlineDate,
+          name: `Presentación Modelos 130/303 — T${q} ${year}`,
+        });
+      }
+    }
+    return result;
+  }
+
+  /**
    * Calcula el IVA soportado individual para un gasto deducible
    */
   static getExpenseTaxAmount(expense: Expense): { baseAmount: number; taxRate: number; taxAmount: number } {

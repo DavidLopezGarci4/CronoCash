@@ -7,6 +7,8 @@ export interface PendingBill {
   amount: number;
   dueDay: number;
   isVampire?: boolean;
+  costType?: 'fixed' | 'estimated' | 'none';
+  categoryType?: string;
 }
 
 export interface SafeToSpendMetrics {
@@ -65,13 +67,30 @@ export class SafeToSpendService {
     const activeRules = recurringRules.filter((r) => r.isActive !== false);
 
     for (const rule of activeRules) {
+      // Si es una tarea pura sin coste económico, no detrae liquidez financiera
+      if (rule.costType === 'none' || !rule.amount || rule.amount <= 0) {
+        continue;
+      }
+
+      // Comprobar si la periodicidad corresponde al mes actual
+      if (rule.frequency === 'yearly') {
+        const targetMonth = rule.monthOfYear || (rule.startDate ? new Date(rule.startDate).getMonth() + 1 : 1);
+        if (targetMonth !== (month + 1)) {
+          continue; // No vence en este mes
+        }
+      } else if (rule.frequency === 'quarterly') {
+        const startM = rule.startDate ? new Date(rule.startDate).getMonth() : 0;
+        if (Math.abs(month - startM) % 3 !== 0) {
+          continue; // No vence en este mes del trimestre
+        }
+      }
+
       // Verificar si ya se ha generado o registrado un gasto vinculado este mes
       const alreadyPaidThisMonth = currentMonthExpenses.some(
         (e) => e.recurringRuleId === rule.id
       );
 
       if (!alreadyPaidThisMonth) {
-        // Asignar día de vencimiento aproximado si no está especificado
         const dueDay = rule.dayOfMonth || 1;
         pendingBills.push({
           id: rule.id,
@@ -79,6 +98,8 @@ export class SafeToSpendService {
           amount: rule.amount,
           dueDay,
           isVampire: rule.isVampire,
+          costType: rule.costType || 'fixed',
+          categoryType: rule.categoryType || 'bill',
         });
         pendingRecurringTotal += rule.amount;
       }
