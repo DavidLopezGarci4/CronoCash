@@ -12,6 +12,7 @@ import {
   Layers,
   Heart,
   CheckCircle2,
+  BookOpen,
 } from 'lucide-react';
 import userChangelog from '../../config/changelog.user.json';
 
@@ -19,12 +20,14 @@ interface AboutModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenArchitecture?: () => void;
+  onOpenFAQ?: () => void;
 }
 
 export const AboutModal: React.FC<AboutModalProps> = ({
   isOpen,
   onClose,
   onOpenArchitecture,
+  onOpenFAQ,
 }) => {
   const [expandedVersions, setExpandedVersions] = useState<Record<string, boolean>>({
     '1.11.0': false,
@@ -144,6 +147,35 @@ export const AboutModal: React.FC<AboutModalProps> = ({
               ))}
             </ul>
           </div>
+
+          {/* Botón de Acceso a FAQ & Manual Maestro si está configurado */}
+          {onOpenFAQ && (
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-950/30 via-emerald-950/20 to-slate-900 border border-teal-500/30 flex items-center justify-between gap-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-teal-400 shrink-0">
+                  <BookOpen className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white">
+                    Manual Maestro & Centro de Ayuda FAQ
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    38 guías operativas en 14 módulos con buscador predictivo
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenFAQ();
+                }}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-500 text-white transition-all shadow-md shadow-teal-600/20 flex items-center gap-1.5 shrink-0 cursor-pointer"
+              >
+                <span>Consultar</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
 
           {/* Botón de Acceso a Salud del Stack si está configurado */}
           {onOpenArchitecture && (

@@ -18,12 +18,14 @@ import {
   Layers,
   ChevronRight,
   FileText,
+  BookOpen,
 } from 'lucide-react';
 import { Settings, BackupEnvelope } from '../../types';
 import { DBService } from '../../services/db';
 import { AuthService } from '../../services/auth';
 import { NotificationService } from '../../services/notificationService';
 import { AboutModal } from '../about/AboutModal';
+import { FAQModal } from '../faq/FAQModal';
 
 const AppArchitectureGraph = React.lazy(() => import('./AppArchitectureGraph'));
 
@@ -72,6 +74,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   );
   const [showTechStack, setShowTechStack] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
+  const [showFAQModal, setShowFAQModal] = useState(false);
 
   if (!isOpen) return null;
 
@@ -483,6 +486,41 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
+          {/* Centro de Ayuda & FAQ (Estándar Universal de FAQ) */}
+          <div className="space-y-2 p-3 bg-slate-900/80 border border-slate-800 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <BookOpen className="w-3.5 h-3.5 text-teal-400" />
+                <span>Ayuda & Documentación</span>
+              </h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 font-bold">
+                14 Módulos
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowFAQModal(true)}
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-950/60 hover:bg-slate-800/80 border border-slate-800 hover:border-teal-500/40 transition-all text-left group cursor-pointer"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-teal-500/20 to-emerald-500/20 text-teal-400 border border-teal-500/30 group-hover:scale-105 transition-transform">
+                  <BookOpen className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>Centro de Ayuda & FAQ (Manual Maestro)</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
+                  </div>
+                  <p className="text-[10px] text-slate-400">
+                    38 guías operativas, atajos, dudas frecuentes y buscador predictivo
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 group-hover:translate-x-0.5 transition-all" />
+            </button>
+          </div>
+
           {/* Acerca de & Novedades de la App (Skill app-about-changelog) */}
           <div className="space-y-2 p-3 bg-slate-900/80 border border-slate-800 rounded-2xl">
             <div className="flex items-center justify-between">
@@ -586,6 +624,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             isOpen={showAboutModal}
             onClose={() => setShowAboutModal(false)}
             onOpenArchitecture={() => setShowTechStack(true)}
+            onOpenFAQ={() => setShowFAQModal(true)}
+          />
+        )}
+
+        {showFAQModal && (
+          <FAQModal
+            isOpen={showFAQModal}
+            onClose={() => setShowFAQModal(false)}
           />
         )}
       </div>
