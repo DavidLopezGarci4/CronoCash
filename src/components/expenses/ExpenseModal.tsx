@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Plus, Check, Receipt, Tag, Calendar, DollarSign, Building } from 'lucide-react';
 import { Expense, Bucket } from '../../types';
+import { HapticService } from '../../services/hapticService';
 
 interface ExpenseModalProps {
   isOpen: boolean;
@@ -36,10 +37,11 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsedAmount = parseFloat(amount.replace(',', '.'));
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      await HapticService.notificationWarning();
       alert('Por favor, introduce un importe válido.');
       return;
     }
@@ -64,13 +66,14 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       updatedAt: new Date().toISOString(),
     };
 
+    await HapticService.notificationSuccess();
     onSave(expense);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-      <div className="bg-[#0f172a] border border-slate-700/80 rounded-3xl w-full max-w-lg p-5 text-white shadow-2xl overflow-y-auto max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-[#0f172a] border border-slate-700/80 rounded-3xl w-full max-w-lg p-5 text-white shadow-2xl overflow-y-auto max-h-[92vh]">
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <h2 className="text-lg font-black tracking-tight text-white flex items-center gap-2">
             <span className="p-1.5 rounded-xl bg-emerald-500/20 text-emerald-400">
@@ -79,8 +82,12 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
             <span>{initialExpense ? 'Editar Gasto' : 'Nuevo Gasto o Factura'}</span>
           </h2>
           <button
-            onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors"
+            onClick={() => {
+              HapticService.selection();
+              onClose();
+            }}
+            className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer active:scale-95"
+            aria-label="Cerrar modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -249,14 +256,17 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
           <div className="pt-2 flex justify-end space-x-2">
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold"
+              onClick={() => {
+                HapticService.selection();
+                onClose();
+              }}
+              className="px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold cursor-pointer active:scale-95 transition-all"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold shadow-md shadow-emerald-500/20 cursor-pointer flex items-center gap-1.5"
+              className="px-5 py-2.5 min-h-[44px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold shadow-md shadow-emerald-500/20 cursor-pointer flex items-center gap-1.5 active:scale-95 transition-all"
             >
               <Check className="w-4 h-4 stroke-[2.5]" />
               <span>Guardar Gasto</span>

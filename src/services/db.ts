@@ -128,6 +128,7 @@ export const DEFAULT_SETTINGS: Settings = {
   companyName: '',
   taxId: '',
   notificationsEnabled: true,
+  hapticsEnabled: true,
   theme: 'dark',
   updatedAt: new Date().toISOString(),
 };

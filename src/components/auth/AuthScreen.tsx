@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AuthService } from '../../services/auth';
+import { HapticService } from '../../services/hapticService';
 import {
   Fingerprint,
   Delete,
@@ -45,6 +46,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onUnlocked }) => {
     try {
       const ok = await AuthService.authenticateWithBiometrics();
       if (ok) {
+        await HapticService.notificationSuccess();
         onUnlocked();
       } else {
         setIsAuthenticatingBiometric(false);
@@ -54,51 +56,60 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onUnlocked }) => {
     }
   };
 
-  const handleLogin = (e?: React.FormEvent) => {
+  const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErrorMsg('');
 
     if (!password) {
+      await HapticService.notificationWarning();
       setErrorMsg('Por favor, introduce tu contraseña o código PIN.');
       return;
     }
 
     if (!isConfigured) {
       if (password.length < 4) {
+        await HapticService.notificationWarning();
         setErrorMsg('La contraseña o PIN debe tener al menos 4 caracteres o dígitos.');
         return;
       }
       if (password !== confirmPassword) {
+        await HapticService.notificationError();
         setErrorMsg('Las contraseñas no coinciden.');
         return;
       }
 
       AuthService.setPassword(password, true);
       AuthService.unlockWithPassword(password, rememberMe);
+      await HapticService.notificationSuccess();
       onUnlocked();
       return;
     }
 
     const success = AuthService.unlockWithPassword(password, rememberMe);
     if (success) {
+      await HapticService.notificationSuccess();
       onUnlocked();
     } else {
+      await HapticService.notificationError();
       setErrorMsg('Contraseña o PIN incorrecto.');
       setPassword('');
     }
   };
 
-  const handleNumpadPress = (digit: string) => {
+  const handleNumpadPress = async (digit: string) => {
     if (password.length >= 12) return;
     setErrorMsg('');
+    await HapticService.impactLight();
     const newPass = password + digit;
     setPassword(newPass);
 
     const configured = AuthService.getConfiguredPassword();
     if (isConfigured && configured && newPass.length === configured.length) {
       if (AuthService.unlockWithPassword(newPass, rememberMe)) {
+        await HapticService.notificationSuccess();
         onUnlocked();
       } else {
+        await HapticService.notificationError();
         setErrorMsg('Código PIN incorrecto.');
         setTimeout(() => {
           setPassword('');
@@ -108,7 +119,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onUnlocked }) => {
     }
   };
 
-  const handleDeleteDigit = () => {
+  const handleDeleteDigit = async () => {
+    await HapticService.selection();
     setPassword((prev) => prev.slice(0, -1));
     setErrorMsg('');
   };

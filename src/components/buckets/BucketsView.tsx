@@ -36,6 +36,7 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { Bucket, Expense } from '../../types';
 import { DBService } from '../../services/db';
+import { HapticService } from '../../services/hapticService';
 import { CoverOverspendingModal } from './CoverOverspendingModal';
 
 interface BucketsViewProps {
@@ -211,7 +212,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
     try {
       await DBService.applyMasterSeeds('append');
-      navigator.vibrate?.(35);
+      await HapticService.impactMedium();
       onRefresh();
     } catch (e) {
       console.error(e);
@@ -234,7 +235,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
     try {
       await DBService.transferBucketBalance(vasoFrom, vasoTo, amt);
-      navigator.vibrate?.([30, 40, 30]);
+      await HapticService.notificationSuccess();
       setVasoModalOpen(false);
       onRefresh();
     } catch (err: any) {
@@ -246,7 +247,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const handleExecuteRollover = async () => {
     try {
       const result = await DBService.executeMonthlyRollover(currentMonthPrefix);
-      navigator.vibrate?.([40, 50, 40]);
+      await HapticService.notificationSuccess();
       setRolloverModalOpen(false);
       onRefresh();
       alert(

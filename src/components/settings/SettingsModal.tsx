@@ -19,11 +19,13 @@ import {
   ChevronRight,
   FileText,
   BookOpen,
+  Smartphone,
 } from 'lucide-react';
 import { Settings, BackupEnvelope } from '../../types';
 import { DBService } from '../../services/db';
 import { AuthService } from '../../services/auth';
 import { NotificationService } from '../../services/notificationService';
+import { HapticService } from '../../services/hapticService';
 import { AboutModal } from '../about/AboutModal';
 import { FAQModal } from '../faq/FAQModal';
 
@@ -67,6 +69,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [notificationHour, setNotificationHour] = useState(
     settings.notificationHour || '21:30'
   );
+  const [hapticsEnabled, setHapticsEnabled] = useState(settings.hapticsEnabled ?? true);
+  const [hapticTested, setHapticTested] = useState(false);
   const [testSent, setTestSent] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [importMessage, setImportMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(
@@ -95,10 +99,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       currency,
       notificationsEnabled,
       notificationHour,
+      hapticsEnabled,
       biometriaActiva,
       guardarContrasenaAuto,
       updatedAt: new Date().toISOString(),
     };
+
+    HapticService.setEnabled(hapticsEnabled);
 
     // Programar o actualizar recordatorio diario
     await NotificationService.scheduleDailyReviewReminder(notificationsEnabled, notificationHour);
@@ -106,10 +113,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     // Si el usuario introdujo un nuevo PIN
     if (newPin.trim()) {
       if (newPin.trim().length < 4) {
+        await HapticService.notificationError();
         alert('El nuevo PIN debe tener al menos 4 caracteres.');
         return;
       }
       if (newPin !== confirmPin) {
+        await HapticService.notificationError();
         alert('Los PINs introducidos no coinciden.');
         return;
       }
@@ -119,6 +128,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
 
     await DBService.saveSettings(updated);
+    await HapticService.notificationSuccess();
     onSettingsSaved(updated);
     onClose();
   };
@@ -355,6 +365,64 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     Alarma automática <strong>3 días antes</strong> y a las <strong>09:00</strong> el día del cargo.
                   </p>
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* Respuesta Táctil & Háptica (Gentle AI Haptic Control) */}
+          <div className="space-y-3 p-3 bg-slate-900/80 border border-slate-800 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <Smartphone className="w-3.5 h-3.5 text-purple-400" />
+                <span>Respuesta Táctil & Háptica</span>
+              </h3>
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold border transition-colors ${
+                hapticsEnabled
+                  ? 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+                  : 'bg-slate-800 text-slate-400 border-slate-700'
+              }`}>
+                {hapticsEnabled ? 'Activada' : 'Desactivada'}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <label htmlFor="hapticsToggle" className="text-xs font-semibold text-slate-200 block">
+                  Vibración háptica en botones y avisos
+                </label>
+                <p className="text-[10px] text-slate-400 mt-0.5">
+                  Respuesta táctil al pulsar botones, cambiar de pestaña y confirmar pagos
+                </p>
+              </div>
+              <input
+                id="hapticsToggle"
+                type="checkbox"
+                checked={hapticsEnabled}
+                onChange={(e) => {
+                  const val = e.target.checked;
+                  setHapticsEnabled(val);
+                  HapticService.setEnabled(val);
+                  if (val) HapticService.impactMedium();
+                }}
+                className="w-5 h-5 rounded border-slate-700 text-purple-500 focus:ring-purple-500 bg-slate-800 cursor-pointer"
+              />
+            </div>
+
+            {hapticsEnabled && (
+              <div className="pt-1 flex items-center justify-between">
+                <span className="text-[11px] text-slate-400">Verifica la intensidad en tu terminal:</span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await HapticService.notificationSuccess();
+                    setHapticTested(true);
+                    setTimeout(() => setHapticTested(false), 2000);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                  <span>{hapticTested ? '¡Vibración Probada!' : 'Probar Vibración'}</span>
+                </button>
               </div>
             )}
           </div>

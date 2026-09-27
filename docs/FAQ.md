@@ -32,6 +32,7 @@
 * **Teclado PIN táctil:** Cuenta con teclado numérico virtual integrado para evitar que teclados de terceros capturen tu clave secreta.
 * **Auto-bloqueo preventivo:** Al minimizar la aplicación o apagar la pantalla (`visibilitychange`), la sesión se bloquea automáticamente salvo que actives explícitamente el auto-desbloqueo.
 * **Bloqueo manual inmediato:** Puedes pulsar el candado situado en la cabecera superior en cualquier momento para bloquear la sesión en 1 toque.
+* **Respuesta háptica táctil y control On/Off:** Cada pulsación del teclado PIN, confirmación de pagos o cambio de pestaña emite vibración táctil nativa precisa con opción de activarla o apagarla en cualquier momento desde Ajustes.
 
 ---
 

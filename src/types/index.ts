@@ -72,6 +72,7 @@ export interface Settings {
   taxId?: string; // NIF / CIF
   notificationsEnabled: boolean;
   notificationHour?: string;
+  hapticsEnabled?: boolean;
   theme: 'dark' | 'light';
   updatedAt: string;
 }

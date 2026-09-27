@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { RecurringRule, Bucket, Expense } from '../../types';
 import { DBService } from '../../services/db';
+import { HapticService } from '../../services/hapticService';
 
 interface RecurringViewProps {
   rules: RecurringRule[];
@@ -177,7 +178,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
 
     try {
       await DBService.applyRecurringSeeds('append');
-      navigator.vibrate?.(35);
+      await HapticService.impactMedium();
       if (onRefresh) onRefresh();
     } catch (e) {
       console.error(e);
@@ -440,11 +441,11 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
 
                   {/* Botón Aplicar Pago Inmediato */}
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       onApplyRuleNow(rule);
-                      navigator.vibrate?.([20, 30]);
+                      await HapticService.notificationSuccess();
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                    className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
                     title="Registrar pago de esta factura ahora en tus gastos"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />

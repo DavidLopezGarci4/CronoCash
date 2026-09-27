@@ -31,6 +31,7 @@ import {
 } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Expense, RecurringRule, Bucket, Settings } from '../../types';
+import { HapticService } from '../../services/hapticService';
 
 interface CalendarViewProps {
   expenses: Expense[];
@@ -143,7 +144,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       createdAt: new Date().toISOString(),
     };
     onAddExpense(expense);
-    navigator.vibrate?.([20, 30]);
+    HapticService.notificationSuccess();
   };
 
   // --- LÓGICA COMPARADOR ANUAL (YoY) ---
