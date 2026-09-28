@@ -82,6 +82,7 @@ export interface RecurringRule {
   reminderOffsets?: ReminderOffset[];
   reminderTime?: string; // 'HH:MM'
   autoAdaptNextDates?: boolean; // Si al completar/registrar se adapta automáticamente el ciclo futuro
+  completedDates?: string[]; // Fechas YYYY-MM-DD en las que se ha completado esta regla/tarea
 }
 
 export type ExtraIncomeType = 'punctual' | 'recurring';

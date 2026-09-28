@@ -22,14 +22,13 @@ import { ReportsModal } from './components/reports/ReportsModal';
 import { ConfirmRecurringExpenseModal } from './components/expenses/ConfirmRecurringExpenseModal';
 import { PrivacyProvider } from './context/PrivacyContext';
 import { ExtraIncomeModal } from './components/income/ExtraIncomeModal';
+import { App as CapApp } from '@capacitor/app';
+import { ExitConfirmModal } from './components/common/ExitConfirmModal';
 
 export const App: React.FC = () => {
-  // Estado de Bloqueo / Autenticación
+  // Estado de Bloqueo / Autenticación: Forzar bloqueo en arranque si hay PIN/huella
   const [isLocked, setIsLocked] = useState(() => {
-    // Si la contraseña está configurada, comprobar si ya está desbloqueado o tiene auto-login válido
     if (!AuthService.isPasswordConfigured()) return false;
-    if (AuthService.isUnlocked()) return false;
-    if (AuthService.canAutoUnlock()) return false;
     return true;
   });
 
@@ -55,6 +54,27 @@ export const App: React.FC = () => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [confirmRule, setConfirmRule] = useState<RecurringRule | null>(null);
   const [confirmDate, setConfirmDate] = useState<string>('');
+  const [exitModalOpen, setExitModalOpen] = useState(false);
+
+  // Escuchar botón físico / gestual de retroceso de Android para confirmación de salida
+  useEffect(() => {
+    let backListener: any = null;
+    const setupBackButton = async () => {
+      try {
+        backListener = await CapApp.addListener('backButton', () => {
+          setExitModalOpen(true);
+        });
+      } catch (err) {
+        console.warn('Capacitor backButton not available:', err);
+      }
+    };
+    setupBackButton();
+    return () => {
+      if (backListener && backListener.remove) {
+        backListener.remove();
+      }
+    };
+  }, []);
 
   // Carga inicial de datos desde IndexedDB
   const loadData = async () => {
@@ -112,7 +132,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        if (!AuthService.isAutoLoginEnabled() && AuthService.isPasswordConfigured()) {
+        if (AuthService.isPasswordConfigured()) {
           AuthService.lock(false);
           setIsLocked(true);
         }
@@ -205,9 +225,11 @@ export const App: React.FC = () => {
     await DBService.saveExpense(expense);
 
     // 2. Si se solicitó actualizar la regla base o adaptarla dinámicamente al nuevo día:
+    const completedDates = Array.from(new Set([...(targetRule.completedDates || []), data.date]));
     let updatedRule: RecurringRule = {
       ...targetRule,
       lastGeneratedDate: data.date,
+      completedDates,
     };
 
     if (data.updateRuleBaseAmount && data.amount > 0) {
@@ -241,9 +263,11 @@ export const App: React.FC = () => {
     const targetRule = recurringRules.find((r) => r.id === data.ruleId);
     if (!targetRule) return;
 
+    const completedDates = Array.from(new Set([...(targetRule.completedDates || []), data.date]));
     let updatedRule: RecurringRule = {
       ...targetRule,
       lastGeneratedDate: data.date,
+      completedDates,
     };
 
     if (data.adaptFutureDates && data.date) {
@@ -304,7 +328,18 @@ export const App: React.FC = () => {
   };
 
   if (isLocked) {
-    return <AuthScreen onUnlocked={handleUnlocked} />;
+    return (
+      <>
+        <AuthScreen
+          onUnlocked={handleUnlocked}
+          onRequestExit={() => setExitModalOpen(true)}
+        />
+        <ExitConfirmModal
+          isOpen={exitModalOpen}
+          onClose={() => setExitModalOpen(false)}
+        />
+      </>
+    );
   }
 
   // Cálculos para la cabecera y motor Safe-to-Spend
@@ -564,6 +599,12 @@ export const App: React.FC = () => {
           onDeleteIncome={handleDeleteExtraIncome}
         />
       )}
+
+      {/* Modal de Confirmación de Salida Segura */}
+      <ExitConfirmModal
+        isOpen={exitModalOpen}
+        onClose={() => setExitModalOpen(false)}
+      />
     </div>
   </PrivacyProvider>
   );

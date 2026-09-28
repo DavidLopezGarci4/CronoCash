@@ -48,9 +48,9 @@ export class NativeBiometricService {
     try {
       if (Capacitor.isNativePlatform()) {
         const res = await NativeBiometric.authenticate({
-          title: options?.title || 'Acceso a Gastos Facturación',
+          title: options?.title || 'Acceso a CronoCash',
           subtitle: options?.subtitle || 'Usa tu huella dactilar para acceder a tus finanzas',
-          cancelText: options?.cancelText || 'Usar Contraseña / PIN',
+          cancelText: options?.cancelText || 'Usar Teclado PIN',
         });
         return {
           success: Boolean(res && res.success),

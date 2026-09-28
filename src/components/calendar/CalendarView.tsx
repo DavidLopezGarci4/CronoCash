@@ -32,6 +32,7 @@ import {
 import { es } from 'date-fns/locale';
 import { Expense, RecurringRule, Bucket, Settings } from '../../types';
 import { HapticService } from '../../services/hapticService';
+import { usePrivacy } from '../../context/PrivacyContext';
 
 interface CalendarViewProps {
   expenses: Expense[];
@@ -83,6 +84,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   onAddExpense,
   onRequestConfirmRecurring,
 }) => {
+  const { isPrivate, mask } = usePrivacy();
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState<Date>(() => new Date());
   const [viewPeriod, setViewPeriod] = useState<ViewPeriod>('month');
@@ -283,46 +285,12 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       {/* VISTAS DE CALENDARIO (MES O SEMANA) */}
       {viewPeriod !== 'yoy' && (
         <>
-          {/* Barra de Navegación de Mes/Semana */}
-          <div className="flex items-center justify-between bg-slate-900/90 border border-slate-800 p-3 rounded-3xl">
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={handlePrev}
-                className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors"
-                title="Anterior"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={handleNext}
-                className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors"
-                title="Siguiente"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-              <span className="text-sm font-black text-white capitalize pl-1">
-                {viewPeriod === 'month'
-                  ? format(currentDate, 'MMMM yyyy', { locale: es })
-                  : `Semana del ${format(weekStart, 'd MMM')} al ${format(weekEnd, 'd MMM yyyy', {
-                      locale: es,
-                    })}`}
-              </span>
-            </div>
-
-            <button
-              onClick={handleToday}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 cursor-pointer"
-            >
-              Hoy
-            </button>
-          </div>
-
           {/* Tarjetas de Cash-Flow Runway del Mes */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800">
               <span className="text-[10px] uppercase font-bold text-slate-400">Gastado Real en el Mes</span>
               <div className="text-2xl font-black font-mono text-emerald-400 mt-1">
-                {totalMonthSpent.toFixed(2)} {currency}
+                {mask(totalMonthSpent, currency)}
               </div>
               <span className="text-[11px] text-slate-500">
                 {expensesInMonth.length} movimientos ejecutados
@@ -332,7 +300,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800">
               <span className="text-[10px] uppercase font-bold text-slate-400">Recurrentes Comprometidos</span>
               <div className="text-2xl font-black font-mono text-blue-400 mt-1">
-                {monthlyRecurringTotal.toFixed(2)} {currency}
+                {mask(monthlyRecurringTotal, currency)}
               </div>
               <span className="text-[11px] text-slate-500">Previsión fija del mes</span>
             </div>
@@ -346,8 +314,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   projectedBalanceEnd >= 0 ? 'text-white' : 'text-rose-400'
                 }`}
               >
-                {projectedBalanceEnd >= 0 ? '+' : ''}
-                {projectedBalanceEnd.toFixed(2)} {currency}
+                {isPrivate ? (
+                  '•••• ' + currency
+                ) : (
+                  `${projectedBalanceEnd >= 0 ? '+' : ''}${projectedBalanceEnd.toFixed(2)} ${currency}`
+                )}
               </div>
               <span className="text-[11px] text-slate-400 flex items-center gap-1">
                 <span
@@ -368,6 +339,40 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 </span>
               </span>
             </div>
+          </div>
+
+          {/* Barra de Navegación de Mes/Semana (Inmediatamente sobre el Calendario) */}
+          <div className="flex items-center justify-between bg-slate-900/90 border border-slate-800 p-3 rounded-3xl">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handlePrev}
+                className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                title="Anterior"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={handleNext}
+                className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                title="Siguiente"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <span className="text-sm font-black text-white capitalize pl-1">
+                {viewPeriod === 'month'
+                  ? format(currentDate, 'MMMM yyyy', { locale: es })
+                  : `Semana del ${format(weekStart, 'd MMM')} al ${format(weekEnd, 'd MMM yyyy', {
+                      locale: es,
+                    })}`}
+              </span>
+            </div>
+
+            <button
+              onClick={handleToday}
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 cursor-pointer"
+            >
+              Hoy
+            </button>
           </div>
 
           {/* Rejilla de Días del Calendario */}
@@ -399,6 +404,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   .filter((r) => r.costType !== 'none' && r.amount > 0)
                   .reduce((sum, r) => sum + r.amount, 0);
 
+                const hasCompletedTask = dayRecurring.some(
+                  (r) =>
+                    (r.completedDates || []).includes(dayDateStr) ||
+                    (isSameDay(day, new Date()) && r.lastGeneratedDate === dayDateStr)
+                );
                 const hasHealthOrTask = dayRecurring.some(
                   (r) => r.costType === 'none' || r.categoryType === 'health' || r.categoryType === 'maintenance' || r.categoryType === 'personal'
                 );
@@ -435,10 +445,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
                       {/* Puntos de evento */}
                       <div className="flex items-center space-x-1">
-                        {hasHealthOrTask && (
+                        {hasCompletedTask && (
+                          <span
+                            className="w-2 h-2 rounded-full bg-emerald-400 ring-1 ring-emerald-300 shadow-xs shadow-emerald-400/50"
+                            title="Tarea periódica completada en esta fecha"
+                          />
+                        )}
+                        {hasHealthOrTask && !hasCompletedTask && (
                           <span
                             className="w-2 h-2 rounded-full bg-purple-400 shadow-xs shadow-purple-400/50"
-                            title="Tareas o citas periódicas programadas"
+                            title="Tareas o citas periódicas pendientes"
                           />
                         )}
                         {hasFinancialBill && (
@@ -511,9 +527,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     const bucket = buckets.find((b) => b.id === rule.bucketId);
                     const isTask = rule.costType === 'none' || !rule.amount || rule.amount <= 0;
                     const isEstimated = rule.costType === 'estimated';
+                    const selectedDayDateStr = format(selectedDay, 'yyyy-MM-dd');
+                    const isTaskCompleted =
+                      (rule.completedDates || []).includes(selectedDayDateStr) ||
+                      (isSameDay(selectedDay, new Date()) && rule.lastGeneratedDate === selectedDayDateStr);
 
                     let categoryBadge = '💳 Recibo';
-                    if (rule.categoryType === 'health') categoryBadge = '🩺 Salud / Lentillas';
+                    if (rule.categoryType === 'health') categoryBadge = '🩺 Salud';
                     else if (rule.categoryType === 'maintenance') categoryBadge = '🔧 Mantenimiento';
                     else if (rule.categoryType === 'tax') categoryBadge = '🏛️ Impuesto';
                     else if (rule.categoryType === 'personal') categoryBadge = '🎂 Personal';
@@ -522,8 +542,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     return (
                       <div
                         key={rule.id}
-                        className={`p-3 rounded-2xl border flex items-center justify-between ${
-                          isTask
+                        className={`p-3 rounded-2xl border flex items-center justify-between transition-all ${
+                          isTaskCompleted
+                            ? 'bg-emerald-950/20 border-emerald-500/40'
+                            : isTask
                             ? 'bg-purple-950/20 border-purple-500/30'
                             : isEstimated
                             ? 'bg-amber-950/20 border-amber-500/30'
@@ -531,11 +553,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         }`}
                       >
                         <div>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="text-xs font-bold text-white">{rule.title}</span>
                             <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">
                               {categoryBadge}
                             </span>
+                            {isTaskCompleted && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                                Completada
+                              </span>
+                            )}
                           </div>
                           <div className="text-[10px] text-slate-400 mt-0.5">
                             {bucket?.name || 'General'} • {rule.frequency}
@@ -555,13 +582,21 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                               <span>{rule.amount.toFixed(2)} {currency}</span>
                             )}
                           </span>
-                          <button
-                            onClick={() => handlePayRecurringNow(rule)}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all active:scale-95"
-                          >
-                            <Play className="w-3 h-3 fill-current" />
-                            <span>{isTask ? 'Completar' : isEstimated ? 'Confirmar' : 'Pagar'}</span>
-                          </button>
+
+                          {isTaskCompleted ? (
+                            <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1 shadow-xs">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                              <span>Completada</span>
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handlePayRecurringNow(rule)}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+                            >
+                              <Play className="w-3 h-3 fill-current" />
+                              <span>{isTask ? 'Completar' : isEstimated ? 'Confirmar' : 'Pagar'}</span>
+                            </button>
+                          )}
                         </div>
                       </div>
                     );

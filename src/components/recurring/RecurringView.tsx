@@ -439,12 +439,18 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
 
             const isPureTask = rule.costType === 'none' || (!rule.amount && rule.costType !== 'estimated');
             const isEstimated = rule.costType === 'estimated';
+            const todayStr = new Date().toISOString().split('T')[0];
+            const isCompletedToday =
+              (rule.completedDates || []).includes(todayStr) || rule.lastGeneratedDate === todayStr;
 
             // Semáforo de cuenta atrás
             let badgeColor = 'bg-slate-800 text-slate-300 border-slate-700';
             let badgeText = `En ${daysLeft} días (${formattedDate})`;
 
-            if (daysLeft === 0) {
+            if (isCompletedToday) {
+              badgeColor = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+              badgeText = `✓ Completada hoy (${formattedDate})`;
+            } else if (daysLeft === 0) {
               badgeColor = 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse';
               badgeText = `¡Toca HOY! (${formattedDate})`;
             } else if (daysLeft === 1) {
@@ -466,7 +472,9 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               <div
                 key={rule.id}
                 className={`p-4 rounded-3xl bg-slate-900/90 border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                  daysLeft <= 1
+                  isCompletedToday
+                    ? 'border-emerald-500/30 shadow-md shadow-emerald-950/20'
+                    : daysLeft <= 1
                     ? 'border-amber-500/40 shadow-md shadow-amber-950/20'
                     : 'border-slate-800 hover:border-slate-700/80'
                 }`}
@@ -496,7 +504,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                       )}
                       {isPureTask && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">
-                          Tarea / Salud
+                          Tarea
                         </span>
                       )}
                       {rule.isVampire && (
@@ -510,8 +518,8 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     </div>
 
                     <div className="text-xs text-slate-400 flex items-center space-x-2 mt-1">
-                      <span className="font-semibold" style={{ color: bucket?.color }}>
-                        {bucket?.name || 'General'}
+                      <span className="font-semibold" style={{ color: isPureTask ? '#c084fc' : bucket?.color }}>
+                        {isPureTask ? 'Recordatorio' : bucket?.name || 'General'}
                       </span>
                       <span>•</span>
                       <span>
@@ -529,12 +537,14 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                           </span>
                         </>
                       )}
-                      {rule.notes && (
-                        <>
-                          <span>•</span>
-                          <span className="truncate max-w-[150px] text-slate-500">{rule.notes}</span>
-                        </>
-                      )}
+                      {rule.notes &&
+                        !rule.notes.toLowerCase().startsWith(rule.title.toLowerCase().slice(0, 5)) &&
+                        !rule.title.toLowerCase().startsWith(rule.notes.toLowerCase().slice(0, 5)) && (
+                          <>
+                            <span>•</span>
+                            <span className="truncate max-w-[150px] text-slate-500">{rule.notes}</span>
+                          </>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -552,24 +562,31 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Botón Confirmar / Registrar */}
-                  <button
-                    onClick={async () => {
-                      if (onRequestConfirmRecurring) {
-                        onRequestConfirmRecurring(rule);
-                      } else {
-                        onApplyRuleNow(rule);
-                        await HapticService.notificationSuccess();
-                      }
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
-                    title={isPureTask ? 'Completar tarea y avanzar ciclo' : 'Confirmar o ajustar importe del gasto'}
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>
-                      {isPureTask ? 'Completar Tarea' : isEstimated ? 'Confirmar / Ajustar' : 'Registrar Pago'}
+                  {/* Botón Confirmar / Registrar / Completada */}
+                  {isCompletedToday ? (
+                    <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 shadow-xs">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Completada</span>
                     </span>
-                  </button>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        if (onRequestConfirmRecurring) {
+                          onRequestConfirmRecurring(rule);
+                        } else {
+                          onApplyRuleNow(rule);
+                          await HapticService.notificationSuccess();
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                      title={isPureTask ? 'Completar tarea y avanzar ciclo' : 'Confirmar o ajustar importe del gasto'}
+                    >
+                      <Play className="w-3.5 h-3.5 fill-current" />
+                      <span>
+                        {isPureTask ? 'Completar Tarea' : isEstimated ? 'Confirmar / Ajustar' : 'Registrar Pago'}
+                      </span>
+                    </button>
+                  )}
 
                   <button
                     onClick={() => openEdit(rule)}

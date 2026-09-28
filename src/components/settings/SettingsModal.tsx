@@ -20,7 +20,13 @@ import {
   FileText,
   BookOpen,
   Smartphone,
+  Image as ImageIcon,
+  Loader2,
+  Info,
 } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import { Settings, BackupEnvelope } from '../../types';
 import { DBService } from '../../services/db';
 import { AuthService } from '../../services/auth';
@@ -80,6 +86,57 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [showTechStack, setShowTechStack] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [showFAQModal, setShowFAQModal] = useState(false);
+  const [verticonsModalOpen, setVerticonsModalOpen] = useState(false);
+  const [downloadingFile, setDownloadingFile] = useState<string | null>(null);
+
+  const handleDownloadImage = async (imagePath: string, fileName: string, title: string) => {
+    setDownloadingFile(fileName);
+    try {
+      const response = await fetch(imagePath);
+      if (!response.ok) throw new Error('No se pudo obtener el archivo de imagen.');
+      const blob = await response.blob();
+
+      if (Capacitor.isNativePlatform()) {
+        const reader = new FileReader();
+        const base64Data = await new Promise<string>((resolve, reject) => {
+          reader.onloadend = () => {
+            const res = reader.result as string;
+            const base64 = res.split(',')[1] || res;
+            resolve(base64);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
+        const fileResult = await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Cache,
+        });
+
+        await Share.share({
+          title,
+          text: `Icono CronoCash: ${fileName}`,
+          url: fileResult.uri,
+          dialogTitle: `Guardar o compartir ${fileName}`,
+        });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+    } catch (err) {
+      console.error('Error al descargar o compartir icono:', err);
+      alert('No se pudo guardar la imagen en el dispositivo.');
+    } finally {
+      setDownloadingFile(null);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -685,6 +742,41 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
 
+          {/* Personalización de Icono & Tarjetas Verticons */}
+          <div className="space-y-2 p-3 bg-slate-900/80 border border-slate-800 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Icono & Verticons Pack</span>
+              </h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                2:3 Mobile
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setVerticonsModalOpen(true)}
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-950/60 hover:bg-slate-800/80 border border-slate-800 hover:border-cyan-500/40 transition-all text-left group cursor-pointer"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="p-2 rounded-xl bg-cyan-500/15 text-cyan-400 border border-cyan-500/25 group-hover:scale-105 transition-transform">
+                  <ImageIcon className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>Personalización de Icono Oficial & Verticons</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                  </div>
+                  <p className="text-[10px] text-slate-400">
+                    Descarga el icono APK oficial y tarjetas 2:3 Verticons para lanzadores Android
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all" />
+            </button>
+          </div>
+
           {/* Botones de acción */}
           <div className="pt-2 flex justify-end space-x-2">
             <button
@@ -727,6 +819,136 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             isOpen={showFAQModal}
             onClose={() => setShowFAQModal(false)}
           />
+        )}
+
+        {/* Modal de Icono APK Oficial y Colección Verticons 2:3 */}
+        {verticonsModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+            <div className="bg-[#0b111e] border border-cyan-500/40 rounded-3xl w-full max-w-lg p-5 text-white shadow-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-cyan-400" />
+                  <span>Iconografía Oficial CronoCash</span>
+                </h3>
+                <button
+                  onClick={() => setVerticonsModalOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="mt-4 space-y-5">
+                {/* Comparativa de Iconos */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                  {/* 1. Icono Launcher APK (Squircle) */}
+                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 flex flex-col items-center">
+                    <span className="text-xs font-bold text-slate-300">Icono Launcher APK</span>
+                    <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-2xl border border-slate-700/80 bg-slate-950">
+                      <img
+                        src="/logo.jpg"
+                        alt="CronoCash Launcher"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <span className="text-[11px] text-slate-400">
+                      Adaptive Squircle 1:1 integrado en el instalador Android
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadImage('/logo.jpg', 'crono-cash-launcher.jpg', 'Icono CronoCash Oficial')}
+                      disabled={downloadingFile === 'crono-cash-launcher.jpg'}
+                      className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-xs font-bold text-slate-200 flex items-center gap-1 border border-slate-700 cursor-pointer disabled:opacity-50 transition-all shadow-md"
+                    >
+                      {downloadingFile === 'crono-cash-launcher.jpg' ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                      ) : (
+                        <Download className="w-3.5 h-3.5" />
+                      )}
+                      <span>{downloadingFile === 'crono-cash-launcher.jpg' ? 'Guardando...' : 'Descargar JPG'}</span>
+                    </button>
+                  </div>
+
+                  {/* 2. Verticons Card Edition */}
+                  <div className="p-4 rounded-2xl bg-slate-900 border border-cyan-500/40 space-y-3 flex flex-col items-center">
+                    <span className="text-xs font-bold text-cyan-300 flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Verticons Card Pack</span>
+                    </span>
+                    <div className="w-20 h-30 rounded-2xl overflow-hidden shadow-2xl border border-cyan-400/50 bg-slate-950/60 p-0.5">
+                      <img
+                        src="/verticon-icon.png"
+                        alt="CronoCash Verticons"
+                        className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(52,211,153,0.3)]"
+                      />
+                    </div>
+                    <span className="text-[11px] text-slate-400 text-center">
+                      Tarjeta vertical 2:3 al ras con marco de neón esmeralda y fibra de carbono (sin marcos negros)
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleDownloadImage('/verticon-icon.png', 'crono-cash-verticon.png', 'Tarjeta Verticons Transparente')}
+                        disabled={downloadingFile === 'crono-cash-verticon.png'}
+                        className="px-2.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 active:scale-95 text-xs font-bold text-cyan-300 flex items-center gap-1 border border-cyan-500/40 cursor-pointer disabled:opacity-50 transition-all shadow-md"
+                      >
+                        {downloadingFile === 'crono-cash-verticon.png' ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+                        ) : (
+                          <Download className="w-3.5 h-3.5" />
+                        )}
+                        <span>{downloadingFile === 'crono-cash-verticon.png' ? 'Guardando...' : 'PNG Transparente'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDownloadImage('/verticon-icon.jpg', 'crono-cash-verticon.jpg', 'Tarjeta Verticons JPG')}
+                        disabled={downloadingFile === 'crono-cash-verticon.jpg'}
+                        className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-xs font-bold text-slate-300 flex items-center gap-1 border border-slate-700 cursor-pointer disabled:opacity-50 transition-all shadow-md"
+                      >
+                        {downloadingFile === 'crono-cash-verticon.jpg' ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
+                        ) : (
+                          <Download className="w-3.5 h-3.5" />
+                        )}
+                        <span>{downloadingFile === 'crono-cash-verticon.jpg' ? 'Guardando...' : 'JPG'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Instrucciones de aplicación en Android */}
+                <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2 text-xs text-slate-300">
+                  <div className="font-bold text-white flex items-center gap-1.5">
+                    <Info className="w-4 h-4 text-cyan-400" />
+                    <span>Cómo aplicar el icono en tu teléfono Android:</span>
+                  </div>
+                  <ol className="list-decimal pl-4 space-y-1 text-slate-400">
+                    <li>
+                      <strong>Icono Automático:</strong> Al instalar el APK compilado, tu teléfono
+                      usará automáticamente el icono de la bóveda esmeralda en el launcher.
+                    </li>
+                    <li>
+                      <strong>Personalización con Verticons:</strong> Descarga la imagen Verticons en
+                      tu galería pulsando en "Descargar Verticon".
+                    </li>
+                    <li>
+                      En tu launcher compatible (Nova Launcher, Niagara Launcher, Smart Launcher): mantén
+                      pulsado el icono de CronoCash → Editar → Seleccionar imagen de Galería.
+                    </li>
+                  </ol>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setVerticonsModalOpen(false)}
+                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold cursor-pointer"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

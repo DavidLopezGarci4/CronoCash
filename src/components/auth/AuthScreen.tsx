@@ -13,13 +13,15 @@ import {
   ArrowRight,
   Shield,
   RefreshCw,
+  LogOut,
 } from 'lucide-react';
 
 interface AuthScreenProps {
   onUnlocked: () => void;
+  onRequestExit?: () => void;
 }
 
-export const AuthScreen: React.FC<AuthScreenProps> = ({ onUnlocked }) => {
+export const AuthScreen: React.FC<AuthScreenProps> = ({ onUnlocked, onRequestExit }) => {
   const [isConfigured, setIsConfigured] = useState(() => AuthService.isPasswordConfigured());
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -151,13 +153,27 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onUnlocked }) => {
         }}
       />
 
-      <div className="w-full max-w-sm flex flex-col items-center space-y-5 my-auto">
+      <div className="w-full max-w-sm flex flex-col items-center space-y-5 my-auto relative">
+        {/* Botón Salir de la APK */}
+        {onRequestExit && (
+          <button
+            type="button"
+            onClick={onRequestExit}
+            className="absolute -top-3 right-0 p-2 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-slate-800/60 transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
+            title="Salir de CronoCash"
+            aria-label="Salir de CronoCash"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="text-[11px]">Salir</span>
+          </button>
+        )}
+
         {/* Cabecera & Logotipo de la App */}
         <div className="flex flex-col items-center space-y-3 text-center">
           <div className="relative">
             <img
               src="/logo.jpg"
-              alt="Gastos Facturación"
+              alt="CronoCash"
               className="w-20 h-20 rounded-3xl object-cover shadow-2xl border-2 border-emerald-500/40 shadow-emerald-500/20"
             />
             <div className="absolute -bottom-1 -right-1 bg-emerald-500 rounded-full p-1 text-slate-950 shadow-md">
@@ -166,11 +182,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onUnlocked }) => {
           </div>
           <div>
             <h1 className="text-2xl font-black tracking-tight text-white flex items-center justify-center gap-1.5">
-              <span>Gastos Facturación</span>
+              <span>CronoCash</span>
             </h1>
             <p className="text-xs text-slate-400 mt-0.5">
               {isConfigured
-                ? 'Bóveda protegida con biometría y PIN'
+                ? 'Bóveda protegida con huella digital y PIN'
                 : 'Configura tu PIN de seguridad para empezar'}
             </p>
           </div>

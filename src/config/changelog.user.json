@@ -1,7 +1,7 @@
 {
-  "currentVersion": "1.14.0",
-  "buildNumber": 11400,
-  "lastUpdated": "2026-09-27",
+  "currentVersion": "1.15.0",
+  "buildNumber": 11500,
+  "lastUpdated": "2026-09-28",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
   "privacyBadge": "100% Local y Privado • Sin Rastreadores • Sin Servidores Externos",
@@ -9,11 +9,27 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.15.0",
+      "build": 11500,
+      "date": "28 Sep 2026",
+      "title": "Biometría Forzada, Diálogo de Salida y Ergonomía en Calendario & Metas",
+      "isCurrent": true,
+      "highlights": [
+        "👆 Desbloqueo Biométrico Instantáneo: El aviso de huella dactilar se abre automáticamente al abrir la app; el teclado numérico queda únicamente como alternativa segura si decides retroceder.",
+        "🚪 Diálogo Seguro de Salida: Confirmación emergente antes de cerrar la aplicación para evitar salidas accidentales con el botón de retroceso o menús táctiles.",
+        "👁️ Privacidad Blindada en Calendario: El saldo proyectado a fin de mes y los flujos financieros ahora se enmascaran automáticamente al activar el Modo Privacidad.",
+        "📅 Navegación Intuitiva de Calendario: El selector de meses y semanas se sitúa inmediatamente encima de los días del mes para una exploración ágil.",
+        "✅ Ciclo de Tareas y Marcado 'Completada Hoy': Al cumplir una tarea periódica (como lentillas o salud), queda marcada con check verde para esa fecha sin alterar tus ciclos futuros y sin etiquetas redundantes.",
+        "🎨 Iconografía Verticons en Ajustes: Traslado de la descarga de tarjetas e iconos oficiales 2:3 a la sección de Ajustes y Personalización.",
+        "🎯 Metas Compactas y Purga Directa: Indicadores superiores optimizados para ahorrar espacio en pantalla y botón directo de borrado para descartar metas de ejemplo sin esfuerzo."
+      ]
+    },
+    {
       "version": "1.14.0",
       "build": 11400,
       "date": "27 Sep 2026",
       "title": "Tareas Recurrentes, Alertas Escalonadas y Ciclos Adaptativos",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "🩺 Tareas Periódicas y Salud: Añade compromisos como cambios de lentillas, vacunas veterinarias, revisiones o cumpleaños con coste estimado o sin coste directo.",
         "🔔 Avisos Escalonados con Antelación: Configura alertas multietapa para el mismo día, 1 día antes, 3 días, 1 semana, 2 semanas, 1 mes (seguros) o 1 trimestre (90 días para previsión).",
