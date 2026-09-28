@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthService } from './services/auth';
 import { DBService } from './services/db';
 import { NotificationService } from './services/notificationService';
-import { Expense, Bucket, RecurringRule, Settings, FinancialTip, SmartRule, SavingsGoal } from './types';
+import { Expense, Bucket, RecurringRule, Settings, FinancialTip, SmartRule, SavingsGoal, ExtraIncome } from './types';
 import { SafeToSpendService } from './services/safeToSpendService';
 import { AuthScreen } from './components/auth/AuthScreen';
 import { Header } from './components/layout/Header';
@@ -20,6 +20,8 @@ import { SmartRulesModal } from './components/importer/SmartRulesModal';
 import { GoalsModal } from './components/goals/GoalsModal';
 import { ReportsModal } from './components/reports/ReportsModal';
 import { ConfirmRecurringExpenseModal } from './components/expenses/ConfirmRecurringExpenseModal';
+import { PrivacyProvider } from './context/PrivacyContext';
+import { ExtraIncomeModal } from './components/income/ExtraIncomeModal';
 
 export const App: React.FC = () => {
   // Estado de Bloqueo / Autenticación
@@ -49,6 +51,7 @@ export const App: React.FC = () => {
   const [smartRulesModalOpen, setSmartRulesModalOpen] = useState(false);
   const [goalsModalOpen, setGoalsModalOpen] = useState(false);
   const [reportsModalOpen, setReportsModalOpen] = useState(false);
+  const [incomeModalOpen, setIncomeModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [confirmRule, setConfirmRule] = useState<RecurringRule | null>(null);
   const [confirmDate, setConfirmDate] = useState<string>('');
@@ -289,6 +292,17 @@ export const App: React.FC = () => {
     await loadData();
   };
 
+  // CRUD Ingresos Extras
+  const handleSaveExtraIncome = async (income: ExtraIncome) => {
+    await DBService.saveExtraIncome(income);
+    await loadData();
+  };
+
+  const handleDeleteExtraIncome = async (id: string) => {
+    await DBService.deleteExtraIncome(id);
+    await loadData();
+  };
+
   if (isLocked) {
     return <AuthScreen onUnlocked={handleUnlocked} />;
   }
@@ -299,28 +313,42 @@ export const App: React.FC = () => {
     .filter((e) => (e.date || '').startsWith(currentMonthPrefix))
     .reduce((sum, e) => sum + e.amount, 0);
 
+  // Computar ingresos extras del mes (puntuales del mes + recurrentes activos)
+  const extraIncomes = settings.extraIncomes || [];
+  const punctualExtraIncome = extraIncomes
+    .filter((inc) => inc.isActive !== false && inc.type === 'punctual' && (inc.date || '').startsWith(currentMonthPrefix))
+    .reduce((sum, inc) => sum + inc.amount, 0);
+
+  const recurringExtraIncome = extraIncomes
+    .filter((inc) => inc.isActive !== false && inc.type === 'recurring')
+    .reduce((sum, inc) => sum + inc.amount, 0);
+
+  const totalExtraIncomeMonth = punctualExtraIncome + recurringExtraIncome;
+  const effectiveMonthlyIncome = (settings.monthlyIncome || 0) + totalExtraIncomeMonth;
+
   const safeMetrics = SafeToSpendService.calculate(
     expenses,
     recurringRules,
     buckets,
-    settings.monthlyIncome || 0,
+    effectiveMonthlyIncome,
     new Date(),
     savingsGoals
   );
 
   return (
-    <div
-      className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans selection:bg-emerald-500/30"
-      style={{
-        paddingTop: 'max(0.7cm, env(safe-area-inset-top, 0px))',
-      }}
-    >
+    <PrivacyProvider>
+      <div
+        className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans selection:bg-emerald-500/30"
+        style={{
+          paddingTop: 'max(0.7cm, env(safe-area-inset-top, 0px))',
+        }}
+      >
       {/* Franja superior fija para reloj Android */}
       <div className="safe-top-bar" />
 
       {/* Cabecera */}
       <Header
-        settings={settings}
+        settings={{ ...settings, monthlyIncome: effectiveMonthlyIncome }}
         totalExpensesMonth={totalExpensesMonth}
         dailySafeToSpend={safeMetrics.dailySafeToSpend}
         currentTab={currentTab}
@@ -354,6 +382,7 @@ export const App: React.FC = () => {
             onOpenImporter={() => setCsvModalOpen(true)}
             onOpenGoalsModal={() => setGoalsModalOpen(true)}
             onOpenReports={() => setReportsModalOpen(true)}
+            onOpenIncomeModal={() => setIncomeModalOpen(true)}
           />
         )}
 
@@ -522,6 +551,20 @@ export const App: React.FC = () => {
           onCompleteTaskWithoutExpense={handleCompleteTaskWithoutExpense}
         />
       )}
+
+      {/* Modal de Ingresos Extras (Puntuales y Recurrentes) */}
+      {incomeModalOpen && (
+        <ExtraIncomeModal
+          isOpen={incomeModalOpen}
+          onClose={() => setIncomeModalOpen(false)}
+          extraIncomes={settings.extraIncomes || []}
+          currency={settings.currency || '€'}
+          monthlyBaseIncome={settings.monthlyIncome || 0}
+          onSaveIncome={handleSaveExtraIncome}
+          onDeleteIncome={handleDeleteExtraIncome}
+        />
+      )}
     </div>
+  </PrivacyProvider>
   );
 };

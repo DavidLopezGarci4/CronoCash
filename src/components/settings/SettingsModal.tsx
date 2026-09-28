@@ -56,6 +56,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [companyName, setCompanyName] = useState(settings.companyName || '');
   const [taxId, setTaxId] = useState(settings.taxId || '');
   const [monthlyIncome, setMonthlyIncome] = useState(String(settings.monthlyIncome || 0));
+  const [savingsBuffer, setSavingsBuffer] = useState(String(settings.savingsBuffer ?? 250));
   const [currency, setCurrency] = useState(settings.currency || '€');
   const [newPin, setNewPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
@@ -96,6 +97,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       companyName: companyName.trim(),
       taxId: taxId.trim(),
       monthlyIncome: parseFloat(monthlyIncome.replace(',', '.')) || 0,
+      savingsBuffer: parseFloat(savingsBuffer.replace(',', '.')) || 0,
       currency,
       notificationsEnabled,
       notificationHour,
@@ -238,7 +240,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400">Ingresos Mensuales Estimados</label>
+                <label className="text-[11px] font-bold text-slate-400">Ingresos Mensuales Estimados (Salario Base)</label>
                 <div className="relative flex items-center">
                   <input
                     type="number"
@@ -251,6 +253,36 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <span className="absolute right-3 text-xs text-slate-400">{currency}</span>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Colchón de Ahorro & Reserva de Imprevistos */}
+          <div className="space-y-3 p-3 bg-slate-900/80 border border-slate-800 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-teal-400" />
+                <span>Colchón de Ahorro & Imprevistos</span>
+              </h3>
+            </div>
+
+            <div className="space-y-2">
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-400">Importe Blindado para Colchón / Fondo de Emergencia</label>
+                <div className="relative flex items-center">
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={savingsBuffer}
+                    onChange={(e) => setSavingsBuffer(e.target.value)}
+                    placeholder="250"
+                    className="w-full h-10 px-3 pr-8 bg-slate-950 border border-slate-700 rounded-xl text-xs font-mono font-bold text-teal-400"
+                  />
+                  <span className="absolute right-3 text-xs text-slate-400 font-mono">{currency}</span>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Este fondo queda protegido ante el cálculo del <strong className="text-slate-300">Gasto Diario Seguro</strong>, asegurando que nunca comprometas tu colchón ante emergencias sin previo aviso.
+              </p>
             </div>
           </div>
 
@@ -596,9 +628,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Información & Novedades</span>
               </h3>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
-                v1.13.0
-              </span>
             </div>
 
             <button
@@ -631,9 +660,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <Layers className="w-3.5 h-3.5 text-blue-400" />
                 <span>Transparencia & Arquitectura</span>
               </h3>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-blue-400 border border-blue-500/30 font-semibold">
-                Gentle AI
-              </span>
             </div>
 
             <button

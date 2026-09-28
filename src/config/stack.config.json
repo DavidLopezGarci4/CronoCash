@@ -29,7 +29,7 @@
     {
       "id": "storage",
       "label": "IndexedDB & Filesystem",
-      "version": "v1.0 ACID",
+      "version": "",
       "role": "Persistencia Local Transaccional y Bóveda Cifrada",
       "category": "local_persistence",
       "color": "#f59e0b",

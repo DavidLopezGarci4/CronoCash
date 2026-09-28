@@ -31,6 +31,7 @@ import { SinkingFundsService } from '../../services/sinkingFundsService';
 import { GoalFormModal } from './GoalFormModal';
 import { SweepSurplusModal } from './SweepSurplusModal';
 import { QuickContributeModal } from './QuickContributeModal';
+import { usePrivacy } from '../../context/PrivacyContext';
 
 interface GoalsModalProps {
   isOpen: boolean;
@@ -74,6 +75,7 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
   onAddContribution,
   onRefresh,
 }) => {
+  const { isPrivate } = usePrivacy();
   const [formOpen, setFormOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<SavingsGoal | null>(null);
   const [sweepOpen, setSweepOpen] = useState(false);
@@ -141,9 +143,6 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-black tracking-tight text-white">Metas & Sinking Funds</h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/30">
-                  v1.11.0
-                </span>
               </div>
               <p className="text-xs text-slate-400">
                 Ahorro autónomo con ritmo de crucero y blindaje Safe-to-Spend
@@ -168,7 +167,7 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
               Total Ahorrado
             </span>
             <div className="text-base sm:text-lg font-black font-mono text-emerald-400 mt-0.5">
-              {totalSaved.toFixed(2)} {currency}
+              {isPrivate ? '••••' : totalSaved.toFixed(2)} {currency}
             </div>
             <span className="text-[10px] text-slate-400 mt-0.5 block">{goals.length} metas activas</span>
           </div>
@@ -179,7 +178,7 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
               <span>Crucero Mensual</span>
             </span>
             <div className="text-base sm:text-lg font-black font-mono text-purple-300 mt-0.5">
-              {totalCommittedCruising.toFixed(2)} {currency}
+              {isPrivate ? '••••' : totalCommittedCruising.toFixed(2)} {currency}
             </div>
             <span className="text-[10px] text-slate-400 mt-0.5 block">Protegido en Safe-to-Spend</span>
           </div>
@@ -313,7 +312,7 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
 
                         <div className="text-xs text-slate-400 mt-1 flex items-center gap-2 flex-wrap">
                           <span>
-                            Meta: <strong className="font-mono text-slate-200">{goal.targetAmount.toFixed(2)} {currency}</strong>
+                            Meta: <strong className="font-mono text-slate-200">{isPrivate ? '••••' : goal.targetAmount.toFixed(2)} {currency}</strong>
                           </span>
                           <span>•</span>
                           <span>
@@ -354,9 +353,9 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
                     <div className="flex items-center justify-between text-xs mb-1">
                       <div className="font-mono">
                         <span className="font-black text-white text-sm">
-                          {goal.currentAmount.toFixed(2)}
+                          {isPrivate ? '••••' : goal.currentAmount.toFixed(2)}
                         </span>
-                        <span className="text-slate-400 text-xs"> / {goal.targetAmount.toFixed(2)} {currency}</span>
+                        <span className="text-slate-400 text-xs"> / {isPrivate ? '••••' : goal.targetAmount.toFixed(2)} {currency}</span>
                       </div>
                       <div className="flex items-center gap-2 font-mono text-xs">
                         <span className="font-bold" style={{ color: goal.color }}>
@@ -364,7 +363,7 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
                         </span>
                         {!goal.isCompleted && pace.monthlyContribution > 0 && (
                           <span className="text-purple-300 font-bold text-[11px] bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
-                            Crucero: ~{pace.monthlyContribution.toFixed(2)} {currency}/mes
+                            Crucero: ~{isPrivate ? '••••' : pace.monthlyContribution.toFixed(2)} {currency}/mes
                           </span>
                         )}
                       </div>

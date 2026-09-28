@@ -1,4 +1,4 @@
-import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule, SavingsGoal, GoalContribution } from '../types';
+import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule, SavingsGoal, GoalContribution, ExtraIncome } from '../types';
 
 const DB_NAME = 'GastosFacturacionDB';
 const DB_VERSION = 3;
@@ -124,6 +124,9 @@ export const DEFAULT_SETTINGS: Settings = {
   guardarContrasenaAuto: false,
   currency: '€',
   monthlyIncome: 2200,
+  savingsBuffer: 250,
+  savingsBufferBucketId: 'bucket-colchon',
+  extraIncomes: [],
   userFullName: 'Usuario',
   companyName: '',
   taxId: '',
@@ -800,6 +803,36 @@ export class DBService {
     } catch (e) {
       console.warn('[DBService] Guardado en localStorage exitoso, fallo en IndexedDB:', e);
     }
+  }
+
+  // --- INGRESOS EXTRAS (Puntuales y Recurrentes) ---
+  static getExtraIncomes(): ExtraIncome[] {
+    const s = this.getSettings();
+    return s.extraIncomes || [];
+  }
+
+  static async saveExtraIncome(income: ExtraIncome): Promise<void> {
+    const s = this.getSettings();
+    const list = s.extraIncomes ? [...s.extraIncomes] : [];
+    const idx = list.findIndex((i) => i.id === income.id);
+    if (idx >= 0) {
+      list[idx] = income;
+    } else {
+      list.unshift(income);
+    }
+    await this.saveSettings({
+      ...s,
+      extraIncomes: list,
+    });
+  }
+
+  static async deleteExtraIncome(id: string): Promise<void> {
+    const s = this.getSettings();
+    const list = (s.extraIncomes || []).filter((i) => i.id !== id);
+    await this.saveSettings({
+      ...s,
+      extraIncomes: list,
+    });
   }
 
   // --- EXPENSES ---

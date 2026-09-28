@@ -12,10 +12,13 @@ import {
   Repeat,
   Calendar,
   Lightbulb,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { Settings } from '../../types';
 import { NavTab } from './BottomNav';
 import { HapticService } from '../../services/hapticService';
+import { usePrivacy } from '../../context/PrivacyContext';
 
 interface HeaderProps {
   settings: Settings;
@@ -40,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenBackup,
   onOpenGoals,
 }) => {
+  const { isPrivate, togglePrivacy, mask } = usePrivacy();
   const currency = settings.currency || '€';
   const income = settings.monthlyIncome || 0;
   const balance = income - totalExpensesMonth;
@@ -54,26 +58,26 @@ export const Header: React.FC<HeaderProps> = ({
   ] as const;
 
   return (
-    <header className="sticky top-0 z-40 bg-[#090d16]/95 backdrop-blur-md border-b border-slate-800/80 px-4 py-2.5">
-      <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-40 bg-[#090d16]/95 backdrop-blur-md border-b border-slate-800/80 px-2.5 xs:px-3 sm:px-4 py-2 sm:py-2.5">
+      <div className="max-w-5xl mx-auto flex items-center justify-between gap-1.5 xs:gap-2 sm:gap-3">
         {/* Logo & Marca */}
-        <div className="flex items-center space-x-3 shrink-0">
-          <div className="relative">
+        <div className="flex items-center space-x-2 sm:space-x-3 shrink min-w-0">
+          <div className="relative shrink-0">
             <img
               src="/logo.jpg"
               alt="Logo"
-              className="w-10 h-10 rounded-xl object-cover border border-emerald-500/30 shadow-md shadow-emerald-500/10"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl object-cover border border-emerald-500/30 shadow-md shadow-emerald-500/10"
             />
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#090d16]" />
+            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-emerald-500 rounded-full border-2 border-[#090d16]" />
           </div>
-          <div>
-            <h1 className="text-base font-black tracking-tight text-white flex items-center gap-1.5 leading-none">
+          <div className="min-w-0">
+            <h1 className="text-sm sm:text-base font-black tracking-tight text-white flex items-center gap-1.5 leading-none truncate">
               CronoCash
             </h1>
-            <p className="text-[11px] font-semibold text-emerald-400 mt-1 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="truncate max-w-[120px] sm:max-w-[200px]">
-                {settings.companyName || settings.userFullName || 'Bóveda Financiera'}
+            <p className="text-[10px] sm:text-[11px] font-semibold text-emerald-400 mt-0.5 sm:mt-1 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span className="truncate max-w-[70px] xs:max-w-[100px] sm:max-w-[180px]">
+                {settings.companyName || settings.userFullName || 'Bóveda'}
               </span>
             </p>
           </div>
@@ -108,15 +112,15 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         {/* Balance rápido del Mes & Acciones */}
-        <div className="flex items-center space-x-2 shrink-0">
+        <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 shrink-0">
           {dailySafeToSpend !== undefined && (
-            <div className="hidden xs:flex flex-col items-end px-2.5 py-1 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl border border-emerald-500/20 shadow-xs">
+            <div className="hidden sm:flex flex-col items-end px-2.5 py-1 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl border border-emerald-500/20 shadow-xs">
               <span className="text-[9px] uppercase font-bold text-emerald-400 tracking-wider flex items-center gap-1">
                 <Sparkles className="w-2.5 h-2.5 text-emerald-400" />
                 <span>Hoy</span>
               </span>
               <span className="text-xs font-mono font-bold text-emerald-300">
-                {dailySafeToSpend.toFixed(2)} {currency}
+                {mask(dailySafeToSpend, currency)}
               </span>
             </div>
           )}
@@ -128,10 +132,28 @@ export const Header: React.FC<HeaderProps> = ({
             <div className={`text-xs font-mono font-bold flex items-center gap-1 ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
               {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
               <span>
-                {balance >= 0 ? '+' : ''}{balance.toFixed(2)} {currency}
+                {balance >= 0 ? '+' : ''}{mask(balance, currency)}
               </span>
             </div>
           </div>
+
+          {/* Botón Modo Privacidad (Ojo) */}
+          <button
+            onClick={togglePrivacy}
+            className={`p-1.5 xs:p-2 min-w-[34px] min-h-[34px] xs:min-w-[38px] xs:min-h-[38px] sm:min-w-[42px] sm:min-h-[42px] flex items-center justify-center rounded-xl transition-all border cursor-pointer shadow-xs active:scale-95 ${
+              isPrivate
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-amber-950/20'
+                : 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border-slate-700/60'
+            }`}
+            title={isPrivate ? 'Mostrar importes (Modo Privacidad activo)' : 'Ocultar importes más sensibles (Modo Privacidad)'}
+            aria-label={isPrivate ? 'Mostrar importes sensibles' : 'Ocultar importes sensibles'}
+          >
+            {isPrivate ? (
+              <EyeOff className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-amber-400" />
+            ) : (
+              <Eye className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
+            )}
+          </button>
 
           {/* Botón Metas de Ahorro */}
           {onOpenGoals && (
@@ -140,11 +162,11 @@ export const Header: React.FC<HeaderProps> = ({
                 HapticService.impactLight();
                 onOpenGoals();
               }}
-              className="p-2 min-w-[42px] min-h-[42px] flex items-center justify-center rounded-xl bg-slate-800/80 hover:bg-purple-950/40 text-purple-300 hover:text-purple-200 transition-all border border-purple-500/30 cursor-pointer shadow-xs active:scale-95"
+              className="p-1.5 xs:p-2 min-w-[34px] min-h-[34px] xs:min-w-[38px] xs:min-h-[38px] sm:min-w-[42px] sm:min-h-[42px] flex items-center justify-center rounded-xl bg-slate-800/80 hover:bg-purple-950/40 text-purple-300 hover:text-purple-200 transition-all border border-purple-500/30 cursor-pointer shadow-xs active:scale-95"
               title="Metas de Ahorro & Sinking Funds"
               aria-label="Metas de Ahorro & Sinking Funds"
             >
-              <Target className="w-4 h-4" />
+              <Target className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
             </button>
           )}
 
@@ -154,11 +176,11 @@ export const Header: React.FC<HeaderProps> = ({
               HapticService.impactLight();
               onOpenBackup();
             }}
-            className="p-2 min-w-[42px] min-h-[42px] flex items-center justify-center rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 transition-all border border-emerald-500/30 cursor-pointer shadow-xs active:scale-95"
+            className="p-1.5 xs:p-2 min-w-[34px] min-h-[34px] xs:min-w-[38px] xs:min-h-[38px] sm:min-w-[42px] sm:min-h-[42px] flex items-center justify-center rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 transition-all border border-emerald-500/30 cursor-pointer shadow-xs active:scale-95"
             title="Copias de Seguridad (Google Drive 2 Ranuras)"
             aria-label="Copias de Seguridad en Google Drive"
           >
-            <Cloud className="w-4 h-4" />
+            <Cloud className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
           </button>
 
           {/* Botón Ajustes */}
@@ -167,11 +189,11 @@ export const Header: React.FC<HeaderProps> = ({
               HapticService.impactLight();
               onOpenSettings();
             }}
-            className="p-2 min-w-[42px] min-h-[42px] flex items-center justify-center rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-all border border-slate-700/50 cursor-pointer active:scale-95"
+            className="p-1.5 xs:p-2 min-w-[34px] min-h-[34px] xs:min-w-[38px] xs:min-h-[38px] sm:min-w-[42px] sm:min-h-[42px] flex items-center justify-center rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-all border border-slate-700/50 cursor-pointer active:scale-95"
             title="Ajustes y Bóveda"
             aria-label="Ajustes y Bóveda de Configuración"
           >
-            <SettingsIcon className="w-4 h-4" />
+            <SettingsIcon className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
           </button>
 
           {/* Botón Candado Bloqueo Manual */}
@@ -180,11 +202,11 @@ export const Header: React.FC<HeaderProps> = ({
               HapticService.impactHeavy();
               onLock();
             }}
-            className="p-2 min-w-[42px] min-h-[42px] flex items-center justify-center rounded-xl bg-emerald-950/40 hover:bg-rose-950/40 border border-emerald-500/30 hover:border-rose-500/40 text-emerald-400 hover:text-rose-400 transition-all cursor-pointer shadow-xs active:scale-95"
+            className="p-1.5 xs:p-2 min-w-[34px] min-h-[34px] xs:min-w-[38px] xs:min-h-[38px] sm:min-w-[42px] sm:min-h-[42px] flex items-center justify-center rounded-xl bg-emerald-950/40 hover:bg-rose-950/40 border border-emerald-500/30 hover:border-rose-500/40 text-emerald-400 hover:text-rose-400 transition-all cursor-pointer shadow-xs active:scale-95"
             title="Bloquear sesión inmediatamente"
             aria-label="Bloquear sesión inmediatamente"
           >
-            <Lock className="w-4 h-4" />
+            <Lock className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
           </button>
         </div>
       </div>

@@ -629,9 +629,11 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-bold text-white">{activeNode.label}</h3>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                      {activeNode.version}
-                    </span>
+                    {activeNode.version && (
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                        {activeNode.version}
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-slate-400">{activeNode.role}</p>
                 </div>

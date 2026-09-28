@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import { usePrivacy } from '../../context/PrivacyContext';
 import { Share } from '@capacitor/share';
 import { Bucket, Expense } from '../../types';
 import { DBService } from '../../services/db';
@@ -78,6 +79,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   onOpenSmartRules,
   onOpenGoals,
 }) => {
+  const { isPrivate } = usePrivacy();
   // Modales
   const [modalOpen, setModalOpen] = useState(false);
   const [editingBucket, setEditingBucket] = useState<Bucket | null>(null);
@@ -416,7 +418,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
               <div className="text-xs font-bold text-rose-300 flex items-center gap-1.5">
                 <span>{overspentBuckets.length} {overspentBuckets.length === 1 ? 'bolsa en sobregiro' : 'bolsas en sobregiro'}</span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/30 text-rose-200 font-bold border border-rose-500/40">
-                  +{totalOverspending.toFixed(2)} {currency}
+                  +{isPrivate ? '••••' : totalOverspending.toFixed(2)} {currency}
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 mt-0.5">
@@ -445,7 +447,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             </span>
           </div>
           <span className="text-xs font-mono font-bold text-emerald-400">
-            {totalSpent.toFixed(2)} / {totalBudget.toFixed(2)} {currency}
+            {isPrivate ? '••••' : totalSpent.toFixed(2)} / {isPrivate ? '••••' : totalBudget.toFixed(2)} {currency}
           </span>
         </div>
 
@@ -473,7 +475,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
               className="px-2.5 py-1 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
             >
               <TrendingUp className="w-3 h-3 text-teal-400" />
-              <span>Rollover Ahorro: +{potentialSurplus.toFixed(2)} {currency}</span>
+              <span>Rollover Ahorro: +{isPrivate ? '••••' : potentialSurplus.toFixed(2)} {currency}</span>
             </button>
           )}
         </div>
@@ -516,11 +518,6 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
                       <span>{b.name}</span>
-                      {b.isBuffer && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-semibold flex items-center gap-1 border border-teal-500/30">
-                          <Shield className="w-3 h-3" /> Colchón Ahorro
-                        </span>
-                      )}
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">
                       {b.notes || 'Partida presupuestaria'}
@@ -566,9 +563,9 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   <span className="text-xs text-slate-400">Consumido este mes</span>
                   <div className="text-sm font-mono font-bold">
                     <span className={isOver ? 'text-rose-400 font-black' : 'text-white'}>
-                      {spent.toFixed(2)} {currency}
+                      {isPrivate ? '••••' : spent.toFixed(2)} {currency}
                     </span>
-                    <span className="text-slate-500 text-xs"> / {limit.toFixed(2)} {currency}</span>
+                    <span className="text-slate-500 text-xs"> / {isPrivate ? '••••' : limit.toFixed(2)} {currency}</span>
                   </div>
                 </div>
 
@@ -594,8 +591,8 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                     }`}
                   >
                     {isOver
-                      ? `⚠️ Exceso: ${(spent - limit).toFixed(2)} ${currency}`
-                      : `Disponible: ${remaining.toFixed(2)} ${currency}`}
+                      ? `⚠️ Exceso: ${isPrivate ? '••••' : (spent - limit).toFixed(2)} ${currency}`
+                      : `Disponible: ${isPrivate ? '••••' : remaining.toFixed(2)} ${currency}`}
                   </span>
                 </div>
               </div>

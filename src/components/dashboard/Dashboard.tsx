@@ -18,6 +18,7 @@ import {
 import { Expense, Bucket, Settings, RecurringRule, SavingsGoal } from '../../types';
 import { SafeToSpendService } from '../../services/safeToSpendService';
 import { SafeToSpendWidget } from './SafeToSpendWidget';
+import { usePrivacy } from '../../context/PrivacyContext';
 
 interface DashboardProps {
   expenses: Expense[];
@@ -33,6 +34,7 @@ interface DashboardProps {
   onOpenImporter?: () => void;
   onOpenGoalsModal?: () => void;
   onOpenReports?: () => void;
+  onOpenIncomeModal?: () => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -49,7 +51,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onOpenImporter,
   onOpenGoalsModal,
   onOpenReports,
+  onOpenIncomeModal,
 }) => {
+  const { isPrivate, mask } = usePrivacy();
   const [filterType, setFilterType] = useState<'all' | 'invoices' | 'pending'>('all');
   const currency = settings.currency || '€';
   const monthlyIncome = settings.monthlyIncome || 0;
@@ -60,15 +64,28 @@ export const Dashboard: React.FC<DashboardProps> = ({
     (e.date || '').startsWith(currentMonthPrefix)
   );
 
+  // Computar ingresos extras (puntuales del mes + recurrentes activos)
+  const extraIncomes = settings.extraIncomes || [];
+  const punctualExtraIncome = extraIncomes
+    .filter((inc) => inc.isActive !== false && inc.type === 'punctual' && (inc.date || '').startsWith(currentMonthPrefix))
+    .reduce((sum, inc) => sum + inc.amount, 0);
+
+  const recurringExtraIncome = extraIncomes
+    .filter((inc) => inc.isActive !== false && inc.type === 'recurring')
+    .reduce((sum, inc) => sum + inc.amount, 0);
+
+  const totalExtraIncomeMonth = punctualExtraIncome + recurringExtraIncome;
+  const effectiveMonthlyIncome = monthlyIncome + totalExtraIncomeMonth;
+
   const totalSpentMonth = currentMonthExpenses.reduce((acc, curr) => acc + curr.amount, 0);
-  const remainingBudget = monthlyIncome - totalSpentMonth;
+  const remainingBudget = effectiveMonthlyIncome - totalSpentMonth;
 
   // Cálculo del motor Safe-to-Spend
   const safeMetrics = SafeToSpendService.calculate(
     expenses,
     recurringRules,
     buckets,
-    monthlyIncome,
+    effectiveMonthlyIncome,
     new Date(),
     savingsGoals
   );
@@ -116,11 +133,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <p className="text-xs text-slate-300 font-medium mt-0.5">
               Acumulado:{' '}
               <strong className="font-mono text-emerald-400 font-bold">
-                {totalSavedGoals.toFixed(2)} {currency}
+                {isPrivate ? '••••' : totalSavedGoals.toFixed(2)} {currency}
               </strong>
               {safeMetrics.committedGoalsMonthly > 0 && (
                 <span className="text-slate-400 ml-2 font-mono text-[11px]">
-                  (Crucero: -{safeMetrics.committedGoalsMonthly.toFixed(2)} {currency}/mes)
+                  (Crucero: -{isPrivate ? '••••' : safeMetrics.committedGoalsMonthly.toFixed(2)} {currency}/mes)
                 </span>
               )}
             </p>
@@ -150,7 +167,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-black font-mono text-white">
-            {totalSpentMonth.toFixed(2)}
+            {isPrivate ? '••••' : totalSpentMonth.toFixed(2)}
             <span className="text-sm text-slate-400 ml-1">{currency}</span>
           </div>
           <div className="text-[10px] text-slate-400 mt-1">
@@ -175,12 +192,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
               remainingBudget >= 0 ? 'text-emerald-400' : 'text-rose-400'
             }`}
           >
-            {remainingBudget >= 0 ? '+' : ''}
-            {remainingBudget.toFixed(2)}
+            {isPrivate ? '••••' : `${remainingBudget >= 0 ? '+' : ''}${remainingBudget.toFixed(2)}`}
             <span className="text-sm opacity-70 ml-1">{currency}</span>
           </div>
           <div className="text-[10px] text-slate-400 mt-1">
-            De {monthlyIncome.toFixed(0)} {currency} ingresos
+            {isPrivate ? (
+              '••••'
+            ) : totalExtraIncomeMonth > 0 ? (
+              <span>
+                De {effectiveMonthlyIncome.toFixed(0)} {currency} ({monthlyIncome.toFixed(0)} base + {totalExtraIncomeMonth.toFixed(0)} extras)
+              </span>
+            ) : (
+              <span>De {monthlyIncome.toFixed(0)} {currency} ingresos</span>
+            )}
           </div>
         </div>
 
@@ -193,7 +217,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-black font-mono text-teal-300">
-            {totalInvoiced.toFixed(2)}
+            {isPrivate ? '••••' : totalInvoiced.toFixed(2)}
             <span className="text-sm text-slate-400 ml-1">{currency}</span>
           </div>
           <div className="text-[10px] text-teal-400/80 mt-1">
@@ -210,20 +234,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-black font-mono text-blue-300">
-            {totalTaxDeductible.toFixed(2)}
+            {isPrivate ? '••••' : totalTaxDeductible.toFixed(2)}
             <span className="text-sm text-slate-400 ml-1">{currency}</span>
           </div>
           <div className="text-[10px] text-blue-400/80 mt-1">Deducción fiscal directa</div>
         </div>
       </div>
 
-      {/* Botón Flotante / Destacado Añadir Gasto */}
+      {/* Botón Flotante / Destacado Añadir Gasto & Ingreso */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-black tracking-tight text-white">Estado de Presupuestos</h2>
           <p className="text-xs text-slate-400">Monitoreo activo por bolsas financieras</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {onOpenReports && (
             <button
               onClick={onOpenReports}
@@ -242,6 +266,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
               <span>Importar Banco (CSV)</span>
+            </button>
+          )}
+          {onOpenIncomeModal && (
+            <button
+              onClick={onOpenIncomeModal}
+              className="px-3.5 py-2.5 rounded-2xl bg-teal-950/50 hover:bg-teal-900/60 border border-teal-500/40 hover:border-teal-400 text-teal-300 font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer transition-all"
+              title="Registrar o consultar ingresos extras (regalos, ventas, alquileres)"
+            >
+              <TrendingUp className="w-4 h-4 text-teal-400" />
+              <span>+ Ingreso Extra</span>
             </button>
           )}
           <button
@@ -282,17 +316,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     style={{ backgroundColor: bucket.color }}
                   />
                   <span className="text-xs font-bold text-slate-200">{bucket.name}</span>
-                  {bucket.isBuffer && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold flex items-center gap-1">
-                      <ShieldAlert className="w-3 h-3" /> Colchón
-                    </span>
-                  )}
                 </div>
                 <div className="text-xs font-mono font-bold">
                   <span className={isOver ? 'text-rose-400' : 'text-slate-200'}>
-                    {spent.toFixed(1)}
+                    {isPrivate ? '••••' : spent.toFixed(1)}
                   </span>
-                  <span className="text-slate-500"> / {limit} {currency}</span>
+                  <span className="text-slate-500"> / {isPrivate ? '••••' : limit} {currency}</span>
                 </div>
               </div>
 
@@ -311,9 +340,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <span>{percentage}% utilizado</span>
                 <span>
                   {isOver ? (
-                    <span className="text-rose-400 font-bold">Excedido en {(spent - limit).toFixed(1)} {currency}</span>
+                    <span className="text-rose-400 font-bold">Excedido en {isPrivate ? '••••' : (spent - limit).toFixed(1)} {currency}</span>
                   ) : (
-                    <span>Restan {(limit - spent).toFixed(1)} {currency}</span>
+                    <span>Restan {isPrivate ? '••••' : (limit - spent).toFixed(1)} {currency}</span>
                   )}
                 </span>
               </div>
@@ -423,11 +452,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <div className="flex items-center space-x-2 shrink-0">
                     <div className="text-right">
                       <div className="text-sm font-black font-mono text-white">
-                        -{expense.amount.toFixed(2)} {currency}
+                        -{isPrivate ? '••••' : expense.amount.toFixed(2)} {currency}
                       </div>
                       {expense.isInvoice && expense.taxAmount ? (
                         <div className="text-[10px] text-teal-400 font-mono">
-                          IVA: {expense.taxAmount.toFixed(2)} {currency}
+                          IVA: {isPrivate ? '••••' : `${expense.taxAmount.toFixed(2)} ${currency}`}
                         </div>
                       ) : null}
                     </div>

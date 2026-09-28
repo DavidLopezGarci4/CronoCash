@@ -13,6 +13,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { SafeToSpendMetrics, SafeToSpendService } from '../../services/safeToSpendService';
+import { usePrivacy } from '../../context/PrivacyContext';
 
 interface SafeToSpendWidgetProps {
   metrics: SafeToSpendMetrics;
@@ -29,6 +30,7 @@ export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
   onOpenBucketsTab,
   onOpenGoalsModal,
 }) => {
+  const { isPrivate, mask } = usePrivacy();
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [simulatorOpen, setSimulatorOpen] = useState(false);
   const [simulatedAmount, setSimulatedAmount] = useState<string>('30');
@@ -78,11 +80,8 @@ export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
             <Sparkles className={`w-4 h-4 ${statusConfig.iconColor}`} />
           </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <span>Gasto Diario Seguro</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
-                Safe-to-Spend
-              </span>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Gasto Diario Seguro
             </h3>
             <p className="text-[11px] text-slate-400">
               {metrics.daysRemaining} {metrics.daysRemaining === 1 ? 'día restante' : 'días restantes'} este mes
@@ -104,7 +103,7 @@ export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
         <div>
           <div className="flex items-baseline gap-1.5">
             <span className={`text-4xl font-black font-mono tracking-tight ${statusConfig.textAccent}`}>
-              {metrics.dailySafeToSpend.toFixed(2)}
+              {isPrivate ? '••••' : metrics.dailySafeToSpend.toFixed(2)}
             </span>
             <span className="text-lg font-bold text-slate-400 font-mono">{currency}</span>
             <span className="text-xs text-slate-400 font-medium ml-1">/ día</span>
@@ -221,13 +220,13 @@ export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
             <div>
               <span className="text-slate-400 block text-[11px]">Nueva cuota restante:</span>
               <span className="font-mono font-bold text-cyan-300 text-sm">
-                {simulation.simulatedDailySafe.toFixed(2)} {currency}/día
+                {isPrivate ? '••••' : simulation.simulatedDailySafe.toFixed(2)} {currency}/día
               </span>
             </div>
             <div className="text-right">
               <span className="text-slate-400 block text-[11px]">Reducción diaria:</span>
               <span className="font-mono font-bold text-rose-400 text-xs">
-                -{simulation.dailyReduction.toFixed(2)} {currency}/día
+                {isPrivate ? '••••' : `-${simulation.dailyReduction.toFixed(2)} ${currency}/día`}
               </span>
             </div>
           </div>
@@ -247,12 +246,12 @@ export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
           <div className="space-y-1.5 p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 text-[11px] font-mono">
             <div className="flex justify-between items-center text-slate-300">
               <span className="text-slate-400">1. Ingreso mensual registrado:</span>
-              <span className="text-emerald-400 font-bold">+{metrics.monthlyIncome.toFixed(2)} {currency}</span>
+              <span className="text-emerald-400 font-bold">{isPrivate ? '••••' : `+${metrics.monthlyIncome.toFixed(2)} ${currency}`}</span>
             </div>
 
             <div className="flex justify-between items-center text-slate-300">
               <span className="text-slate-400">2. Consumo acumulado del mes:</span>
-              <span className="text-rose-400 font-bold">-{metrics.totalSpentMonth.toFixed(2)} {currency}</span>
+              <span className="text-rose-400 font-bold">{isPrivate ? '••••' : `-${metrics.totalSpentMonth.toFixed(2)} ${currency}`}</span>
             </div>
 
             <div className="flex justify-between items-center text-slate-300">
@@ -268,7 +267,7 @@ export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
                   </button>
                 )}
               </div>
-              <span className="text-amber-400 font-bold">-{metrics.pendingRecurringTotal.toFixed(2)} {currency}</span>
+              <span className="text-amber-400 font-bold">{isPrivate ? '••••' : `-${metrics.pendingRecurringTotal.toFixed(2)} ${currency}`}</span>
             </div>
 
             <div className="flex justify-between items-center text-slate-300">
@@ -284,7 +283,7 @@ export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
                   </button>
                 )}
               </div>
-              <span className="text-blue-400 font-bold">-{metrics.bufferReserved.toFixed(2)} {currency}</span>
+              <span className="text-blue-400 font-bold">{isPrivate ? '••••' : `-${metrics.bufferReserved.toFixed(2)} ${currency}`}</span>
             </div>
 
             {metrics.committedGoalsMonthly > 0 && (
@@ -301,18 +300,18 @@ export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
                     </button>
                   )}
                 </div>
-                <span className="text-purple-400 font-bold">-{metrics.committedGoalsMonthly.toFixed(2)} {currency}</span>
+                <span className="text-purple-400 font-bold">{isPrivate ? '••••' : `-${metrics.committedGoalsMonthly.toFixed(2)} ${currency}`}</span>
               </div>
             )}
 
             <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-slate-200 font-bold">
               <span>= Liquidez disponible real:</span>
-              <span className="text-white text-xs">{metrics.netAvailable.toFixed(2)} {currency}</span>
+              <span className="text-white text-xs">{isPrivate ? '••••' : `${metrics.netAvailable.toFixed(2)} ${currency}`}</span>
             </div>
 
             <div className="flex justify-between items-center text-slate-400 pt-1">
               <span>÷ Dividido entre {metrics.daysRemaining} días restantes:</span>
-              <span className="text-emerald-400 font-bold text-xs">{metrics.dailySafeToSpend.toFixed(2)} {currency} / día</span>
+              <span className="text-emerald-400 font-bold text-xs">{isPrivate ? '••••' : `${metrics.dailySafeToSpend.toFixed(2)} ${currency} / día`}</span>
             </div>
           </div>
 
@@ -332,7 +331,7 @@ export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
                       {b.title} {b.isVampire && <span className="text-rose-400 text-[9px] font-bold">(vampiro)</span>}
                     </span>
                     <span className="font-mono text-slate-400">
-                      {b.amount.toFixed(2)} {currency} <span className="text-[9px] text-slate-400">(día {b.dueDay})</span>
+                      {isPrivate ? '••••' : `${b.amount.toFixed(2)} ${currency}`} <span className="text-[9px] text-slate-400">(día {b.dueDay})</span>
                     </span>
                   </div>
                 ))}

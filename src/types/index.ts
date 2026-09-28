@@ -84,6 +84,31 @@ export interface RecurringRule {
   autoAdaptNextDates?: boolean; // Si al completar/registrar se adapta automáticamente el ciclo futuro
 }
 
+export type ExtraIncomeType = 'punctual' | 'recurring';
+
+export type ExtraIncomeCategory =
+  | 'gift'        // Regalo en efectivo o transferencia
+  | 'sale'        // Venta de artículos (Wallapop, segunda mano, etc.)
+  | 'rental'      // Alquiler recibido (vivienda, plaza de garaje, trastero)
+  | 'freelance'   // Trabajo extra, freelance o puntual
+  | 'bonus'       // Paga extra, bonus laboral o gratificación
+  | 'investment'  // Dividendos o rentabilidad de inversiones
+  | 'other';      // Otros ingresos
+
+export interface ExtraIncome {
+  id: string;
+  title: string;
+  amount: number;
+  type: ExtraIncomeType;
+  category: ExtraIncomeCategory;
+  date: string;               // YYYY-MM-DD (fecha del ingreso puntual o fecha de inicio)
+  dayOfMonth?: number;        // 1-31 (para ingresos recurrentes mensuales)
+  frequency?: 'monthly' | 'quarterly' | 'yearly';
+  isActive: boolean;
+  notes?: string;
+  createdAt: string;
+}
+
 export interface Settings {
   id: string;
   pinSeguridad?: string;
@@ -92,6 +117,9 @@ export interface Settings {
   guardarContrasenaAuto: boolean;
   currency: string;
   monthlyIncome: number;
+  savingsBuffer?: number; // Importe del Colchón de Ahorro / Imprevistos blindado
+  savingsBufferBucketId?: string; // ID de la bolsa designada como colchón
+  extraIncomes?: ExtraIncome[]; // Ingresos extras (puntuales y recurrentes)
   userFullName?: string;
   companyName?: string;
   taxId?: string; // NIF / CIF
