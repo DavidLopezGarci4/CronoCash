@@ -72,6 +72,16 @@ export class SafeToSpendService {
         continue;
       }
 
+      // Si el compromiso inicia en un mes futuro, no resta liquidez en el mes actual
+      if (rule.startDate && currentMonthPrefix < rule.startDate.slice(0, 7)) {
+        continue;
+      }
+
+      // Si el compromiso ya finalizó en un mes anterior, no computar
+      if (rule.endDate && currentMonthPrefix > rule.endDate.slice(0, 7)) {
+        continue;
+      }
+
       // Comprobar si la periodicidad corresponde al mes actual
       if (rule.frequency === 'yearly') {
         const targetMonth = rule.monthOfYear || (rule.startDate ? new Date(rule.startDate).getMonth() + 1 : 1);

@@ -121,6 +121,18 @@ export const FAQ_DATA: FAQSection[] = [
         tags: ['intervalos', 'quincenal', 'bimestral', 'trimestral', 'semestral', 'cada x semanas', 'cada x meses'],
         badge: 'Flexibilidad X',
       },
+      {
+        id: 'fecha-inicio-origen',
+        question: '¿Por qué es crucial la Fecha de Inicio en los gastos recurrentes y cómo se calcula?',
+        bullets: [
+          'Desacoplamiento de la fecha de registro: CronoCash nunca asume que un gasto recurrente comenzó el día en que lo diste de alta en la app. Puedes introducir hoy una póliza o suscripción que empezó hace meses o que comenzará el mes que viene.',
+          'Anclaje exacto de intervalos: La fecha de inicio actúa como el pivote canónico para computar las frecuencias (cada X semanas o meses), garantizando que las proyecciones caigan en las fechas legítimas.',
+          'Protección contra deducciones prematuras: Si la fecha de inicio es futura, el motor de Safe-to-Spend no restará saldo diario en el mes actual ni saturará el calendario antes de que el compromiso entre en vigor.',
+          'Sincronización asistida sin bloqueo: Al seleccionar una fecha de inicio, la app te sugiere automáticamente el día del mes y mes preferido, pero te permite modificarlos si lo necesitas.',
+        ],
+        tags: ['fecha inicio', 'origen', 'desacoplamiento', 'registro', 'intervalo', 'safe to spend'],
+        badge: 'Canónico',
+      },
     ],
   },
   {
@@ -496,13 +508,13 @@ export const FAQ_DATA: FAQSection[] = [
     id: 'acerca-de',
     title: '14. Centro Acerca de y Novedades de la App',
     iconName: 'Sparkles',
-    description: 'Ficha de identidad de la versión v1.16.0, historial para humanos y telemetría',
+    description: 'Ficha de identidad de la versión v1.17.0, historial para humanos y telemetría',
     items: [
       {
         id: 'centro-acerca-de',
         question: '¿Qué es el Centro "Acerca de & Novedades"?',
         bullets: [
-          'Ficha de identidad transparente: Te muestra en cualquier momento la versión instalada en tu dispositivo (v1.16.0), número de compilación interno (Build 11600), plataforma de ejecución y certificado de privacidad local.',
+          'Ficha de identidad transparente: Te muestra en cualquier momento la versión instalada en tu dispositivo (v1.17.0), número de compilación interno (Build 11700), plataforma de ejecución y certificado de privacidad local.',
           'Novedades de la versión instalada: Al actualizar la aplicación, puedes abrir este panel en Ajustes para ver de un vistazo qué funciones nuevas tienes disponibles.',
         ],
         tags: ['acerca de', 'versión', 'novedades', 'build', 'identidad'],

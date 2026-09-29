@@ -1,6 +1,6 @@
 # Arquitectura del Sistema — CronoCash 🏛️
 
-**Versión del Sistema:** v1.16.0 (Build 11600)  
+**Versión del Sistema:** v1.17.0 (Build 11700)  
 **Marco de Diseño:** Ontología TecnoRed & Arquetipo de Soberanía Local  
 **Plataforma Objetivo:** Android Nativo (Capacitor 7) & PWA  
 
@@ -56,7 +56,7 @@ flowchart TD
     subgraph DATA_LAYER["4. Capa de Persistencia Local Cifrada (IndexedDB v3)"]
         IDB_EXP["expenses (Cifrado AES-GCM)"]
         IDB_BUC["buckets (Bolsas de Presupuesto)"]
-        IDB_REC["recurring_rules (Cifrado AES-GCM + interval)"]
+        IDB_REC["recurring_rules (Cifrado AES-GCM + startDate + interval)"]
         IDB_GOAL["savings_goals (Cifrado AES-GCM)"]
         IDB_RULE["smart_rules (Reglas de Auto-Categorización)"]
         IDB_SET["settings (Cifrado AES-GCM)"]

@@ -351,6 +351,21 @@ export class NotificationService {
     if (target.getTime() <= fromDate.getTime()) {
       target = new Date(year, month + 1, dayOfMonth, hour, minute, 0, 0);
     }
+
+    // Si la regla tiene startDate futura, asegurar que target no sea anterior a startDate
+    if (rule.startDate) {
+      const startObj = new Date(rule.startDate.split('T')[0] + 'T' + (rule.reminderTime || '09:00') + ':00');
+      if (target.getTime() < startObj.getTime()) {
+        const sYear = startObj.getFullYear();
+        const sMonth = startObj.getMonth();
+        let cand = new Date(sYear, sMonth, dayOfMonth, hour, minute, 0, 0);
+        if (cand.getTime() < startObj.getTime()) {
+          cand = new Date(sYear, sMonth + 1, dayOfMonth, hour, minute, 0, 0);
+        }
+        target = cand;
+      }
+    }
+
     return target;
   }
 

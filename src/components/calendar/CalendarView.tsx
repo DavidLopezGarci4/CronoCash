@@ -170,6 +170,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const monthlyRecurringTotal = recurringRules
     .filter((r) => {
       if (!r.isActive || r.costType === 'none' || !r.amount || r.amount <= 0) return false;
+
+      // Si el compromiso tiene fecha de inicio posterior al mes visualizado, excluir
+      if (r.startDate) {
+        const startPrefix = r.startDate.slice(0, 7);
+        if (formattedMonthStr < startPrefix) return false;
+      }
+      // Si el compromiso ya finalizó antes de este mes, excluir
+      if (r.endDate) {
+        const endPrefix = r.endDate.slice(0, 7);
+        if (formattedMonthStr > endPrefix) return false;
+      }
+
       if (r.frequency === 'yearly') {
         const targetM = r.monthOfYear || (r.startDate ? new Date(r.startDate).getMonth() + 1 : 1);
         return targetM === currentMonthNum;

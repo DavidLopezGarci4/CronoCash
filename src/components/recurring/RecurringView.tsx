@@ -107,6 +107,23 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
   const [reminderTime, setReminderTime] = useState('09:00');
   const [autoAdaptNextDates, setAutoAdaptNextDates] = useState(true);
   const [intervalNum, setIntervalNum] = useState<number>(1);
+  const [startDate, setStartDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
+
+  const handleStartDateChange = (val: string) => {
+    setStartDate(val);
+    if (!val) return;
+    const parts = val.split('-');
+    if (parts.length === 3) {
+      const day = parseInt(parts[2], 10);
+      const month = parseInt(parts[1], 10);
+      if (!isNaN(day) && day >= 1 && day <= 31) {
+        setDayOfMonth(String(day));
+      }
+      if (!isNaN(month) && month >= 1 && month <= 12) {
+        setMonthOfYear(String(month));
+      }
+    }
+  };
 
   // Cálculo de fecha del próximo cobro y días restantes
   const getNextBillingDetails = (rule: RecurringRule) => {
@@ -180,6 +197,24 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
       }
     }
 
+    // Si la fecha de inicio del compromiso es futura, el próximo cobro no puede ser anterior a startDate
+    if (rule.startDate) {
+      const startObj = new Date(rule.startDate.split('T')[0] + 'T00:00:00');
+      if (nextDate.getTime() < startObj.getTime()) {
+        if (rule.frequency === 'monthly') {
+          const sYear = startObj.getFullYear();
+          const sMonth = startObj.getMonth();
+          let cand = new Date(sYear, sMonth, targetDay);
+          if (cand.getTime() < startObj.getTime()) {
+            cand = new Date(sYear, sMonth + 1, targetDay);
+          }
+          nextDate = cand;
+        } else {
+          nextDate = startObj;
+        }
+      }
+    }
+
     const diffTime = nextDate.getTime() - today.getTime();
     const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -202,6 +237,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
     setBucketId(buckets[0]?.id || '');
     setFrequency('monthly');
     setIntervalNum(1);
+    setStartDate(new Date().toISOString().split('T')[0]);
     setDayOfMonth('1');
     setMonthOfYear('1');
     setIcon('Repeat');
@@ -222,6 +258,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
     setBucketId(r.bucketId);
     setFrequency(r.frequency);
     setIntervalNum(r.interval && r.interval > 1 ? r.interval : 1);
+    setStartDate(r.startDate ? r.startDate.split('T')[0] : new Date().toISOString().split('T')[0]);
     setDayOfMonth(String(r.dayOfMonth || 1));
     setMonthOfYear(String(r.monthOfYear || (r.startDate ? new Date(r.startDate).getMonth() + 1 : 1)));
     setIcon(r.icon || 'Repeat');
@@ -255,7 +292,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
       interval: (frequency === 'weekly' || frequency === 'monthly') && intervalNum > 1 ? intervalNum : 1,
       dayOfMonth: parseInt(dayOfMonth) || 1,
       monthOfYear: frequency === 'yearly' ? (parseInt(monthOfYear) || 1) : undefined,
-      startDate: editingRule?.startDate || new Date().toISOString().split('T')[0],
+      startDate: startDate || (editingRule?.startDate ? editingRule.startDate.split('T')[0] : new Date().toISOString().split('T')[0]),
       isActive: editingRule ? editingRule.isActive : true,
       autoCreateExpense: costType !== 'none',
       icon,
@@ -552,6 +589,16 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                       <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${badgeColor}`}>
                         {badgeText}
                       </span>
+                      {rule.startDate && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-medium border border-slate-700/80">
+                          Inicio: {rule.startDate.slice(0, 10).split('-').reverse().join('/')}
+                        </span>
+                      )}
+                      {rule.startDate && rule.startDate.slice(0, 10) > new Date().toISOString().slice(0, 10) && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">
+                          Programada
+                        </span>
+                      )}
                     </div>
 
                     <div className="text-xs text-slate-400 flex items-center space-x-2 mt-1">
@@ -817,6 +864,33 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                   </div>
                 </div>
               )}
+
+              {/* Fecha de Inicio / Origen del Compromiso */}
+              <div className="p-3.5 bg-slate-900/90 border border-slate-700/80 rounded-2xl space-y-1.5 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Fecha de Inicio / Origen del Compromiso *</span>
+                  </label>
+                  {startDate && (
+                    <span className="text-[10px] font-semibold text-slate-400">
+                      {startDate > new Date().toISOString().slice(0, 10)
+                        ? '🟡 Inicio Futuro'
+                        : '🟢 En Vigor'}
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="date"
+                  required
+                  value={startDate}
+                  onChange={(e) => handleStartDateChange(e.target.value)}
+                  className="w-full h-11 px-3 bg-slate-950 border border-slate-700 rounded-xl text-sm font-medium text-white focus:border-emerald-500 focus:outline-hidden"
+                />
+                <p className="text-[11px] text-slate-400">
+                  Día real en que comenzó o comenzará este compromiso. Los ciclos periódicos e intervalos se computan anclados a esta fecha.
+                </p>
+              </div>
 
               {/* Si es anual: Selector de Mes */}
               {frequency === 'yearly' && (

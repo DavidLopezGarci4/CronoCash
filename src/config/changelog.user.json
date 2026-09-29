@@ -1,6 +1,6 @@
 {
-  "currentVersion": "1.16.0",
-  "buildNumber": 11600,
+  "currentVersion": "1.17.0",
+  "buildNumber": 11700,
   "lastUpdated": "2026-09-29",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
@@ -9,11 +9,24 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.17.0",
+      "build": 11700,
+      "date": "29 Sep 2026",
+      "title": "Fecha de Inicio Canónica en Recurrentes, Desacoplamiento de Registro y Protección Safe-to-Spend",
+      "isCurrent": true,
+      "highlights": [
+        "📅 Fecha de Inicio / Origen Explícita: Configura libremente la fecha real de inicio de cualquier gasto o tarea recurrente, evitando que la app asuma erróneamente que empezó el día que la registraste.",
+        "🛡️ Protección de Safe-to-Spend y Calendario: Los compromisos que comienzan en meses futuros no descuentan saldo diario prematuramente ni saturan el calendario antes de tiempo.",
+        "🔄 Anclaje Matemático de Intervalos: El cálculo de intervalos ('cada X semanas' o 'cada X meses') toma como ancla inmutable tu fecha de origen real, proyectando vencimientos perfectos.",
+        "📝 Claridad Contable en Gastos: Separación semántica estricta en el registro de gastos entre la Fecha de Origen/Pago contable real y la marca de tiempo técnica de creación."
+      ]
+    },
+    {
       "version": "1.16.0",
       "build": 11600,
       "date": "29 Sep 2026",
       "title": "Importador Universal Bancario Excel/CSV, Bóveda Cifrada AES-GCM e Intervalos Flexibles",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "🏦 Importador Universal Excel y CSV: Carga extractos bancarios directamente en formato .xlsx, .xls o .csv con omisión automática de preámbulos y resúmenes de cuenta, reconociendo al instante la cabecera contable y fecha valor.",
         "⚖️ Deduplicación Bidireccional de Ingresos y Gastos: Clasifica automáticamente importes negativos como gastos y positivos como ingresos/abonos, evitando duplicidades contra movimientos ya integrados.",

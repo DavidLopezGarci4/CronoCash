@@ -4,16 +4,23 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.16.0 — Importador Universal Excel/CSV, Bóveda Cifrada AES-GCM e Intervalos Flexibles 🌟
-- [x] **Intervalos Personalizados en Recurrentes:** Soporte para gastos y tareas que se repiten cada $X$ semanas (quincenales) o cada $X$ meses (bimestrales, trimestrales, semestrales) con cálculo exacto en calendario, Safe-to-Spend y alertas.
-- [x] **Importador Universal Bancario Excel (.xlsx / .xls) y CSV:** Lectura de hojas de cálculo binarias con omisión dinámica de preámbulo (resúmenes de cuenta, datos de cabecera) y detección de columnas estándar bancarias (`Fecha contable`, `Fecha valor`, `Descripción`, `Importe`, `Saldo`, `Divisa`).
-- [x] **Deduplicación Bidireccional de Ingresos y Gastos:** Clasificación automática de positivos como abonos/ingresos extras y negativos como gastos, evitando duplicidades contra la base de datos mediante hash SHA-256 y tupla determinista.
-- [x] **Bóveda Cifrada Local en Reposo (AES-GCM-256):** Cifrado transparente con Web Crypto API en IndexedDB y `localStorage` para proteger gastos, reglas y metas ante extracciones ilícitas en reposo, con prueba de integridad en Ajustes.
-- [x] **Sincronización SemVer Global:** `v1.16.0` (Build 11600) en `package.json`, `android/app/build.gradle`, `changelog.user.json`, `docs/FAQ.md` y documentación.
+## Estado Actual: v1.17.0 — Fecha de Inicio Canónica en Recurrentes, Desacoplamiento de Registro y Protección Safe-to-Spend 🌟
+- [x] **Fecha de Inicio Canónica (`startDate`):** Configuración explícita de la fecha real de inicio en compromisos y tareas recurrentes, eliminando la suposición errónea de que el gasto se originó el día que se dio de alta en la app.
+- [x] **Sincronización Asistida de Frecuencia:** Recomendación reactiva del día del mes o mes del año sin restringir la edición manual.
+- [x] **Protección Safe-to-Spend y Calendario:** Supresión de deducciones prematuras en Safe-to-Spend si la fecha de inicio es de un mes futuro y filtrado estricto en el calendario.
+- [x] **Anclaje de Intervalos:** Las frecuencias elásticas cada $X$ semanas o meses pivotan con exactitud matemática sobre la fecha de inicio.
+- [x] **Semántica Contable en Registro de Gastos:** Desacoplamiento explícito entre Fecha de Origen/Pago contable y marca de tiempo técnica de creación en base de datos.
+- [x] **Sincronización SemVer Global:** `v1.17.0` (Build 11700) en `package.json`, `android/app/build.gradle`, `changelog.user.json`, `docs/FAQ.md` y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.16.0 (Completado)
+- [x] Intervalos Personalizados en Recurrentes cada $X$ semanas o meses.
+- [x] Importador Universal Bancario Excel (.xlsx / .xls) y CSV con omisión dinámica de preámbulo.
+- [x] Deduplicación Bidireccional de Ingresos y Gastos con doble cotejo SHA-256.
+- [x] Bóveda Cifrada Local en Reposo (AES-GCM-256) con Web Crypto API en IndexedDB.
 
 ### 📦 v1.15.0 (Completado)
 - [x] Desbloqueo Biométrico Obligatorio en Arranque (`androidx.biometric:1.1.0`) y teclado PIN táctil de respaldo.

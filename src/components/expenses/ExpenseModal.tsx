@@ -35,6 +35,21 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   const [notes, setNotes] = useState(initialExpense?.notes || '');
   const [status, setStatus] = useState<'paid' | 'pending'>(initialExpense?.status || 'paid');
 
+  React.useEffect(() => {
+    if (isOpen) {
+      setTitle(initialExpense?.title || '');
+      setAmount(initialExpense?.amount ? String(initialExpense.amount) : '');
+      setBucketId(initialExpense?.bucketId || (buckets.length > 0 ? buckets[0].id : ''));
+      setDate(initialExpense?.date || new Date().toISOString().split('T')[0]);
+      setIsInvoice(initialExpense?.isInvoice || false);
+      setInvoiceNumber(initialExpense?.invoiceNumber || '');
+      setSupplier(initialExpense?.supplier || '');
+      setTaxRate(initialExpense?.taxRate !== undefined ? String(initialExpense.taxRate) : '21');
+      setNotes(initialExpense?.notes || '');
+      setStatus(initialExpense?.status || 'paid');
+    }
+  }, [isOpen, initialExpense, buckets]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -139,7 +154,17 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-400">Fecha *</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Fecha de Origen / Pago *</span>
+                </label>
+                {date && (
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    {date === new Date().toISOString().split('T')[0] ? 'Hoy' : date.split('-').reverse().join('/')}
+                  </span>
+                )}
+              </div>
               <input
                 type="date"
                 required
@@ -147,6 +172,9 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 onChange={(e) => setDate(e.target.value)}
                 className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-200 focus:outline-hidden focus:border-emerald-500"
               />
+              <p className="text-[10px] text-slate-500">
+                Día en que se originó el desembolso o factura (no necesariamente hoy).
+              </p>
             </div>
           </div>
 

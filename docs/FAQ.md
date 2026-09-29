@@ -83,6 +83,12 @@
 * **Reserva inteligente en Safe-to-Spend:** Los gastos con intervalo mensual (X > 1) solo reservan saldo diario en el mes en el que efectivamente se produce el cobro, sin restar disponibilidad en los meses intermedios.
 * **Alertas puntuales:** Las notificaciones programadas calculan con exactitud la fecha del próximo vencimiento efectivo respetando el intervalo.
 
+### ¿Por qué es crucial la Fecha de Inicio en los gastos recurrentes y cómo se calcula?
+* **Desacoplamiento de la fecha de registro:** CronoCash nunca asume que un gasto recurrente comenzó el día en que lo diste de alta en la app. Puedes introducir hoy una póliza o suscripción que empezó hace meses o que comenzará el mes que viene.
+* **Anclaje exacto de intervalos:** La fecha de inicio actúa como el pivote canónico para computar las frecuencias (cada X semanas o meses), garantizando que las proyecciones caigan en las fechas legítimas.
+* **Protección contra deducciones prematuras:** Si la fecha de inicio es futura, el motor de Safe-to-Spend no restará saldo diario en el mes actual ni saturará el calendario antes de que el compromiso entre en vigor.
+* **Sincronización asistida sin bloqueo:** Al seleccionar una fecha de inicio, la app te sugiere automáticamente el día del mes y mes preferido, pero te permite modificarlos si lo necesitas.
+
 ---
 
 ## 4. Calendario Reactivo, Cash-Flow Runway y Comparador YoY
@@ -278,7 +284,7 @@
 ## 14. Centro Acerca de y Novedades de la App
 
 ### ¿Qué es el Centro "Acerca de & Novedades"?
-* **Ficha de identidad transparente:** Te muestra en cualquier momento la versión instalada en tu dispositivo (`v1.16.0`), el número de compilación interno (`Build 11600`), la plataforma de ejecución y el certificado de privacidad (100% local sin servidores).
+* **Ficha de identidad transparente:** Te muestra en cualquier momento la versión instalada en tu dispositivo (`v1.17.0`), el número de compilación interno (`Build 11700`), la plataforma de ejecución y el certificado de privacidad (100% local sin servidores).
 * **Novedades de la versión instalada:** Al actualizar la aplicación, puedes abrir este panel en Ajustes para ver de un vistazo qué funciones nuevas tienes disponibles.
 
 ### ¿Cómo funciona el Historial Explicado para Humanos?

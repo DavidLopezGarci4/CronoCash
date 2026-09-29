@@ -3,6 +3,26 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0] - 2026-09-29
+
+### Added
+- **Fecha de Inicio Canónica y Desacoplamiento de Registro en Gastos Recurrentes (`RecurringView.tsx`):**
+  - **Campo `startDate` explícito y editable:** Capacidad de definir la fecha real de origen o devengo de cualquier gasto o tarea recurrente (`<input type="date">`), desvinculando por completo el inicio contable del compromiso del día en que se registra en la aplicación.
+  - **Sincronización asistida no intrusiva:** Al elegir una fecha de inicio, la app recomienda y sincroniza reactivamente el día del mes (`dayOfMonth`) o mes del año (`monthOfYear`), permitiendo personalización manual sin bloqueos.
+  - **Insignias y Metadatos en Lista de Reglas:** Muestra de "Inicio: DD/MM/AAAA", insignia visual *"Programada"* en tonos violeta para compromisos futuros, y badges informativos de recurrencia.
+
+- **Protección Safe-to-Spend, Calendario Reactivo y Anclaje de Intervalos (`RecurringView.tsx`, `CalendarView.tsx`, `safeToSpendService.ts`, `notificationService.ts`):**
+  - **Blindaje contra deducciones prematuras:** El motor de Safe-to-Spend (`calculate`) descarta reglas cuyo `startDate` pertenezca a un mes futuro, protegiendo el saldo diario de gastos no vigentes.
+  - **Proyecciones estrictas en Calendario:** `monthlyRecurringTotal` y el renderizado diario ignoran reglas cuya vigencia no haya comenzado o haya expirado.
+  - **Anclaje de Intervalos:** Las frecuencias elásticas cada $X$ semanas o meses pivotan de manera inmutable sobre `startDate`.
+  - **Alarmas y Notificaciones:** `computeNextOccurrence` respeta la fecha de inicio, programando avisos únicamente a partir de la vigencia del compromiso.
+
+- **Semántica Contable de Fecha de Origen en Registro de Gastos (`ExpenseModal.tsx`):**
+  - **Desacoplamiento Fecha Contable vs Timestamp Técnico:** Etiquetado explícito como "Fecha de Origen / Pago *" con indicador dinámico (ej. *"Hoy"* vs *"DD/MM/AAAA"*) y micro-copy aclaratorio.
+  - **Sincronización reactiva del formulario:** Implementación de `useEffect` dependiente de `[isOpen, initialExpense, buckets]` para garantizar estado limpio y fechas correctas tanto al crear como al editar gastos.
+
+---
+
 ## [1.16.0] - 2026-09-29
 
 ### Added
