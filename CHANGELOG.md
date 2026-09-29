@@ -3,6 +3,64 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0] - 2026-09-29
+
+### Added
+- **Intervalos Flexibles en Gastos y Tareas Recurrentes (`RecurringView.tsx`, `CalendarView.tsx`, `safeToSpendService.ts`, `notificationService.ts`):**
+  - **Propiedad `interval` en `RecurringRule`:** Soporte numérico para periodos elásticos cada $X$ semanas (quincenal: 2 semanas, 3 semanas) o cada $X$ meses (bimestral: 2 meses, trimestral: 3 meses, semestral: 6 meses).
+  - **Formulario Dinámico:** Selector numérico "Repetir cada [ X ] semanas / meses" integrado reactivamente según la frecuencia elegida, con etiquetas descriptivas en el listado de reglas.
+  - **Cómputo en Calendario:** Evaluación precisa módulo $X$ semanas y meses desde la fecha de inicio en `isRuleOnDate` y `monthlyRecurringTotal`.
+  - **Reserva Inteligente en Safe-to-Spend:** Los compromisos con periodicidad mensual e intervalo $X > 1$ reservan liquidez exclusivamente en los meses efectivos de cobro.
+  - **Alarmas y Notificaciones:** Programación de la próxima ocurrencia real en `NotificationService` sincronizada con el intervalo.
+
+- **Importador Universal Bancario Offline Excel (.xlsx / .xls) y CSV (`csvImporterService.ts`, `CsvImportModal.tsx`):**
+  - **Motor Binario `xlsx` (SheetJS):** Deserialización de libros de trabajo Excel en hojas normalizadas procesadas 100% en memoria local sin librerías invasivas.
+  - **Escaneo Dinámico de Cabeceras Bancarias:** Omisión inteligente de hasta 150+ filas de metadatos iniciales, resúmenes de cuenta, datos del titular o movimientos no consolidados.
+  - **Reconocimiento Canónico de Columnas:** Detección de `Fecha contable`, `Fecha valor`, `Descripción`, `Importe`, `Saldo` y `Divisa`, priorizando `Fecha valor` como fecha de liquidación real.
+  - **Soporte Drag-and-Drop y Selector:** Admisión universal de archivos `.xlsx`, `.xls`, `.csv` y `.tsv`.
+
+- **Deduplicación Bidireccional de Ingresos y Gastos (`csvImporterService.ts`, `CsvImportModal.tsx`):**
+  - **Clasificación por Signo de Importe:** Mapeo de transacciones positivas a `isIncome: true` (`+XX.XX € Ingreso / Abono` en tono esmeralda) y negativas a `isIncome: false` (`-XX.XX € Gasto` en tono rosa/blanco).
+  - **Doble Cotejo Determinista SHA-256:** Prevención de duplicados contra el historial de gastos (`expenses`) y contra la base de ingresos adicionales (`extraIncomes`) mediante hashes criptográficos y tuplas de fecha, concepto e importe.
+  - **Asentamiento Segregado:** Los gastos se guardan en el repositorio de gastos y los ingresos positivos se registran en ingresos extras del mes, sin distorsionar el balance presupuestario.
+
+- **Bóveda Cifrada Local en Reposo AES-GCM-256 (`vaultCryptoService.ts`, `db.ts`, `SettingsModal.tsx`):**
+  - **Criptografía Militar NIST SP 800-38D:** Generación y gestión de claves simétricas AES-GCM de 256 bits mediante Web Crypto API nativa (`window.crypto.subtle`) con IV aleatorio de 96 bits por registro.
+  - **Cifrado Transparente en Almacenes Críticos:** Cifrado automático en escritura y descifrado en lectura para `expenses`, `settings`, `recurring_rules` y `savings_goals` en IndexedDB y `localStorage`.
+  - **Preservación de Clave Primaria:** Campo `id` preservado en texto plano en la raíz del sobre cifrado para mantener búsquedas e indexación $O(1)$ sin migraciones de esquema.
+  - **Monitor de Seguridad en Ajustes:** Indicador visual de bóveda cifrada en reposo con botón de verificación y diagnóstico de hardware criptográfico en tiempo real.
+
+---
+
+## [1.15.0] - 2026-09-28
+
+### Added
+- **Desbloqueo Biométrico Instantáneo y Diálogo de Salida Seguro (`@capacitor/app`, `ExitConfirmModal.tsx`, `AuthScreen.tsx`):**
+  - **Invocación Biometría Obligatoria en Arranque:** `App.tsx` y `AuthScreen.tsx` disparan automáticamente `triggerNativeBiometrics()` al montar la app o despertar de segundo plano si la biometría está habilitada, eliminando el bypass previo.
+  - **Teclado PIN Virtual como Respaldo Seguro:** El teclado numérico táctil se muestra exclusivamente si el usuario pulsa retroceder o cancelar en el diálogo nativo de huella dactilar.
+  - **Diálogo Seguro de Confirmación de Salida (`ExitConfirmModal.tsx`):** Intercepción del botón Atrás de Android y de los botones táctiles de salida en la UI mediante `@capacitor/app` (`App.exitApp()`), requiriendo confirmación explícita para evitar pérdidas involuntarias de sesión.
+
+- **Modo Privacidad Perfeccionado y Ergonomía en Calendario (`CalendarView.tsx`):**
+  - **Enmascaramiento de Saldo Proyectado:** El saldo proyectado a fin de mes y los cálculos de liquidez de Cash-Flow Runway se enmascaran automáticamente con asteriscos (`••••`) cuando el Modo Privacidad está activo.
+  - **Navegación Superior Inmediata:** Reubicación del selector de mes y semana inmediatamente encima de los días del mes para una exploración fluida y directa con el pulgar.
+  - **Depuración de Badges Redundantes:** Simplificación de etiquetas en tareas periódicas, eliminando sufijos redundantes (ej. `🩺 Salud` en lugar de `Salud/lentillas`).
+
+- **Ciclo de Vida y Estado de Cumplimiento de Tareas Recurrentes (`RecurringView.tsx`, `types/index.ts`):**
+  - **Persistencia Atómica por Fecha (`completedDates: string[]`):** Registro de las fechas exactas en que se cumplió cada tarea periódica sin alterar el cómputo de ciclos futuros.
+  - **Indicador de Cumplimiento en Calendario y Recurrentes:** Punto verde en las celdas del calendario para días con tareas completadas, badge `✓ Completada` al inspeccionar el día y estado visual destacado `"✓ Completada hoy"` en la lista de recurrentes.
+  - **Limpieza de Categorías en Tareas sin Coste:** Asignación automática de la bolsa `Recordatorio` o `Sin bolsa` para tareas de 0€, evitando asignaciones erróneas al Colchón de Ahorro.
+
+- **Centralización de Iconografía Oficial y Verticons en Ajustes (`SettingsModal.tsx`, `BucketsView.tsx`):**
+  - Reubicación del visor y gestor de descargas de iconos desde la pestaña de Bolsas a la sección de Ajustes y Personalización.
+  - Descarga y compartición nativa de la imagen squircle oficial APK (JPG) y la tarjeta vertical Verticons 2:3 en PNG transparente (800x1200) y JPG con fondo negro.
+
+- **Rediseño Ergonómico de Metas & Sinking Funds (`GoalsModal.tsx`):**
+  - **KPIs Superiores de Bajo Perfil:** Reducción sustancial de la altura de las tres tarjetas estadísticas superiores (*Total Ahorrado*, *Crucero* y *Cumplidas*), concediendo el máximo espacio a la lista desplazable.
+  - **Corrección de Fragmentación de Líneas en Móviles:** Reestructuración de la cabecera de las tarjetas para evitar puntos huérfanos y saltos de línea antiestéticos en pantallas estrechas.
+  - **Botón de Borrado Directo (`Trash2`):** Acceso inmediato para eliminar o purgar metas de ejemplo sin requerir desplegar el acordeón.
+
+---
+
 ## [1.14.0] - 2026-09-27
 
 ### Added

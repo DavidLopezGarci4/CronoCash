@@ -1,7 +1,7 @@
 {
-  "currentVersion": "1.15.0",
-  "buildNumber": 11500,
-  "lastUpdated": "2026-09-28",
+  "currentVersion": "1.16.0",
+  "buildNumber": 11600,
+  "lastUpdated": "2026-09-29",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
   "privacyBadge": "100% Local y Privado • Sin Rastreadores • Sin Servidores Externos",
@@ -9,11 +9,24 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.16.0",
+      "build": 11600,
+      "date": "29 Sep 2026",
+      "title": "Importador Universal Bancario Excel/CSV, Bóveda Cifrada AES-GCM e Intervalos Flexibles",
+      "isCurrent": true,
+      "highlights": [
+        "🏦 Importador Universal Excel y CSV: Carga extractos bancarios directamente en formato .xlsx, .xls o .csv con omisión automática de preámbulos y resúmenes de cuenta, reconociendo al instante la cabecera contable y fecha valor.",
+        "⚖️ Deduplicación Bidireccional de Ingresos y Gastos: Clasifica automáticamente importes negativos como gastos y positivos como ingresos/abonos, evitando duplicidades contra movimientos ya integrados.",
+        "🛡️ Bóveda Cifrada en Reposo (AES-GCM-256): Máxima seguridad local que cifra automáticamente gastos, metas y presupuestos con una clave maestra de 256 bits derivada en el hardware de tu dispositivo.",
+        "🔄 Recurrencias cada X Semanas o Meses: Flexibilidad total para planificar gastos quincenales (cada 2 semanas), bimestrales (cada 2 meses), trimestrales o semestrales con cálculo exacto en calendario y Safe-to-Spend."
+      ]
+    },
+    {
       "version": "1.15.0",
       "build": 11500,
       "date": "28 Sep 2026",
       "title": "Biometría Forzada, Diálogo de Salida y Ergonomía en Calendario & Metas",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "👆 Desbloqueo Biométrico Instantáneo: El aviso de huella dactilar se abre automáticamente al abrir la app; el teclado numérico queda únicamente como alternativa segura si decides retroceder.",
         "🚪 Diálogo Seguro de Salida: Confirmación emergente antes de cerrar la aplicación para evitar salidas accidentales con el botón de retroceso o menús táctiles.",

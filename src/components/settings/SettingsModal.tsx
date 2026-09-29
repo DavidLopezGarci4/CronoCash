@@ -23,6 +23,9 @@ import {
   Image as ImageIcon,
   Loader2,
   Info,
+  ShieldCheck,
+  Lock,
+  CheckCircle2,
 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -32,6 +35,7 @@ import { DBService } from '../../services/db';
 import { AuthService } from '../../services/auth';
 import { NotificationService } from '../../services/notificationService';
 import { HapticService } from '../../services/hapticService';
+import { VaultCryptoService } from '../../services/vaultCryptoService';
 import { AboutModal } from '../about/AboutModal';
 import { FAQModal } from '../faq/FAQModal';
 
@@ -88,6 +92,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [showFAQModal, setShowFAQModal] = useState(false);
   const [verticonsModalOpen, setVerticonsModalOpen] = useState(false);
   const [downloadingFile, setDownloadingFile] = useState<string | null>(null);
+  const [vaultStatus, setVaultStatus] = useState<string | null>(null);
+
+  const handleVerifyVault = async () => {
+    try {
+      const res = await VaultCryptoService.verifyIntegrity();
+      if (res.ok) {
+        setVaultStatus('Verificada OK (AES-256)');
+        await HapticService.notificationSuccess();
+      } else {
+        setVaultStatus('Error verificación');
+        await HapticService.notificationError();
+      }
+      setTimeout(() => setVaultStatus(null), 3000);
+    } catch {
+      setVaultStatus('Error');
+    }
+  };
 
   const handleDownloadImage = async (imagePath: string, fileName: string, title: string) => {
     setDownloadingFile(fileName);
@@ -394,6 +415,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
                 <span className="text-xs text-slate-300">Permitir desbloqueo con Huella Dactilar</span>
               </label>
+            </div>
+          </div>
+
+          {/* Bóveda Cifrada Local (AES-GCM-256) */}
+          <div className="space-y-3 p-3 bg-slate-900/80 border border-emerald-500/30 rounded-2xl relative overflow-hidden shadow-xs">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Bóveda Cifrada en Reposo (AES-GCM-256)</span>
+              </h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold flex items-center gap-1">
+                <Lock className="w-3 h-3 text-emerald-400" />
+                Blindaje Activo
+              </span>
+            </div>
+
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              Tus gastos, ingresos, facturas y saldos se almacenan cifrados en reposo en tu dispositivo mediante <strong>cifrado militar autenticado AES-GCM de 256 bits</strong> con clave única local. Nadie ajeno a tu aplicación puede leer tu información financiera.
+            </p>
+
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-[10px] text-slate-400 font-mono">
+                Estándar NIST SP 800-38D • 100% Offline
+              </span>
+              <button
+                type="button"
+                onClick={handleVerifyVault}
+                className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+              >
+                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                <span>{vaultStatus ? vaultStatus : 'Verificar Bóveda'}</span>
+              </button>
             </div>
           </div>
 

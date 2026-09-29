@@ -68,6 +68,7 @@ export interface RecurringRule {
   categoryType?: RecurringCategoryType;
   bucketId: string;
   frequency: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  interval?: number; // Intervalo de repetición: cada X semanas o cada X meses (default: 1)
   dayOfMonth?: number; // 1 - 31
   monthOfYear?: number; // 1 - 12 (específico para periodicidad anual)
   dayOfWeek?: number; // 0 - 6
@@ -107,6 +108,7 @@ export interface ExtraIncome {
   frequency?: 'monthly' | 'quarterly' | 'yearly';
   isActive: boolean;
   notes?: string;
+  rawHash?: string;           // Hash SHA-256 para deduplicación bancaria
   createdAt: string;
 }
 

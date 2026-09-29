@@ -15,7 +15,7 @@ import {
   ShieldAlert,
   Loader2,
 } from 'lucide-react';
-import { Expense, Bucket, SmartRule } from '../../types';
+import { Expense, Bucket, SmartRule, ExtraIncome } from '../../types';
 import { CsvImporterService, AnalyzedTransaction, BatchAnalysisResult } from '../../services/csvImporterService';
 import { DBService } from '../../services/db';
 
@@ -57,20 +57,32 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
     try {
       setIsProcessing(true);
       setFileName(file.name);
-      const text = await file.text();
 
-      const rawRows = CsvImporterService.parseCsv(text);
+      let rawRows = [];
+      const lowerName = file.name.toLowerCase();
+
+      if (lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')) {
+        const buffer = await file.arrayBuffer();
+        rawRows = CsvImporterService.parseExcel(buffer);
+      } else {
+        const text = await file.text();
+        rawRows = CsvImporterService.parseCsv(text);
+      }
+
       if (rawRows.length === 0) {
-        alert('No se detectaron transacciones válidas en el archivo CSV. Comprueba el formato de tu banco.');
+        alert(
+          'No se detectaron transacciones válidas en el archivo. Asegúrate de que contenga la cabecera bancaria (ej. Fecha contable, Fecha valor, Descripción, Importe).'
+        );
         setIsProcessing(false);
         return;
       }
 
-      const analysis = await CsvImporterService.analyzeBatch(rawRows, expenses, rules, buckets);
+      const existingExtraIncomes = DBService.getExtraIncomes();
+      const analysis = await CsvImporterService.analyzeBatch(rawRows, expenses, rules, buckets, existingExtraIncomes);
       setTransactions(analysis.allTransactions);
       setStep('review');
     } catch (err: any) {
-      alert('Error al leer el archivo CSV: ' + (err?.message || 'Error desconocido'));
+      alert('Error al leer el archivo bancario: ' + (err?.message || 'Error desconocido'));
     } finally {
       setIsProcessing(false);
     }
@@ -153,28 +165,56 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
     const batchId = `batch_${Date.now()}`;
     const timestamp = new Date().toISOString();
 
-    const expensesToSave: Expense[] = toImport.map((tx, idx) => ({
-      id: `exp_imp_${Date.now()}_${idx}`,
-      title: tx.cleanConcept || 'Movimiento bancario',
-      amount: tx.amount,
-      date: tx.parsedDate,
-      bucketId: tx.suggestedBucketId,
-      isInvoice: Boolean(tx.isInvoice),
-      status: 'paid',
-      rawHash: tx.rawHash,
-      importBatchId: batchId,
-      notes: `Importado de extracto bancario (${fileName})`,
-      createdAt: timestamp,
-    }));
+    const expensesToSave: Expense[] = [];
+    const incomesToSave: ExtraIncome[] = [];
 
-    await DBService.saveExpensesBatch(expensesToSave);
+    toImport.forEach((tx, idx) => {
+      if (tx.isIncome) {
+        incomesToSave.push({
+          id: `inc_imp_${Date.now()}_${idx}`,
+          title: tx.cleanConcept || 'Ingreso bancario',
+          amount: tx.amount,
+          type: 'punctual',
+          category: 'other',
+          date: tx.parsedDate,
+          isActive: true,
+          rawHash: tx.rawHash,
+          notes: `Abono bancario importado (${fileName})`,
+          createdAt: timestamp,
+        });
+      } else {
+        expensesToSave.push({
+          id: `exp_imp_${Date.now()}_${idx}`,
+          title: tx.cleanConcept || 'Movimiento bancario',
+          amount: tx.amount,
+          date: tx.parsedDate,
+          bucketId: tx.suggestedBucketId,
+          isInvoice: Boolean(tx.isInvoice),
+          status: 'paid',
+          rawHash: tx.rawHash,
+          importBatchId: batchId,
+          notes: `Importado de extracto bancario (${fileName})`,
+          createdAt: timestamp,
+        });
+      }
+    });
 
-    // Si el usuario marcó la opción de guardar como nuevas reglas automáticas
+    if (expensesToSave.length > 0) {
+      await DBService.saveExpensesBatch(expensesToSave);
+    }
+
+    if (incomesToSave.length > 0) {
+      for (const inc of incomesToSave) {
+        await DBService.saveExtraIncome(inc);
+      }
+    }
+
+    // Si el usuario marcó la opción de guardar como nuevas reglas automáticas (solo gastos)
     if (saveAsRules) {
       const existingRules = await DBService.getSmartRules();
       const existingPatterns = new Set(existingRules.map((r) => r.pattern.toUpperCase().trim()));
 
-      for (const tx of toImport) {
+      for (const tx of toImport.filter((t) => !t.isIncome)) {
         // Extraer primera o dos palabras más significativas del concepto
         const words = tx.cleanConcept.replace(/[^a-zA-Z0-9\s]/g, '').trim().split(/\s+/);
         const keyword = words[0]?.toUpperCase();
@@ -196,7 +236,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
       }
     }
 
-    setImportSummary({ imported: expensesToSave.length });
+    setImportSummary({ imported: expensesToSave.length + incomesToSave.length });
     setIsProcessing(false);
     onImportComplete();
 
@@ -222,7 +262,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Compatible con extractos CSV de CaixaBank, BBVA, Santander, Sabadell, ING, Revolut, etc.
+                Compatible con extractos Excel (.xlsx, .xls) y CSV de Santander, BBVA, CaixaBank, Sabadell, ING, Revolut, etc.
               </p>
             </div>
           </div>
@@ -268,29 +308,29 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
 
               <div className="space-y-1">
                 <h3 className="text-base font-bold text-white">
-                  Arrastra tu archivo bancario CSV aquí
+                  Arrastra tu extracto bancario en Excel (.xlsx, .xls) o CSV aquí
                 </h3>
                 <p className="text-xs text-slate-400">
-                  o pulsa para explorar en tu dispositivo
+                  o pulsa para explorar en tus archivos
                 </p>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-2 pt-2 text-[11px] text-slate-500">
+              <div className="flex flex-wrap justify-center gap-2 pt-2 text-[11px] text-slate-400">
                 <span className="px-2.5 py-1 rounded-lg bg-slate-800/60 border border-slate-800">
-                  Separador automático (; o ,)
+                  Detección de cabecera bancaria
                 </span>
                 <span className="px-2.5 py-1 rounded-lg bg-slate-800/60 border border-slate-800">
-                  Formato español (DD/MM/YYYY)
+                  Omisión de preámbulo y no consolidados
                 </span>
                 <span className="px-2.5 py-1 rounded-lg bg-slate-800/60 border border-slate-800">
-                  Deduplicación SHA-256
+                  Deduplicación SHA-256 Gastos/Ingresos
                 </span>
               </div>
 
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".csv,text/csv,text/plain"
+                accept=".csv,.xlsx,.xls,.tsv,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
                 onChange={handleFileInputChange}
                 className="hidden"
               />
@@ -441,10 +481,15 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                           <span className="text-xs font-bold text-white truncate max-w-xs sm:max-w-md">
                             {tx.cleanConcept}
                           </span>
+                          {tx.isIncome && (
+                            <span className="text-[10px] px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+                              Ingreso / Abono
+                            </span>
+                          )}
                           {tx.isDuplicate && (
-                            <span className="text-[10px] px-2 py-0.2 rounded-full bg-slate-800 text-slate-400 font-semibold flex items-center gap-1">
-                              <AlertTriangle className="w-3 h-3 text-amber-400" />
-                              Duplicado descartado
+                            <span className="text-[10px] px-2 py-0.2 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3 text-rose-400" />
+                              Duplicado ya integrado
                             </span>
                           )}
                           {tx.matchedRulePattern && !tx.isDuplicate && (
@@ -455,46 +500,73 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                           )}
                         </div>
 
-                        <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400">
+                        <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-slate-400">
                           <span>Original: {tx.rawConcept.substring(0, 45)}</span>
+                          {tx.balance !== undefined && (
+                            <>
+                              <span>•</span>
+                              <span className="text-slate-500 font-mono">
+                                Saldo: {tx.balance.toFixed(2)} {tx.currency || currency}
+                              </span>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/60">
-                      {/* Selector de Bolsa */}
-                      <select
-                        value={tx.suggestedBucketId}
-                        disabled={tx.isDuplicate}
-                        onChange={(e) => handleChangeBucket(tx.id, e.target.value)}
-                        className="px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer max-w-[150px]"
-                      >
-                        {buckets.map((b) => (
-                          <option key={b.id} value={b.id}>
-                            {b.name}
-                          </option>
-                        ))}
-                      </select>
+                      {/* Selector de Bolsa o Destino */}
+                      {!tx.isIncome ? (
+                        <select
+                          value={tx.suggestedBucketId}
+                          disabled={tx.isDuplicate}
+                          onChange={(e) => handleChangeBucket(tx.id, e.target.value)}
+                          className="px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer max-w-[150px]"
+                        >
+                          {buckets.map((b) => (
+                            <option key={b.id} value={b.id}>
+                              {b.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <div className="px-2.5 py-1.5 bg-emerald-950/30 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 font-semibold text-center min-w-[110px]">
+                          Ingreso Extra
+                        </div>
+                      )}
 
-                      {/* Factura Checkbox */}
-                      <button
-                        type="button"
-                        onClick={() => handleToggleInvoice(tx.id)}
-                        disabled={tx.isDuplicate}
-                        className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
-                          tx.isInvoice
-                            ? 'bg-teal-500/20 border-teal-500/40 text-teal-300'
-                            : 'bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300'
-                        }`}
-                        title="Marcar como factura desgravable"
-                      >
-                        Factura
-                      </button>
+                      {/* Factura Checkbox (solo aplicable a gastos) */}
+                      {!tx.isIncome && (
+                        <button
+                          type="button"
+                          onClick={() => handleToggleInvoice(tx.id)}
+                          disabled={tx.isDuplicate}
+                          className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
+                            tx.isInvoice
+                              ? 'bg-teal-500/20 border-teal-500/40 text-teal-300'
+                              : 'bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300'
+                          }`}
+                          title="Marcar como factura desgravable"
+                        >
+                          Factura
+                        </button>
+                      )}
 
-                      {/* Importe */}
-                      <div className="text-right min-w-[75px]">
-                        <span className="font-mono font-black text-sm text-emerald-400">
-                          {tx.amount.toFixed(2)} {currency}
+                      {/* Importe con signo y categoría */}
+                      <div className="text-right min-w-[85px]">
+                        <span
+                          className={`font-mono font-black text-sm ${
+                            tx.isIncome ? 'text-emerald-400' : 'text-slate-100'
+                          }`}
+                        >
+                          {tx.isIncome ? `+${tx.amount.toFixed(2)}` : `-${tx.amount.toFixed(2)}`} {currency}
+                        </span>
+                        <span
+                          className={`block text-[9px] font-bold uppercase tracking-wider ${
+                            tx.isIncome ? 'text-emerald-400/90' : 'text-slate-500'
+                          }`}
+                        >
+                          {tx.isIncome ? 'Ingreso' : 'Gasto'}
                         </span>
                       </div>
                     </div>

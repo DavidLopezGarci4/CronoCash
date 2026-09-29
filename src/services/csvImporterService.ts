@@ -1,4 +1,5 @@
-import { Expense, Bucket, SmartRule } from '../types';
+import { Expense, Bucket, SmartRule, ExtraIncome } from '../types';
+import * as XLSX from 'xlsx';
 
 export interface RawBankTransaction {
   id: string;
@@ -10,6 +11,8 @@ export interface RawBankTransaction {
   amount: number;
   isIncome?: boolean;
   rawHash: string;
+  balance?: number;
+  currency?: string;
 }
 
 export interface AnalyzedTransaction extends RawBankTransaction {
@@ -193,7 +196,34 @@ export class CsvImporterService {
   }
 
   /**
-   * Parsea el contenido CSV sin procesar y extrae las transacciones bancarias
+   * Parsea un libro de Excel (.xlsx / .xls) convirtiendo la primera hoja a matriz de transacciones
+   */
+  static parseExcel(data: ArrayBuffer): RawBankTransaction[] {
+    try {
+      const wb = XLSX.read(data, { type: 'array', cellDates: true });
+      if (!wb.SheetNames || wb.SheetNames.length === 0) return [];
+      const firstSheet = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(firstSheet, {
+        header: 1,
+        raw: false,
+        dateNF: 'yyyy-mm-dd',
+        defval: '',
+      }) as (string | number)[][];
+
+      // Normalizar cada celda a string limpio
+      const matrix: string[][] = rows.map((r) =>
+        r.map((cell) => (cell !== null && cell !== undefined ? String(cell).trim() : ''))
+      );
+
+      return this.parseMatrix(matrix);
+    } catch (e) {
+      console.error('[CsvImporterService] Error al parsear archivo Excel:', e);
+      return [];
+    }
+  }
+
+  /**
+   * Parsea el contenido CSV/TSV y extrae las transacciones bancarias
    */
   static parseCsv(fileContent: string): RawBankTransaction[] {
     if (!fileContent || !fileContent.trim()) return [];
@@ -201,38 +231,70 @@ export class CsvImporterService {
     const rawLines = fileContent.split(/\r?\n/).filter((l) => l.trim().length > 0);
     if (rawLines.length === 0) return [];
 
-    const delimiter = this.detectDelimiter(rawLines.slice(0, 10));
+    const delimiter = this.detectDelimiter(rawLines.slice(0, 15));
+    const matrix: string[][] = rawLines.map((line) => this.tokenizeLine(line, delimiter));
 
-    // Buscar la fila de cabecera bancaria (puede no ser la primera línea debido a metadatos de extractos)
+    return this.parseMatrix(matrix);
+  }
+
+  /**
+   * Parsea una matriz de filas buscando dinámicamente la cabecera canónica bancaria:
+   * "Fecha contable | Fecha valor | Descripción | Importe | Saldo | Divisa"
+   * Omitiendo de forma segura el preámbulo inicial de resúmenes de cuenta o movimientos no consolidados.
+   */
+  static parseMatrix(rawRows: string[][]): RawBankTransaction[] {
+    if (!rawRows || rawRows.length === 0) return [];
+
     let headerRowIdx = -1;
-    let dateCol = -1;
+    let fechaValorCol = -1;
+    let fechaContableCol = -1;
     let conceptCol = -1;
     let amountCol = -1;
+    let saldoCol = -1;
+    let divisaCol = -1;
     let debeCol = -1;
     let haberCol = -1;
 
-    const dateKeywords = ['fecha', 'f.valor', 'f.operacion', 'f.valoracion', 'date', 'f. valor', 'f. operacion'];
-    const conceptKeywords = ['concepto', 'descripcion', 'movimiento', 'detalle', 'beneficiario', 'description', 'asunto'];
+    const fechaValorKeywords = ['fecha valor', 'f.valor', 'f. valor', 'value date'];
+    const fechaContableKeywords = ['fecha contable', 'f.contable', 'f. contable', 'fecha operacion', 'f.operacion', 'f. operacion', 'fecha', 'date'];
+    const conceptKeywords = ['descripcion', 'descripción', 'concepto', 'movimiento', 'detalle', 'beneficiario', 'description', 'asunto', 'texto'];
     const amountKeywords = ['importe', 'cantidad', 'monto', 'amount', 'total'];
+    const saldoKeywords = ['saldo', 'balance'];
+    const divisaKeywords = ['divisa', 'moneda', 'currency'];
     const debeKeywords = ['debe', 'cargo', 'gastos', 'salidas', 'debit'];
     const haberKeywords = ['haber', 'abono', 'ingresos', 'entradas', 'credit'];
 
-    for (let i = 0; i < Math.min(rawLines.length, 15); i++) {
-      const cols = this.tokenizeLine(rawLines[i], delimiter).map((c) =>
-        c.toLowerCase().trim().replace(/^["']|["']$/g, '')
-      );
+    // Escanear hasta 150 filas para omitir resúmenes de cuenta, datos de titular y movimientos no consolidados
+    const maxScanLines = Math.min(rawRows.length, 150);
 
-      const dIdx = cols.findIndex((c) => dateKeywords.some((k) => c.includes(k)));
+    for (let i = 0; i < maxScanLines; i++) {
+      const cols = rawRows[i].map((c) =>
+        (c || '').toLowerCase().trim().replace(/^["']|["']$/g, '')
+      );
+      if (cols.length <= 1) continue;
+
+      const fvIdx = cols.findIndex((c) => fechaValorKeywords.some((k) => c.includes(k)));
+      const fcIdx = cols.findIndex((c) => fechaContableKeywords.some((k) => c.includes(k)));
       const cIdx = cols.findIndex((c) => conceptKeywords.some((k) => c.includes(k)));
       const aIdx = cols.findIndex((c) => amountKeywords.some((k) => c === k || c.startsWith(k)));
+      const sIdx = cols.findIndex((c) => saldoKeywords.some((k) => c === k || c.startsWith(k)));
+      const divIdx = cols.findIndex((c) => divisaKeywords.some((k) => c === k || c.startsWith(k)));
       const debIdx = cols.findIndex((c) => debeKeywords.some((k) => c === k || c.startsWith(k)));
       const habIdx = cols.findIndex((c) => haberKeywords.some((k) => c === k || c.startsWith(k)));
 
-      if (dIdx !== -1 && (cIdx !== -1 || aIdx !== -1 || debIdx !== -1)) {
+      const hasDate = fvIdx !== -1 || fcIdx !== -1;
+      const hasConcept = cIdx !== -1;
+      const hasAmountOrDebit = aIdx !== -1 || debIdx !== -1 || habIdx !== -1;
+
+      // Si encontramos la combinación bancaria típica (fecha + concepto + importe/saldo)
+      if (hasDate && (hasConcept || hasAmountOrDebit)) {
         headerRowIdx = i;
-        dateCol = dIdx;
-        conceptCol = cIdx !== -1 ? cIdx : (dIdx === 0 ? 1 : 0);
+        fechaValorCol = fvIdx;
+        fechaContableCol = fcIdx;
+        conceptCol = cIdx;
         amountCol = aIdx;
+        saldoCol = sIdx;
+        divisaCol = divIdx;
         debeCol = debIdx;
         haberCol = habIdx;
         break;
@@ -242,31 +304,32 @@ export class CsvImporterService {
     // Si no se encontró cabecera explícita, usar heurística por posición
     if (headerRowIdx === -1) {
       headerRowIdx = 0;
-      dateCol = 0;
+      fechaValorCol = 0;
       conceptCol = 1;
       amountCol = 2;
     }
 
+    // Priorizar 'Fecha valor' como fecha real de liquidación del cargo/abono
+    const dateCol = fechaValorCol !== -1 ? fechaValorCol : (fechaContableCol !== -1 ? fechaContableCol : 0);
+    const resolvedConceptCol = conceptCol !== -1 ? conceptCol : (dateCol === 0 ? 1 : 0);
+
     const transactions: RawBankTransaction[] = [];
-    const rows = rawLines.slice(headerRowIdx + 1);
+    const rows = rawRows.slice(headerRowIdx + 1);
 
     for (let r = 0; r < rows.length; r++) {
-      const cols = this.tokenizeLine(rows[r], delimiter);
-      if (cols.length <= 1) continue;
+      const cols = rows[r];
+      if (!cols || cols.length <= 1) continue;
 
-      const rawDate = cols[dateCol] || '';
-      const rawConcept = cols[conceptCol] || 'Movimiento bancario';
+      const rawDate = cols[dateCol] || (fechaContableCol !== -1 ? cols[fechaContableCol] : '') || '';
+      const rawConcept = cols[resolvedConceptCol] || 'Movimiento bancario';
       let rawAmount = 0;
       let isIncome = false;
 
-      if (amountCol !== -1 && cols[amountCol] !== undefined) {
+      if (amountCol !== -1 && cols[amountCol] !== undefined && cols[amountCol] !== '') {
         rawAmount = this.parseAmount(cols[amountCol]);
-        if (rawAmount > 0 && debeCol === -1) {
-          // Si el importe es positivo y no hay columna debe/haber,
-          // puede ser ingreso o extracto de tarjeta donde todo es positivo
-          isIncome = false;
-        } else if (rawAmount < 0) {
-          isIncome = false;
+        if (debeCol === -1) {
+          // Si el importe es positivo es un abono/ingreso (+), si es negativo es gasto (-)
+          isIncome = rawAmount > 0;
         }
       } else if (debeCol !== -1) {
         const debeVal = cols[debeCol] ? this.parseAmount(cols[debeCol]) : 0;
@@ -281,17 +344,28 @@ export class CsvImporterService {
       } else {
         // Probar cualquier columna numérica
         for (let c = 0; c < cols.length; c++) {
-          if (c !== dateCol && c !== conceptCol) {
+          if (c !== dateCol && c !== resolvedConceptCol) {
             const val = this.parseAmount(cols[c]);
             if (val !== 0) {
               rawAmount = val;
+              isIncome = val > 0;
               break;
             }
           }
         }
       }
 
-      if (rawAmount === 0 && !rawConcept) continue;
+      if (rawAmount === 0 && (!rawConcept || rawConcept === 'Movimiento bancario')) continue;
+
+      // Omitir posibles pies de página o totales
+      const lowerConcept = rawConcept.toLowerCase();
+      if (
+        lowerConcept.includes('saldo final') ||
+        lowerConcept.includes('total movimientos') ||
+        lowerConcept.includes('fin de extracto')
+      ) {
+        continue;
+      }
 
       const parsedDate = this.parseDate(rawDate);
       const cleanConcept = rawConcept
@@ -299,8 +373,10 @@ export class CsvImporterService {
         .replace(/^["']|["']$/g, '')
         .trim();
 
-      // Convertir siempre a importe positivo para el modelo de gasto de CronoCash
+      // Convertir siempre a importe absoluto para cálculo en CronoCash, preservando isIncome
       const expenseAmount = Math.abs(rawAmount);
+      const rawBalance = saldoCol !== -1 && cols[saldoCol] ? this.parseAmount(cols[saldoCol]) : undefined;
+      const rawCurrency = divisaCol !== -1 && cols[divisaCol] ? cols[divisaCol].trim() : undefined;
 
       transactions.push({
         id: `raw_tx_${Date.now()}_${r}`,
@@ -312,6 +388,8 @@ export class CsvImporterService {
         amount: Math.round(expenseAmount * 100) / 100,
         isIncome,
         rawHash: '',
+        balance: rawBalance,
+        currency: rawCurrency,
       });
     }
 
@@ -319,13 +397,15 @@ export class CsvImporterService {
   }
 
   /**
-   * Analiza un lote de transacciones aplicando deduplicación inteligente y motor de reglas
+   * Analiza un lote de transacciones aplicando deduplicación inteligente y motor de reglas.
+   * Deduplica tanto contra el historial de gastos (expenses) como contra ingresos (extraIncomes).
    */
   static async analyzeBatch(
     rows: RawBankTransaction[],
     existingExpenses: Expense[],
     rules: SmartRule[],
-    buckets: Bucket[]
+    buckets: Bucket[],
+    existingExtraIncomes: ExtraIncome[] = []
   ): Promise<BatchAnalysisResult> {
     const activeRules = [...rules]
       .filter((r) => r.isActive)
@@ -334,7 +414,7 @@ export class CsvImporterService {
     const validBucketIds = new Set(buckets.map((b) => b.id));
     const fallbackBucketId = buckets[0]?.id || 'bucket-super';
 
-    // Crear mapa de gastos existentes por hash y por tupla (fecha + importe + concepto normalizado)
+    // Crear mapa de gastos e ingresos existentes por hash y por tupla (fecha + concepto + importe)
     const existingHashSet = new Set<string>();
     const existingTupleSet = new Set<string>();
 
@@ -343,6 +423,14 @@ export class CsvImporterService {
         existingHashSet.add(exp.rawHash);
       }
       const tupleKey = `${(exp.date || '').trim()}|${(exp.title || '').trim().toUpperCase()}|${(exp.amount || 0).toFixed(2)}`;
+      existingTupleSet.add(tupleKey);
+    }
+
+    for (const inc of existingExtraIncomes) {
+      if (inc.rawHash) {
+        existingHashSet.add(inc.rawHash);
+      }
+      const tupleKey = `${(inc.date || '').trim()}|${(inc.title || '').trim().toUpperCase()}|${(inc.amount || 0).toFixed(2)}`;
       existingTupleSet.add(tupleKey);
     }
 
@@ -410,7 +498,9 @@ export class CsvImporterService {
         ...row,
         rawHash: hash,
         isDuplicate,
-        duplicateReason: isDuplicate ? 'Movimiento idéntico ya existente en historial' : undefined,
+        duplicateReason: isDuplicate
+          ? (row.isIncome ? 'Ingreso idéntico ya integrado en CronoCash' : 'Gasto idéntico ya registrado en historial')
+          : undefined,
         suggestedBucketId,
         matchedRuleId,
         matchedRulePattern,

@@ -83,6 +83,16 @@ export class SafeToSpendService {
         if (Math.abs(month - startM) % 3 !== 0) {
           continue; // No vence en este mes del trimestre
         }
+      } else if (rule.frequency === 'monthly') {
+        const interval = rule.interval && rule.interval > 1 ? rule.interval : 1;
+        if (interval > 1) {
+          const startM = rule.startDate ? new Date(rule.startDate).getMonth() : 0;
+          const startY = rule.startDate ? new Date(rule.startDate).getFullYear() : year;
+          const monthsDiff = (year - startY) * 12 + (month - startM);
+          if (monthsDiff < 0 || monthsDiff % interval !== 0) {
+            continue; // No vence en este ciclo del intervalo
+          }
+        }
       }
 
       // Verificar si ya se ha generado o registrado un gasto vinculado este mes

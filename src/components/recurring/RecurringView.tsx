@@ -106,6 +106,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
   const [reminderOffsets, setReminderOffsets] = useState<ReminderOffset[]>(['3_days', 'same_day']);
   const [reminderTime, setReminderTime] = useState('09:00');
   const [autoAdaptNextDates, setAutoAdaptNextDates] = useState(true);
+  const [intervalNum, setIntervalNum] = useState<number>(1);
 
   // Cálculo de fecha del próximo cobro y días restantes
   const getNextBillingDetails = (rule: RecurringRule) => {
@@ -113,12 +114,31 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
     const targetDay = Math.min(Math.max(1, rule.dayOfMonth || 1), 28);
+    const interval = rule.interval && rule.interval > 1 ? rule.interval : 1;
 
     let nextDate = new Date(currentYear, currentMonth, targetDay);
 
     if (rule.frequency === 'monthly') {
-      if (today.getDate() > targetDay) {
-        nextDate = new Date(currentYear, currentMonth + 1, targetDay);
+      if (interval > 1 && rule.startDate) {
+        const startObj = new Date(rule.startDate);
+        const startM = startObj.getMonth();
+        const startY = startObj.getFullYear();
+        for (let offset = 0; offset <= 36; offset++) {
+          const checkYear = currentYear + Math.floor((currentMonth + offset) / 12);
+          const checkMonth = (currentMonth + offset) % 12;
+          const totalMonths = (checkYear - startY) * 12 + (checkMonth - startM);
+          if (totalMonths >= 0 && totalMonths % interval === 0) {
+            const candidate = new Date(checkYear, checkMonth, targetDay);
+            if (candidate.getTime() > today.getTime()) {
+              nextDate = candidate;
+              break;
+            }
+          }
+        }
+      } else {
+        if (today.getDate() > targetDay) {
+          nextDate = new Date(currentYear, currentMonth + 1, targetDay);
+        }
       }
     } else if (rule.frequency === 'yearly') {
       const targetMonth = rule.monthOfYear
@@ -141,9 +161,23 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
         }
       }
     } else if (rule.frequency === 'weekly') {
-      const dayDiff = ((rule.dayOfWeek || 1) - today.getDay() + 7) % 7;
-      nextDate = new Date(today);
-      nextDate.setDate(today.getDate() + (dayDiff === 0 && today.getHours() > 18 ? 7 : dayDiff));
+      const targetDayOfWeek = rule.dayOfWeek ?? (rule.startDate ? new Date(rule.startDate).getDay() : 1);
+      const dayDiff = (targetDayOfWeek - today.getDay() + 7) % 7;
+      let candidate = new Date(today);
+      candidate.setDate(today.getDate() + (dayDiff === 0 && today.getHours() > 18 ? 7 : dayDiff));
+      if (interval > 1 && rule.startDate) {
+        const startObj = new Date(rule.startDate);
+        for (let i = 0; i < 52; i++) {
+          const weeks = Math.round((candidate.getTime() - startObj.getTime()) / (7 * 24 * 3600 * 1000));
+          if (weeks >= 0 && weeks % interval === 0 && candidate.getTime() > today.getTime()) {
+            nextDate = candidate;
+            break;
+          }
+          candidate = new Date(candidate.getTime() + 7 * 24 * 3600 * 1000);
+        }
+      } else {
+        nextDate = candidate;
+      }
     }
 
     const diffTime = nextDate.getTime() - today.getTime();
@@ -167,6 +201,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
     setCategoryType('bill');
     setBucketId(buckets[0]?.id || '');
     setFrequency('monthly');
+    setIntervalNum(1);
     setDayOfMonth('1');
     setMonthOfYear('1');
     setIcon('Repeat');
@@ -186,6 +221,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
     setCategoryType(r.categoryType || 'bill');
     setBucketId(r.bucketId);
     setFrequency(r.frequency);
+    setIntervalNum(r.interval && r.interval > 1 ? r.interval : 1);
     setDayOfMonth(String(r.dayOfMonth || 1));
     setMonthOfYear(String(r.monthOfYear || (r.startDate ? new Date(r.startDate).getMonth() + 1 : 1)));
     setIcon(r.icon || 'Repeat');
@@ -216,6 +252,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
       categoryType,
       bucketId: bucketId || (buckets[0]?.id ?? 'default'),
       frequency,
+      interval: (frequency === 'weekly' || frequency === 'monthly') && intervalNum > 1 ? intervalNum : 1,
       dayOfMonth: parseInt(dayOfMonth) || 1,
       monthOfYear: frequency === 'yearly' ? (parseInt(monthOfYear) || 1) : undefined,
       startDate: editingRule?.startDate || new Date().toISOString().split('T')[0],
@@ -523,7 +560,9 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                       </span>
                       <span>•</span>
                       <span>
-                        {frequencyLabels[rule.frequency]} (
+                        {rule.interval && rule.interval > 1
+                          ? `Cada ${rule.interval} ${rule.frequency === 'weekly' ? 'semanas' : 'meses'}`
+                          : frequencyLabels[rule.frequency]} (
                         {rule.frequency === 'yearly' && rule.monthOfYear
                           ? `${rule.dayOfMonth || 1} de ${MONTH_NAMES[(rule.monthOfYear || 1) - 1]}`
                           : `Día ${rule.dayOfMonth || 1}`}
@@ -742,6 +781,42 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                   </select>
                 </div>
               </div>
+
+              {/* Selector de intervalo dinámico para Semanal o Mensual */}
+              {(frequency === 'weekly' || frequency === 'monthly') && (
+                <div className="p-3 bg-slate-900/80 border border-slate-700/80 rounded-2xl flex items-center justify-between shadow-xs">
+                  <div className="space-y-0.5">
+                    <label className="text-xs font-bold text-slate-300">
+                      Cadencia de Repetición
+                    </label>
+                    <p className="text-[11px] text-slate-400">
+                      {frequency === 'weekly'
+                        ? intervalNum === 1
+                          ? 'Repetición cada semana'
+                          : `Repetición cada ${intervalNum} semanas (quincenal, etc.)`
+                        : intervalNum === 1
+                          ? 'Repetición cada mes'
+                          : `Repetición cada ${intervalNum} meses (bimestral, etc.)`}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-400 font-medium">Cada</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max={frequency === 'weekly' ? 52 : 24}
+                      value={intervalNum}
+                      onChange={(e) => setIntervalNum(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-16 h-10 px-2 bg-slate-950 border border-slate-700 rounded-xl text-sm font-mono font-bold text-center text-emerald-400 focus:border-emerald-500 focus:outline-hidden"
+                    />
+                    <span className="text-xs font-semibold text-slate-300">
+                      {frequency === 'weekly'
+                        ? (intervalNum === 1 ? 'semana' : 'semanas')
+                        : (intervalNum === 1 ? 'mes' : 'meses')}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Si es anual: Selector de Mes */}
               {frequency === 'yearly' && (

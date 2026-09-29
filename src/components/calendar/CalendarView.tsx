@@ -28,6 +28,7 @@ import {
   isSameDay,
   isToday,
   parseISO,
+  differenceInCalendarWeeks,
 } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Expense, RecurringRule, Bucket, Settings } from '../../types';
@@ -46,9 +47,21 @@ interface CalendarViewProps {
 
 export function isRuleOnDate(rule: RecurringRule, date: Date): boolean {
   if (!rule.isActive) return false;
+
+  const dateStr = format(date, 'yyyy-MM-dd');
+  if (rule.startDate) {
+    const startStr = rule.startDate.split('T')[0];
+    if (dateStr < startStr) return false;
+  }
+  if (rule.endDate) {
+    const endStr = rule.endDate.split('T')[0];
+    if (dateStr > endStr) return false;
+  }
+
   const dayNum = date.getDate();
   const monthNum = date.getMonth() + 1; // 1 - 12
   const dayOfWeek = date.getDay(); // 0 - 6
+  const interval = rule.interval && rule.interval > 1 ? rule.interval : 1;
 
   if (rule.frequency === 'yearly') {
     const targetMonth = rule.monthOfYear || (rule.startDate ? new Date(rule.startDate).getMonth() + 1 : 1);
@@ -65,12 +78,24 @@ export function isRuleOnDate(rule: RecurringRule, date: Date): boolean {
 
   if (rule.frequency === 'weekly') {
     const targetDayOfWeek = rule.dayOfWeek ?? (rule.startDate ? new Date(rule.startDate).getDay() : 1);
-    return dayOfWeek === targetDayOfWeek;
+    if (dayOfWeek !== targetDayOfWeek) return false;
+    if (interval > 1 && rule.startDate) {
+      const startDateObj = parseISO(rule.startDate.split('T')[0]);
+      const weeksDiff = differenceInCalendarWeeks(date, startDateObj, { weekStartsOn: 1 });
+      return weeksDiff >= 0 && weeksDiff % interval === 0;
+    }
+    return true;
   }
 
   // Por defecto mensual:
   const targetDay = rule.dayOfMonth || 1;
-  return targetDay === dayNum;
+  if (targetDay !== dayNum) return false;
+  if (interval > 1 && rule.startDate) {
+    const startObj = parseISO(rule.startDate.split('T')[0]);
+    const monthsDiff = (date.getFullYear() - startObj.getFullYear()) * 12 + (date.getMonth() - startObj.getMonth());
+    return monthsDiff >= 0 && monthsDiff % interval === 0;
+  }
+  return true;
 }
 
 type ViewPeriod = 'month' | 'week' | 'yoy';
@@ -153,7 +178,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         const startM = r.startDate ? new Date(r.startDate).getMonth() + 1 : 1;
         return Math.abs(currentMonthNum - startM) % 3 === 0;
       }
-      return true; // monthly o weekly
+      const interval = r.interval && r.interval > 1 ? r.interval : 1;
+      if (r.frequency === 'monthly' && interval > 1) {
+        const startObj = r.startDate ? new Date(r.startDate) : new Date(year, 0, 1);
+        const monthsDiff = (year - startObj.getFullYear()) * 12 + (month - startObj.getMonth());
+        return monthsDiff >= 0 && monthsDiff % interval === 0;
+      }
+      return true; // monthly estándar o weekly
     })
     .reduce((acc, curr) => acc + curr.amount, 0);
 

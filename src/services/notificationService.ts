@@ -303,6 +303,8 @@ export class NotificationService {
       }
     }
 
+    const interval = rule.interval && rule.interval > 1 ? rule.interval : 1;
+
     if (rule.frequency === 'weekly') {
       const targetDayOfWeek = rule.dayOfWeek ?? (rule.startDate ? new Date(rule.startDate).getDay() : 1);
       const currentDayOfWeek = fromDate.getDay();
@@ -313,11 +315,38 @@ export class NotificationService {
           diff = 7;
         }
       }
-      const target = new Date(year, month, fromDate.getDate() + diff, hour, minute, 0, 0);
-      return target;
+      let candidate = new Date(year, month, fromDate.getDate() + diff, hour, minute, 0, 0);
+      if (interval > 1 && rule.startDate) {
+        const startObj = new Date(rule.startDate);
+        for (let i = 0; i < 52; i++) {
+          const weeks = Math.round((candidate.getTime() - startObj.getTime()) / (7 * 24 * 3600 * 1000));
+          if (weeks >= 0 && weeks % interval === 0 && candidate.getTime() > fromDate.getTime()) {
+            return candidate;
+          }
+          candidate = new Date(candidate.getTime() + 7 * 24 * 3600 * 1000);
+        }
+      }
+      return candidate;
     }
 
     // Default: 'monthly'
+    if (interval > 1 && rule.startDate) {
+      const startObj = new Date(rule.startDate);
+      const startM = startObj.getMonth();
+      const startY = startObj.getFullYear();
+      for (let offset = 0; offset <= 36; offset++) {
+        const checkYear = year + Math.floor((month + offset) / 12);
+        const checkMonth = (month + offset) % 12;
+        const totalMonths = (checkYear - startY) * 12 + (checkMonth - startM);
+        if (totalMonths >= 0 && totalMonths % interval === 0) {
+          const candidate = new Date(checkYear, checkMonth, dayOfMonth, hour, minute, 0, 0);
+          if (candidate.getTime() > fromDate.getTime()) {
+            return candidate;
+          }
+        }
+      }
+    }
+
     let target = new Date(year, month, dayOfMonth, hour, minute, 0, 0);
     if (target.getTime() <= fromDate.getTime()) {
       target = new Date(year, month + 1, dayOfMonth, hour, minute, 0, 0);

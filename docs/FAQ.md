@@ -1,7 +1,7 @@
 # Preguntas Frecuentes y Guía de Herramientas (FAQ) — CronoCash 📖
 
 > Guía de referencia rápida, operativa y resolución de dudas sobre todas las funciones y herramientas activas en la versión oficial de **CronoCash** (Android APK y PWA).  
-> **Versión Actual:** `v1.13.0` (Build 11300) • **Actualizado:** 26 de Septiembre de 2026 • **Módulos Auditados:** 14/14
+> **Versión Actual:** `v1.16.0` (Build 11600) • **Actualizado:** 29 de Septiembre de 2026 • **Módulos Auditados:** 14/14
 
 ---
 
@@ -17,7 +17,7 @@
 8. [Iconografía Oficial Android y Tarjeta Verticons](#8-iconografía-oficial-android-y-tarjeta-verticons)
 9. [Arquitectura del Stack y Salud en Tiempo Real](#9-arquitectura-del-stack-y-salud-en-tiempo-real)
 10. [Motor Safe-to-Spend y Asistente Cover Overspending](#10-motor-safe-to-spend-y-asistente-cover-overspending)
-11. [Importador Universal Bancario Offline CSV y Reglas Inteligentes](#11-importador-universal-bancario-offline-csv-y-reglas-inteligentes)
+11. [Importador Universal Bancario Offline (Excel/CSV) y Deduplicación Bidireccional](#11-importador-universal-bancario-offline-excelcsv-y-deduplicación-bidireccional)
 12. [Metas de Ahorro y Fondos de Amortización ("Sinking Funds")](#12-metas-de-ahorro-y-fondos-de-amortización-sinking-funds)
 13. [Informes Ejecutivos PDF y Cuadro Fiscal Trimestral (Mod. 130/303)](#13-informes-ejecutivos-pdf-y-cuadro-fiscal-trimestral-mod-130303)
 14. [Centro Acerca de y Novedades de la App](#14-centro-acerca-de-y-novedades-de-la-app)
@@ -27,10 +27,13 @@
 ## 1. Seguridad y Acceso Biométrico / PIN
 
 ### ¿Cómo protege CronoCash la privacidad de mis datos?
-* **Cifrado local:** Todos los datos bancarios y personales se almacenan en el dispositivo mediante IndexedDB nativo; no se envían a ningún servidor externo.
-* **Biometría nativa:** Utiliza la librería oficial de Android Jetpack `androidx.biometric:1.1.0` para acceso por huella dactilar de máxima seguridad.
-* **Teclado PIN táctil:** Cuenta con teclado numérico virtual integrado para evitar que teclados de terceros capturen tu clave secreta.
-* **Auto-bloqueo preventivo:** Al minimizar la aplicación o apagar la pantalla (`visibilitychange`), la sesión se bloquea automáticamente salvo que actives explícitamente el auto-desbloqueo.
+* **Bóveda Cifrada en Reposo (AES-GCM-256):** Todos tus gastos, presupuestos, reglas recurrentes y metas se cifran con clave maestra de 256 bits derivada localmente mediante Web Crypto API nativa. Los datos en IndexedDB y almacenamiento local quedan blindados criptográficamente ante extracciones o filtraciones no autorizadas.
+* **Cifrado y descifrado transparente:** La información se descifra en milisegundos en la memoria volátil del dispositivo solo durante el uso activo de la aplicación. Incluye test de integridad en Ajustes.
+* **Biometría nativa obligatoria al inicio:** Al iniciar la app o volver desde segundo plano, se invoca de forma inmediata el lector de huella dactilar nativo de Android (`androidx.biometric:1.1.0`) para un acceso instantáneo sin teclear.
+* **Teclado PIN táctil como respaldo seguro:** Solo si decides retroceder o cancelar el diálogo nativo de huella dactilar, se muestra el teclado numérico virtual integrado para evitar espionajes de teclados de terceros.
+* **Diálogo seguro de confirmación de salida:** Al pulsar el botón "Atrás" de Android en la vista principal o los botones táctiles de salida en la UI, un pop-up interactivo te solicita confirmación para evitar cierres accidentales.
+* **Modo Privacidad en 1 toque:** Oculta con asteriscos (`••••`) los importes sensibles del panel principal y el saldo proyectado a fin de mes en el calendario.
+* **Auto-bloqueo preventivo:** Al minimizar la aplicación o apagar la pantalla (`visibilitychange`), la sesión se bloquea automáticamente para salvaguardar tu saldo.
 * **Bloqueo manual inmediato:** Puedes pulsar el candado situado en la cabecera superior en cualquier momento para bloquear la sesión en 1 toque.
 * **Respuesta háptica táctil y control On/Off:** Cada pulsación del teclado PIN, confirmación de pagos o cambio de pestaña emite vibración táctil nativa precisa con opción de activarla o apagarla en cualquier momento desde Ajustes.
 
@@ -55,9 +58,9 @@
 
 ### ¿Cómo gestiona CronoCash las tareas periódicas, facturas y costes estimados?
 * **Tipos de coste flexibles:** Permite definir *Gastos Fijos* (recibos estables), *Costes Estimados* (facturas de importe variable, visitas veterinarias, regalos de cumpleaños) y *Tareas sin Coste* (cambio de lentillas, citas médicas, desparasitación de mascotas).
-* **Categorías funcionales:** Clasificación visual entre Recibos, Suscripciones, Impuestos, Salud, Mantenimiento y Personal.
+* **Categorías funcionales limpias:** Clasificación visual entre Recibos, Suscripciones, Impuestos, Salud, Mantenimiento y Personal, sin etiquetas redundantes.
 * **Soporte anual y mensual exacto:** Para compromisos anuales (seguro del coche, IBI, cumpleaños) permite indicar tanto el mes del año como el día de cobro exacto.
-* **Cuenta atrás semafórica:** Cada acto muestra una insignia dinámica con su proximidad (🔴 *¡Toca HOY!*, 🟠 *¡Mañana!*, 🟡 *En X días*).
+* **Cuenta atrás semafórica y estado completado:** Cada acto muestra una insignia dinámica con su proximidad (🔴 *¡Toca HOY!*, 🟠 *¡Mañana!*, 🟡 *En X días*) y al cumplirse exhibe el estado *"✓ Completada hoy"* con indicador esmeralda.
 
 ### ¿Cómo funciona el desplazamiento adaptativo de fechas futuras?
 * **Adaptación automática al día real:** Si tienes programado un cambio de lentillas el día 27, pero lo realizas el 29 e indicas esa fecha, las recurrencias y notificaciones de los meses siguientes se moverán automáticamente al día 29.
@@ -67,24 +70,32 @@
 ### ¿Cómo se confirma o actualiza el coste estimado el día del acto?
 * **Modal de validación rápida:** Al pulsar sobre la notificación o en el botón *"Confirmar / Ajustar"* del calendario o de la lista de recurrentes, se abre el modal interactivo.
 * **Importe editable:** Muestra el importe estimado inicialmente; si el recibo o la consulta veterinaria vino por un valor distinto, puedes corregirlo en el momento antes de guardarlo.
-* **Actualización de la base:** Puedes marcar si deseas actualizar también la estimación base de la regla para próximas ocasiones.
-* **Completar tareas sin gasto:** Si es una tarea sin coste (ej. lentillas o revisión en garantía), se marca completada sin restar dinero de tus presupuestos.
+* **Registro atómico por fecha:** Al completar una tarea, queda asentada para esa fecha específica sin alterar ni duplicar los ciclos venideros.
+* **Completar tareas sin gasto:** Si es una tarea sin coste (ej. lentillas o revisión en garantía), se marca completada con dot verde en calendario sin restar dinero de tus presupuestos.
 
 ### ¿Qué es el Detector de Gastos Vampiro?
 * **Auditoría de suscripciones zombi:** Identifica servicios de streaming, membresías de gimnasio u ocio infrautilizados o duplicados.
 * **Cálculo de ahorro anual:** Proyecta cuánto dinero liberas al año al cancelar o migrar planes mensuales a modalidades anuales con descuento.
 
+### ¿Cómo funcionan los intervalos personalizados (Cada X semanas o meses)?
+* **Frecuencia elástica a medida:** Puedes configurar que un gasto o tarea se repita cada X semanas (ej. cada 2 semanas para cobros quincenales) o cada X meses (ej. cada 2 meses para gas bimestral, cada 3 meses para trimestres, cada 6 meses para pólizas semestrales).
+* **Proyección exacta en Calendario:** El motor de calendario computa las semanas y meses transcurridos desde la fecha de inicio módulo el intervalo fijado, evitando pintar el gasto en periodos que no corresponden.
+* **Reserva inteligente en Safe-to-Spend:** Los gastos con intervalo mensual (X > 1) solo reservan saldo diario en el mes en el que efectivamente se produce el cobro, sin restar disponibilidad en los meses intermedios.
+* **Alertas puntuales:** Las notificaciones programadas calculan con exactitud la fecha del próximo vencimiento efectivo respetando el intervalo.
+
 ---
 
 ## 4. Calendario Reactivo, Cash-Flow Runway y Comparador YoY
 
-### ¿Qué información ofrece el Calendario reactivo?
-* **Vista dual Mes y Semana:** Motor ultraligero con `date-fns` v4 que muestra puntos de actividad diferenciados por color (azul para facturas, violeta para salud/tareas, verde para gastos reales).
+### ¿Qué información ofrece el Calendario reactivo y cómo navegarlo?
+* **Navegación ergonómica superior:** El selector interactivo de cambio de mes y semana se encuentra inmediatamente encima de los días del mes para una exploración táctil ágil con el pulgar.
+* **Vista dual Mes y Semana:** Motor ultraligero con `date-fns` v4 que muestra puntos de actividad diferenciados por color (azul para facturas, violeta para salud/tareas, verde para tareas completadas y gastos reales).
 * **Proyección estricta de periodicidades:** Las reglas anuales y trimestrales solo se pintan en el mes y día exactos que corresponden a su vencimiento.
-* **Desglose diario interactivo:** Al tocar cualquier celda del calendario, el panel inferior permite ver los gastos ejecutados y validar directamente los actos programados con el modal de ajuste de coste.
+* **Desglose diario interactivo:** Al tocar cualquier celda del calendario, el panel inferior permite ver los gastos ejecutados, validar tareas pendientes o consultar los actos ya cumplidos con badge visual *"✓ Completada"*.
 
-### ¿Qué es el "Cash-Flow Runway"?
+### ¿Qué es el "Cash-Flow Runway" y cómo se protege en Modo Privacidad?
 * **Previsión de liquidez a fin de mes:** Calcula en tiempo real tu saldo proyectado (`Ingresos - Gastos Reales - Recibos Comprometidos`) con semáforo de viabilidad financiera.
+* **Blindaje bajo Modo Privacidad:** Al activar el botón del Ojo en la cabecera superior, tanto el saldo proyectado a fin de mes como los importes de Cash-Flow Runway se ofuscan automáticamente con asteriscos (`••••`).
 
 ### ¿Cómo funciona el Comparador Anual (YoY - Year over Year)?
 * **Comparativa interanual:** Permite contrastar el gasto acumulado entre dos años cualesquiera, mostrando la tasa de variación porcentual y barras comparativas mes a mes.
@@ -133,10 +144,11 @@
 
 ## 8. Iconografía Oficial Android y Tarjeta Verticons
 
-### ¿Dónde se ubican los iconos de la aplicación?
-* **Mipmaps nativos:** Iconos redondos, adaptativos y cuadrados generados en todas las densidades de pantalla (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`).
-* **Edición Verticons Pack:** Tarjeta vertical en proporción 2:3 en ultra alta definición con marco de neón esmeralda al ras del borde y textura de fibra de carbono aeroespacial, disponible en `public/verticon-icon.png` (transparente para launchers sin fondo negro) y `public/verticon-icon.jpg`.
-* **Visor integrado:** Accesible desde la app para previsualizar y guardar los iconos en tu galería en PNG o JPG para lanzadores personalizados (Nova Launcher, Niagara, etc.).
+### ¿Dónde se descargan y configuran los iconos de la aplicación?
+* **Centro de Personalización en Ajustes:** Trasladado desde Bolsas a la sección de Ajustes para centralizar toda la identidad visual y descargas de recursos.
+* **Icono Squircle Oficial APK:** Imagen JPG de alta resolución lista para guardar o compartir.
+* **Edición Verticons Pack:** Tarjeta vertical en proporción 2:3 en ultra alta definición con marco de neón esmeralda al ras del borde y textura de fibra de carbono aeroespacial, disponible en PNG transparente (800x1200) y JPG con fondo negro.
+* **Compatibilidad total:** Descarga directa a la galería o carpetas locales para personalizar tu pantalla de inicio mediante lanzadores compatibles (Nova Launcher, Niagara, Smart Launcher, etc.).
 
 ---
 
@@ -187,20 +199,23 @@
 
 ---
 
-## 11. Importador Universal Bancario Offline CSV y Reglas Inteligentes
+## 11. Importador Universal Bancario Offline (Excel/CSV) y Deduplicación Bidireccional
 
-### ¿Cómo funciona el Importador de Extractos Bancarios CSV?
+### ¿Cómo funciona el Importador de Extractos Bancarios Excel y CSV?
 * **Privacidad 100% offline:** El extracto bancario se procesa de forma íntegra en la memoria de tu dispositivo mediante Web Workers y Web Crypto API; ningún dato bancario o personal sale a Internet.
-* **Compatibilidad universal con bancos:** Detecta automáticamente delimitadores (`;`, `,`, tabuladores) y formatos de fecha/importe habituales de entidades como Santander, BBVA, CaixaBank, ING, Sabadell, Openbank, Revolut o N26.
-* **Soporte de Debe y Haber:** Maneja tanto extractos con una columna única de importe con signo como archivos con columnas independientes de cargo (debe) y abono (haber).
+* **Compatibilidad con hojas Excel y CSV:** Acepta archivos `.xlsx`, `.xls`, `.csv` y `.tsv` de cualquier entidad nacional o internacional (Santander, BBVA, CaixaBank, ING, Sabadell, Openbank, Revolut, N26, etc.).
+* **Omisión automática de preámbulos y resúmenes:** Escanea las filas del documento saltando automáticamente metadatos iniciales, resúmenes globales y movimientos no consolidados hasta dar con la cabecera canónica bancaria (`Fecha contable`, `Fecha valor`, `Descripción`, `Importe`, `Saldo`, `Divisa`).
+* **Prioridad en Fecha Valor:** Asigna como fecha de liquidación real la "Fecha valor" para reflejar con fidelidad la salida o entrada de fondos.
 
-### ¿Cómo previene CronoCash que se dupliquen gastos ya existentes?
-* **Deduplicador determinista SHA-256:** Cada movimiento genera una firma criptográfica única basada en su fecha, concepto normalizado e importe.
-* **Descarte automático de solapamientos:** Si importas un extracto que incluye días que ya habías importado previamente, el sistema detecta las transacciones coincidentes, las marca como duplicadas y las deselecciona por defecto.
+### ¿Cómo previene CronoCash que se dupliquen gastos o ingresos ya existentes?
+* **Deduplicador determinista bidireccional SHA-256:** Cada movimiento genera una firma criptográfica única basada en su fecha, concepto normalizado e importe.
+* **Doble cotejo de seguridad:** Compara las transacciones entrantes tanto con el registro histórico de gastos como con la base de ingresos extras ya asentados.
+* **Descarte automático de solapamientos:** Si importas un extracto con días solapados, el sistema detecta las transacciones coincidentes, las marca como duplicadas y las deselecciona por defecto.
 
-### ¿Qué es la Bandeja de Revisión (Staging Table)?
-* **Control antes de asentar:** Antes de registrar los gastos en tu presupuesto, se muestra una tabla interactiva con contadores en tiempo real: gastos detectados, nuevos válidos, duplicados descartados y auto-clasificados por regla.
-* **Ajuste en 1 toque:** Puedes cambiar la bolsa asignada a cualquier fila, marcarla como deducible fiscal o desmarcarla para omitirla.
+### ¿Qué es la Bandeja de Revisión y cómo maneja Gastos e Ingresos?
+* **Diferenciación visual inmediata:** Muestra en la tabla insignias coloreadas para distinguir con claridad `+XX.XX € Ingreso / Abono` en tono esmeralda de `-XX.XX € Gasto` en tono rosa/blanco.
+* **Control antes de asentar:** Tabla interactiva con contadores en tiempo real: movimientos detectados, nuevos válidos, duplicados descartados y auto-clasificados por regla.
+* **Asentamiento segregado:** Al confirmar la importación, los gastos se incorporan a tu bolsa correspondiente y los ingresos positivos se integran en los ingresos del mes, garantizando cuentas exactas sin inflar gastos ficticios.
 * **Creación de reglas al vuelo:** Puedes activar la casilla *"Guardar asignaciones como nuevas reglas automáticas"* para que el sistema recuerde la bolsa elegida en futuros extractos bancarios.
 
 ### ¿Cómo configurar las Reglas Inteligentes de Auto-Categorización?
@@ -212,9 +227,16 @@
 
 ## 12. Metas de Ahorro y Fondos de Amortización ("Sinking Funds")
 
+### ¿Tiene sentido usar Sinking Funds en una app offline sin conexión bancaria?
+* **Elimina la ilusión de liquidez bancaria:** Si ves 1.500€ en tu banco, puedes creer que los tienes libres; pero si en 3 meses vence un seguro de 600€, 200€ ya no te pertenecen.
+* **Blindaje del gasto diario (Safe-to-Spend):** Al reservar esa cuota mensual en CronoCash, tu disponible para gastar hoy se protege automáticamente, impidiendo compras impulsivas con dinero comprometido.
+* **Soberanía sin riesgos:** No expones tus claves de acceso bancario ni sufres cortes de conexión de APIs de terceros.
+* **Transformación de sobresaltos en rutina:** Convierte pagos anuales o semestrales angustiosos en una cómoda tarifa plana mensual.
+
 ### ¿Qué son los "Sinking Funds" (Fondos de Amortización)?
 * **Ahorro previsor para gastos fijos no mensuales:** Permiten planificar desembolsos de periodicidad aperiódica o anual (seguro del vehículo, IBI, vacaciones, gastos escolares o reparaciones imprevistas) dividiendo el coste total en cuotas mensuales asumibles.
 * **Prevención de quiebras presupuestarias:** Evitan que la llegada de un recibo anual de 500€ destruya el balance financiero de ese mes.
+* **Interfaz compacta y purga ágil:** Cabecera con 3 KPIs de perfil bajo para conceder el máximo espacio a la lista y botón de papelera directo (`Trash2`) para descartar metas de ejemplo en 1 toque.
 
 ### ¿Cómo calcula el sistema el "Ritmo de Crucero"?
 * **Fórmula matemática dinámica:** `Cuota Mensual = (Importe Objetivo - Saldo Acumulado) / Meses Restantes hasta la Fecha Límite`.
@@ -256,7 +278,7 @@
 ## 14. Centro Acerca de y Novedades de la App
 
 ### ¿Qué es el Centro "Acerca de & Novedades"?
-* **Ficha de identidad transparente:** Te muestra en cualquier momento la versión instalada en tu dispositivo (`v1.13.0`), el número de compilación interno (`Build 11300`), la plataforma de ejecución y el certificado de privacidad (100% local sin servidores).
+* **Ficha de identidad transparente:** Te muestra en cualquier momento la versión instalada en tu dispositivo (`v1.16.0`), el número de compilación interno (`Build 11600`), la plataforma de ejecución y el certificado de privacidad (100% local sin servidores).
 * **Novedades de la versión instalada:** Al actualizar la aplicación, puedes abrir este panel en Ajustes para ver de un vistazo qué funciones nuevas tienes disponibles.
 
 ### ¿Cómo funciona el Historial Explicado para Humanos?

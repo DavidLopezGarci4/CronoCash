@@ -3,8 +3,8 @@
 > **Bóveda Financiera Inteligente, Control de Gastos & Facturación Autónoma**  
 > *100% Local • Cero Fricción • Privacidad Criptográfica Absoluta*
 
-[![Versión](https://img.shields.io/badge/Versión-v1.13.0-059669.svg?style=for-the-badge)](CHANGELOG.md)
-[![Build](https://img.shields.io/badge/Build-11300-0284c7.svg?style=for-the-badge)](android/app/build.gradle)
+[![Versión](https://img.shields.io/badge/Versión-v1.16.0-059669.svg?style=for-the-badge)](CHANGELOG.md)
+[![Build](https://img.shields.io/badge/Build-11600-0284c7.svg?style=for-the-badge)](android/app/build.gradle)
 [![Plataforma](https://img.shields.io/badge/Plataforma-Android%20%7C%20PWA-7c3aed.svg?style=for-the-badge)](capacitor.config.ts)
 [![Privacidad](https://img.shields.io/badge/Privacidad-100%25%20Local-10b981.svg?style=for-the-badge)](docs/FAQ.md)
 [![Disciplina](https://img.shields.io/badge/Harness-Gentle%20AI-d97706.svg?style=for-the-badge)](ROADMAP.md)
@@ -23,25 +23,28 @@ A diferencia de las soluciones bancarias comerciales basadas en la nube, CronoCa
 
 ```mermaid
 flowchart TD
-    subgraph SEGURIDAD["🔐 1. Seguridad & Acceso"]
-        BIO["Biometría Nativa (Huella)"] --- PIN["Teclado PIN Anti-Espías"]
+    subgraph SEGURIDAD["🔐 1. Seguridad & Bóveda Cifrada"]
+        VAULT["Bóveda AES-GCM-256 en Reposo"] --- BIO["Biometría Obligatoria (Huella)"]
+        BIO --- PIN["Teclado PIN de Respaldo"]
+        EXIT["Diálogo Seguro de Salida"]
     end
 
     subgraph MOTOR_DIARIO["⚡ 2. Operativa Diaria & Ingesta"]
-        CSV["Importador Bancario CSV Offline"] --> DEDUP["Deduplicador SHA-256"]
+        EXCEL["Importador Universal Excel/CSV"] --> DEDUP["Deduplicador Bidireccional SHA-256"]
         DEDUP --> RULES["Smart Rules Engine (Auto-Categorización)"]
         RULES --> BUCKETS["8 Bolsas de Presupuesto (Vasos Comunicantes & Rollover)"]
     end
 
     subgraph INTELIGENCIA["🧠 3. Motores de Inteligencia Financiera"]
         S2S["Safe-to-Spend (Gasto Diario Seguro)"]
-        SINK["Sinking Funds (Metas con Ritmo de Crucero)"]
+        SINK["Sinking Funds (Metas Compactas con Ritmo de Crucero)"]
         OVER["Cover Overspending (Reequilibrio Automático)"]
         S2S <--> SINK
         S2S <--> OVER
     end
 
-    subgraph CIERRE["📑 4. Informes & Fiscalidad"]
+    subgraph CIERRE["📑 4. Informes, Calendario & Fiscalidad"]
+        CAL["Calendario Ergonómico con Intervalos X Sem/Mes"]
         PDF["Generador Ejecutivo PDF (jspdf Offline)"]
         TAX["Cuadro Fiscal Trimestral (Mod. 130 / 303 Ready)"]
     end
@@ -49,18 +52,18 @@ flowchart TD
 
 | Módulo | Descripción Humana | Ventaja Clave |
 | :--- | :--- | :--- |
-| **1. Seguridad Biométrica & PIN** | Desbloqueo rápido por huella dactilar de Android (`androidx.biometric:1.1.0`), teclado PIN táctil virtual y bloqueo preventivo al minimizar la app (`visibilitychange`). | Máxima protección local contra accesos indebidos. |
+| **1. Bóveda Cifrada & Biometría** | Bóveda cifrada en reposo con AES-GCM-256, desbloqueo nativo obligatorio por huella dactilar (`androidx.biometric:1.1.0`), teclado PIN táctil de respaldo y confirmación de salida (`@capacitor/app`). | Máxima protección criptográfica local contra filtraciones y accesos no autorizados. |
 | **2. Bolsas de Presupuesto ("Envelopes")** | Reparto en 8 categorías maestras precargadas con filosofía de Presupuesto Base Cero. | Asignación clara de cada euro ingresado. |
 | **3. Vasos Comunicantes & Rollover** | Reequilibrio elástico de límites entre bolsas y acumulación automática del superávit de fin de mes hacia el ahorro. | Cero frustración ante desvíos presupuestarios. |
-| **4. Gastos Recurrentes & Vampiro** | Control de facturas y suscripciones con cuenta atrás semafórica y detector de gastos zombi con cálculo de ahorro anual. | Eliminación de suscripciones olvidadas. |
-| **5. Calendario Reactivo & Cash-Flow Runway** | Visor mensual y semanal ultraligero que anticipa picos de cobros y calcula si llegarás a fin de mes con saldo positivo. | Anticipación a descubiertos bancarios. |
-| **6. Notificaciones Exactas Android** | Avisos escalonados a 3 días y el día de cobro de recibos, junto a recordatorio nocturno de cierre a las 21:30. | Puntualidad absoluta en pagos fijos. |
+| **4. Recurrentes con Intervalos Flexibles** | Recibos fijos, costes estimados y tareas periódicas (salud/lentillas) con intervalos elásticos cada $X$ semanas o meses, registro atómico por fecha y estado "✓ Completada hoy". | Adaptación a periodicidades quincenales, bimestrales o semestrales sin etiquetas duplicadas. |
+| **5. Calendario Ergonómico & Privacidad** | Navegación de mes y semana situada inmediatamente sobre los días, proyección por intervalos y enmascaramiento de saldos proyectados en Modo Privacidad (`••••`). | Exploración fluida con el pulgar y discreción visual en público. |
+| **6. Notificaciones Exactas Android** | Avisos escalonados respetando intervalos efectivos (mismo día, 1-3 días, 1-2 semanas, 1 mes o 90 días) y recordatorio nocturno a las 21:30. | Puntualidad absoluta en pagos fijos y tareas preventivas. |
 | **7. Google Drive Backup (2 Ranuras)** | Respaldo y restauración transparente mediante Storage Access Framework (SAF) con ranuras canónicas `Actual` y `Previa` con checksum. | Seguridad de datos ante pérdida de móvil sin APIs invasivas. |
 | **8. Suite de 14 Consejos Financieros** | Guías de ahorro en luz, seguros, telefonía, dinero extra legal y Escudo Anti-Estafas (CNMV). | Educación financiera aplicable en 1 toque. |
 | **9. Grafo de Arquitectura 2D TecnoRed** | Monitor visual interactivo a 60 FPS con física elástica para auditar en tiempo real la salud y latencia del almacenamiento. | Transparencia técnica total in-app. |
 | **10. Motor Safe-to-Spend & Cover Overspending** | Cálculo matemático de gasto seguro diario (`netAvailable / daysRemaining`), simulador de compras por impulso y reequilibrio de desvíos en 1 toque. | Saber exactamente cuánto puedes gastar hoy sin culpa. |
-| **11. Importador Universal CSV + SHA-256** | Ingesta masiva offline de extractos bancarios (BBVA, Santander, CaixaBank, ING, etc.), descarte de duplicados criptográfico y reglas automáticas. | Eliminación total del tecleo manual diario. |
-| **12. Sinking Funds & Ritmo de Crucero** | Planificación de gastos anuales o imprevistos (seguros, IBI, averías, vacaciones) con cuota mensual deducida de forma protegida en el Safe-to-Spend. | Blindaje contra recibos imprevistos de gran cuantía. |
+| **11. Importador Universal Excel/CSV + Deduplicación** | Ingesta masiva offline de extractos bancarios (.xlsx, .xls, .csv), omisión inteligente de preámbulo, detección de cabecera bancaria, soporte de ingresos extras y deduplicación bidireccional SHA-256. | Eliminación total del tecleo manual de movimientos bancarios. |
+| **12. Sinking Funds & Metas de Ahorro** | Planificación de gastos anuales o imprevistos con ritmo de crucero, KPIs compactos, purga ágil con botón de borrado directo y blindaje Safe-to-Spend. | Blindaje contra recibos imprevistos de gran cuantía sin desorden visual. |
 | **13. Informes PDF & Cuadro Fiscal (Mod. 130/303)** | Informes ejecutivos mensuales en PDF de alta fidelidad estética y simulador fiscal trimestral para autónomos y familias con libro de facturas en CSV. | Cierre de ciclo y preparación de impuestos en 1 clic. |
 | **14. Centro Acerca de & Novedades** | Historial de versiones explicado para humanos, ficha técnica de la app y conexión con el monitor de salud del stack. | Comprensión inmediata de cada actualización. |
 
@@ -71,11 +74,12 @@ flowchart TD
 Basado en la arquitectura ontológica **TecnoRed** de alto rendimiento y cero dependencias innecesarias:
 
 * **UI Runtime:** [React 19](https://react.dev/) + [TypeScript 5.7](https://www.typescriptlang.org/) + [Vite 6](https://vitejs.dev/)
-* **Puente Móvil Nativo:** [Capacitor 7](https://capacitorjs.com/) (`@capacitor/android`, `@capacitor/filesystem`, `@capacitor/local-notifications`, `@capacitor/share`)
+* **Puente Móvil Nativo:** [Capacitor 7](https://capacitorjs.com/) (`@capacitor/app`, `@capacitor/android`, `@capacitor/filesystem`, `@capacitor/local-notifications`, `@capacitor/share`)
 * **Biometría Nativa:** Plugin Java Jetpack `androidx.biometric:1.1.0` en `MainActivity.java`
-* **Persistencia Local ACID:** `IndexedDB v3` nativo con fallback automático y sincronización en `localStorage`
+* **Persistencia Local ACID & Cifrado:** `IndexedDB v3` nativo con envelope encryption AES-GCM-256 vía Web Crypto API y fallback en `localStorage`
+* **Hojas de Cálculo:** `xlsx` (SheetJS) para lectura y procesamiento de libros Excel (.xlsx / .xls) 100% offline
 * **Diseño & Sistema de Iconos:** [Tailwind CSS v4](https://tailwindcss.com/) + [Lucide React](https://lucide.dev/)
-* **Criptografía & Deduplicación:** Web Crypto API (`crypto.subtle.digest('SHA-256')`)
+* **Criptografía & Deduplicación:** Web Crypto API (`AES-GCM-256` y `SHA-256`)
 * **Generación Documental:** `jspdf` para renderizado vectorial offline client-side
 
 ---

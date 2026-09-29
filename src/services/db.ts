@@ -1,4 +1,5 @@
 import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule, SavingsGoal, GoalContribution, ExtraIncome } from '../types';
+import { VaultCryptoService } from './vaultCryptoService';
 
 const DB_NAME = 'GastosFacturacionDB';
 const DB_VERSION = 3;
@@ -707,15 +708,17 @@ export class DBService {
       const settingsTx = db.transaction(STORES.SETTINGS, 'readonly');
       const settingsStore = settingsTx.objectStore(STORES.SETTINGS);
       const settingsReq = settingsStore.get(DEFAULT_SETTINGS.id);
-      settingsReq.onsuccess = () => {
+      settingsReq.onsuccess = async () => {
         if (settingsReq.result) {
-          this.cachedSettings = { ...DEFAULT_SETTINGS, ...settingsReq.result };
+          const decrypted = await VaultCryptoService.decryptRecord<Settings>(settingsReq.result);
+          this.cachedSettings = { ...DEFAULT_SETTINGS, ...decrypted };
           this.settingsLoaded = true;
         } else {
           // Inicializar desde localStorage si existe o defaults
           const localSettings = this.getLocalStorageItem<Settings>('gastos_settings', DEFAULT_SETTINGS);
+          const encSettings = await VaultCryptoService.encryptRecord(localSettings);
           const writeTx = db.transaction(STORES.SETTINGS, 'readwrite');
-          writeTx.objectStore(STORES.SETTINGS).put(localSettings);
+          writeTx.objectStore(STORES.SETTINGS).put(encSettings);
           this.cachedSettings = localSettings;
           this.settingsLoaded = true;
         }
@@ -790,13 +793,14 @@ export class DBService {
     // Guardar en localStorage inmediatamente
     this.setLocalStorageItem('gastos_settings', updated);
 
-    // Guardar en IndexedDB
+    // Guardar en IndexedDB cifrado con AES-GCM-256
     try {
+      const encSettings = await VaultCryptoService.encryptRecord(updated);
       const db = await this.getDB();
       await new Promise<void>((resolve, reject) => {
         const tx = db.transaction(STORES.SETTINGS, 'readwrite');
         const store = tx.objectStore(STORES.SETTINGS);
-        const req = store.put(updated);
+        const req = store.put(encSettings);
         req.onsuccess = () => resolve();
         req.onerror = () => reject(req.error);
       });
@@ -843,8 +847,9 @@ export class DBService {
         const tx = db.transaction(STORES.EXPENSES, 'readonly');
         const store = tx.objectStore(STORES.EXPENSES);
         const req = store.getAll();
-        req.onsuccess = () => {
-          const list: Expense[] = req.result || [];
+        req.onsuccess = async () => {
+          const rawList: any[] = req.result || [];
+          const list: Expense[] = await VaultCryptoService.decryptList<Expense>(rawList);
           list.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
           resolve(list);
         };
@@ -867,11 +872,12 @@ export class DBService {
     this.setLocalStorageItem('gastos_expenses', expenses);
 
     try {
+      const encExpense = await VaultCryptoService.encryptRecord(expense);
       const db = await this.getDB();
       await new Promise<void>((resolve, reject) => {
         const tx = db.transaction(STORES.EXPENSES, 'readwrite');
         const store = tx.objectStore(STORES.EXPENSES);
-        const req = store.put(expense);
+        const req = store.put(encExpense);
         req.onsuccess = () => resolve();
         req.onerror = () => reject(req.error);
       });
@@ -910,11 +916,12 @@ export class DBService {
     this.setLocalStorageItem('gastos_expenses', merged);
 
     try {
+      const encExpenses = await VaultCryptoService.encryptList(newExpenses);
       const db = await this.getDB();
       await new Promise<void>((resolve, reject) => {
         const tx = db.transaction(STORES.EXPENSES, 'readwrite');
         const store = tx.objectStore(STORES.EXPENSES);
-        for (const e of newExpenses) {
+        for (const e of encExpenses) {
           store.put(e);
         }
         tx.oncomplete = () => resolve();
@@ -1137,7 +1144,11 @@ export class DBService {
         const tx = db.transaction(STORES.RECURRING_RULES, 'readonly');
         const store = tx.objectStore(STORES.RECURRING_RULES);
         const req = store.getAll();
-        req.onsuccess = () => resolve(req.result || []);
+        req.onsuccess = async () => {
+          const raw = req.result || [];
+          const list = await VaultCryptoService.decryptList<RecurringRule>(raw);
+          resolve(list);
+        };
         req.onerror = () => reject(req.error);
       });
     } catch (e) {
@@ -1156,11 +1167,12 @@ export class DBService {
     this.setLocalStorageItem('gastos_recurring_rules', rules);
 
     try {
+      const encRule = await VaultCryptoService.encryptRecord(rule);
       const db = await this.getDB();
       await new Promise<void>((resolve, reject) => {
         const tx = db.transaction(STORES.RECURRING_RULES, 'readwrite');
         const store = tx.objectStore(STORES.RECURRING_RULES);
-        const req = store.put(rule);
+        const req = store.put(encRule);
         req.onsuccess = () => resolve();
         req.onerror = () => reject(req.error);
       });
@@ -1389,12 +1401,13 @@ export class DBService {
         const tx = db.transaction(STORES.SAVINGS_GOALS, 'readonly');
         const store = tx.objectStore(STORES.SAVINGS_GOALS);
         const req = store.getAll();
-        req.onsuccess = () => {
-          const list = req.result as SavingsGoal[];
-          if (!list || list.length === 0) {
+        req.onsuccess = async () => {
+          const raw = req.result || [];
+          if (!raw || raw.length === 0) {
             const local = DBService.getLocalStorageItem<SavingsGoal[]>('gastos_savings_goals', DEFAULT_SAVINGS_GOALS_SEEDS);
             resolve(local);
           } else {
+            const list = await VaultCryptoService.decryptList<SavingsGoal>(raw);
             resolve(list);
           }
         };
@@ -1409,19 +1422,21 @@ export class DBService {
   static async saveSavingsGoal(goal: SavingsGoal): Promise<void> {
     const goals = await this.getSavingsGoals();
     const idx = goals.findIndex((g) => g.id === goal.id);
+    const updatedGoal = { ...goal, updatedAt: new Date().toISOString() };
     if (idx >= 0) {
-      goals[idx] = { ...goal, updatedAt: new Date().toISOString() };
+      goals[idx] = updatedGoal;
     } else {
-      goals.push(goal);
+      goals.push(updatedGoal);
     }
     this.setLocalStorageItem('gastos_savings_goals', goals);
 
     try {
+      const encGoal = await VaultCryptoService.encryptRecord(updatedGoal);
       const db = await this.getDB();
       await new Promise<void>((resolve, reject) => {
         const tx = db.transaction(STORES.SAVINGS_GOALS, 'readwrite');
         const store = tx.objectStore(STORES.SAVINGS_GOALS);
-        const req = store.put(goal);
+        const req = store.put(encGoal);
         req.onsuccess = () => resolve();
         req.onerror = () => reject(req.error);
       });

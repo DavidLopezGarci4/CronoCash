@@ -1,6 +1,6 @@
 # Arquitectura del Sistema — CronoCash 🏛️
 
-**Versión del Sistema:** v1.13.0 (Build 11300)  
+**Versión del Sistema:** v1.16.0 (Build 11600)  
 **Marco de Diseño:** Ontología TecnoRed & Arquetipo de Soberanía Local  
 **Plataforma Objetivo:** Android Nativo (Capacitor 7) & PWA  
 
@@ -10,10 +10,10 @@
 
 CronoCash está diseñado bajo cuatro principios inmutables:
 
-1. **Soberanía Local de Datos (Offline-First ACID):**  
-   Ningún dato financiero, factura, importe o extracto bancario se envía a la nube. Toda la persistencia opera de forma local mediante **IndexedDB nativo (v3)** con fallback y sincronización en espejo a `localStorage`.
+1. **Soberanía Local de Datos y Bóveda Cifrada en Reposo (AES-GCM-256):**  
+   Ningún dato financiero, factura, importe o extracto bancario se envía a la nube. Toda la persistencia opera de forma local mediante **IndexedDB nativo (v3)** con fallback a `localStorage`, cifrando en reposo los datos sensibles con AES-GCM-256 derivado mediante la Web Crypto API nativa del hardware.
 2. **Cero Dependencia de Pasarelas Bancarias Centralizadas:**  
-   En lugar de depender de APIs de agregación bancaria en la nube (Plaid, Tink, PSD2) que sufren caídas y monetizan con datos de usuarios, CronoCash procesa extractos bancarios en CSV directamente en la memoria del cliente utilizando parsers heurísticos y hashes criptográficos SHA-256.
+   En lugar de depender de APIs de agregación bancaria en la nube (Plaid, Tink, PSD2) que sufren caídas y monetizan con datos de usuarios, CronoCash procesa extractos bancarios en Excel (`.xlsx`, `.xls`) y CSV directamente en la memoria del cliente utilizando escaneo dinámico de cabeceras, clasificación de ingresos/gastos y deduplicación bidireccional SHA-256.
 3. **Presupuesto Base Cero Elástico:**  
    Cada euro ingresado se asigna a una bolsa de gasto o meta de ahorro. Cuando surge un desvío o imprevisto, los módulos de *Vasos Comunicantes* y *Cover Overspending* reequilibran el sistema entre sobres sin alterar el presupuesto global.
 4. **Rendimiento Reactivo a 60 FPS:**  
@@ -28,35 +28,38 @@ flowchart TD
     subgraph UI_LAYER["1. Capa de Presentación (React 19 + Tailwind v4)"]
         DASH["Dashboard & SafeToSpendWidget"]
         BUCKETS["BucketsView & Vasos Comunicantes"]
-        CAL["CalendarView & Cash-Flow Runway"]
-        REC["RecurringView & Vampires"]
-        GOALS["GoalsModal & Cruise Pace"]
-        IMP["CsvImportModal & Smart Rules"]
+        CAL["CalendarView (Ergonómico, Modo Privacidad & Intervalos)"]
+        REC["RecurringView & Vampires (Cada X Sem/Mes)"]
+        GOALS["GoalsModal (Compacto & Purga Directa)"]
+        IMP["CsvImportModal (Excel/CSV Staging & Reglas)"]
         REP["ReportsModal (PDF & Mod. 130/303)"]
         ABOUT["AboutModal & User Changelog"]
+        EXIT["ExitConfirmModal (Diálogo Seguro de Salida)"]
     end
 
-    subgraph ENGINE_LAYER["2. Motores de Inteligencia Financiera"]
-        S2S["SafeToSpendService<br/>(Deducción de recurrentes + Colchón)"]
+    subgraph ENGINE_LAYER["2. Motores de Inteligencia Financiera & Bóveda"]
+        VAULT["VaultCryptoService<br/>(AES-GCM-256 Envelope Encryption)"]
+        S2S["SafeToSpendService<br/>(Recurrentes por intervalo + Colchón)"]
         SINK["SinkingFundsService<br/>(Ritmo de crucero & Sweep)"]
         TAX["TaxService<br/>(Plazos AEAT & Modelos 130/303)"]
-        CSV_ENG["CsvImporterService<br/>(Heurística + SHA-256 Deduplication)"]
+        CSV_ENG["CsvImporterService<br/>(SheetJS + Preamble Skip + SHA-256 Bidirectional)"]
     end
 
     subgraph BRIDGE_LAYER["3. Puente Nativo (Capacitor 7 + Android Jetpack)"]
         BIO_P["BiometricPlugin.java (androidx.biometric:1.1.0)"]
+        CAP_APP["@capacitor/app (Ciclo de Vida & Cierre Seguro)"]
         NOTIF["@capacitor/local-notifications (Canales Android)"]
         SHARE["@capacitor/share (SAF Google Drive & PDFs)"]
         FILESYSTEM["@capacitor/filesystem (Almacenamiento Local)"]
     end
 
-    subgraph DATA_LAYER["4. Capa de Persistencia Local (IndexedDB v3)"]
-        IDB_EXP["expenses (Gastos & Facturas)"]
+    subgraph DATA_LAYER["4. Capa de Persistencia Local Cifrada (IndexedDB v3)"]
+        IDB_EXP["expenses (Cifrado AES-GCM)"]
         IDB_BUC["buckets (Bolsas de Presupuesto)"]
-        IDB_REC["recurring_rules (Recurrentes)"]
-        IDB_GOAL["savings_goals (Metas Sinking Funds)"]
+        IDB_REC["recurring_rules (Cifrado AES-GCM + interval)"]
+        IDB_GOAL["savings_goals (Cifrado AES-GCM)"]
         IDB_RULE["smart_rules (Reglas de Auto-Categorización)"]
-        IDB_SET["settings (Ajustes, PIN, Biometría)"]
+        IDB_SET["settings (Cifrado AES-GCM)"]
         IDB_TIP["tips (Estrategias Financieras)"]
     end
 

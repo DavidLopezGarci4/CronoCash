@@ -4,16 +4,34 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.13.0 — Centro Acerca de & Novedades con Historial Humano 🌟
-- [x] **Skill Global Obligatoria (`app-about-changelog`):** Protocolo y especificación para mantener la doble capa de changelog (técnico en repo vs amigable in-app).
-- [x] **Manifiesto de Usuario (`changelog.user.json`):** Resumen conciso, sin jerga y centrado en valor de las 14 versiones de la aplicación (v1.0.0 a v1.13.0).
-- [x] **Componente Interactivo `AboutModal.tsx`:** Ficha de identidad con badges (Versión, Build, 100% Local), tarjeta de novedades destacadas de la APK instalada, historial cronológico colapsable en acordeón y enlace al monitor de salud del stack.
-- [x] **Integración en Ajustes (`SettingsModal.tsx`):** Acceso prioritario directo con badge interactivo "NUEVO".
-- [x] **Compilación y Firma Release Dual v1.13.0:** Generación y firma de ambos APKs `app-v1.13.0-release.apk` (Estándar) y `app-v1.13.0-verticon-release.apk` (Verticons 2:3) con `versionCode 11300` y `versionName "1.13.0"`.
+## Estado Actual: v1.16.0 — Importador Universal Excel/CSV, Bóveda Cifrada AES-GCM e Intervalos Flexibles 🌟
+- [x] **Intervalos Personalizados en Recurrentes:** Soporte para gastos y tareas que se repiten cada $X$ semanas (quincenales) o cada $X$ meses (bimestrales, trimestrales, semestrales) con cálculo exacto en calendario, Safe-to-Spend y alertas.
+- [x] **Importador Universal Bancario Excel (.xlsx / .xls) y CSV:** Lectura de hojas de cálculo binarias con omisión dinámica de preámbulo (resúmenes de cuenta, datos de cabecera) y detección de columnas estándar bancarias (`Fecha contable`, `Fecha valor`, `Descripción`, `Importe`, `Saldo`, `Divisa`).
+- [x] **Deduplicación Bidireccional de Ingresos y Gastos:** Clasificación automática de positivos como abonos/ingresos extras y negativos como gastos, evitando duplicidades contra la base de datos mediante hash SHA-256 y tupla determinista.
+- [x] **Bóveda Cifrada Local en Reposo (AES-GCM-256):** Cifrado transparente con Web Crypto API en IndexedDB y `localStorage` para proteger gastos, reglas y metas ante extracciones ilícitas en reposo, con prueba de integridad en Ajustes.
+- [x] **Sincronización SemVer Global:** `v1.16.0` (Build 11600) en `package.json`, `android/app/build.gradle`, `changelog.user.json`, `docs/FAQ.md` y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.15.0 (Completado)
+- [x] Desbloqueo Biométrico Obligatorio en Arranque (`androidx.biometric:1.1.0`) y teclado PIN táctil de respaldo.
+- [x] Diálogo Seguro de Confirmación de Salida con intercepción del botón Atrás de Android y `@capacitor/app`.
+- [x] Modo Privacidad en Calendario con ofuscación de saldo proyectado a fin de mes (`••••`).
+- [x] Navegación Ergonómica de Calendario con selector de mes/semana sobre los días del mes.
+- [x] Ciclo de Vida de Tareas y Marcado "Completada hoy" con registro atómico por fecha (`completedDates`).
+- [x] Centralización de Iconografía Oficial y Verticons en Ajustes & Personalización.
+- [x] Rediseño Ergonómico de Metas & Sinking Funds con KPIs de bajo perfil y botón de borrado directo.
+- [x] Sistema de Tareas Recurrentes con tipología de costes (`fixed`, `estimated`, `none`) y categorías funcionales (`bill`, `subscription`, `tax`, `health`, `maintenance`, `personal`).
+- [x] Preavisos escalonados multietapa (mismo día, 1-3 días, 1-2 semanas, 1 mes, 90 días) y canal nativo `crono_tasks_alerts`.
+- [x] Desplazamiento dinámico y adaptativo de fechas futuras (`autoAdaptNextDates`) al cumplir tareas en días alternativos.
+- [x] Modal interactivo "Confirmar / Ajustar Coste" (`ConfirmRecurringExpenseModal.tsx`) y plazos fiscales AEAT.
+
+### 📦 v1.13.0 (Completado)
+- [x] Skill Global Obligatoria (`app-about-changelog`) y manifiesto declarativo de usuario (`changelog.user.json`).
+- [x] Componente interactivo `AboutModal.tsx` con historial humano y enlace al monitor de salud del stack.
+- [x] Integración en Ajustes (`SettingsModal.tsx`) con acceso unificado.
 
 ### 📦 v1.12.0 (Completado)
 - [x] Servicio de Cálculo Fiscal Trimestral (`taxService.ts`) con plazos AEAT y simulador Mod. 130 / Mod. 303.
