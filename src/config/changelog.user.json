@@ -1,6 +1,6 @@
 {
-  "currentVersion": "1.17.0",
-  "buildNumber": 11700,
+  "currentVersion": "1.18.0",
+  "buildNumber": 11800,
   "lastUpdated": "2026-09-29",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
@@ -9,11 +9,26 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.18.0",
+      "build": 11800,
+      "date": "29 Sep 2026",
+      "title": "Iconos de Inversión & Coleccionismo, Paleta de 16 Colores y Ordenación Flexible de Bolsas y Recurrentes",
+      "isCurrent": true,
+      "highlights": [
+        "🎨 10 Nuevos Iconos Lucide (Inversión & Coleccionismo): Incorporación oficial de iconos temáticos (TrendingUp, Coins, LineChart, Landmark, Gem, Bot, Gamepad2, Package, Trophy, Crown) para bolsas y metas de inversión, figuras de colección y hobbies.",
+        "🌈 Paleta Ampliada a 16 Colores Distintivos: Incorporación de 7 nuevos colores seleccionables (Índigo, Violeta, Lima, Oro, Fucsia, Bosque y Cielo) perfectamente integrados en Bolsas y Metas.",
+        "🗂️ Motor de Ordenación de Bolsas: Posibilidad de ordenar tus bolsas de forma manual personalizada (con botones para subir y bajar de posición y feedback háptico), orden alfabético (A-Z y Z-A) o por límite asignado.",
+        "⚡ Motor de Ordenación de Recurrentes: Organiza tus cargos periódicos por próximo cobro inminente, orden manual con flechas de reubicación, por categoría jerárquica (Recibos, Suscripciones, Impuestos, Salud, Mantenimiento, Personal), categoría alfabética, título o importe.",
+        "💾 Persistencia Batch Atómica Cifrada: El orden manual de bolsas y reglas recurrentes se consolida y almacena de inmediato en la base de datos local con cifrado AES-GCM.",
+        "📱 Ergonomía Adaptativa y Selectores Compactos: Rejilla expandida y responsive para selección de iconos con scroll suave, sin desbordamientos en pantallas compactas."
+      ]
+    },
+    {
       "version": "1.17.0",
       "build": 11700,
       "date": "29 Sep 2026",
       "title": "Cobro Automático por Defecto, Procesamiento Manual, Alerta de No Pagado y Cese de Recurrencias",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "⚡ Cobro Automático por Defecto: Los compromisos recurrentes se contabilizan automáticamente en tus gastos al cumplirse la fecha de vencimiento, con opción inmediata de revertir o ajustar el importe.",
         "✋ Procesamiento Manual con Alerta 'No Pagado': Opción configurable de cobro manual con aviso visual prominente y atención animada en Calendario y Recurrentes si el plazo vence sin pagar.",

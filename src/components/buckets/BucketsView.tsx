@@ -27,6 +27,17 @@ import {
   Info,
   AlertTriangle,
   Target,
+  LineChart,
+  Landmark,
+  Gem,
+  Bot,
+  Gamepad2,
+  Package,
+  Trophy,
+  Crown,
+  ArrowUpDown,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 import { usePrivacy } from '../../context/PrivacyContext';
 import { Bucket, Expense } from '../../types';
@@ -61,7 +72,27 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Briefcase,
   HeartPulse,
   Coffee,
+  // Inversiones
+  TrendingUp,
+  Coins,
+  LineChart,
+  Landmark,
+  Gem,
+  // Muñecos de coleccionismo & aficiones
+  Bot,
+  Gamepad2,
+  Package,
+  Trophy,
+  Crown,
 };
+
+export type BucketSortMode =
+  | 'manual'
+  | 'alpha_asc'
+  | 'alpha_desc'
+  | 'limit_desc'
+  | 'limit_asc'
+  | 'spent_desc';
 
 export const BucketsView: React.FC<BucketsViewProps> = ({
   buckets,
@@ -80,6 +111,17 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const [vasosModalOpen, setVasoModalOpen] = useState(false);
   const [rolloverModalOpen, setRolloverModalOpen] = useState(false);
   const [coverOverspendingOpen, setCoverOverspendingOpen] = useState(false);
+
+  // Ordenación de Bolsas
+  const [sortMode, setSortMode] = useState<BucketSortMode>(() => {
+    return (localStorage.getItem('cronocash_buckets_sort_mode') as BucketSortMode) || 'manual';
+  });
+
+  const handleSortChange = (newMode: BucketSortMode) => {
+    setSortMode(newMode);
+    localStorage.setItem('cronocash_buckets_sort_mode', newMode);
+    HapticService.selection();
+  };
 
   // Formulario Bolsa
   const [name, setName] = useState('');
@@ -205,7 +247,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     }
   };
 
-  // Paleta de colores
+  // Paleta de colores (9 base + 7 distintivos prémium)
   const palette = [
     '#3b82f6', // blue
     '#10b981', // emerald
@@ -216,9 +258,17 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     '#ef4444', // red
     '#14b8a6', // teal
     '#f97316', // orange
+    // 7 nuevos colores distintivos
+    '#6366f1', // indigo
+    '#a855f7', // violet
+    '#84cc16', // lime
+    '#eab308', // gold
+    '#d946ef', // fuchsia
+    '#14532d', // forest
+    '#0284c7', // sky
   ];
 
-  // Iconos disponibles
+  // Iconos disponibles (14 base + 10 inversiones & coleccionables)
   const availableIcons = [
     'Home',
     'Zap',
@@ -234,6 +284,18 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     'Briefcase',
     'HeartPulse',
     'Coffee',
+    // Inversiones
+    'TrendingUp',
+    'Coins',
+    'LineChart',
+    'Landmark',
+    'Gem',
+    // Coleccionismo y Aficiones
+    'Bot',
+    'Gamepad2',
+    'Package',
+    'Trophy',
+    'Crown',
   ];
 
   // Cálculo de totales globales
@@ -266,6 +328,52 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
       .reduce((s, e) => s + e.amount, 0);
     return acc + (spent - b.budgetLimit);
   }, 0);
+
+  // Ordenación calculada de las bolsas según el criterio elegido
+  const sortedBuckets = [...buckets].sort((a, b) => {
+    if (sortMode === 'alpha_asc') {
+      return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
+    }
+    if (sortMode === 'alpha_desc') {
+      return b.name.localeCompare(a.name, 'es', { sensitivity: 'base' });
+    }
+    if (sortMode === 'limit_desc') {
+      return b.budgetLimit - a.budgetLimit;
+    }
+    if (sortMode === 'limit_asc') {
+      return a.budgetLimit - b.budgetLimit;
+    }
+    if (sortMode === 'spent_desc') {
+      const spentA = currentExpenses
+        .filter((e) => e.bucketId === a.id)
+        .reduce((sum, e) => sum + e.amount, 0);
+      const spentB = currentExpenses
+        .filter((e) => e.bucketId === b.id)
+        .reduce((sum, e) => sum + e.amount, 0);
+      return spentB - spentA;
+    }
+    // 'manual' (respeta b.order, si no existe toma posición previa)
+    return (a.order ?? 0) - (b.order ?? 0);
+  });
+
+  const handleMoveBucket = async (bucketId: string, direction: 'up' | 'down') => {
+    const index = sortedBuckets.findIndex((b) => b.id === bucketId);
+    if (index < 0) return;
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= sortedBuckets.length) return;
+
+    const reordered = [...sortedBuckets];
+    const [moved] = reordered.splice(index, 1);
+    reordered.splice(targetIndex, 0, moved);
+
+    const withOrders = reordered.map((b, i) => ({
+      ...b,
+      order: i + 1,
+    }));
+    await DBService.updateBucketsOrder(withOrders);
+    await HapticService.impactLight();
+    onRefresh();
+  };
 
   return (
     <div className="space-y-6 pb-28">
@@ -415,9 +523,29 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
         </div>
       </div>
 
+      {/* Barra de Ordenación de Bolsas */}
+      <div className="flex items-center justify-between gap-2 px-1">
+        <div className="flex items-center gap-1.5 text-xs text-slate-400">
+          <ArrowUpDown className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="font-bold">Ordenar por:</span>
+        </div>
+        <select
+          value={sortMode}
+          onChange={(e) => handleSortChange(e.target.value as BucketSortMode)}
+          className="bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-sm"
+        >
+          <option value="manual">🔀 Manual (Personalizado)</option>
+          <option value="alpha_asc">🔤 Nombre (A - Z)</option>
+          <option value="alpha_desc">🔤 Nombre (Z - A)</option>
+          <option value="limit_desc">💰 Techo (Mayor a menor)</option>
+          <option value="limit_asc">💰 Techo (Menor a mayor)</option>
+          <option value="spent_desc">📊 Mayor consumo mensual</option>
+        </select>
+      </div>
+
       {/* Grid de Bolsas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {buckets.map((b) => {
+        {sortedBuckets.map((b, index) => {
           const IconComp = ICON_MAP[b.icon] || PieChart;
           const spent = currentExpenses
             .filter((e) => e.bucketId === b.id)
@@ -460,6 +588,26 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 </div>
 
                 <div className="flex items-center space-x-1">
+                  {sortMode === 'manual' && (
+                    <div className="flex items-center space-x-0.5 bg-slate-800/80 rounded-xl p-0.5 border border-slate-700/60 mr-1">
+                      <button
+                        onClick={() => handleMoveBucket(b.id, 'up')}
+                        disabled={index === 0}
+                        title="Subir posición de la bolsa"
+                        className="p-1 text-slate-400 hover:text-emerald-300 disabled:opacity-20 disabled:hover:text-slate-400 transition-colors cursor-pointer"
+                      >
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleMoveBucket(b.id, 'down')}
+                        disabled={index === sortedBuckets.length - 1}
+                        title="Bajar posición de la bolsa"
+                        className="p-1 text-slate-400 hover:text-emerald-300 disabled:opacity-20 disabled:hover:text-slate-400 transition-colors cursor-pointer"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
                   <button
                     onClick={() => {
                       setVasoTo(b.id);
@@ -587,8 +735,8 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
               {/* Selector de Icono Lucide */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">Icono Representativo</label>
-                <div className="grid grid-cols-7 gap-1.5 pt-1">
+                <label className="text-xs font-bold text-slate-400">Icono Representativo (24 disponibles)</label>
+                <div className="grid grid-cols-6 sm:grid-cols-8 gap-1.5 pt-1 max-h-36 overflow-y-auto pr-1">
                   {availableIcons.map((ic) => {
                     const Comp = ICON_MAP[ic] || PieChart;
                     return (

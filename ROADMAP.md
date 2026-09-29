@@ -4,21 +4,27 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.17.0 — Cobro Automático por Defecto, Procesamiento Manual, Alerta de No Pagado y Cese de Recurrencias 🌟
-- [x] **Motor de Cobro Automático por Defecto (`RecurringEngineService`):** Contabilización automática e idempotente de gastos recurrentes al cumplirse la fecha de vencimiento, con opción inmediata de reversión en 1 toque en Calendario.
-- [x] **Procesamiento Manual con Alerta "⚠️ No pagado":** Modalidad configurable de cobro manual con aviso visual prominente y dot de atención animado en Calendario si la fecha vence sin abonarse.
-- [x] **Cese Limpio de Recurrencias y Pestaña de Históricas:** Capacidad de cesar compromisos fijando `endDate` a hoy para anular proyecciones futuras, organizados en la pestaña "Cesadas / Históricas" con reactivación en 1 toque.
-- [x] **Historial Contable Inmutable:** Las modificaciones de cuotas aplican exclusivamente a pagos futuros, garantizando la inmutabilidad de todos los gastos ya guardados en el historial.
-- [x] **Fecha de Inicio Canónica (`startDate`):** Configuración explícita de la fecha real de inicio en compromisos y tareas recurrentes, eliminando la suposición errónea de que el gasto se originó el día que se dio de alta en la app.
-- [x] **Sincronización Asistida de Frecuencia:** Recomendación reactiva del día del mes o mes del año sin restringir la edición manual.
-- [x] **Protección Safe-to-Spend y Calendario:** Supresión de deducciones prematuras en Safe-to-Spend si la fecha de inicio es de un mes futuro y filtrado estricto en el calendario.
-- [x] **Anclaje de Intervalos:** Las frecuencias elásticas cada $X$ semanas o meses pivotan con exactitud matemática sobre la fecha de inicio.
-- [x] **Semántica Contable en Registro de Gastos:** Desacoplamiento explícito entre Fecha de Origen/Pago contable y marca de tiempo técnica de creación en base de datos.
-- [x] **Sincronización SemVer Global:** `v1.17.0` (Build 11700) en `package.json`, `android/app/build.gradle`, `changelog.user.json`, `docs/FAQ.md` y documentación.
+## Estado Actual: v1.18.0 — Iconos de Inversión & Coleccionismo, Paleta de 16 Colores y Ordenación Flexible de Bolsas y Recurrentes 🌟
+- [x] **10 Nuevos Iconos Lucide (Inversión & Coleccionismo):** Incorporación oficial de iconos temáticos (`TrendingUp`, `Coins`, `LineChart`, `Landmark`, `Gem`, `Bot`, `Gamepad2`, `Package`, `Trophy`, `Crown`) para bolsas y metas de ahorro.
+- [x] **Paleta Cromática Ampliada a 16 Colores:** 7 nuevos colores distintivos (Índigo, Violeta, Lima, Oro, Fucsia, Bosque y Cielo) sincronizados entre Bolsas y Metas.
+- [x] **Motor de Ordenación de Bolsas:** Orden manual interactivo (con controles `ChevronUp`/`ChevronDown` y respuesta háptica), alfabético (A-Z / Z-A) o por límite asignado, persistido en IndexedDB.
+- [x] **Motor de Ordenación de Cargos Recurrentes:** 8 criterios de ordenación (inminente, manual con controles táctiles, categoría jerárquica, categoría A-Z, título A-Z / Z-A, importe mayor/menor) con cifrado AES-GCM en reposo.
+- [x] **Persistencia de Preferencias de Ordenación:** Almacenamiento en `localStorage` (`cronocash_buckets_sort_mode` y `cronocash_recurring_sort_mode`).
+- [x] **Sincronización SemVer Global:** `v1.18.0` (Build 11800) en `package.json`, `android/app/build.gradle`, `changelog.user.json`, `docs/FAQ.md` y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.17.0 (Completado)
+- [x] Motor de Cobro Automático por Defecto (`RecurringEngineService`) y reversión en 1 toque.
+- [x] Procesamiento Manual con Alerta "⚠️ No pagado" y dot de atención visual en Calendario.
+- [x] Cese Limpio de Recurrencias con fecha de cese a hoy y pestaña de compromisos históricos.
+- [x] Historial Contable Inmutable al modificar tarifas o cuotas futuras.
+- [x] Fecha de Inicio Canónica (`startDate`) desacoplada de la fecha de registro.
+- [x] Sincronización Asistida de Frecuencia y protección contra deducciones prematuras en Safe-to-Spend.
+- [x] Blindaje del Ciclo de Vida WebView (Anti-Expulsión en selector SAF y Google Drive).
+- [x] Sobreescritura Atómica en Ranura 1 y persistencia de sesión al restaurar copias de seguridad.
 
 ### 📦 v1.16.0 (Completado)
 - [x] Intervalos Personalizados en Recurrentes cada $X$ semanas o meses.

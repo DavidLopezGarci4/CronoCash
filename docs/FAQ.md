@@ -1,7 +1,7 @@
 # Preguntas Frecuentes y Guía de Herramientas (FAQ) — CronoCash 📖
 
 > Guía de referencia rápida, operativa y resolución de dudas sobre todas las funciones y herramientas activas en la versión oficial de **CronoCash** (Android APK y PWA).  
-> **Versión Actual:** `v1.16.0` (Build 11600) • **Actualizado:** 29 de Septiembre de 2026 • **Módulos Auditados:** 14/14
+> **Versión Actual:** `v1.18.0` (Build 11800) • **Actualizado:** 29 de Septiembre de 2026 • **Módulos Auditados:** 14/14 • **Guías Operativas:** 45
 
 ---
 
@@ -52,6 +52,12 @@
 ### ¿Qué ocurre con el dinero no gastado a fin de mes (Rollover)?
 * **Acumulación de ahorro:** El superávit mensual no consumido no desaparece; se transfiere automáticamente a la bolsa amortiguadora de *Colchón de Ahorro e Imprevistos*.
 
+### ¿Cómo puedo ordenar mis Bolsas y personalizar sus iconos y colores?
+* **Ordenación flexible a medida:** Puedes ordenar tus bolsas por orden manual personalizado (con botones para subir y bajar de posición y feedback táctil), por orden alfabético de título (A-Z y Z-A) o por importe de límite asignado.
+* **Persistencia de orden:** Al mover una bolsa arriba o abajo en modo manual, el orden se consolida de inmediato en IndexedDB para mantenerse idéntico en tus próximas sesiones.
+* **Nuevos iconos de inversión y coleccionismo:** Dispones de una galería ampliada con iconos Lucide específicos para inversiones y finanzas (`TrendingUp`, `Coins`, `LineChart`, `Landmark`, `Gem`) y coleccionismo o hobbies (`Bot`, `Gamepad2`, `Package`, `Trophy`, `Crown`).
+* **Paleta cromática de 16 colores:** 7 nuevos colores distintivos (Índigo, Violeta, Lima, Oro, Fucsia, Bosque y Cielo) sincronizados entre Bolsas y Metas de ahorro.
+
 ---
 
 ## 3. Gastos Recurrentes, Tareas Periódicas y Detector Vampiro
@@ -101,6 +107,13 @@
 * **Pestaña de Cesadas / Históricas:** Puedes consultar en cualquier momento tus compromisos cesados y reactivarlos con 1 toque si vuelves a contratarlos.
 * **Modificación de importes futuros:** Modificar la cuota de una regla aplica únicamente a los pagos futuros, sin tocar jamás el coste de los gastos ya registrados.
 
+### ¿Qué opciones de ordenación existen para los cargos y tareas recurrentes?
+* **Próximo cobro inminente (Por defecto):** Prioriza automáticamente los pagos y tareas más cercanos a la fecha actual.
+* **Orden manual con controles táctiles:** Permite situar las reglas en la posición exacta que desees con botones de subida/bajada y respuesta háptica, guardándose de forma permanente en IndexedDB.
+* **Por categoría jerárquica:** Agrupa los compromisos según su criticidad contable (Recibos básicos, Suscripciones, Impuestos, Salud y Cuidado, Mantenimiento y Hogar, y Personal).
+* **Por orden alfabético:** Disponible tanto por orden alfabético de categorías como por título (A-Z y Z-A).
+* **Por importe:** Clasifica los cobros de mayor a menor importe (o viceversa) para un control estricto de las salidas de dinero más voluminosas.
+
 ---
 
 ## 4. Calendario Reactivo, Cash-Flow Runway y Comparador YoY
@@ -137,9 +150,10 @@
 ## 6. Copias de Seguridad en Google Drive (2 Ranuras) y Comparador Lado a Lado
 
 ### ¿En qué consiste la estrategia canónica de 2 ranuras?
-* **Ranura 1 (`CronoCash_Actual.json`):** Tu copia principal y más reciente de uso continuado.
+* **Ranura 1 (`CronoCash_Actual.json`):** Tu copia principal y más reciente. Sobrescribe la copia anterior de forma inmediata y persistente, manteniendo siempre una única versión vigente y actualizada sin generar duplicados ni desloguear tu sesión al restaurar.
 * **Ranura 2 (`CronoCash_Previa.json`):** Copia de seguridad histórica congelada para emergencias.
 * **Integración SAF sin APIs invasivas:** Utiliza la hoja nativa de compartir de Android (`@capacitor/share` + `@capacitor/filesystem`) para guardar en Google Drive sin requerir claves de desarrollador ni sufrir tokens caducados.
+* **Protección del Ciclo de Vida Móvil (Anti-Expulsión):** La apertura del selector de archivos del sistema o Google Drive cuenta con detección de selector activo y periodo de gracia, impidiendo que la aplicación bloquee la sesión o te expulse a la pantalla de PIN al elegir copias de respaldo.
 
 ### ¿Cómo me protege el Comparador Lado a Lado (Side-by-Side)?
 * **Inspección de integridad previa:** Al seleccionar un archivo `.json`, se valida su estructura y checksum determinista.
@@ -224,6 +238,7 @@
 * **Compatibilidad con hojas Excel y CSV:** Acepta archivos `.xlsx`, `.xls`, `.csv` y `.tsv` de cualquier entidad nacional o internacional (Santander, BBVA, CaixaBank, ING, Sabadell, Openbank, Revolut, N26, etc.).
 * **Omisión automática de preámbulos y resúmenes:** Escanea las filas del documento saltando automáticamente metadatos iniciales, resúmenes globales y movimientos no consolidados hasta dar con la cabecera canónica bancaria (`Fecha contable`, `Fecha valor`, `Descripción`, `Importe`, `Saldo`, `Divisa`).
 * **Prioridad en Fecha Valor:** Asigna como fecha de liquidación real la "Fecha valor" para reflejar con fidelidad la salida o entrada de fondos.
+* **Protección del Ciclo de Vida al Elegir Archivos:** Navegar hacia Google Drive o exploradores de archivos externos no bloquea la sesión ni expulsa al usuario al PIN gracias al periodo de gracia y al rastreo de selector activo.
 
 ### ¿Cómo previene CronoCash que se dupliquen gastos o ingresos ya existentes?
 * **Deduplicador determinista bidireccional SHA-256:** Cada movimiento genera una firma criptográfica única basada en su fecha, concepto normalizado e importe.
@@ -231,6 +246,7 @@
 * **Descarte automático de solapamientos:** Si importas un extracto con días solapados, el sistema detecta las transacciones coincidentes, las marca como duplicadas y las deselecciona por defecto.
 
 ### ¿Qué es la Bandeja de Revisión y cómo maneja Gastos e Ingresos?
+* **Revisión en Lote de Alta Precisión (Sin ir uno a uno):** En lugar de forzarte a introducir transacciones individualmente, el sistema agrupa en un panel de staging todos los movimientos válidos pre-clasificados por las reglas inteligentes (SmartRules), permitiendo validar cientos de apuntes bancarios en segundos con 1 solo toque.
 * **Diferenciación visual inmediata:** Muestra en la tabla insignias coloreadas para distinguir con claridad `+XX.XX € Ingreso / Abono` en tono esmeralda de `-XX.XX € Gasto` en tono rosa/blanco.
 * **Control antes de asentar:** Tabla interactiva con contadores en tiempo real: movimientos detectados, nuevos válidos, duplicados descartados y auto-clasificados por regla.
 * **Asentamiento segregado:** Al confirmar la importación, los gastos se incorporan a tu bolsa correspondiente y los ingresos positivos se integran en los ingresos del mes, garantizando cuentas exactas sin inflar gastos ficticios.
@@ -296,7 +312,7 @@
 ## 14. Centro Acerca de y Novedades de la App
 
 ### ¿Qué es el Centro "Acerca de & Novedades"?
-* **Ficha de identidad transparente:** Te muestra en cualquier momento la versión instalada en tu dispositivo (`v1.17.0`), el número de compilación interno (`Build 11700`), la plataforma de ejecución y el certificado de privacidad (100% local sin servidores).
+* **Ficha de identidad transparente:** Te muestra en cualquier momento la versión instalada en tu dispositivo (`v1.18.0`), el número de compilación interno (`Build 11800`), la plataforma de ejecución y el certificado de privacidad (100% local sin servidores).
 * **Novedades de la versión instalada:** Al actualizar la aplicación, puedes abrir este panel en Ajustes para ver de un vistazo qué funciones nuevas tienes disponibles.
 
 ### ¿Cómo funciona el Historial Explicado para Humanos?

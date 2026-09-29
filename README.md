@@ -3,8 +3,8 @@
 > **Bóveda Financiera Inteligente, Control de Gastos & Facturación Autónoma**  
 > *100% Local • Cero Fricción • Privacidad Criptográfica Absoluta*
 
-[![Versión](https://img.shields.io/badge/Versión-v1.17.0-059669.svg?style=for-the-badge)](CHANGELOG.md)
-[![Build](https://img.shields.io/badge/Build-11700-0284c7.svg?style=for-the-badge)](android/app/build.gradle)
+[![Versión](https://img.shields.io/badge/Versión-v1.18.0-059669.svg?style=for-the-badge)](CHANGELOG.md)
+[![Build](https://img.shields.io/badge/Build-11800-0284c7.svg?style=for-the-badge)](android/app/build.gradle)
 [![Plataforma](https://img.shields.io/badge/Plataforma-Android%20%7C%20PWA-7c3aed.svg?style=for-the-badge)](capacitor.config.ts)
 [![Privacidad](https://img.shields.io/badge/Privacidad-100%25%20Local-10b981.svg?style=for-the-badge)](docs/FAQ.md)
 [![Disciplina](https://img.shields.io/badge/Harness-Gentle%20AI-d97706.svg?style=for-the-badge)](ROADMAP.md)

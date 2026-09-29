@@ -3,6 +3,30 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.0] - 2026-09-29
+
+### Added
+- **Iconos Lucide para Inversiones y Figuras de Coleccionismo (`BucketsView.tsx`):**
+  - **10 Iconos Temáticos Oficiales:** Adición de `TrendingUp`, `Coins`, `LineChart`, `Landmark`, `Gem` (para finanzas, inversión, bolsa y patrimonio) y `Bot`, `Gamepad2`, `Package`, `Trophy`, `Crown` (para coleccionismo, figuras, hobbies y gaming).
+  - **Selector Modal Expandido:** Rejilla responsiva con scroll suave adaptada a móviles para seleccionar con comodidad cualquiera de los iconos sin desbordamientos de pantalla.
+  - **Cumplimiento Estricto de Iconografía:** Todos los iconos nuevos y existentes provienen exclusivamente de `lucide-react`.
+
+- **Paleta Cromática Ampliada a 16 Colores Distintivos (`BucketsView.tsx`, `GoalFormModal.tsx`):**
+  - **7 Nuevos Tonos Seleccionables:** Inclusión de Índigo (`#6366f1`), Violeta (`#a855f7`), Lima (`#84cc16`), Oro (`#eab308`), Fucsia (`#d946ef`), Verde Bosque (`#14532d`) y Azul Cielo (`#0284c7`).
+  - **Sincronización Transversal:** Paleta idéntica de 16 colores aplicada tanto a las Bolsas de presupuesto como a las Metas de Ahorro y Sinking Funds.
+
+- **Motor de Ordenación y Reordenación Manual de Bolsas (`BucketsView.tsx`, `types/index.ts`, `services/db.ts`):**
+  - **Modelo y Persistencia Local:** Atributo opcional `order?: number` en la interfaz `Bucket` y método atómico `DBService.updateBucketsOrder()` para consolidar el orden en IndexedDB.
+  - **Controles Táctiles con Feedback Háptico:** Botones interactivos `ChevronUp` y `ChevronDown` en cada tarjeta de bolsa en modo manual con vibración háptica al cambiar de posición.
+  - **Criterios de Ordenación:** Selector con modos de orden manual, alfabético (A-Z y Z-A) y por límite asignado (mayor o menor).
+  - **Persistencia de Preferencia:** La opción seleccionada se guarda en `localStorage` (`cronocash_buckets_sort_mode`) para recordarse entre sesiones.
+
+- **Motor de Ordenación Multicriterio de Gastos Recurrentes (`RecurringView.tsx`, `types/index.ts`, `services/db.ts`):**
+  - **Modelo y Cifrado AES-GCM en Reposo:** Atributo `order?: number` en `RecurringRule` y método `DBService.updateRecurringRulesOrder()` que cifra individualmente cada regla con la clave maestra de la bóveda antes de escribir en IndexedDB.
+  - **8 Modos de Ordenación:** Próximo cobro (inminente), orden manual personalizado, categoría jerárquica (Recibos, Suscripciones, Impuestos, Salud, Mantenimiento, Personal), categoría alfabética (A-Z), título alfabético (A-Z y Z-A) y mayor o menor importe.
+  - **Barra de Herramientas Ergonómica:** Selector desplegable con icono `ArrowUpDown` y botones de reordenación táctil en modo manual.
+  - **Persistencia de Preferencia:** Almacenamiento persistente en `localStorage` (`cronocash_recurring_sort_mode`).
+
 ## [1.17.0] - 2026-09-29
 
 ### Added
@@ -44,8 +68,17 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
   - **Desduplicación Estricta de Gastos:** `handleConfirmExpenseFromRecurring` actualiza el registro existente en lugar de duplicarlo si ya existe un gasto para esa regla y fecha; `loadData()` auto-sanea duplicados preexistentes en la base de datos local.
   - **Propagación Inmediata de Estados:** Al registrar o pagar un compromiso en Recurrentes o Calendario, todas las vistas marcan la regla como completada/registrada, suprimiendo botones de acción duplicados.
   - **Contabilidad Exacta del Total del Día:** `CalendarView` discrimina entre compromisos cumplidos y pendientes, evitando sumar dos veces el importe de un gasto ya ejecutado.
-  - **Diseño Anti-Desbordamiento en Celdas de Calendario:** Reducción semántica a máximo 1 punto por tipología (esmeralda para actividad ejecutada, azul para facturas pendientes y violeta para citas/salud), dimensionamiento ultra-compacto (`w-1.5 h-1.5`, `gap-0.5`) y contención `overflow-hidden` para erradicar cualquier invasión hacia días contiguos.
-  - **Gestión Precisa de Ocurrencias Semanales en Safe-to-Spend:** Descuento exclusivo de las semanas pendientes restantes del mes, sin penalizaciones duplicadas.
+### Fixed
+- **Bypass de Selector de Archivos y Blindaje del Ciclo de Vida Móvil (`App.tsx`, `auth.ts`, `CsvImportModal.tsx`, `BackupModal.tsx`, `SettingsModal.tsx`):**
+  - **Prevención de Bloqueo por PIN:** Implementado seguimiento de actividad de selección de ficheros (`AuthService.isPickingFile`) y periodo de gracia de 60 segundos en `handleVisibilityChange` de `App.tsx` para evitar que la app se bloquee y desmonte modales al abrir selectores del sistema nativo o Google Drive.
+  - **Persistencia de Sesión al Restaurar Base de Datos:** `AuthService.keepSessionUnlockedAfterRestore()` garantiza que la sesión de usuario activa permanezca autenticada tras importar una copia de seguridad sin expulsar al usuario al PIN.
+  - **Sobreescritura Atómica de Ranura 1 de Copias de Seguridad (`googleDriveBackup.ts`, `BackupModal.tsx`):** La generación de una copia en la ranura `actual` reemplaza de inmediato los datos locales y en caché de forma idempotente, sin generar copias duplicadas ni alterar ranuras previas.
+
+### Removed
+- **Limpieza de Banners Redundantes de la Interfaz:**
+  - Eliminado banner publicitario `Google Drive 2 ranuras` en `BackupModal.tsx`.
+  - Eliminado badge `Por defecto` en la modalidad de cobro/pago en `RecurringView.tsx`.
+  - Eliminado banner `100% Offline` en `CsvImportModal.tsx`.
 
 ---
 

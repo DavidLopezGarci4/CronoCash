@@ -35,6 +35,9 @@ import {
   CreditCard,
   Scale,
   CheckSquare,
+  ArrowUpDown,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 import { RecurringRule, Bucket, Expense, RecurringCostType, ReminderOffset, RecurringCategoryType } from '../../types';
 import { DBService } from '../../services/db';
@@ -82,6 +85,34 @@ const MONTH_NAMES = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
+export type RecurringSortMode =
+  | 'imminent'
+  | 'manual'
+  | 'category'
+  | 'category_alpha'
+  | 'alpha_asc'
+  | 'alpha_desc'
+  | 'amount_desc'
+  | 'amount_asc';
+
+const CATEGORY_NAMES: Record<RecurringCategoryType, string> = {
+  bill: 'Recibos y Facturas',
+  subscription: 'Suscripciones',
+  tax: 'Impuestos y Tasas',
+  health: 'Salud y Cuidado',
+  maintenance: 'Mantenimiento',
+  personal: 'Personal y Familia',
+};
+
+const CATEGORY_HIERARCHY: Record<RecurringCategoryType, number> = {
+  bill: 1,
+  subscription: 2,
+  tax: 3,
+  health: 4,
+  maintenance: 5,
+  personal: 6,
+};
+
 export const RecurringView: React.FC<RecurringViewProps> = ({
   rules,
   expenses = [],
@@ -99,6 +130,17 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
   const [vampireModalOpen, setVampireModalOpen] = useState(false);
   const [filterVampireOnly, setFilterVampireOnly] = useState(false);
   const [statusFilter, setStatusFilter] = useState<'active' | 'ceased' | 'all'>('active');
+
+  // Ordenación de Cargos Recurrentes
+  const [sortMode, setSortMode] = useState<RecurringSortMode>(() => {
+    return (localStorage.getItem('cronocash_recurring_sort_mode') as RecurringSortMode) || 'imminent';
+  });
+
+  const handleSortChange = (newMode: RecurringSortMode) => {
+    setSortMode(newMode);
+    localStorage.setItem('cronocash_recurring_sort_mode', newMode);
+    HapticService.selection();
+  };
 
   // Formulario
   const [title, setTitle] = useState('');
@@ -389,16 +431,73 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
     ? filteredByStatus.filter((r) => r.isVampire)
     : filteredByStatus
   ).sort((a, b) => {
+    // Si una regla está inactiva y la otra activa, las inactivas se agrupan al final
+    if (a.isActive !== b.isActive) {
+      return a.isActive ? -1 : 1;
+    }
+
+    if (sortMode === 'manual') {
+      return (a.order ?? 0) - (b.order ?? 0);
+    }
+
+    if (sortMode === 'category') {
+      const catA = CATEGORY_HIERARCHY[a.categoryType || 'bill'] ?? 99;
+      const catB = CATEGORY_HIERARCHY[b.categoryType || 'bill'] ?? 99;
+      if (catA !== catB) return catA - catB;
+      return a.title.localeCompare(b.title, 'es', { sensitivity: 'base' });
+    }
+
+    if (sortMode === 'category_alpha') {
+      const nameA = CATEGORY_NAMES[a.categoryType || 'bill'] || '';
+      const nameB = CATEGORY_NAMES[b.categoryType || 'bill'] || '';
+      const catComp = nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
+      if (catComp !== 0) return catComp;
+      return a.title.localeCompare(b.title, 'es', { sensitivity: 'base' });
+    }
+
+    if (sortMode === 'alpha_asc') {
+      return a.title.localeCompare(b.title, 'es', { sensitivity: 'base' });
+    }
+
+    if (sortMode === 'alpha_desc') {
+      return b.title.localeCompare(a.title, 'es', { sensitivity: 'base' });
+    }
+
+    if (sortMode === 'amount_desc') {
+      return b.amount - a.amount;
+    }
+
+    if (sortMode === 'amount_asc') {
+      return a.amount - b.amount;
+    }
+
+    // sortMode === 'imminent' (por defecto)
     if (a.isActive && b.isActive) {
       const aDetails = getNextBillingDetails(a);
       const bDetails = getNextBillingDetails(b);
       return aDetails.daysLeft - bDetails.daysLeft;
     }
-    if (a.isActive !== b.isActive) {
-      return a.isActive ? -1 : 1;
-    }
     return (b.endDate || b.startDate || '').localeCompare(a.endDate || a.startDate || '');
   });
+
+  const handleMoveRule = async (ruleId: string, direction: 'up' | 'down') => {
+    const index = displayedRules.findIndex((r) => r.id === ruleId);
+    if (index < 0) return;
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= displayedRules.length) return;
+
+    const reordered = [...displayedRules];
+    const [moved] = reordered.splice(index, 1);
+    reordered.splice(targetIndex, 0, moved);
+
+    const withOrders = reordered.map((r, i) => ({
+      ...r,
+      order: i + 1,
+    }));
+    await DBService.updateRecurringRulesOrder(withOrders);
+    await HapticService.impactLight();
+    onRefresh?.();
+  };
 
   // Regla más inminente entre las activas
   const activeSorted = rules
@@ -587,6 +686,29 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                 Todas ({rules.length})
               </button>
             </div>
+
+            {/* Selector de Ordenación de Recurrentes */}
+            <div className="flex items-center gap-1.5 bg-slate-950/70 p-1 rounded-2xl border border-slate-800/80 text-xs">
+              <span className="text-slate-400 pl-2 flex items-center gap-1">
+                <ArrowUpDown className="w-3.5 h-3.5 text-blue-400" />
+                <span className="hidden sm:inline font-medium">Ordenar:</span>
+              </span>
+              <select
+                value={sortMode}
+                onChange={(e) => handleSortChange(e.target.value as RecurringSortMode)}
+                className="bg-transparent text-slate-200 text-xs font-semibold px-2 py-1 rounded-xl outline-none cursor-pointer hover:text-white transition-colors"
+                title="Criterio de ordenación"
+              >
+                <option value="imminent" className="bg-slate-900 text-slate-200">Próximo cobro (Inminente)</option>
+                <option value="manual" className="bg-slate-900 text-slate-200">Orden manual</option>
+                <option value="category" className="bg-slate-900 text-slate-200">Por categoría (Jerárquico)</option>
+                <option value="category_alpha" className="bg-slate-900 text-slate-200">Por categoría (A-Z)</option>
+                <option value="alpha_asc" className="bg-slate-900 text-slate-200">Título (A-Z)</option>
+                <option value="alpha_desc" className="bg-slate-900 text-slate-200">Título (Z-A)</option>
+                <option value="amount_desc" className="bg-slate-900 text-slate-200">Mayor importe</option>
+                <option value="amount_asc" className="bg-slate-900 text-slate-200">Menor importe</option>
+              </select>
+            </div>
             {ceasedRulesCount > 0 && statusFilter === 'ceased' && (
               <span className="text-[11px] text-slate-400 italic">
                 Compromisos finalizados. Los gastos pasados siguen intactos en el historial.
@@ -601,7 +723,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                 : 'No hay recurrentes en esta categoría.'}
             </div>
           ) : (
-            displayedRules.map((rule) => {
+            displayedRules.map((rule, idx) => {
             const bucket = buckets.find((b) => b.id === rule.bucketId);
             const { daysLeft, formattedDate, nextDateStr } = getNextBillingDetails(rule);
             const IconComp = RECURRING_ICON_MAP[rule.icon || ''] || Repeat;
@@ -797,6 +919,37 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between sm:justify-end space-x-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
+                  {sortMode === 'manual' && (
+                    <div className="flex items-center gap-0.5 mr-1 bg-slate-950/60 p-0.5 rounded-xl border border-slate-800/80">
+                      <button
+                        type="button"
+                        onClick={() => handleMoveRule(rule.id, 'up')}
+                        disabled={idx === 0}
+                        className={`p-1.5 rounded-lg transition-all ${
+                          idx === 0
+                            ? 'text-slate-600 cursor-not-allowed'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-800/80 cursor-pointer active:scale-95'
+                        }`}
+                        title="Subir de posición"
+                      >
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMoveRule(rule.id, 'down')}
+                        disabled={idx === displayedRules.length - 1}
+                        className={`p-1.5 rounded-lg transition-all ${
+                          idx === displayedRules.length - 1
+                            ? 'text-slate-600 cursor-not-allowed'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-800/80 cursor-pointer active:scale-95'
+                        }`}
+                        title="Bajar de posición"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+
                   <div className="text-left sm:text-right mr-2">
                     <div className="text-base font-black font-mono text-white">
                       {isPureTask ? (

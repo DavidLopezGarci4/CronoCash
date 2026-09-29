@@ -58,6 +58,18 @@ export const FAQ_DATA: FAQSection[] = [
         ],
         tags: ['rollover', 'ahorro', 'sobrante', 'colchón', 'fin de mes'],
       },
+      {
+        id: 'ordenacion-iconos-colores-bolsas',
+        question: '¿Cómo puedo ordenar mis Bolsas y personalizar sus iconos y colores?',
+        bullets: [
+          'Ordenación flexible a medida: Puedes ordenar tus bolsas por orden manual personalizado (con botones para subir y bajar de posición y feedback táctil), por orden alfabético de título (A-Z y Z-A) o por importe de límite asignado.',
+          'Persistencia de orden: Al mover una bolsa arriba o abajo en modo manual, el orden se consolida de inmediato en IndexedDB para mantenerse idéntico en tus próximas sesiones.',
+          'Nuevos iconos de inversión y coleccionismo: Dispones de una galería ampliada con iconos Lucide específicos para inversiones y finanzas (TrendingUp, Coins, LineChart, Landmark, Gem) y coleccionismo o hobbies (Bot, Gamepad2, Package, Trophy, Crown).',
+          'Paleta cromática de 16 colores: 7 nuevos colores distintivos (Índigo, Violeta, Lima, Oro, Fucsia, Bosque y Cielo) sincronizados entre Bolsas y Metas de ahorro.',
+        ],
+        tags: ['ordenación', 'bolsas', 'iconos', 'colores', 'inversiones', 'coleccionismo', 'personalización', 'lucide'],
+        badge: 'Personalización Pro',
+      },
     ],
   },
   {
@@ -156,6 +168,19 @@ export const FAQ_DATA: FAQSection[] = [
         ],
         tags: ['cesar recurrencia', 'baja', 'histórico', 'inmutable', 'importes futuros', 'reactivar'],
         badge: 'Auditoría Fiel',
+      },
+      {
+        id: 'ordenacion-cargos-recurrentes',
+        question: '¿Qué opciones de ordenación existen para los cargos y tareas recurrentes?',
+        bullets: [
+          'Próximo cobro inminente (Por defecto): Prioriza automáticamente los pagos y tareas más cercanos a la fecha actual.',
+          'Orden manual con controles táctiles: Permite situar las reglas en la posición exacta que desees con botones de subida/bajada y respuesta háptica, guardándose de forma permanente en IndexedDB.',
+          'Por categoría jerárquica: Agrupa los compromisos según su criticidad contable (Recibos básicos, Suscripciones, Impuestos, Salud y Cuidado, Mantenimiento y Hogar, y Personal).',
+          'Por orden alfabético: Disponible tanto por orden alfabético de categorías como por título (A-Z y Z-A).',
+          'Por importe: Clasifica los cobros de mayor a menor importe (o viceversa) para un control estricto de las salidas de dinero más voluminosas.',
+        ],
+        tags: ['ordenación', 'recurrentes', 'manual', 'categoría', 'alfabético', 'importe', 'inminente', 'prioridad'],
+        badge: 'Multicriterio',
       },
     ],
   },
@@ -532,13 +557,13 @@ export const FAQ_DATA: FAQSection[] = [
     id: 'acerca-de',
     title: '14. Centro Acerca de y Novedades de la App',
     iconName: 'Sparkles',
-    description: 'Ficha de identidad de la versión v1.17.0, historial para humanos y telemetría',
+    description: 'Ficha de identidad de la versión v1.18.0, historial para humanos y telemetría',
     items: [
       {
         id: 'centro-acerca-de',
         question: '¿Qué es el Centro "Acerca de & Novedades"?',
         bullets: [
-          'Ficha de identidad transparente: Te muestra en cualquier momento la versión instalada en tu dispositivo (v1.17.0), número de compilación interno (Build 11700), plataforma de ejecución y certificado de privacidad local.',
+          'Ficha de identidad transparente: Te muestra en cualquier momento la versión instalada en tu dispositivo (v1.18.0), número de compilación interno (Build 11800), plataforma de ejecución y certificado de privacidad local.',
           'Novedades de la versión instalada: Al actualizar la aplicación, puedes abrir este panel en Ajustes para ver de un vistazo qué funciones nuevas tienes disponibles.',
         ],
         tags: ['acerca de', 'versión', 'novedades', 'build', 'identidad'],

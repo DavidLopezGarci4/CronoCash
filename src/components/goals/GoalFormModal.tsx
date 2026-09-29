@@ -49,6 +49,14 @@ const PRESET_COLORS = [
   '#f97316', // orange
   '#14b8a6', // teal
   '#ef4444', // red
+  // 7 nuevos colores distintivos
+  '#6366f1', // indigo
+  '#a855f7', // violet
+  '#84cc16', // lime
+  '#eab308', // gold
+  '#d946ef', // fuchsia
+  '#14532d', // forest
+  '#0284c7', // sky
 ];
 
 export const GoalFormModal: React.FC<GoalFormModalProps> = ({

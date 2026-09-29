@@ -6,6 +6,7 @@ export interface Bucket {
   icon: string;
   isBuffer: boolean;
   notes?: string;
+  order?: number; // Índice de ordenación manual
   createdAt: string;
 }
 
@@ -84,6 +85,7 @@ export interface RecurringRule {
   reminderTime?: string; // 'HH:MM'
   autoAdaptNextDates?: boolean; // Si al completar/registrar se adapta automáticamente el ciclo futuro
   completedDates?: string[]; // Fechas YYYY-MM-DD en las que se ha completado esta regla/tarea
+  order?: number; // Índice de ordenación manual
 }
 
 export type ExtraIncomeType = 'punctual' | 'recurring';

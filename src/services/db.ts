@@ -1000,6 +1000,29 @@ export class DBService {
     }
   }
 
+  static async updateBucketsOrder(orderedBuckets: Bucket[]): Promise<void> {
+    const updated = orderedBuckets.map((b, index) => ({
+      ...b,
+      order: index + 1,
+    }));
+    this.setLocalStorageItem('gastos_buckets', updated);
+
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.BUCKETS, 'readwrite');
+        const store = tx.objectStore(STORES.BUCKETS);
+        for (const b of updated) {
+          store.put(b);
+        }
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al actualizar orden de bolsas:', e);
+    }
+  }
+
   /**
    * Carga o fusiona la Plantilla Maestra de 8 Bolsas (Smart Seeds)
    */
@@ -1197,6 +1220,34 @@ export class DBService {
       });
     } catch (e) {
       console.warn('[DBService] Error al borrar regla recurrente:', e);
+    }
+  }
+
+  static async updateRecurringRulesOrder(orderedRules: RecurringRule[]): Promise<void> {
+    const updated = orderedRules.map((r, index) => ({
+      ...r,
+      order: index + 1,
+    }));
+    this.setLocalStorageItem('gastos_recurring_rules', updated);
+
+    try {
+      const db = await this.getDB();
+      await new Promise<void>(async (resolve, reject) => {
+        try {
+          const tx = db.transaction(STORES.RECURRING_RULES, 'readwrite');
+          const store = tx.objectStore(STORES.RECURRING_RULES);
+          for (const r of updated) {
+            const enc = await VaultCryptoService.encryptRecord(r);
+            store.put(enc);
+          }
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        } catch (err) {
+          reject(err);
+        }
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al actualizar orden de recurrentes:', e);
     }
   }
 

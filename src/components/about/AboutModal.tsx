@@ -160,7 +160,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
                     Manual Maestro & Centro de Ayuda FAQ
                   </h4>
                   <p className="text-[11px] text-slate-400">
-                    38 guías operativas en 14 módulos con buscador predictivo
+                    43 guías operativas en 14 módulos con buscador predictivo
                   </p>
                 </div>
               </div>

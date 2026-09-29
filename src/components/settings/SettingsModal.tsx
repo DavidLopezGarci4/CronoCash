@@ -730,7 +730,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
                   </div>
                   <p className="text-[10px] text-slate-400">
-                    38 guías operativas, atajos, dudas frecuentes y buscador predictivo
+                    43 guías operativas, atajos, dudas frecuentes y buscador predictivo
                   </p>
                 </div>
               </div>
