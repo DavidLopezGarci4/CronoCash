@@ -42,6 +42,7 @@ import {
   ChevronRight,
   Calendar,
   BarChart3,
+  GripVertical,
 } from 'lucide-react';
 import { format, addMonths, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -49,6 +50,7 @@ import { usePrivacy } from '../../context/PrivacyContext';
 import { Bucket, Expense } from '../../types';
 import { DBService } from '../../services/db';
 import { HapticService } from '../../services/hapticService';
+import { useTouchSortable } from '../../hooks/useTouchSortable';
 import { CoverOverspendingModal } from './CoverOverspendingModal';
 
 interface BucketsViewProps {
@@ -431,6 +433,21 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     onRefresh();
   };
 
+  const handleReorderBuckets = async (newBuckets: Bucket[]) => {
+    const withOrders = newBuckets.map((b, i) => ({
+      ...b,
+      order: i + 1,
+    }));
+    await DBService.updateBucketsOrder(withOrders);
+    onRefresh();
+  };
+
+  const { dragIndex, overIndex, getHandleProps, getItemProps } = useTouchSortable({
+    items: sortedBuckets,
+    onReorder: handleReorderBuckets,
+    enabled: sortMode === 'manual' && !modalOpen && !vasosModalOpen && !rolloverModalOpen,
+  });
+
   return (
     <div className="space-y-6 pb-28">
       {/* Cabecera y Acciones Rápidas */}
@@ -696,8 +713,13 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           return (
             <div
               key={b.id}
-              className={`p-4 rounded-3xl bg-slate-900/90 border transition-all ${
-                b.isBuffer
+              {...getItemProps(index)}
+              className={`rounded-3xl bg-slate-900/90 border transition-all flex items-stretch overflow-hidden ${
+                dragIndex === index
+                  ? 'ring-2 ring-emerald-500 scale-[1.01] shadow-2xl shadow-emerald-500/30 z-20 bg-slate-800/95 border-emerald-400'
+                  : overIndex === index
+                  ? 'border-emerald-400/80 bg-emerald-950/30 shadow-md shadow-emerald-950/20'
+                  : b.isBuffer
                   ? 'border-teal-500/40 bg-teal-950/10 shadow-lg shadow-teal-950/20'
                   : isOver
                   ? 'border-rose-500/60 bg-rose-950/10'
@@ -706,7 +728,20 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   : 'border-slate-800 hover:border-slate-700'
               }`}
             >
-              <div className="flex items-start justify-between">
+              {/* Pestaña lateral de arrastre táctil (visible en modo manual) */}
+              {sortMode === 'manual' && (
+                <div
+                  {...getHandleProps(index)}
+                  className="w-7 sm:w-8 flex items-center justify-center bg-slate-950/50 hover:bg-emerald-600/20 active:bg-emerald-600/40 border-r border-slate-800/80 cursor-grab active:cursor-grabbing text-slate-500 hover:text-emerald-400 active:text-emerald-300 transition-colors shrink-0 select-none group"
+                  title="Mantén pulsado y arrastra para reordenar esta bolsa"
+                  aria-label="Arrastrar para mover bolsa"
+                >
+                  <GripVertical className="w-4 h-4 transition-transform group-active:scale-110" />
+                </div>
+              )}
+
+              <div className="p-4 flex-1 flex flex-col justify-between min-w-0">
+                <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
                   <div
                     className="w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-white shadow-md"
@@ -829,7 +864,8 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 </div>
               </div>
             </div>
-          );
+          </div>
+        );
         })}
       </div>
 

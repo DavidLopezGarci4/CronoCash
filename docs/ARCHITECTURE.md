@@ -1,6 +1,6 @@
 # Arquitectura del Sistema — CronoCash 🏛️
 
-**Versión del Sistema:** v1.20.0 (Build 12000)  
+**Versión del Sistema:** v1.21.0 (Build 12100)  
 **Marco de Diseño:** Ontología TecnoRed & Arquetipo de Soberanía Local  
 **Plataforma Objetivo:** Android Nativo (Capacitor 7) & PWA  
 

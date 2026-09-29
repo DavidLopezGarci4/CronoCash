@@ -64,10 +64,12 @@ import {
   Dumbbell,
   FileCheck,
   Tag,
+  GripVertical,
 } from 'lucide-react';
 import { RecurringRule, Bucket, Expense, RecurringCostType, ReminderOffset, RecurringCategoryType, FunctionalCategory, DEFAULT_FUNCTIONAL_CATEGORIES } from '../../types';
 import { DBService } from '../../services/db';
 import { HapticService } from '../../services/hapticService';
+import { useTouchSortable } from '../../hooks/useTouchSortable';
 import { FunctionalCategoriesModal, LUCIDE_CATEGORY_ICONS } from './FunctionalCategoriesModal';
 
 interface RecurringViewProps {
@@ -596,6 +598,21 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
     onRefresh?.();
   };
 
+  const handleReorderRules = async (newRules: RecurringRule[]) => {
+    const withOrders = newRules.map((r, i) => ({
+      ...r,
+      order: i + 1,
+    }));
+    await DBService.updateRecurringRulesOrder(withOrders);
+    onRefresh?.();
+  };
+
+  const { dragIndex, overIndex, getHandleProps, getItemProps } = useTouchSortable({
+    items: displayedRules,
+    onReorder: handleReorderRules,
+    enabled: sortMode === 'manual' && !modalOpen && !categoriesModalOpen,
+  });
+
   // Regla más inminente entre las activas
   const activeSorted = rules
     .filter((r) => r.isActive !== false)
@@ -883,8 +900,13 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
             return (
               <div
                 key={rule.id}
-                className={`p-4 rounded-3xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                  !rule.isActive
+                {...getItemProps(idx)}
+                className={`rounded-3xl border transition-all flex items-stretch overflow-hidden ${
+                  dragIndex === idx
+                    ? 'ring-2 ring-blue-500 scale-[1.01] shadow-2xl shadow-blue-500/30 z-20 bg-slate-800/95 border-blue-400'
+                    : overIndex === idx
+                    ? 'border-blue-400/80 bg-blue-950/30 shadow-md shadow-blue-950/20'
+                    : !rule.isActive
                     ? 'bg-slate-950/40 border-slate-800/80 opacity-75'
                     : isCompletedForTargetDate
                     ? 'bg-slate-900/90 border-emerald-500/30 shadow-md shadow-emerald-950/20'
@@ -895,7 +917,20 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     : 'bg-slate-900/90 border-slate-800 hover:border-slate-700/80'
                 }`}
               >
-                <div className="flex items-center space-x-3.5 min-w-0">
+                {/* Pestaña lateral de arrastre táctil (visible en modo manual) */}
+                {sortMode === 'manual' && (
+                  <div
+                    {...getHandleProps(idx)}
+                    className="w-7 sm:w-8 flex items-center justify-center bg-slate-950/50 hover:bg-blue-600/20 active:bg-blue-600/40 border-r border-slate-800/80 cursor-grab active:cursor-grabbing text-slate-500 hover:text-blue-400 active:text-blue-300 transition-colors shrink-0 select-none group"
+                    title="Mantén pulsado y arrastra para reordenar este recurrente"
+                    aria-label="Arrastrar para mover recurrente"
+                  >
+                    <GripVertical className="w-4 h-4 transition-transform group-active:scale-110" />
+                  </div>
+                )}
+
+                <div className="p-4 flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
+                  <div className="flex items-center space-x-3.5 min-w-0">
                   <div
                     className="w-11 h-11 rounded-2xl flex items-center justify-center font-bold shrink-0 border shadow-xs"
                     style={{
@@ -1154,7 +1189,8 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                   </button>
                 </div>
               </div>
-            );
+            </div>
+          );
           }))}
         </div>
       )}

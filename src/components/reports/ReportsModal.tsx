@@ -192,9 +192,6 @@ export const ReportsModal: React.FC<ReportsModalProps> = ({
                 <h2 className="text-base sm:text-lg font-black tracking-tight text-white">
                   Informes & Fiscalidad
                 </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 font-bold">
-                  v1.12.0
-                </span>
               </div>
               <p className="text-xs text-slate-400">
                 Informes ejecutivos en PDF de alta dirección y liquidación trimestral AEAT

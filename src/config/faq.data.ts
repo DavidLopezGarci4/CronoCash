@@ -129,7 +129,20 @@ export const FAQ_DATA: FAQSection[] = [
           'Persistencia en Bóveda Cifrada y Backups: Las categorías dinámicas se guardan en el almacén de configuración cifrado con AES-GCM en reposo y se transfieren íntegramente en las copias de seguridad de Google Drive (2 ranuras).',
         ],
         tags: ['categorías', 'crear categorías', 'eliminar categorías', 'borrado seguro', 'reasignación', 'gestor categorías', 'lucide', 'personalización', 'anti-huérfanos'],
-        badge: 'Nuevo v1.20.0',
+        badge: 'v1.20.0',
+      },
+      {
+        id: 'drag-and-drop-tarjetas',
+        question: '¿Cómo funciona la reordenación de tarjetas mediante Drag and Drop?',
+        bullets: [
+          'Pestaña Lateral de Agarre Táctil: En Categorías Funcionales, Bolsas de Presupuesto y Gastos Recurrentes (en modo de ordenación manual), cada tarjeta dispone en su borde izquierdo de una estilizada pestaña lateral con icono GripVertical.',
+          'Gesto Natural con Pulgar o Ratón: Mantén pulsada la pestaña lateral y arrastra la tarjeta hacia arriba o hacia abajo como si fuera un naipe físico para moverla a la posición deseada.',
+          'Sin Interferencias con el Scroll Móvil: Al aislar el agarre en la pestaña lateral (touch-action: none), puedes hacer scroll vertical con tu dedo por la pantalla con total normalidad sin desplazar tarjetas de forma involuntaria.',
+          'Respuesta Háptica y Visual: Al presionar la pestaña la app emite una leve vibración, eleva la tarjeta con sombra flotante y resalta la posición de destino.',
+          'Guardado Inmediato: Al soltar la tarjeta, el nuevo orden se consolida de forma instantánea en IndexedDB y copias de seguridad.',
+        ],
+        tags: ['drag and drop', 'arrastrar', 'reordenar', 'pestaña lateral', 'grip', 'tarjetas', 'móvil', 'orden manual'],
+        badge: 'Nuevo v1.21.0',
       },
       {
         id: 'desplazamiento-adaptativo',

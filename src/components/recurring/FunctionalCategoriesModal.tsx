@@ -51,10 +51,12 @@ import {
   Trophy,
   Crown,
   CreditCard,
+  GripVertical,
 } from 'lucide-react';
 import { FunctionalCategory, RecurringRule } from '../../types';
 import { DBService } from '../../services/db';
 import { HapticService } from '../../services/hapticService';
+import { useTouchSortable } from '../../hooks/useTouchSortable';
 
 // Catálogo de 40 iconos 100% Lucide React
 export const LUCIDE_CATEGORY_ICONS: Record<string, React.ElementType> = {
@@ -220,6 +222,18 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
     loadCategories();
     onCategoriesChanged();
   };
+
+  const handleReorderCategories = async (newCategories: FunctionalCategory[]) => {
+    setCategories(newCategories);
+    await DBService.updateFunctionalCategoriesOrder(newCategories);
+    onCategoriesChanged();
+  };
+
+  const { dragIndex, overIndex, getHandleProps, getItemProps } = useTouchSortable({
+    items: categories,
+    onReorder: handleReorderCategories,
+    enabled: !isFormOpen && !categoryToDelete,
+  });
 
   const handlePromptDelete = (cat: FunctionalCategory) => {
     const inUseCount = rules.filter((r) => r.categoryType === cat.id).length;
@@ -455,78 +469,97 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
               return (
                 <div
                   key={cat.id}
-                  className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3 hover:border-slate-700 transition-colors"
+                  {...getItemProps(idx)}
+                  className={`rounded-2xl bg-slate-900/90 border flex items-stretch transition-all overflow-hidden ${
+                    dragIndex === idx
+                      ? 'ring-2 ring-blue-500 scale-[1.01] shadow-2xl shadow-blue-500/30 z-20 bg-slate-800/95 border-blue-400'
+                      : overIndex === idx
+                      ? 'border-blue-400/80 bg-blue-950/30 shadow-md shadow-blue-950/20'
+                      : 'border-slate-800 hover:border-slate-700'
+                  }`}
                 >
-                  <div className="flex items-center space-x-3 min-w-0">
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
-                      style={{
-                        backgroundColor: `${cat.color || '#3b82f6'}20`,
-                        borderColor: `${cat.color || '#3b82f6'}50`,
-                        color: cat.color || '#3b82f6',
-                      }}
-                    >
-                      <Comp className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-xs font-bold text-white truncate">{cat.name}</span>
-                        {cat.isSystem ? (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold border border-slate-700">
-                            Sistema
-                          </span>
-                        ) : (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/30">
-                            Personalizada
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-[10px] text-slate-500 block truncate">
-                        {inUseCount > 0 ? `${inUseCount} compromiso(s) asignado(s)` : 'Sin compromisos activos'}
-                      </span>
-                    </div>
+                  {/* Fina Pestaña Lateral Táctil (Drag Handle) */}
+                  <div
+                    {...getHandleProps(idx)}
+                    className="w-7 sm:w-8 flex items-center justify-center bg-slate-950/50 hover:bg-blue-600/20 active:bg-blue-600/40 border-r border-slate-800/80 cursor-grab active:cursor-grabbing text-slate-500 hover:text-blue-400 active:text-blue-300 transition-colors shrink-0 select-none group"
+                    title="Mantén pulsado y arrastra para reordenar"
+                    aria-label="Arrastrar para mover"
+                  >
+                    <GripVertical className="w-4 h-4 transition-transform group-active:scale-110" />
                   </div>
 
-                  <div className="flex items-center space-x-1 shrink-0">
-                    {/* Reordenar */}
-                    <button
-                      type="button"
-                      disabled={idx === 0}
-                      onClick={() => handleMove(idx, 'up')}
-                      className="p-1 text-slate-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                      title="Subir"
-                    >
-                      <ChevronUp className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      disabled={idx === categories.length - 1}
-                      onClick={() => handleMove(idx, 'down')}
-                      className="p-1 text-slate-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                      title="Bajar"
-                    >
-                      <ChevronDown className="w-3.5 h-3.5" />
-                    </button>
+                  <div className="p-3 flex-1 flex items-center justify-between gap-3 min-w-0">
+                    <div className="flex items-center space-x-3 min-w-0">
+                      <div
+                        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
+                        style={{
+                          backgroundColor: `${cat.color || '#3b82f6'}20`,
+                          borderColor: `${cat.color || '#3b82f6'}50`,
+                          color: cat.color || '#3b82f6',
+                        }}
+                      >
+                        <Comp className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-bold text-white truncate">{cat.name}</span>
+                          {cat.isSystem ? (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold border border-slate-700">
+                              Sistema
+                            </span>
+                          ) : (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/30">
+                              Personalizada
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-slate-500 block truncate">
+                          {inUseCount > 0 ? `${inUseCount} compromiso(s) asignado(s)` : 'Sin compromisos activos'}
+                        </span>
+                      </div>
+                    </div>
 
-                    {/* Editar */}
-                    <button
-                      type="button"
-                      onClick={() => handleOpenEdit(cat)}
-                      className="p-1.5 text-slate-400 hover:text-blue-400 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
-                      title="Editar"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="flex items-center space-x-1 shrink-0">
+                      {/* Reordenar rápido por botón accesible */}
+                      <button
+                        type="button"
+                        disabled={idx === 0}
+                        onClick={() => handleMove(idx, 'up')}
+                        className="p-1 text-slate-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
+                        title="Subir"
+                      >
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={idx === categories.length - 1}
+                        onClick={() => handleMove(idx, 'down')}
+                        className="p-1 text-slate-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
+                        title="Bajar"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </button>
 
-                    {/* Eliminar */}
-                    <button
-                      type="button"
-                      onClick={() => handlePromptDelete(cat)}
-                      className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
-                      title="Eliminar"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                      {/* Editar */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEdit(cat)}
+                        className="p-1.5 text-slate-400 hover:text-blue-400 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                        title="Editar"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Eliminar */}
+                      <button
+                        type="button"
+                        onClick={() => handlePromptDelete(cat)}
+                        className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                        title="Eliminar"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );

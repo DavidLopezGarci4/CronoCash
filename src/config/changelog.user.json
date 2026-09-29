@@ -1,6 +1,6 @@
 {
-  "currentVersion": "1.20.0",
-  "buildNumber": 12000,
+  "currentVersion": "1.21.0",
+  "buildNumber": 12100,
   "lastUpdated": "2026-09-29",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
@@ -9,11 +9,25 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.21.0",
+      "build": 12100,
+      "date": "29 Sep 2026",
+      "title": "Reordenación Táctil Drag & Drop con Pestaña Lateral y Limpieza Visual",
+      "isCurrent": true,
+      "highlights": [
+        "🎴 Reordenación Drag & Drop con Pestaña Lateral Táctil: Nueva experiencia interactiva fluida para ordenar Categorías, Bolsas y Recurrentes manteniendo pulsada y arrastrando la estilizada pestaña lateral izquierda con icono Lucide GripVertical.",
+        "📱 Cero Fricción de Scroll en Móvil: El gesto de arrastre está aislado en el tirador lateral (touch-action: none), permitiendo desplazarse en vertical por la lista con normalidad sin movimientos accidentales.",
+        "📳 Respuesta Háptica y Visual Flotante: Vibración de agarre táctil, elevación flotante de la tarjeta con sombra profunda y aro luminoso, e inserción dinámica.",
+        "💾 Persistencia Atómica Inmediata: El nuevo orden se consolida automáticamente en milisegundos en IndexedDB y copias de seguridad de Google Drive.",
+        "✨ Limpieza Visual en Informes y Fiscalidad: Eliminado el badge de versión residual v1.12.0 en la cabecera del modal para una estética minimalista y profesional."
+      ]
+    },
+    {
       "version": "1.20.0",
       "build": 12000,
       "date": "29 Sep 2026",
       "title": "Gestor Dinámico de Categorías Funcionales (CRUD Completo, Borrado Seguro y Anti-Huérfanos)",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "🏷️ Gestor de Categorías Funcionales: Posibilidad total de Crear, Modificar, Eliminar y Reordenar categorías para tus compromisos recurrentes desde una ventana modal interactiva.",
         "🛡️ Integridad Referencial y Borrado Seguro Anti-Huérfanos: Si eliminas una categoría con compromisos activos, el sistema te solicita elegir una categoría de destino para transferirlos automáticamente sin perder ningún dato.",

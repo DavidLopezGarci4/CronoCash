@@ -130,8 +130,9 @@
 * **Pestaña de Cesadas / Históricas:** Puedes consultar en cualquier momento tus compromisos cesados y reactivarlos con 1 toque si vuelves a contratarlos.
 * **Modificación de importes futuros:** Modificar la cuota de una regla aplica únicamente a los pagos futuros, sin tocar jamás el coste de los gastos ya registrados.
 
-### ¿Qué opciones de ordenación existen para los cargos y tareas recurrentes?
-* **Próximo cobro inminente (Por defecto):** Prioriza automáticamente los pagos y tareas más cercanos a la fecha actual.
+### ¿Qué opciones de ordenación existen para las tarjetas (Categorías, Bolsas y Recurrentes)?
+* **Drag & Drop con pestaña lateral táctil (Nuevo v1.21.0):** Mantén presionada la pestaña lateral izquierda (`GripVertical`) de cualquier tarjeta para levantarla y arrastrarla libremente arriba o abajo. Cuenta con aislamiento de scroll (`touch-action: none`) para evitar desplazamientos accidentales en móvil y vibra hápticamente al reordenar.
+* **Próximo cobro inminente (Por defecto en recurrentes):** Prioriza automáticamente los pagos y tareas más cercanos a la fecha actual.
 * **Orden manual con controles táctiles:** Permite situar las reglas en la posición exacta que desees con botones de subida/bajada y respuesta háptica, guardándose de forma permanente en IndexedDB.
 * **Por categoría jerárquica:** Agrupa los compromisos según su criticidad contable (Recibos básicos, Suscripciones, Impuestos, Salud y Cuidado, Mantenimiento y Hogar, y Personal).
 * **Por orden alfabético:** Disponible tanto por orden alfabético de categorías como por título (A-Z y Z-A).

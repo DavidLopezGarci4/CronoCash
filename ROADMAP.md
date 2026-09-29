@@ -4,17 +4,23 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.20.0 — Gestor Dinámico de Categorías Funcionales (CRUD Completo y Borrado Seguro Anti-Huérfanos) 🌟
-- [x] **Gestor Dinámico de Categorías Funcionales:** Ventana modal para Crear, Editar, Eliminar y Reordenar categorías para gastos y tareas recurrentes.
-- [x] **Integridad Referencial y Borrado Seguro:** Comprobación preventiva de uso y selector asistido de reasignación antes de eliminar categorías.
-- [x] **Fallback Defensivo en Renderizado:** Renderizado seguro ("General" con icono neutro) ante cualquier ID no existente sin crasheos.
-- [x] **Personalización Cromática y Vectorial:** Selector de 40 iconos vectoriales oficiales de `lucide-react` y paleta de 16 colores.
-- [x] **Catálogo Base Oficial y Restablecimiento:** 12 categorías nativas del sistema respaldadas con botón de restauración a valores canónicos.
-- [x] **Sincronización SemVer Global:** `v1.20.0` (Build 12000) en todos los manifiestos, configuraciones y documentación.
+## Estado Actual: v1.21.0 — Reordenación Drag & Drop con Pestaña Lateral y Limpieza Visual 🌟
+- [x] **Reordenación Drag & Drop con Pestaña Lateral Táctil:** Reordenación fluida y natural en Categorías, Bolsas y Recurrentes mediante una estilizada pestaña lateral izquierda con icono Lucide `GripVertical`.
+- [x] **Cero Conflictos de Scroll Móvil (`touch-action: none`):** Scroll vertical ordinario sin fricción en el cuerpo de la tarjeta, activando el arrastre solo desde la pestaña lateral.
+- [x] **Feedback Háptico y Visual Flotante:** Respuesta por vibración al asir la tarjeta (`HapticService.selection()`), tarjeta elevada con sombra profunda y consolidación inmediata (`HapticService.notificationSuccess()`).
+- [x] **Limpieza de Badge Residual:** Supresión del banner `v1.12.0` en la cabecera de Informes y Fiscalidad.
+- [x] **Sincronización SemVer Global:** `v1.21.0` (Build 12100) en todos los manifiestos, configuraciones y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.20.0 (Completado)
+- [x] Gestor Dinámico de Categorías Funcionales (CRUD Completo y Borrado Seguro Anti-Huérfanos).
+- [x] Integridad Referencial y Reasignación Obligatoria al eliminar categorías en uso.
+- [x] Fallback Defensivo en Renderizado ("General" con icono neutro).
+- [x] Personalización con 40 iconos vectoriales oficiales de `lucide-react` y 16 colores.
+- [x] Catálogo Base Oficial y Restablecimiento en 1 toque.
 
 ### 📦 v1.19.0 (Completado)
 - [x] Navegación Mensual y Totales por Mes en Bolsas.

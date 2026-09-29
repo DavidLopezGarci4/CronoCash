@@ -3,6 +3,20 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.0] - 2026-09-29
+
+### Added
+- **Reordenación Drag & Drop con Pestaña Lateral Táctil (`useTouchSortable.ts`, `FunctionalCategoriesModal.tsx`, `BucketsView.tsx`, `RecurringView.tsx`):**
+  - **Hook Universal `useTouchSortable`:** Motor de reordenación basado en Pointer Events y captura (`setPointerCapture`) con soporte unificado para pantallas táctiles móviles (Android APK / Capacitor) y ordenadores de escritorio (ratón).
+  - **Pestaña Lateral de Agarre Dedicada:** Cada tarjeta (Categoría, Bolsa y Recurrente en modo manual) cuenta con un tirador vertical estilizado en su lateral izquierdo con icono 100% Lucide `GripVertical`.
+  - **Aislamiento de Scroll Móvil (`touch-action: none`):** Previene interferencias con el scroll vertical de la pantalla en dispositivos táctiles, activando el arrastre únicamente al presionar la pestaña lateral.
+  - **Feedback Háptico y Visual Flotante:** Emisión de vibración táctil al iniciar el agarre (`HapticService.selection()`), elevación de la tarjeta con sombra profunda y aro luminoso, e inserción dinámica en la posición destino.
+  - **Persistencia Atómica Inmediata:** Al soltar la tarjeta se confirma la ordenación con vibración de éxito (`HapticService.notificationSuccess()`) y se sincroniza instantáneamente en IndexedDB.
+
+### Removed
+- **Limpieza de Badge Residual en Informes y Fiscalidad (`ReportsModal.tsx`):**
+  - Eliminado el banner residual de versión `v1.12.0` de la cabecera para mantener la interfaz despejada y profesional.
+
 ## [1.20.0] - 2026-09-29
 
 ### Added
