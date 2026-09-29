@@ -15,6 +15,16 @@ import {
   ShieldCheck,
   AlertCircle,
   HelpCircle,
+  TrendingUp,
+  Coins,
+  LineChart,
+  Landmark,
+  Gem,
+  Bot,
+  Gamepad2,
+  Package,
+  Trophy,
+  Crown,
 } from 'lucide-react';
 import { SavingsGoal, Bucket } from '../../types';
 
@@ -37,6 +47,18 @@ const AVAILABLE_ICONS = [
   { name: 'Zap', label: 'Energía', icon: Zap },
   { name: 'HeartPulse', label: 'Salud', icon: HeartPulse },
   { name: 'Smartphone', label: 'Tecnología', icon: Smartphone },
+  // Inversiones
+  { name: 'TrendingUp', label: 'Inversión', icon: TrendingUp },
+  { name: 'Coins', label: 'Monedas', icon: Coins },
+  { name: 'LineChart', label: 'Finanzas', icon: LineChart },
+  { name: 'Landmark', label: 'Patrimonio', icon: Landmark },
+  { name: 'Gem', label: 'Joyas / Valor', icon: Gem },
+  // Coleccionismo & Hobbies
+  { name: 'Bot', label: 'Figuras / Muñecos', icon: Bot },
+  { name: 'Gamepad2', label: 'Gaming', icon: Gamepad2 },
+  { name: 'Package', label: 'Colección', icon: Package },
+  { name: 'Trophy', label: 'Trofeo', icon: Trophy },
+  { name: 'Crown', label: 'Exclusivo', icon: Crown },
 ];
 
 const PRESET_COLORS = [
@@ -322,7 +344,7 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
           {/* Selector de Icono */}
           <div>
             <label className="block text-slate-300 font-bold mb-1.5">Icono Representativo</label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 max-h-44 overflow-y-auto pr-1">
               {AVAILABLE_ICONS.map((item) => {
                 const IconComp = item.icon;
                 const isSelected = icon === item.name;

@@ -3,6 +3,44 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.0] - 2026-09-29
+
+### Added
+- **Gestor Dinámico de Categorías Funcionales (`FunctionalCategoriesModal.tsx`, `types/index.ts`, `services/db.ts`):**
+  - **CRUD Completo de Categorías:** Ventana modal interactiva para Crear, Editar, Eliminar y Reordenar categorías para los compromisos y actos periódicos.
+  - **Integridad Referencial y Borrado Seguro Anti-Huérfanos:** Detección de compromisos vinculados antes de eliminar una categoría con diálogo obligatorio para reasignarlos a una categoría de destino existente.
+  - **Fallback Defensivo en Renderizado:** Protección integral ante IDs de categoría desconocidos o eliminados, renderizando bajo la etiqueta "General" con icono neutro sin generar errores.
+  - **Personalización Visual:** Asignación de cualquiera de los 40 iconos vectoriales oficiales de `lucide-react` y de los 16 colores de la paleta.
+  - **Catálogo Base Oficial y Función Restablecer:** Las 12 categorías nativas vienen respaldadas por el sistema (`isSystem: true`) con botón de restauración a valores canónicos.
+  - **Integración Transversal y Persistencia:** Almacenamiento seguro en `Settings` cifrado con AES-GCM en reposo, compatible con backups de 2 ranuras en Google Drive y JSON local.
+  - **Acceso Rápido Ergonómico:** Botón "Categorías" en la cabecera de Recurrentes y acceso directo "Gestionar Categorías" junto al selector desplegable en el formulario de regla recurrente.
+
+## [1.19.0] - 2026-09-29
+
+### Added
+- **Navegación Mensual y Totales por Mes en Bolsas (`BucketsView.tsx`):**
+  - **Barra de Navegación Temporal:** Selector interactivo mes a mes con botones `ChevronLeft`, `ChevronRight` y acceso rápido a "Hoy", formateado en español con `date-fns`.
+  - **Cálculo de Totales por Periodo:** Filtrado dinámico de los gastos del mes seleccionado para comparar el límite mensual asignado con el consumo real exacto de dicho periodo.
+
+- **Proyección Anual de Bolsas de Presupuesto (`BucketsView.tsx`):**
+  - **Selector de Modo de Vista (`viewMode`):** Alternador en 1 toque entre `Mes` y `Proyección Anual`.
+  - **Cálculo de Asignación y Consumo Anual:** Proyección del límite total presupuestado a 12 meses frente al total consumido en el año natural en curso, mostrando el remanente disponible proyectado y porcentaje de ejecución.
+
+- **Trasvase de Remanente Acumulable (Sinking Fund en Bolsa) (`BucketsView.tsx`, `types/index.ts`, `services/db.ts`):**
+  - **Configuración Opcional por Bolsa:** Nuevos atributos `rolloverSurplus?: boolean` y `accumulatedSurplus?: number` en el modelo `Bucket`.
+  - **Protección en Rollover Mensual:** En `DBService.executeMonthlyRollover`, las bolsas con Sinking Fund retienen su remanente positivo en lugar de transferirlo al Colchón general, sumándolo a su propio saldo acumulado.
+  - **Límite Efectivo Dinámico:** El límite visible y computable de la bolsa incluye la suma de su asignación mensual más el remanente acumulado transferido de meses previos, identificado con badge esmeralda `Hucha Sinking Fund`.
+  - **Control en Modal de Edición:** Checkbox táctil y campo numérico para consultar o ajustar el remanente acumulado.
+
+- **Categoría Funcional "Futuro Financiero" para Inversiones (`RecurringView.tsx`, `types/index.ts`):**
+  - **Categoría de Primer Nivel:** Incorporación del tipo `financial_future` destinado a inversiones, planes de ahorro sistemático, jubilación y compras patrimoniales.
+  - **Icono Vectorial Lucide:** Representación visual con `TrendingUp` en badges, modales y listas.
+
+- **Categorías Funcionales Expandidas y Catálogo de 40 Iconos Lucide (`RecurringView.tsx`):**
+  - **Ampliación Integral:** Adición de categorías estándar `insurance` (Seguros), `education` (Educación), `transport` (Transporte), `leisure` (Ocio) y `donation` (Donaciones) junto a las existentes (`bill`, `subscription`, `tax`, `health`, `maintenance`, `personal`).
+  - **Jerarquía y Ordenación:** Soporte completo en el motor de ordenación jerárquico y alfabético por categoría.
+  - **Iconografía 100% Lucide React:** Ampliación a 40 iconos vectoriales (`ShieldCheck`, `GraduationCap`, `HeartHandshake`, `BookOpen`, `Wifi`, `Tv`, `Building2`, `Key`, `Pill`, `Eye`, `Fuel`, `Bus`, `Train`, `Scissors`, `Dumbbell`, `FileCheck`, etc.).
+
 ## [1.18.0] - 2026-09-29
 
 ### Added

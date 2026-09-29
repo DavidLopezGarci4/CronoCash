@@ -38,10 +38,37 @@ import {
   ArrowUpDown,
   ChevronUp,
   ChevronDown,
+  TrendingUp,
+  Coins,
+  LineChart,
+  Gem,
+  Bot,
+  Gamepad2,
+  Package,
+  Trophy,
+  Crown,
+  ShieldCheck,
+  GraduationCap,
+  HeartHandshake,
+  BookOpen,
+  Wifi,
+  Tv,
+  Building2,
+  Key,
+  Pill,
+  Eye,
+  Fuel,
+  Bus,
+  Train,
+  Scissors,
+  Dumbbell,
+  FileCheck,
+  Tag,
 } from 'lucide-react';
-import { RecurringRule, Bucket, Expense, RecurringCostType, ReminderOffset, RecurringCategoryType } from '../../types';
+import { RecurringRule, Bucket, Expense, RecurringCostType, ReminderOffset, RecurringCategoryType, FunctionalCategory, DEFAULT_FUNCTIONAL_CATEGORIES } from '../../types';
 import { DBService } from '../../services/db';
 import { HapticService } from '../../services/hapticService';
+import { FunctionalCategoriesModal, LUCIDE_CATEGORY_ICONS } from './FunctionalCategoriesModal';
 
 interface RecurringViewProps {
   rules: RecurringRule[];
@@ -55,7 +82,7 @@ interface RecurringViewProps {
   onRefresh?: () => void;
 }
 
-// Iconos disponibles para recurrentes
+// Iconos disponibles para recurrentes (100% Lucide React)
 const RECURRING_ICON_MAP: Record<string, React.ElementType> = {
   Home,
   Zap,
@@ -65,9 +92,38 @@ const RECURRING_ICON_MAP: Record<string, React.ElementType> = {
   Utensils,
   Music,
   Shield,
+  ShieldCheck,
   Repeat,
   Bell,
   Sparkles,
+  TrendingUp,
+  Coins,
+  LineChart,
+  Landmark,
+  Gem,
+  Bot,
+  Gamepad2,
+  Package,
+  Trophy,
+  Crown,
+  GraduationCap,
+  HeartHandshake,
+  BookOpen,
+  Wifi,
+  Tv,
+  Building2,
+  Key,
+  Pill,
+  Eye,
+  Fuel,
+  Bus,
+  Train,
+  Scissors,
+  Dumbbell,
+  FileCheck,
+  Stethoscope,
+  Wrench,
+  Gift,
 };
 
 const AVAILABLE_OFFSETS: Array<{ id: ReminderOffset; label: string }> = [
@@ -96,21 +152,33 @@ export type RecurringSortMode =
   | 'amount_asc';
 
 const CATEGORY_NAMES: Record<RecurringCategoryType, string> = {
+  financial_future: 'Futuro Financiero (Inversiones)',
   bill: 'Recibos y Facturas',
   subscription: 'Suscripciones',
+  insurance: 'Seguros y Pólizas',
+  education: 'Educación y Formación',
+  transport: 'Transporte y Movilidad',
   tax: 'Impuestos y Tasas',
   health: 'Salud y Cuidado',
   maintenance: 'Mantenimiento',
+  leisure: 'Ocio y Recreación',
+  donation: 'Donaciones y Solidaridad',
   personal: 'Personal y Familia',
 };
 
 const CATEGORY_HIERARCHY: Record<RecurringCategoryType, number> = {
-  bill: 1,
-  subscription: 2,
-  tax: 3,
-  health: 4,
-  maintenance: 5,
-  personal: 6,
+  financial_future: 1,
+  bill: 2,
+  insurance: 3,
+  subscription: 4,
+  tax: 5,
+  transport: 6,
+  education: 7,
+  health: 8,
+  maintenance: 9,
+  leisure: 10,
+  donation: 11,
+  personal: 12,
 };
 
 export const RecurringView: React.FC<RecurringViewProps> = ({
@@ -130,6 +198,34 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
   const [vampireModalOpen, setVampireModalOpen] = useState(false);
   const [filterVampireOnly, setFilterVampireOnly] = useState(false);
   const [statusFilter, setStatusFilter] = useState<'active' | 'ceased' | 'all'>('active');
+  const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
+
+  // Categorías Funcionales Dinámicas
+  const [categories, setCategories] = useState<FunctionalCategory[]>(() => {
+    return DBService.getFunctionalCategories();
+  });
+
+  const handleRefreshCategories = () => {
+    const updated = DBService.getFunctionalCategories();
+    setCategories(updated);
+    if (onRefresh) onRefresh();
+  };
+
+  const getCategoryById = (id?: string): FunctionalCategory => {
+    if (!id) {
+      return categories[0] || DEFAULT_FUNCTIONAL_CATEGORIES[0];
+    }
+    const found = categories.find((c) => c.id === id);
+    if (found) return found;
+    // Fallback defensivo ante IDs desconocidos
+    return {
+      id,
+      name: id === 'bill' ? 'Recibo' : id === 'subscription' ? 'Suscripción' : id,
+      icon: 'Tag',
+      color: '#3b82f6',
+      isSystem: false,
+    };
+  };
 
   // Ordenación de Cargos Recurrentes
   const [sortMode, setSortMode] = useState<RecurringSortMode>(() => {
@@ -146,7 +242,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [costType, setCostType] = useState<RecurringCostType>('fixed');
-  const [categoryType, setCategoryType] = useState<RecurringCategoryType>('bill');
+  const [categoryType, setCategoryType] = useState<string>('bill');
   const [bucketId, setBucketId] = useState(buckets[0]?.id || '');
   const [frequency, setFrequency] = useState<'weekly' | 'monthly' | 'quarterly' | 'yearly'>('monthly');
   const [dayOfMonth, setDayOfMonth] = useState('1');
@@ -441,15 +537,16 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
     }
 
     if (sortMode === 'category') {
-      const catA = CATEGORY_HIERARCHY[a.categoryType || 'bill'] ?? 99;
-      const catB = CATEGORY_HIERARCHY[b.categoryType || 'bill'] ?? 99;
-      if (catA !== catB) return catA - catB;
+      const catA = getCategoryById(a.categoryType);
+      const catB = getCategoryById(b.categoryType);
+      const orderDiff = (catA.order ?? 99) - (catB.order ?? 99);
+      if (orderDiff !== 0) return orderDiff;
       return a.title.localeCompare(b.title, 'es', { sensitivity: 'base' });
     }
 
     if (sortMode === 'category_alpha') {
-      const nameA = CATEGORY_NAMES[a.categoryType || 'bill'] || '';
-      const nameB = CATEGORY_NAMES[b.categoryType || 'bill'] || '';
+      const nameA = getCategoryById(a.categoryType).name;
+      const nameB = getCategoryById(b.categoryType).name;
       const catComp = nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
       if (catComp !== 0) return catComp;
       return a.title.localeCompare(b.title, 'es', { sensitivity: 'base' });
@@ -539,6 +636,16 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Smart Seeds</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setCategoriesModalOpen(true)}
+            title="Gestionar Categorías Funcionales (Crear, Editar, Eliminar y Reordenar)"
+            className="px-2.5 py-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 border border-cyan-500/40 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+          >
+            <Tag className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Categorías</span>
           </button>
 
           <button
@@ -769,24 +876,9 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               badgeText = `En ${daysLeft} días (${formattedDate})`;
             }
 
-            let categoryLabel = 'Recibo';
-            let CategoryIcon = CreditCard;
-            if (rule.categoryType === 'health') {
-              categoryLabel = 'Salud';
-              CategoryIcon = Stethoscope;
-            } else if (rule.categoryType === 'maintenance') {
-              categoryLabel = 'Mantenimiento';
-              CategoryIcon = Wrench;
-            } else if (rule.categoryType === 'tax') {
-              categoryLabel = 'Impuesto';
-              CategoryIcon = Landmark;
-            } else if (rule.categoryType === 'personal') {
-              categoryLabel = 'Personal';
-              CategoryIcon = Gift;
-            } else if (rule.categoryType === 'subscription') {
-              categoryLabel = 'Suscripción';
-              CategoryIcon = Repeat;
-            }
+            const catObj = getCategoryById(rule.categoryType);
+            const CategoryIcon = LUCIDE_CATEGORY_ICONS[catObj.icon] || CreditCard;
+            const categoryLabel = catObj.name;
 
             return (
               <div
@@ -818,8 +910,15 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                   <div className="min-w-0">
                     <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                       <span className="text-sm font-bold text-white truncate">{rule.title}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold border border-slate-700 flex items-center gap-1">
-                        <CategoryIcon className="w-3 h-3 text-slate-400" />
+                      <span
+                        className="text-[10px] px-2 py-0.5 rounded-full font-semibold border flex items-center gap-1"
+                        style={{
+                          backgroundColor: `${catObj.color || '#3b82f6'}15`,
+                          borderColor: `${catObj.color || '#3b82f6'}40`,
+                          color: catObj.color || '#93c5fd',
+                        }}
+                      >
+                        <CategoryIcon className="w-3 h-3" />
                         <span>{categoryLabel}</span>
                       </span>
                       {!rule.isActive && (
@@ -1123,18 +1222,28 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
 
               {/* Categoría Funcional */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">Categoría Funcional *</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-400">Categoría Funcional *</label>
+                  <button
+                    type="button"
+                    onClick={() => setCategoriesModalOpen(true)}
+                    className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer transition-colors"
+                    title="Crear, editar o eliminar categorías"
+                  >
+                    <Tag className="w-3 h-3" />
+                    <span>Gestionar Categorías</span>
+                  </button>
+                </div>
                 <select
                   value={categoryType}
                   onChange={(e: any) => setCategoryType(e.target.value)}
                   className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-xs font-medium text-white focus:border-emerald-500 focus:outline-hidden"
                 >
-                  <option value="bill">Recibo / Factura (Luz, Agua, Alquiler)</option>
-                  <option value="subscription">Suscripción (Streaming, Gimnasio)</option>
-                  <option value="health">Salud (Lentillas, Medicación, Dentista)</option>
-                  <option value="maintenance">Mantenimiento / Mascota (Veterinario, ITV)</option>
-                  <option value="personal">Personal (Cumpleaños, Aniversarios)</option>
-                  <option value="tax">Impuesto / Tributo (IBI, Modelos AEAT)</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -1457,26 +1566,32 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               {/* Selector de Icono */}
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-400">Icono Identificativo</label>
-                <div className="flex items-center gap-2 pt-1 flex-wrap">
-                  {['Home', 'Zap', 'Droplets', 'Smartphone', 'Car', 'Utensils', 'Music', 'Shield', 'Repeat', 'Bell', 'Sparkles'].map(
-                    (ic) => {
-                      const Comp = RECURRING_ICON_MAP[ic] || Repeat;
-                      return (
-                        <button
-                          key={ic}
-                          type="button"
-                          onClick={() => setIcon(ic)}
-                          className={`p-2 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
-                            icon === ic
-                              ? 'bg-emerald-500 text-slate-950 font-bold scale-105'
-                              : 'bg-slate-800 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          <Comp className="w-4 h-4" />
-                        </button>
-                      );
-                    }
-                  )}
+                <div className="flex items-center gap-2 pt-1 flex-wrap max-h-40 overflow-y-auto pr-1">
+                  {[
+                    'Home', 'Zap', 'Droplets', 'Smartphone', 'Car', 'Fuel', 'Bus', 'Train',
+                    'Utensils', 'Music', 'Shield', 'ShieldCheck', 'FileCheck', 'Repeat', 'Bell',
+                    'Sparkles', 'TrendingUp', 'Coins', 'LineChart', 'Landmark', 'Gem',
+                    'Building2', 'Key', 'Wifi', 'Tv', 'GraduationCap', 'BookOpen',
+                    'Stethoscope', 'Pill', 'Eye', 'Wrench', 'Scissors', 'Dumbbell', 'Gift',
+                    'HeartHandshake', 'Bot', 'Gamepad2', 'Package', 'Trophy', 'Crown',
+                  ].map((ic) => {
+                    const Comp = RECURRING_ICON_MAP[ic] || Repeat;
+                    return (
+                      <button
+                        key={ic}
+                        type="button"
+                        onClick={() => setIcon(ic)}
+                        className={`p-2 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                          icon === ic
+                            ? 'bg-emerald-500 text-slate-950 font-bold scale-105'
+                            : 'bg-slate-800 text-slate-400 hover:text-white'
+                        }`}
+                        title={ic}
+                      >
+                        <Comp className="w-4 h-4" />
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -1612,6 +1727,14 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Modal de Gestión Dinámica de Categorías Funcionales (CRUD Completo) */}
+      <FunctionalCategoriesModal
+        isOpen={categoriesModalOpen}
+        onClose={() => setCategoriesModalOpen(false)}
+        rules={rules}
+        onCategoriesChanged={handleRefreshCategories}
+      />
     </div>
   );
 };

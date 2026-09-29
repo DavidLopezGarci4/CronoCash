@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { RecurringRule, Bucket } from '../../types';
 import { HapticService } from '../../services/hapticService';
+import { DBService } from '../../services/db';
+import { LUCIDE_CATEGORY_ICONS } from '../recurring/FunctionalCategoriesModal';
 
 interface ConfirmRecurringExpenseModalProps {
   rule: RecurringRule | null;
@@ -116,26 +118,15 @@ export const ConfirmRecurringExpenseModal: React.FC<ConfirmRecurringExpenseModal
     onClose();
   };
 
-  let categoryLabel = 'Recibo / Factura';
-  let CategoryIcon = CreditCard;
-  let categoryColor = 'text-blue-400 bg-blue-500/10 border-blue-500/20';
-  if (rule.categoryType === 'health') {
-    categoryLabel = 'Salud / Lentillas / Citas';
-    CategoryIcon = Stethoscope;
-    categoryColor = 'text-purple-400 bg-purple-500/10 border-purple-500/20';
-  } else if (rule.categoryType === 'maintenance') {
-    categoryLabel = 'Mantenimiento / Mascota';
-    CategoryIcon = Wrench;
-    categoryColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
-  } else if (rule.categoryType === 'tax') {
-    categoryLabel = 'Impuesto / Tasa';
-    CategoryIcon = Landmark;
-    categoryColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
-  } else if (rule.categoryType === 'personal') {
-    categoryLabel = 'Cumpleaños / Personal';
-    CategoryIcon = Gift;
-    categoryColor = 'text-rose-400 bg-rose-500/10 border-rose-500/20';
-  }
+  const categories = DBService.getFunctionalCategories();
+  const catObj = categories.find((c) => c.id === rule.categoryType) || {
+    id: rule.categoryType || 'bill',
+    name: rule.categoryType === 'bill' ? 'Recibo' : rule.categoryType || 'General',
+    icon: 'CreditCard',
+    color: '#3b82f6',
+  };
+  const CategoryIcon = LUCIDE_CATEGORY_ICONS[catObj.icon] || CreditCard;
+  const categoryLabel = catObj.name;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -150,7 +141,14 @@ export const ConfirmRecurringExpenseModal: React.FC<ConfirmRecurringExpenseModal
               <h2 className="text-base font-bold text-white leading-tight">
                 {isPureTask && !includeUnexpectedExpense ? 'Confirmar Tarea Recurrente' : 'Confirmar / Ajustar Gasto'}
               </h2>
-              <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border inline-flex items-center gap-1 mt-1 ${categoryColor}`}>
+              <span
+                className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border inline-flex items-center gap-1 mt-1"
+                style={{
+                  backgroundColor: `${catObj.color || '#3b82f6'}15`,
+                  borderColor: `${catObj.color || '#3b82f6'}40`,
+                  color: catObj.color || '#93c5fd',
+                }}
+              >
                 <CategoryIcon className="w-3 h-3" />
                 <span>{categoryLabel}</span>
               </span>

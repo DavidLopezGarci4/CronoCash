@@ -38,7 +38,13 @@ import {
   ArrowUpDown,
   ChevronUp,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  BarChart3,
 } from 'lucide-react';
+import { format, addMonths, subMonths } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { usePrivacy } from '../../context/PrivacyContext';
 import { Bucket, Expense } from '../../types';
 import { DBService } from '../../services/db';
@@ -123,12 +129,18 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     HapticService.selection();
   };
 
+  // Navegación mensual y modo de visualización
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const [viewMode, setViewMode] = useState<'month' | 'annual'>('month');
+
   // Formulario Bolsa
   const [name, setName] = useState('');
   const [budgetLimit, setBudgetLimit] = useState('');
   const [color, setColor] = useState('#10b981');
   const [icon, setIcon] = useState('PieChart');
   const [isBuffer, setIsBuffer] = useState(false);
+  const [rolloverSurplus, setRolloverSurplus] = useState(false);
+  const [accumulatedSurplus, setAccumulatedSurplus] = useState('0');
   const [notes, setNotes] = useState('');
 
   // Vasos Comunicantes Form
@@ -139,8 +151,27 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   // Filtro de bolsa seleccionada para ver detalles
   const [selectedBucketId, setSelectedBucketId] = useState<string | null>(null);
 
-  const currentMonthPrefix = new Date().toISOString().substring(0, 7);
-  const currentExpenses = expenses.filter((e) => (e.date || '').startsWith(currentMonthPrefix));
+  const selectedMonthPrefix = format(selectedDate, 'yyyy-MM');
+  const selectedYear = selectedDate.getFullYear();
+  const selectedYearPrefix = String(selectedYear);
+  const isCurrentMonth = selectedMonthPrefix === new Date().toISOString().substring(0, 7);
+
+  const currentExpenses = expenses.filter((e) => (e.date || '').startsWith(selectedMonthPrefix));
+  const yearExpenses = expenses.filter((e) => (e.date || '').startsWith(selectedYearPrefix));
+  const activeExpenses = viewMode === 'annual' ? yearExpenses : currentExpenses;
+
+  const handlePrevMonth = () => {
+    setSelectedDate((prev) => subMonths(prev, 1));
+    HapticService.selection();
+  };
+  const handleNextMonth = () => {
+    setSelectedDate((prev) => addMonths(prev, 1));
+    HapticService.selection();
+  };
+  const handleCurrentMonth = () => {
+    setSelectedDate(new Date());
+    HapticService.selection();
+  };
 
   // Abrir modal de creación
   const openAdd = () => {
@@ -150,6 +181,8 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     setColor('#10b981');
     setIcon('ShoppingCart');
     setIsBuffer(false);
+    setRolloverSurplus(false);
+    setAccumulatedSurplus('0');
     setNotes('');
     setModalOpen(true);
   };
@@ -162,6 +195,8 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     setColor(b.color);
     setIcon(b.icon || 'PieChart');
     setIsBuffer(b.isBuffer);
+    setRolloverSurplus(b.rolloverSurplus || false);
+    setAccumulatedSurplus(String(b.accumulatedSurplus || 0));
     setNotes(b.notes || '');
     setModalOpen(true);
   };
@@ -175,6 +210,8 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
       return;
     }
 
+    const parsedAccumulated = parseFloat(accumulatedSurplus.replace(',', '.'));
+
     const bucket: Bucket = {
       id: editingBucket?.id || `bucket_${Date.now()}`,
       name: name.trim() || 'Nueva Bolsa',
@@ -182,7 +219,10 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
       color,
       icon,
       isBuffer,
+      rolloverSurplus,
+      accumulatedSurplus: rolloverSurplus ? (isNaN(parsedAccumulated) ? 0 : parsedAccumulated) : undefined,
       notes: notes.trim() || undefined,
+      order: editingBucket?.order,
       createdAt: editingBucket?.createdAt || new Date().toISOString(),
     };
 
@@ -233,7 +273,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   // Ejecutar Rollover de Ahorro
   const handleExecuteRollover = async () => {
     try {
-      const result = await DBService.executeMonthlyRollover(currentMonthPrefix);
+      const result = await DBService.executeMonthlyRollover(selectedMonthPrefix);
       await HapticService.notificationSuccess();
       setRolloverModalOpen(false);
       onRefresh();
@@ -298,14 +338,28 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     'Crown',
   ];
 
-  // Cálculo de totales globales
-  const totalBudget = buckets.reduce((sum, b) => sum + b.budgetLimit, 0);
-  const totalSpent = currentExpenses.reduce((sum, e) => sum + e.amount, 0);
-  const globalPct = totalBudget > 0 ? Math.min(Math.round((totalSpent / totalBudget) * 100), 100) : 0;
+  // Totales mensuales
+  const totalBudgetMonthly = buckets.reduce(
+    (sum, b) => sum + b.budgetLimit + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0),
+    0
+  );
+  const totalSpentMonthly = currentExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const monthlyPct = totalBudgetMonthly > 0 ? Math.min(Math.round((totalSpentMonthly / totalBudgetMonthly) * 100), 100) : 0;
 
-  // Cálculo del excedente potencial para rollover
+  // Totales anuales (Proyección Anual)
+  const totalBudgetAnnual = buckets.reduce((sum, b) => sum + b.budgetLimit * 12, 0);
+  const totalSpentAnnual = yearExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const annualPct = totalBudgetAnnual > 0 ? Math.min(Math.round((totalSpentAnnual / totalBudgetAnnual) * 100), 100) : 0;
+  const annualRemaining = totalBudgetAnnual - totalSpentAnnual;
+
+  // Totales activos según viewMode
+  const totalBudget = viewMode === 'annual' ? totalBudgetAnnual : totalBudgetMonthly;
+  const totalSpent = viewMode === 'annual' ? totalSpentAnnual : totalSpentMonthly;
+  const globalPct = viewMode === 'annual' ? annualPct : monthlyPct;
+
+  // Cálculo del excedente potencial para rollover (excluyendo colchón y bolsas con sinking fund propio)
   const potentialSurplus = buckets
-    .filter((b) => !b.isBuffer)
+    .filter((b) => !b.isBuffer && !b.rolloverSurplus)
     .reduce((sum, b) => {
       const spent = currentExpenses
         .filter((e) => e.bucketId === b.id)
@@ -316,17 +370,19 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
   // Detección de sobregiros para el Asistente Inteligente Cover Overspending
   const overspentBuckets = buckets.filter((b) => {
+    const effectiveLimit = b.budgetLimit + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0);
     const spent = currentExpenses
       .filter((e) => e.bucketId === b.id)
       .reduce((s, e) => s + e.amount, 0);
-    return spent > b.budgetLimit;
+    return spent > effectiveLimit;
   });
 
   const totalOverspending = overspentBuckets.reduce((acc, b) => {
+    const effectiveLimit = b.budgetLimit + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0);
     const spent = currentExpenses
       .filter((e) => e.bucketId === b.id)
       .reduce((s, e) => s + e.amount, 0);
-    return acc + (spent - b.budgetLimit);
+    return acc + (spent - effectiveLimit);
   }, 0);
 
   // Ordenación calculada de las bolsas según el criterio elegido
@@ -479,13 +535,87 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
         </div>
       )}
 
+      {/* Selector de Mes Navegable y Conmutador de Proyección Anual */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-2.5 bg-slate-900/60 border border-slate-800/80 rounded-2xl shadow-sm">
+        {/* Controles de Navegación Mensual */}
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={handlePrevMonth}
+            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            title="Mes anterior"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+
+          <span className="text-xs font-bold text-white px-2 capitalize flex items-center gap-1.5 min-w-[130px] justify-center">
+            <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{format(selectedDate, 'MMMM yyyy', { locale: es })}</span>
+          </span>
+
+          <button
+            type="button"
+            onClick={handleNextMonth}
+            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            title="Mes siguiente"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          {!isCurrentMonth && (
+            <button
+              type="button"
+              onClick={handleCurrentMonth}
+              className="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition-all cursor-pointer ml-1"
+            >
+              Hoy
+            </button>
+          )}
+        </div>
+
+        {/* Toggle [ Mes | Proyección Anual ] */}
+        <div className="flex items-center p-0.5 rounded-xl bg-slate-950/80 border border-slate-800/80 text-xs self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={() => {
+              setViewMode('month');
+              HapticService.selection();
+            }}
+            className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+              viewMode === 'month'
+                ? 'bg-emerald-500 text-slate-950 shadow-xs'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Mes
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setViewMode('annual');
+              HapticService.selection();
+            }}
+            className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1 ${
+              viewMode === 'annual'
+                ? 'bg-emerald-500 text-slate-950 shadow-xs'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>Proyección Anual</span>
+          </button>
+        </div>
+      </div>
+
       {/* Tarjeta de Resumen Global de Bolsas & Banner de Rollover */}
       <div className="p-4 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 shadow-xl space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Coins className="w-4 h-4 text-emerald-400" />
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Presupuesto Mensual Activo ({buckets.length} Bolsas)
+              {viewMode === 'annual'
+                ? `Proyección Anual Ejercicio ${selectedYear} (${buckets.length} Bolsas)`
+                : `Presupuesto Mensual Activo (${buckets.length} Bolsas)`}
             </span>
           </div>
           <span className="text-xs font-mono font-bold text-emerald-400">
@@ -508,10 +638,16 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
         <div className="flex items-center justify-between text-xs pt-1">
           <span className="text-slate-400">
-            Consumo total: <strong className="text-white">{globalPct}%</strong>
+            {viewMode === 'annual' ? 'Consumo anual acumulado: ' : 'Consumo total: '}
+            <strong className="text-white">{globalPct}%</strong>
+            {viewMode === 'annual' && (
+              <span className="ml-2 text-slate-500">
+                (Margen restante: <span className="text-emerald-400 font-mono font-bold">{isPrivate ? '••••' : annualRemaining.toFixed(2)} {currency}</span>)
+              </span>
+            )}
           </span>
 
-          {potentialSurplus > 0 && (
+          {viewMode === 'month' && isCurrentMonth && potentialSurplus > 0 && (
             <button
               onClick={() => setRolloverModalOpen(true)}
               className="px-2.5 py-1 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
@@ -534,12 +670,12 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           onChange={(e) => handleSortChange(e.target.value as BucketSortMode)}
           className="bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-sm"
         >
-          <option value="manual">🔀 Manual (Personalizado)</option>
-          <option value="alpha_asc">🔤 Nombre (A - Z)</option>
-          <option value="alpha_desc">🔤 Nombre (Z - A)</option>
-          <option value="limit_desc">💰 Techo (Mayor a menor)</option>
-          <option value="limit_asc">💰 Techo (Menor a mayor)</option>
-          <option value="spent_desc">📊 Mayor consumo mensual</option>
+          <option value="manual">Manual (Personalizado)</option>
+          <option value="alpha_asc">Nombre (A - Z)</option>
+          <option value="alpha_desc">Nombre (Z - A)</option>
+          <option value="limit_desc">Techo (Mayor a menor)</option>
+          <option value="limit_asc">Techo (Menor a mayor)</option>
+          <option value="spent_desc">Mayor consumo mensual</option>
         </select>
       </div>
 
@@ -547,11 +683,12 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {sortedBuckets.map((b, index) => {
           const IconComp = ICON_MAP[b.icon] || PieChart;
-          const spent = currentExpenses
+          const accumulated = b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0;
+          const limit = viewMode === 'annual' ? (b.budgetLimit * 12) : (b.budgetLimit + accumulated);
+          const spent = activeExpenses
             .filter((e) => e.bucketId === b.id)
             .reduce((sum, e) => sum + e.amount, 0);
-          const limit = b.budgetLimit || 1;
-          const pct = Math.min(Math.round((spent / limit) * 100), 100);
+          const pct = limit > 0 ? Math.min(Math.round((spent / limit) * 100), 100) : 0;
           const isOver = spent > limit;
           const remaining = limit - spent;
           const isWarning = pct >= 80 && !isOver;
@@ -578,8 +715,14 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                     <IconComp className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-1.5 flex-wrap">
                       <span>{b.name}</span>
+                      {b.rolloverSurplus && viewMode === 'month' && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-bold border border-teal-500/40 flex items-center gap-1">
+                          <PiggyBank className="w-3 h-3 text-teal-400" />
+                          <span>Hucha +{isPrivate ? '••••' : accumulated.toFixed(2)} {currency}</span>
+                        </span>
+                      )}
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">
                       {b.notes || 'Partida presupuestaria'}
@@ -642,7 +785,9 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
               {/* Números y Barra de Progreso */}
               <div className="mt-4 pt-3 border-t border-slate-800/80 space-y-2">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-xs text-slate-400">Consumido este mes</span>
+                  <span className="text-xs text-slate-400">
+                    {viewMode === 'annual' ? 'Consumido en el año' : 'Consumido este mes'}
+                  </span>
                   <div className="text-sm font-mono font-bold">
                     <span className={isOver ? 'text-rose-400 font-black' : 'text-white'}>
                       {isPrivate ? '••••' : spent.toFixed(2)} {currency}
@@ -662,7 +807,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500">{pct}% del techo</span>
+                  <span className="text-slate-500">{pct}% del techo {viewMode === 'annual' ? 'anual' : 'mensual'}</span>
                   <span
                     className={`font-semibold ${
                       isOver
@@ -678,7 +823,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                         <span>Exceso: {isPrivate ? '••••' : (spent - limit).toFixed(2)} {currency}</span>
                       </span>
                     ) : (
-                      `Disponible: ${isPrivate ? '••••' : remaining.toFixed(2)} ${currency}`
+                      `${viewMode === 'annual' ? 'Margen anual: ' : 'Disponible: '}${isPrivate ? '••••' : remaining.toFixed(2)} ${currency}`
                     )}
                   </span>
                 </div>
@@ -797,6 +942,49 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                     Recibe automáticamente el rollover de ahorro mensual de las demás bolsas
                   </div>
                 </div>
+              </div>
+
+              {/* Opción Sinking Fund / Trasvase de Remanente al Siguiente Mes */}
+              <div className="space-y-2 p-3 rounded-2xl bg-indigo-950/20 border border-indigo-500/30">
+                <div
+                  onClick={() => setRolloverSurplus(!rolloverSurplus)}
+                  className="flex items-center space-x-3 cursor-pointer"
+                >
+                  <div
+                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
+                      rolloverSurplus
+                        ? 'bg-indigo-500 border-indigo-500 text-white'
+                        : 'border-indigo-400/50'
+                    }`}
+                  >
+                    {rolloverSurplus && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs font-bold text-indigo-200 flex items-center gap-1.5">
+                      <PiggyBank className="w-3.5 h-3.5 text-indigo-400" />
+                      <span>Trasvasar remanente al siguiente mes (Sinking Fund)</span>
+                    </div>
+                    <div className="text-[10px] text-indigo-300/80">
+                      Ideal para seguros o gastos periódicos. El saldo no consumido se acumula en esta bolsa mes a mes.
+                    </div>
+                  </div>
+                </div>
+
+                {rolloverSurplus && (
+                  <div className="pt-2 pl-8 border-t border-indigo-500/20">
+                    <label className="text-[11px] font-semibold text-indigo-300 block mb-1">
+                      Remanente acumulado actual ({currency})
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={accumulatedSurplus}
+                      onChange={(e) => setAccumulatedSurplus(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full h-9 px-3 bg-slate-900 border border-indigo-500/40 rounded-xl text-xs font-mono font-bold text-indigo-300 focus:border-indigo-400 focus:outline-none"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-1">

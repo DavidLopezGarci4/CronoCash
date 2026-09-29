@@ -4,17 +4,31 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.18.0 — Iconos de Inversión & Coleccionismo, Paleta de 16 Colores y Ordenación Flexible de Bolsas y Recurrentes 🌟
-- [x] **10 Nuevos Iconos Lucide (Inversión & Coleccionismo):** Incorporación oficial de iconos temáticos (`TrendingUp`, `Coins`, `LineChart`, `Landmark`, `Gem`, `Bot`, `Gamepad2`, `Package`, `Trophy`, `Crown`) para bolsas y metas de ahorro.
-- [x] **Paleta Cromática Ampliada a 16 Colores:** 7 nuevos colores distintivos (Índigo, Violeta, Lima, Oro, Fucsia, Bosque y Cielo) sincronizados entre Bolsas y Metas.
-- [x] **Motor de Ordenación de Bolsas:** Orden manual interactivo (con controles `ChevronUp`/`ChevronDown` y respuesta háptica), alfabético (A-Z / Z-A) o por límite asignado, persistido en IndexedDB.
-- [x] **Motor de Ordenación de Cargos Recurrentes:** 8 criterios de ordenación (inminente, manual con controles táctiles, categoría jerárquica, categoría A-Z, título A-Z / Z-A, importe mayor/menor) con cifrado AES-GCM en reposo.
-- [x] **Persistencia de Preferencias de Ordenación:** Almacenamiento en `localStorage` (`cronocash_buckets_sort_mode` y `cronocash_recurring_sort_mode`).
-- [x] **Sincronización SemVer Global:** `v1.18.0` (Build 11800) en `package.json`, `android/app/build.gradle`, `changelog.user.json`, `docs/FAQ.md` y documentación.
+## Estado Actual: v1.20.0 — Gestor Dinámico de Categorías Funcionales (CRUD Completo y Borrado Seguro Anti-Huérfanos) 🌟
+- [x] **Gestor Dinámico de Categorías Funcionales:** Ventana modal para Crear, Editar, Eliminar y Reordenar categorías para gastos y tareas recurrentes.
+- [x] **Integridad Referencial y Borrado Seguro:** Comprobación preventiva de uso y selector asistido de reasignación antes de eliminar categorías.
+- [x] **Fallback Defensivo en Renderizado:** Renderizado seguro ("General" con icono neutro) ante cualquier ID no existente sin crasheos.
+- [x] **Personalización Cromática y Vectorial:** Selector de 40 iconos vectoriales oficiales de `lucide-react` y paleta de 16 colores.
+- [x] **Catálogo Base Oficial y Restablecimiento:** 12 categorías nativas del sistema respaldadas con botón de restauración a valores canónicos.
+- [x] **Sincronización SemVer Global:** `v1.20.0` (Build 12000) en todos los manifiestos, configuraciones y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.19.0 (Completado)
+- [x] Navegación Mensual y Totales por Mes en Bolsas.
+- [x] Proyección Anual de Bolsas (12x límite asignado vs consumo anual).
+- [x] Trasvase de Remanente Acumulable (Sinking Fund en Bolsa).
+- [x] Categoría Funcional "Futuro Financiero" para Inversiones.
+- [x] Categorías Funcionales Expandidas y Catálogo de 40 Iconos Lucide.
+
+### 📦 v1.18.0 (Completado)
+- [x] 10 Nuevos Iconos Lucide (Inversión & Coleccionismo) en Bolsas y Metas.
+- [x] Paleta Cromática Ampliada a 16 Colores seleccionables.
+- [x] Motor de Ordenación de Bolsas (manual con controles táctiles, alfabético, límite).
+- [x] Motor de Ordenación de Recurrentes (8 criterios de ordenación con cifrado AES-GCM).
+- [x] Persistencia de Preferencias de Ordenación en `localStorage`.
 
 ### 📦 v1.17.0 (Completado)
 - [x] Motor de Cobro Automático por Defecto (`RecurringEngineService`) y reversión en 1 toque.

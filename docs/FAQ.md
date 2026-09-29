@@ -1,7 +1,7 @@
 # Preguntas Frecuentes y Guía de Herramientas (FAQ) — CronoCash 📖
 
 > Guía de referencia rápida, operativa y resolución de dudas sobre todas las funciones y herramientas activas en la versión oficial de **CronoCash** (Android APK y PWA).  
-> **Versión Actual:** `v1.18.0` (Build 11800) • **Actualizado:** 29 de Septiembre de 2026 • **Módulos Auditados:** 14/14 • **Guías Operativas:** 45
+> **Versión Actual:** `v1.20.0` (Build 12000) • **Actualizado:** 29 de Septiembre de 2026 • **Módulos Auditados:** 14/14 • **Guías Operativas:** 48
 
 ---
 
@@ -58,15 +58,38 @@
 * **Nuevos iconos de inversión y coleccionismo:** Dispones de una galería ampliada con iconos Lucide específicos para inversiones y finanzas (`TrendingUp`, `Coins`, `LineChart`, `Landmark`, `Gem`) y coleccionismo o hobbies (`Bot`, `Gamepad2`, `Package`, `Trophy`, `Crown`).
 * **Paleta cromática de 16 colores:** 7 nuevos colores distintivos (Índigo, Violeta, Lima, Oro, Fucsia, Bosque y Cielo) sincronizados entre Bolsas y Metas de ahorro.
 
+### ¿Cómo consultar los totales mensuales y la proyección anual de las Bolsas?
+* **Navegador mensual interactivo:** Encima del panel de bolsas dispones de una barra de navegación con flechas (`< [Mes Año] >`) y botón *"Hoy"* para auditar el presupuesto y los gastos reales de cualquier mes histórico o futuro.
+* **Conmutador Mes / Proyección Anual:** Puedes alternar en 1 toque entre la vista mensual (límite y gasto del mes activo) y la *"Proyección Anual"*, que multiplica tu asignación mensual por 12 meses y la compara con el total acumulado del año natural.
+* **Remanente anual estimado:** La tarjeta de resumen anual computa al instante cuánto margen presupuestario te queda para el resto del año.
+
+### ¿Cómo funciona el trasvase de remanente al mes siguiente (Sinking Fund) en una Bolsa?
+* **Ahorro acumulativo por bolsa:** En lugar de derivar todo el sobrante a fin de mes al Colchón general, puedes activar en cualquier bolsa la opción *"Trasvasar remanente al siguiente mes (Sinking Fund)"*.
+* **Ideal para gastos no mensuales:** Perfecto para seguros (anuales, semestrales o trimestrales), revisiones de coche o impuestos periódicos. La bolsa retiene y acumula su remanente no gastado mes tras mes.
+* **Límite elástico efectivo:** En el mes en curso, el límite disponible de la bolsa será su asignación base más todo el remanente acumulado que traiga de periodos anteriores.
+* **Ajuste manual del remanente:** Dentro del modal de edición de la bolsa puedes corregir o inicializar el remanente acumulado actual con precisión de céntimos.
+
 ---
 
 ## 3. Gastos Recurrentes, Tareas Periódicas y Detector Vampiro
 
 ### ¿Cómo gestiona CronoCash las tareas periódicas, facturas y costes estimados?
 * **Tipos de coste flexibles:** Permite definir *Gastos Fijos* (recibos estables), *Costes Estimados* (facturas de importe variable, visitas veterinarias, regalos de cumpleaños) y *Tareas sin Coste* (cambio de lentillas, citas médicas, desparasitación de mascotas).
-* **Categorías funcionales limpias:** Clasificación visual entre Recibos, Suscripciones, Impuestos, Salud, Mantenimiento y Personal, sin etiquetas redundantes.
+* **Categoría "Futuro Financiero":** Nueva categoría funcional de primer nivel orientada a inversiones periódicas, planes de pensiones, fondos indexados y ahorro patrimonial.
+* **Categorías funcionales completas:** Clasificación visual y jerárquica limpia entre *Futuro Financiero*, *Seguros*, *Educación*, *Transporte*, *Ocio*, *Donaciones*, *Recibos*, *Suscripciones*, *Impuestos*, *Salud*, *Mantenimiento* y *Personal*.
+* **¿Dónde se configuran las categorías funcionales?:** En el modal de *Crear o Editar Acto Recurrente*, justo debajo de la modalidad de coste, encontrarás el selector desplegable *"Categoría Funcional \*"*.
+* **Catálogo de 40 iconos 100% Lucide React:** Extensa galería de iconos vectoriales para identificar visualmente cualquier servicio (`Wifi`, `Tv`, `Hogar`, `Llaves`, `Farmacia`, `Visión`, `Carro`, `Tren`, `Libros`, etc.).
 * **Soporte anual y mensual exacto:** Para compromisos anuales (seguro del coche, IBI, cumpleaños) permite indicar tanto el mes del año como el día de cobro exacto.
 * **Cuenta atrás semafórica y estado completado:** Cada acto muestra una insignia dinámica con su proximidad (🔴 *¡Toca HOY!*, 🟠 *¡Mañana!*, 🟡 *En X días*) y al cumplirse exhibe el estado *"✓ Completada hoy"* con indicador esmeralda.
+
+### ¿Puedo crear, modificar o eliminar Categorías Funcionales sin dañar mis datos?
+* **Gestor Dinámico Integrado:** Puedes acceder pulsando el botón *"Categorías"* en la cabecera de Recurrentes o mediante el acceso directo *"Gestionar Categorías"* junto al selector del formulario.
+* **Crear y Personalizar:** Añade tantas categorías como necesites indicando su nombre, asignándole un icono entre los 40 iconos oficiales de Lucide React y un color distintivo de la paleta de 16 colores.
+* **Modificar y Reordenar:** Puedes editar el nombre o aspecto de cualquier categoría y moverla arriba o abajo con los botones táctiles de flecha para que aparezca en el orden que prefieras.
+* **Borrado Seguro con Reasignación Anti-Huérfanos:** Si intentas borrar una categoría que tiene compromisos activos, la app te solicitará elegir una categoría de destino (ej. Recibos o Personal) para transferirlos automáticamente, evitando que queden gastos huérfanos.
+* **Fallback Defensivo Garantizado:** Si una regla tuviese una categoría eliminada o desconocida, la app nunca se bloquea ni genera error; se mostrará bajo la etiqueta *"General"* con icono neutro.
+* **Catálogo del Sistema Protegido:** Las 12 categorías nativas vienen respaldadas por el sistema y dispones de un botón en el pie del gestor para *"Restablecer categorías del sistema"* a sus valores canónicos en cualquier momento.
+* **Persistencia en Bóveda Cifrada y Backups:** Las categorías dinámicas se guardan en el almacén de configuración cifrado con AES-GCM en reposo y se transfieren íntegramente en las copias de seguridad de Google Drive (2 ranuras).
 
 ### ¿Cómo funciona el desplazamiento adaptativo de fechas futuras?
 * **Adaptación automática al día real:** Si tienes programado un cambio de lentillas el día 27, pero lo realizas el 29 e indicas esa fecha, las recurrencias y notificaciones de los meses siguientes se moverán automáticamente al día 29.

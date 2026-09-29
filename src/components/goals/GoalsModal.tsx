@@ -25,6 +25,14 @@ import {
   TrendingUp,
   Award,
   ArrowRight,
+  LineChart,
+  Landmark,
+  Gem,
+  Bot,
+  Gamepad2,
+  Package,
+  Trophy,
+  Crown,
 } from 'lucide-react';
 import { SavingsGoal, Bucket } from '../../types';
 import { SinkingFundsService } from '../../services/sinkingFundsService';
@@ -61,6 +69,16 @@ const GOAL_ICON_MAP: Record<string, React.ElementType> = {
   Zap,
   HeartPulse,
   Smartphone,
+  TrendingUp,
+  Coins,
+  LineChart,
+  Landmark,
+  Gem,
+  Bot,
+  Gamepad2,
+  Package,
+  Trophy,
+  Crown,
 };
 
 export const GoalsModal: React.FC<GoalsModalProps> = ({

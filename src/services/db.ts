@@ -1,4 +1,4 @@
-import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule, SavingsGoal, GoalContribution, ExtraIncome } from '../types';
+import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule, SavingsGoal, GoalContribution, ExtraIncome, FunctionalCategory, DEFAULT_FUNCTIONAL_CATEGORIES } from '../types';
 import { VaultCryptoService } from './vaultCryptoService';
 
 const DB_NAME = 'GastosFacturacionDB';
@@ -839,6 +839,73 @@ export class DBService {
     });
   }
 
+  // --- CATEGORÍAS FUNCIONALES DINÁMICAS (CRUD SEGURO) ---
+  static getFunctionalCategories(): FunctionalCategory[] {
+    const s = this.getSettings();
+    if (s.customFunctionalCategories && s.customFunctionalCategories.length > 0) {
+      return [...s.customFunctionalCategories].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+    }
+    return DEFAULT_FUNCTIONAL_CATEGORIES;
+  }
+
+  static async saveFunctionalCategory(category: FunctionalCategory): Promise<void> {
+    const s = this.getSettings();
+    const current = this.getFunctionalCategories();
+    const list = [...current];
+    const idx = list.findIndex((c) => c.id === category.id);
+    if (idx >= 0) {
+      list[idx] = category;
+    } else {
+      const maxOrder = list.reduce((max, c) => Math.max(max, c.order ?? 0), 0);
+      list.push({ ...category, order: category.order ?? maxOrder + 1 });
+    }
+    await this.saveSettings({
+      ...s,
+      customFunctionalCategories: list,
+    });
+  }
+
+  static async updateFunctionalCategoriesOrder(categories: FunctionalCategory[]): Promise<void> {
+    const s = this.getSettings();
+    const ordered = categories.map((c, i) => ({ ...c, order: i + 1 }));
+    await this.saveSettings({
+      ...s,
+      customFunctionalCategories: ordered,
+    });
+  }
+
+  static async deleteFunctionalCategory(categoryId: string, reassignToId?: string): Promise<void> {
+    // 1. Si se solicita reasignar reglas asociadas, actualizarlas atómicamente antes del borrado
+    if (reassignToId && reassignToId !== categoryId) {
+      const allRules = await this.getRecurringRules();
+      const rulesToUpdate = allRules.filter((r) => r.categoryType === categoryId);
+      for (const rule of rulesToUpdate) {
+        await this.saveRecurringRule({
+          ...rule,
+          categoryType: reassignToId,
+        });
+      }
+    }
+
+    // 2. Eliminar la categoría de la lista de configuración
+    const s = this.getSettings();
+    const current = this.getFunctionalCategories();
+    const filtered = current.filter((c) => c.id !== categoryId);
+    await this.saveSettings({
+      ...s,
+      customFunctionalCategories: filtered,
+    });
+  }
+
+  static async resetDefaultFunctionalCategories(): Promise<FunctionalCategory[]> {
+    const s = this.getSettings();
+    await this.saveSettings({
+      ...s,
+      customFunctionalCategories: DEFAULT_FUNCTIONAL_CATEGORIES,
+    });
+    return DEFAULT_FUNCTIONAL_CATEGORIES;
+  }
+
   // --- EXPENSES ---
   static async getExpenses(): Promise<Expense[]> {
     try {
@@ -1134,9 +1201,20 @@ export class DBService {
     // Calcular remanentes positivos de bolsas que no sean el colchón
     for (const b of buckets) {
       if (b.id === bufferBucket.id) continue;
+
       const spent = monthExpenses
         .filter((e) => e.bucketId === b.id)
         .reduce((sum, e) => sum + e.amount, 0);
+
+      // Si la bolsa tiene activo el trasvase de remanente propio (Sinking Fund / Hucha de Partida)
+      if (b.rolloverSurplus) {
+        const effectiveLimit = b.budgetLimit + (b.accumulatedSurplus || 0);
+        const ownRemaining = Math.max(0, effectiveLimit - spent);
+        b.accumulatedSurplus = Math.round(ownRemaining * 100) / 100;
+        await this.saveBucket(b);
+        continue;
+      }
+
       const remaining = b.budgetLimit - spent;
       if (remaining > 0) {
         surplusTotal += remaining;

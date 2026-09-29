@@ -1,6 +1,6 @@
 {
-  "currentVersion": "1.18.0",
-  "buildNumber": 11800,
+  "currentVersion": "1.20.0",
+  "buildNumber": 12000,
   "lastUpdated": "2026-09-29",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
@@ -9,11 +9,40 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.20.0",
+      "build": 12000,
+      "date": "29 Sep 2026",
+      "title": "Gestor Dinámico de Categorías Funcionales (CRUD Completo, Borrado Seguro y Anti-Huérfanos)",
+      "isCurrent": true,
+      "highlights": [
+        "🏷️ Gestor de Categorías Funcionales: Posibilidad total de Crear, Modificar, Eliminar y Reordenar categorías para tus compromisos recurrentes desde una ventana modal interactiva.",
+        "🛡️ Integridad Referencial y Borrado Seguro Anti-Huérfanos: Si eliminas una categoría con compromisos activos, el sistema te solicita elegir una categoría de destino para transferirlos automáticamente sin perder ningún dato.",
+        "🎨 Personalización con 40 Iconos Lucide y 16 Colores: Elige cualquier icono vectorial oficial y tono cromático para distinguir tus categorías tanto en selectores como en tarjetas y badges.",
+        "🔄 Catálogo Base y Botón Restablecer: Las 12 categorías nativas oficiales del sistema vienen precargadas y protegidas, con opción inmediata de restablecerlas a sus valores canónicos en 1 toque.",
+        "💾 Cero Impacto en Base de Datos y Backups: Persistencia automática en Settings cifrado con AES-GCM sin alterar el esquema de IndexedDB e integrado en las copias de seguridad de Google Drive (2 ranuras)."
+      ]
+    },
+    {
+      "version": "1.19.0",
+      "build": 11900,
+      "date": "29 Sep 2026",
+      "title": "Totales Mensuales, Proyección Anual, Sinking Fund en Bolsas y Categoría Futuro Financiero",
+      "isCurrent": false,
+      "highlights": [
+        "📅 Navegación Mensual y Totales por Mes en Bolsas: Selector interactivo mes a mes con acceso rápido 'Hoy' para auditar exactamente el consumo y asignación de cada periodo.",
+        "📊 Proyección Anual de Bolsas: Alternador de vista instantáneo entre 'Mes' y 'Proyección Anual' con cálculo automático de presupuesto anual (12x) y remanente disponible.",
+        "🐷 Trasvase de Remanente (Sinking Fund en Bolsa): Configuración opcional por bolsa para retener su excedente a fin de mes e irlo acumulando mes a mes para gastos trimestrales o anuales (ej. seguros, revisiones).",
+        "🚀 Categoría 'Futuro Financiero' para Inversiones: Nueva categoría funcional de primer nivel en cargos recurrentes para aportaciones a fondos, planes de pensiones y cuentas de inversión.",
+        "🛡️ Categorías Funcionales Expandidas: Cobertura completa con Seguros, Educación, Transporte, Ocio, Donaciones, Recibos, Suscripciones, Impuestos, Salud, Mantenimiento y Personal.",
+        "✨ Galería 100% Lucide React Ampliada a 40 Iconos: Iconos nítidos de alta definición para identificar compromisos (Wifi, Tv, Edificio, Llave, Medicación, Visión, Combustible, Autobús, Tren, Libros, Tijeras, Mancuerna, etc.)."
+      ]
+    },
+    {
       "version": "1.18.0",
       "build": 11800,
       "date": "29 Sep 2026",
       "title": "Iconos de Inversión & Coleccionismo, Paleta de 16 Colores y Ordenación Flexible de Bolsas y Recurrentes",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "🎨 10 Nuevos Iconos Lucide (Inversión & Coleccionismo): Incorporación oficial de iconos temáticos (TrendingUp, Coins, LineChart, Landmark, Gem, Bot, Gamepad2, Package, Trophy, Crown) para bolsas y metas de inversión, figuras de colección y hobbies.",
         "🌈 Paleta Ampliada a 16 Colores Distintivos: Incorporación de 7 nuevos colores seleccionables (Índigo, Violeta, Lima, Oro, Fucsia, Bosque y Cielo) perfectamente integrados en Bolsas y Metas.",
