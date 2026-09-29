@@ -15,6 +15,10 @@ import {
   CalendarDays,
   Sparkles,
   Info,
+  Zap,
+  Hand,
+  AlertTriangle,
+  RotateCcw,
 } from 'lucide-react';
 import {
   format,
@@ -43,6 +47,7 @@ interface CalendarViewProps {
   currency: string;
   onAddExpense?: (expense: Expense) => void;
   onRequestConfirmRecurring?: (rule: RecurringRule, targetDate?: string) => void;
+  onRevertExpense?: (expense: Expense) => void;
 }
 
 export function isRuleOnDate(rule: RecurringRule, date: Date): boolean {
@@ -98,6 +103,21 @@ export function isRuleOnDate(rule: RecurringRule, date: Date): boolean {
   return true;
 }
 
+export function isRecurringRuleCompletedOnDate(
+  rule: RecurringRule,
+  dateStr: string,
+  dayExpenses: Expense[]
+): boolean {
+  if ((rule.completedDates || []).includes(dateStr)) return true;
+  if (rule.lastGeneratedDate === dateStr) return true;
+  return dayExpenses.some(
+    (e) =>
+      e.recurringRuleId === rule.id ||
+      (e.title.toLowerCase() === rule.title.toLowerCase() &&
+        (rule.amount > 0 ? Math.abs(e.amount - rule.amount) < 0.01 : true))
+  );
+}
+
 type ViewPeriod = 'month' | 'week' | 'yoy';
 
 export const CalendarView: React.FC<CalendarViewProps> = ({
@@ -108,6 +128,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   currency,
   onAddExpense,
   onRequestConfirmRecurring,
+  onRevertExpense,
 }) => {
   const { isPrivate, mask } = usePrivacy();
   const [currentDate, setCurrentDate] = useState(() => new Date());
@@ -211,9 +232,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
   // Recurrentes que caen en el día seleccionado respetando frecuencia
   const selectedDayRecurring = recurringRules.filter((r) => isRuleOnDate(r, selectedDay));
-  const selectedDayRecurringTotal = selectedDayRecurring
-    .filter((r) => r.costType !== 'none' && r.amount > 0)
-    .reduce((sum, r) => sum + r.amount, 0);
+
+  // Recurrentes verdaderamente PENDIENTES (no completados ni asentados como gasto aún)
+  const selectedDayPendingRecurring = selectedDayRecurring.filter(
+    (r) => r.costType !== 'none' && r.amount > 0 && !isRecurringRuleCompletedOnDate(r, selectedDayStr, selectedDayExpenses)
+  );
+  const selectedDayPendingRecurringTotal = selectedDayPendingRecurring.reduce((sum, r) => sum + r.amount, 0);
+  const selectedDayRealTotal = selectedDayTotalSpent + selectedDayPendingRecurringTotal;
 
   // Función para registrar o confirmar un recurrente del día seleccionado
   const handlePayRecurringNow = (rule: RecurringRule) => {
@@ -443,39 +468,57 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
                 // Recurrentes de este día
                 const dayRecurring = recurringRules.filter((r) => isRuleOnDate(r, day));
-                const totalDayRecurring = dayRecurring
-                  .filter((r) => r.costType !== 'none' && r.amount > 0)
-                  .reduce((sum, r) => sum + r.amount, 0);
-
-                const hasCompletedTask = dayRecurring.some(
+                const dayCompletedRecurring = dayRecurring.filter((r) =>
+                  isRecurringRuleCompletedOnDate(r, dayDateStr, dayExpenses)
+                );
+                const dayPendingBills = dayRecurring.filter(
                   (r) =>
-                    (r.completedDates || []).includes(dayDateStr) ||
-                    (isSameDay(day, new Date()) && r.lastGeneratedDate === dayDateStr)
+                    r.costType !== 'none' &&
+                    r.amount > 0 &&
+                    !isRecurringRuleCompletedOnDate(r, dayDateStr, dayExpenses)
                 );
-                const hasHealthOrTask = dayRecurring.some(
-                  (r) => r.costType === 'none' || r.categoryType === 'health' || r.categoryType === 'maintenance' || r.categoryType === 'personal'
+                const dayPendingTasks = dayRecurring.filter(
+                  (r) =>
+                    (r.costType === 'none' ||
+                      r.categoryType === 'health' ||
+                      r.categoryType === 'maintenance' ||
+                      r.categoryType === 'personal') &&
+                    !isRecurringRuleCompletedOnDate(r, dayDateStr, dayExpenses)
                 );
-                const hasFinancialBill = dayRecurring.some((r) => r.costType !== 'none' && r.amount > 0);
-                const hasActivity = dayExpenses.length > 0 || dayRecurring.length > 0;
+
+                const totalDayPendingRecurring = dayPendingBills.reduce((sum, r) => sum + r.amount, 0);
+
+                const isPastOrToday = dayDateStr <= format(new Date(), 'yyyy-MM-dd');
+                const hasUnpaidManualBill = dayPendingBills.some(
+                  (r) => r.autoCreateExpense === false && isPastOrToday
+                );
+
+                // Indicadores semánticos unificados (máximo 1 punto por tipo)
+                const hasExecutedActivity = dayExpenses.length > 0 || dayCompletedRecurring.length > 0;
+                const hasPendingBill = dayPendingBills.length > 0;
+                const hasPendingTask = dayPendingTasks.length > 0;
+                const hasActivity = hasExecutedActivity || hasPendingBill || hasPendingTask || hasUnpaidManualBill;
 
                 return (
                   <button
                     key={dayDateStr}
                     type="button"
                     onClick={() => setSelectedDay(day)}
-                    className={`h-16 p-1.5 rounded-2xl flex flex-col justify-between transition-all border text-left cursor-pointer ${
+                    className={`h-16 p-1.5 rounded-2xl flex flex-col justify-between transition-all border text-left cursor-pointer overflow-hidden relative ${
                       isSelected
                         ? 'border-emerald-500 bg-emerald-950/30 ring-2 ring-emerald-500/40 shadow-lg'
                         : isToday(day)
                         ? 'border-emerald-500/60 bg-slate-900'
+                        : hasUnpaidManualBill
+                        ? 'border-rose-500/60 bg-rose-950/20 hover:border-rose-500'
                         : hasActivity
                         ? 'border-slate-700/80 bg-slate-800/60 hover:border-slate-600'
                         : 'border-slate-800/40 bg-slate-950/30 hover:border-slate-800'
                     } ${!isCurrentMonth && viewPeriod === 'month' ? 'opacity-30' : 'opacity-100'}`}
                   >
-                    <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center justify-between w-full min-w-0">
                       <span
-                        className={`text-xs font-bold ${
+                        className={`text-xs font-bold shrink-0 ${
                           isToday(day)
                             ? 'text-emerald-400 font-black'
                             : isSelected
@@ -486,45 +529,45 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         {dayNum}
                       </span>
 
-                      {/* Puntos de evento */}
-                      <div className="flex items-center space-x-1">
-                        {hasCompletedTask && (
+                      {/* Puntos de evento ultra-compactos y estrictamente deduplicados */}
+                      <div className="flex items-center space-x-0.5 shrink-0 max-w-[24px] overflow-hidden">
+                        {hasUnpaidManualBill ? (
                           <span
-                            className="w-2 h-2 rounded-full bg-emerald-400 ring-1 ring-emerald-300 shadow-xs shadow-emerald-400/50"
-                            title="Tarea periódica completada en esta fecha"
+                            className="w-1.5 h-1.5 rounded-full bg-rose-400 shadow-xs shadow-rose-400/50 shrink-0 animate-pulse"
+                            title="Pago manual vencido pendiente de abonar"
+                          />
+                        ) : null}
+                        {hasExecutedActivity && (
+                          <span
+                            className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"
+                            title="Gastos o tareas completadas en esta fecha"
                           />
                         )}
-                        {hasHealthOrTask && !hasCompletedTask && (
+                        {hasPendingBill && !hasUnpaidManualBill && (
                           <span
-                            className="w-2 h-2 rounded-full bg-purple-400 shadow-xs shadow-purple-400/50"
-                            title="Tareas o citas periódicas pendientes"
+                            className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-xs shadow-blue-400/50 shrink-0"
+                            title="Facturas o pagos programados pendientes"
                           />
                         )}
-                        {hasFinancialBill && (
+                        {hasPendingTask && (
                           <span
-                            className="w-2 h-2 rounded-full bg-blue-400 shadow-xs shadow-blue-400/50"
-                            title="Facturas o gastos previstos"
-                          />
-                        )}
-                        {dayExpenses.length > 0 && (
-                          <span
-                            className="w-2 h-2 rounded-full bg-emerald-400"
-                            title={`${dayExpenses.length} gastos realizados`}
+                            className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-xs shadow-purple-400/50 shrink-0"
+                            title="Tareas periódicas o salud pendientes"
                           />
                         )}
                       </div>
                     </div>
 
                     {/* Desglose resumido de importes */}
-                    <div className="w-full truncate">
+                    <div className="w-full truncate min-w-0">
                       {totalDaySpent > 0 && (
-                        <div className="text-[10px] font-mono font-bold text-rose-300 truncate">
+                        <div className="text-[9px] font-mono font-bold text-rose-300 truncate leading-tight">
                           -{totalDaySpent.toFixed(0)} {currency}
                         </div>
                       )}
-                      {totalDayRecurring > 0 && totalDaySpent === 0 && (
-                        <div className="text-[10px] font-mono font-bold text-blue-300 truncate">
-                          ~{totalDayRecurring.toFixed(0)} {currency}
+                      {totalDayPendingRecurring > 0 && totalDaySpent === 0 && (
+                        <div className="text-[9px] font-mono font-bold text-blue-300 truncate leading-tight">
+                          ~{totalDayPendingRecurring.toFixed(0)} {currency}
                         </div>
                       )}
                     </div>
@@ -545,14 +588,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   </span>
                 </h3>
                 <span className="text-[11px] text-slate-400">
-                  {selectedDayExpenses.length} gastos ejecutados • {selectedDayRecurring.length} pagos programados
+                  {selectedDayExpenses.length} {selectedDayExpenses.length === 1 ? 'gasto ejecutado' : 'gastos ejecutados'}
+                  {selectedDayPendingRecurring.length > 0
+                    ? ` • ${selectedDayPendingRecurring.length} ${selectedDayPendingRecurring.length === 1 ? 'pago pendiente' : 'pagos pendientes'}`
+                    : selectedDayRecurring.length > 0
+                    ? ' • compromisos al día'
+                    : ''}
                 </span>
               </div>
 
               <div className="text-right">
                 <span className="text-[10px] text-slate-400 uppercase font-bold">Total del Día</span>
                 <div className="text-base font-mono font-black text-emerald-400">
-                  {(selectedDayTotalSpent + selectedDayRecurringTotal).toFixed(2)} {currency}
+                  {selectedDayRealTotal.toFixed(2)} {currency}
                 </div>
               </div>
             </div>
@@ -571,16 +619,21 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     const isTask = rule.costType === 'none' || !rule.amount || rule.amount <= 0;
                     const isEstimated = rule.costType === 'estimated';
                     const selectedDayDateStr = format(selectedDay, 'yyyy-MM-dd');
-                    const isTaskCompleted =
-                      (rule.completedDates || []).includes(selectedDayDateStr) ||
-                      (isSameDay(selectedDay, new Date()) && rule.lastGeneratedDate === selectedDayDateStr);
+                    const isTaskCompleted = isRecurringRuleCompletedOnDate(rule, selectedDayDateStr, selectedDayExpenses);
+                    const isPastOrToday = selectedDayDateStr <= format(new Date(), 'yyyy-MM-dd');
+                    const isUnpaidManual =
+                      !isTaskCompleted &&
+                      rule.costType !== 'none' &&
+                      rule.amount > 0 &&
+                      rule.autoCreateExpense === false &&
+                      isPastOrToday;
 
-                    let categoryBadge = '💳 Recibo';
-                    if (rule.categoryType === 'health') categoryBadge = '🩺 Salud';
-                    else if (rule.categoryType === 'maintenance') categoryBadge = '🔧 Mantenimiento';
-                    else if (rule.categoryType === 'tax') categoryBadge = '🏛️ Impuesto';
-                    else if (rule.categoryType === 'personal') categoryBadge = '🎂 Personal';
-                    else if (rule.categoryType === 'subscription') categoryBadge = '🔁 Suscripción';
+                    let categoryBadge = 'Recibo';
+                    if (rule.categoryType === 'health') categoryBadge = 'Salud';
+                    else if (rule.categoryType === 'maintenance') categoryBadge = 'Mantenimiento';
+                    else if (rule.categoryType === 'tax') categoryBadge = 'Impuesto';
+                    else if (rule.categoryType === 'personal') categoryBadge = 'Personal';
+                    else if (rule.categoryType === 'subscription') categoryBadge = 'Suscripción';
 
                     return (
                       <div
@@ -588,6 +641,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         className={`p-3 rounded-2xl border flex items-center justify-between transition-all ${
                           isTaskCompleted
                             ? 'bg-emerald-950/20 border-emerald-500/40'
+                            : isUnpaidManual
+                            ? 'bg-rose-950/25 border-rose-500/50 shadow-md shadow-rose-950/20'
                             : isTask
                             ? 'bg-purple-950/20 border-purple-500/30'
                             : isEstimated
@@ -601,9 +656,31 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                             <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">
                               {categoryBadge}
                             </span>
+                            {rule.costType !== 'none' && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold border border-slate-700 flex items-center gap-1">
+                                {rule.autoCreateExpense !== false ? (
+                                  <>
+                                    <Zap className="w-2.5 h-2.5 text-emerald-400" />
+                                    <span>Auto</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Hand className="w-2.5 h-2.5 text-amber-400" />
+                                    <span>Manual</span>
+                                  </>
+                                )}
+                              </span>
+                            )}
                             {isTaskCompleted && (
-                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                                Completada
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 flex items-center gap-1">
+                                <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+                                <span>Completada</span>
+                              </span>
+                            )}
+                            {isUnpaidManual && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold border border-rose-500/40 animate-pulse flex items-center gap-1">
+                                <AlertTriangle className="w-2.5 h-2.5 text-rose-400" />
+                                <span>No pagado</span>
                               </span>
                             )}
                           </div>
@@ -629,15 +706,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                           {isTaskCompleted ? (
                             <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1 shadow-xs">
                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                              <span>Completada</span>
+                              <span>{isTask ? 'Completada' : 'Registrado'}</span>
                             </span>
                           ) : (
                             <button
                               onClick={() => handlePayRecurringNow(rule)}
-                              className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+                              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all active:scale-95 ${
+                                isUnpaidManual
+                                  ? 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40'
+                                  : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
+                              }`}
                             >
                               <Play className="w-3 h-3 fill-current" />
-                              <span>{isTask ? 'Completar' : isEstimated ? 'Confirmar' : 'Pagar'}</span>
+                              <span>{isTask ? 'Completar' : isUnpaidManual ? 'Pagar Ahora' : isEstimated ? 'Confirmar' : 'Pagar'}</span>
                             </button>
                           )}
                         </div>
@@ -659,19 +740,46 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 <div className="space-y-2">
                   {selectedDayExpenses.map((exp) => {
                     const bucket = buckets.find((b) => b.id === exp.bucketId);
+                    const isAutoExpense = !!exp.recurringRuleId || (exp.notes || '').toLowerCase().includes('cobro automático');
                     return (
                       <div
                         key={exp.id}
-                        className="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between"
+                        className="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between gap-2"
                       >
-                        <div>
-                          <div className="text-xs font-bold text-white">{exp.title}</div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-bold text-white truncate">{exp.title}</span>
+                            {isAutoExpense && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30 shrink-0 flex items-center gap-1">
+                                <Zap className="w-2.5 h-2.5 text-emerald-400" />
+                                <span>Cobro Automático</span>
+                              </span>
+                            )}
+                          </div>
                           <div className="text-[10px] text-slate-400">
                             {bucket?.name || 'General'} {exp.supplier ? `• ${exp.supplier}` : ''}
                           </div>
                         </div>
-                        <div className="text-xs font-mono font-bold text-rose-300">
-                          -{exp.amount.toFixed(2)} {currency}
+                        <div className="flex items-center space-x-2 shrink-0">
+                          <div className="text-xs font-mono font-bold text-rose-300">
+                            -{exp.amount.toFixed(2)} {currency}
+                          </div>
+                          {onRevertExpense && (
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (window.confirm(`¿Revertir y deshacer el cobro de "${exp.title}" (${exp.amount.toFixed(2)} ${currency})?`)) {
+                                  await HapticService.impactLight();
+                                  onRevertExpense(exp);
+                                }
+                              }}
+                              className="px-2 py-1 rounded-lg border border-slate-700 hover:border-rose-500/50 hover:bg-rose-500/15 text-slate-400 hover:text-rose-300 text-[10px] font-medium transition-all cursor-pointer flex items-center gap-1"
+                              title="Revertir y eliminar este gasto"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                              <span>Revertir</span>
+                            </button>
+                          )}
                         </div>
                       </div>
                     );

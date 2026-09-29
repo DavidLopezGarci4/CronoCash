@@ -105,13 +105,62 @@ export class SafeToSpendService {
         }
       }
 
-      // Verificar si ya se ha generado o registrado un gasto vinculado este mes
-      const alreadyPaidThisMonth = currentMonthExpenses.some(
-        (e) => e.recurringRuleId === rule.id
-      );
+      // Gestión de reglas semanales con conteo exacto de ocurrencias restantes en el mes
+      if (rule.frequency === 'weekly') {
+        const targetDayOfWeek = rule.dayOfWeek ?? (rule.startDate ? new Date(rule.startDate).getDay() : 1);
+        let totalOccurrencesInMonth = 0;
+        for (let d = 1; d <= totalDaysInMonth; d++) {
+          const dateObj = new Date(year, month, d);
+          if (dateObj.getDay() === targetDayOfWeek) {
+            totalOccurrencesInMonth++;
+          }
+        }
+        const paidCountInMonth = currentMonthExpenses.filter(
+          (e) =>
+            e.recurringRuleId === rule.id ||
+            (e.title.toLowerCase() === rule.title.toLowerCase() &&
+              rule.amount > 0 &&
+              Math.abs(e.amount - rule.amount) < 0.01)
+        ).length;
+        const completedDatesInMonth = (rule.completedDates || []).filter((d) =>
+          d.startsWith(currentMonthPrefix)
+        ).length;
+        const effectivePaidCount = Math.max(paidCountInMonth, completedDatesInMonth);
+        const remainingOccurrences = Math.max(0, totalOccurrencesInMonth - effectivePaidCount);
+
+        if (remainingOccurrences > 0) {
+          const dueDay = Math.min(currentDay + 7, totalDaysInMonth);
+          pendingBills.push({
+            id: rule.id,
+            title: remainingOccurrences === 1 ? rule.title : `${rule.title} (${remainingOccurrences} pend.)`,
+            amount: rule.amount * remainingOccurrences,
+            dueDay,
+            isVampire: rule.isVampire,
+            costType: rule.costType || 'fixed',
+            categoryType: rule.categoryType || 'bill',
+          });
+          pendingRecurringTotal += rule.amount * remainingOccurrences;
+        }
+        continue;
+      }
+
+      // Para reglas mensuales, trimestrales y anuales: verificar si ya está pagada o completada este mes
+      const alreadyPaidThisMonth =
+        currentMonthExpenses.some(
+          (e) =>
+            e.recurringRuleId === rule.id ||
+            (e.title.toLowerCase() === rule.title.toLowerCase() &&
+              rule.amount > 0 &&
+              Math.abs(e.amount - rule.amount) < 0.01)
+        ) ||
+        (rule.completedDates || []).some((d) => d.startsWith(currentMonthPrefix));
 
       if (!alreadyPaidThisMonth) {
         const dueDay = rule.dayOfMonth || 1;
+        const expectedDateStr = `${currentMonthPrefix}-${String(dueDay).padStart(2, '0')}`;
+        if (rule.endDate && expectedDateStr > rule.endDate.slice(0, 10)) {
+          continue;
+        }
         pendingBills.push({
           id: rule.id,
           title: rule.title,

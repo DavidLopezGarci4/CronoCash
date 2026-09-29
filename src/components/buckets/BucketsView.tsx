@@ -196,7 +196,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
       setRolloverModalOpen(false);
       onRefresh();
       alert(
-        `🎉 ¡Rollover Completado! Se han derivado ${result.surplusTotal.toFixed(2)} ${currency} de excedente de ${
+        `¡Rollover Completado! Se han derivado ${result.surplusTotal.toFixed(2)} ${currency} de excedente de ${
           result.bucketCount
         } bolsas a "${result.transferredTo}".`
       );
@@ -524,9 +524,14 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                         : 'text-emerald-400'
                     }`}
                   >
-                    {isOver
-                      ? `⚠️ Exceso: ${isPrivate ? '••••' : (spent - limit).toFixed(2)} ${currency}`
-                      : `Disponible: ${isPrivate ? '••••' : remaining.toFixed(2)} ${currency}`}
+                    {isOver ? (
+                      <span className="flex items-center gap-1">
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                        <span>Exceso: {isPrivate ? '••••' : (spent - limit).toFixed(2)} {currency}</span>
+                      </span>
+                    ) : (
+                      `Disponible: ${isPrivate ? '••••' : remaining.toFixed(2)} ${currency}`
+                    )}
                   </span>
                 </div>
               </div>

@@ -11,6 +11,12 @@ import {
   Sparkles,
   ArrowRight,
   RefreshCw,
+  CreditCard,
+  Stethoscope,
+  Wrench,
+  Landmark,
+  Gift,
+  CheckSquare,
 } from 'lucide-react';
 import { RecurringRule, Bucket } from '../../types';
 import { HapticService } from '../../services/hapticService';
@@ -110,19 +116,24 @@ export const ConfirmRecurringExpenseModal: React.FC<ConfirmRecurringExpenseModal
     onClose();
   };
 
-  let categoryBadge = '💳 Recibo / Factura';
+  let categoryLabel = 'Recibo / Factura';
+  let CategoryIcon = CreditCard;
   let categoryColor = 'text-blue-400 bg-blue-500/10 border-blue-500/20';
   if (rule.categoryType === 'health') {
-    categoryBadge = '🩺 Salud / Lentillas / Citas';
+    categoryLabel = 'Salud / Lentillas / Citas';
+    CategoryIcon = Stethoscope;
     categoryColor = 'text-purple-400 bg-purple-500/10 border-purple-500/20';
   } else if (rule.categoryType === 'maintenance') {
-    categoryBadge = '🔧 Mantenimiento / Mascota';
+    categoryLabel = 'Mantenimiento / Mascota';
+    CategoryIcon = Wrench;
     categoryColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
   } else if (rule.categoryType === 'tax') {
-    categoryBadge = '🏛️ Impuesto / Tasa';
+    categoryLabel = 'Impuesto / Tasa';
+    CategoryIcon = Landmark;
     categoryColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
   } else if (rule.categoryType === 'personal') {
-    categoryBadge = '🎂 Cumpleaños / Personal';
+    categoryLabel = 'Cumpleaños / Personal';
+    CategoryIcon = Gift;
     categoryColor = 'text-rose-400 bg-rose-500/10 border-rose-500/20';
   }
 
@@ -139,8 +150,9 @@ export const ConfirmRecurringExpenseModal: React.FC<ConfirmRecurringExpenseModal
               <h2 className="text-base font-bold text-white leading-tight">
                 {isPureTask && !includeUnexpectedExpense ? 'Confirmar Tarea Recurrente' : 'Confirmar / Ajustar Gasto'}
               </h2>
-              <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border inline-block mt-1 ${categoryColor}`}>
-                {categoryBadge}
+              <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border inline-flex items-center gap-1 mt-1 ${categoryColor}`}>
+                <CategoryIcon className="w-3 h-3" />
+                <span>{categoryLabel}</span>
               </span>
             </div>
           </div>
@@ -193,8 +205,9 @@ export const ConfirmRecurringExpenseModal: React.FC<ConfirmRecurringExpenseModal
               className="mt-0.5 rounded border-slate-700 text-blue-500 focus:ring-0 w-4 h-4 bg-slate-900 cursor-pointer"
             />
             <div className="text-xs">
-              <span className="font-bold text-blue-200 block">
-                🔄 Adaptar el ciclo de las próximas recurrencias a este día
+              <span className="font-bold text-blue-200 flex items-center gap-1.5">
+                <RefreshCw className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <span>Adaptar el ciclo de las próximas recurrencias a este día</span>
               </span>
               <span className="text-[11px] text-slate-400 block mt-0.5">
                 {isDayChanged ? (
@@ -215,7 +228,10 @@ export const ConfirmRecurringExpenseModal: React.FC<ConfirmRecurringExpenseModal
         {isPureTask && !includeUnexpectedExpense ? (
           <div className="space-y-3">
             <div className="p-3.5 rounded-2xl bg-purple-950/20 border border-purple-500/30 text-xs text-purple-200">
-              <span className="font-bold block mb-1">📝 Tarea de autocuidado / mantenimiento sin coste</span>
+              <span className="font-bold mb-1 flex items-center gap-1.5">
+                <CheckSquare className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                <span>Tarea de autocuidado / mantenimiento sin coste</span>
+              </span>
               Al confirmarla, se registrará como completada en esta fecha, actualizando el ciclo de avisos para el siguiente periodo sin restar dinero de tus presupuestos.
             </div>
 

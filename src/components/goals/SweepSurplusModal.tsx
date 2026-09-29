@@ -157,8 +157,9 @@ export const SweepSurplusModal: React.FC<SweepSurplusModalProps> = ({
           </div>
 
           {activeGoals.length === 0 ? (
-            <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 text-center text-xs text-slate-400">
-              🎉 ¡Todas tus metas de ahorro están completadas al 100%!
+            <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 text-center text-xs text-slate-400 flex items-center justify-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>¡Todas tus metas de ahorro están completadas al 100%!</span>
             </div>
           ) : (
             <div className="max-h-56 overflow-y-auto space-y-2 pr-1">

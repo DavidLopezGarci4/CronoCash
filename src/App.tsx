@@ -22,6 +22,7 @@ import { ReportsModal } from './components/reports/ReportsModal';
 import { ConfirmRecurringExpenseModal } from './components/expenses/ConfirmRecurringExpenseModal';
 import { PrivacyProvider } from './context/PrivacyContext';
 import { ExtraIncomeModal } from './components/income/ExtraIncomeModal';
+import { RecurringEngineService } from './services/recurringEngineService';
 import { App as CapApp } from '@capacitor/app';
 import { ExitConfirmModal } from './components/common/ExitConfirmModal';
 
@@ -86,17 +87,66 @@ export const App: React.FC = () => {
       DBService.getSmartRules(),
       DBService.getSavingsGoals(),
     ]);
+
+    // Auto-sanear posibles gastos duplicados derivados de confirmaciones múltiples
+    let sanitizedExpenses = eList;
+    const seenRecurringKeys = new Set<string>();
+    const duplicateIdsToDelete: string[] = [];
+    const deduped: Expense[] = [];
+
+    for (const exp of eList) {
+      if (exp.recurringRuleId && exp.date) {
+        const key = `${exp.recurringRuleId}_${exp.date}_${exp.amount}`;
+        if (seenRecurringKeys.has(key)) {
+          duplicateIdsToDelete.push(exp.id);
+          continue;
+        }
+        seenRecurringKeys.add(key);
+      }
+      deduped.push(exp);
+    }
+
+    if (duplicateIdsToDelete.length > 0) {
+      sanitizedExpenses = deduped;
+      for (const id of duplicateIdsToDelete) {
+        await DBService.deleteExpense(id);
+      }
+    }
+
+    // Procesar automáticamente cobros recurrentes debidos (Cobro Automático por defecto)
+    const { newExpenses, updatedRules } = RecurringEngineService.processDueRecurringRules(
+      rList,
+      sanitizedExpenses,
+      new Date()
+    );
+
+    let finalExpenses = sanitizedExpenses;
+    let finalRules = rList;
+
+    if (newExpenses.length > 0) {
+      await DBService.saveExpensesBatch(newExpenses);
+      finalExpenses = [...newExpenses, ...sanitizedExpenses];
+      finalExpenses.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    }
+
+    if (updatedRules.some((r, i) => r !== rList[i])) {
+      for (const rule of updatedRules) {
+        await DBService.saveRecurringRule(rule);
+      }
+      finalRules = updatedRules;
+    }
+
     const storedSettings = DBService.getSettings();
-    setExpenses(eList);
+    setExpenses(finalExpenses);
     setBuckets(bList);
-    setRecurringRules(rList);
+    setRecurringRules(finalRules);
     setTips(tList);
     setSmartRules(sList);
     setSavingsGoals(gList);
     setSettings(storedSettings);
 
     // Sincronizar recordatorios y facturas programadas en segundo plano
-    await NotificationService.syncAllScheduledReminders(storedSettings, rList);
+    await NotificationService.syncAllScheduledReminders(storedSettings, finalRules);
   };
 
   useEffect(() => {
@@ -165,6 +215,18 @@ export const App: React.FC = () => {
     await loadData();
   };
 
+  const handleRevertExpense = async (expense: Expense) => {
+    if (expense.recurringRuleId) {
+      const targetRule = recurringRules.find((r) => r.id === expense.recurringRuleId);
+      if (targetRule && targetRule.completedDates) {
+        const updatedDates = targetRule.completedDates.filter((d) => d !== expense.date);
+        await DBService.saveRecurringRule({ ...targetRule, completedDates: updatedDates });
+      }
+    }
+    await DBService.deleteExpense(expense.id);
+    await loadData();
+  };
+
   // CRUD Bolsas
   const handleSaveBucket = async (bucket: Bucket) => {
     await DBService.saveBucket(bucket);
@@ -209,20 +271,39 @@ export const App: React.FC = () => {
     const targetRule = recurringRules.find((r) => r.id === data.ruleId);
     if (!targetRule) return;
 
-    // 1. Guardar gasto real
-    const expense: Expense = {
-      id: `exp_rec_${Date.now()}`,
-      title: targetRule.title,
-      amount: data.amount,
-      date: data.date,
-      bucketId: data.bucketId,
-      isInvoice: data.isInvoice,
-      status: 'paid',
-      recurringRuleId: targetRule.id,
-      notes: `Confirmado desde recurrente: ${targetRule.title}`,
-      createdAt: new Date().toISOString(),
-    };
-    await DBService.saveExpense(expense);
+    // 1. Guardar o actualizar gasto real de forma idempotente (evitar duplicados)
+    const existingExpense = expenses.find(
+      (e) =>
+        (e.recurringRuleId === targetRule.id ||
+          (e.title.toLowerCase() === targetRule.title.toLowerCase() &&
+            e.bucketId === data.bucketId)) &&
+        e.date === data.date
+    );
+
+    if (existingExpense) {
+      const updatedExpense: Expense = {
+        ...existingExpense,
+        amount: data.amount,
+        bucketId: data.bucketId,
+        isInvoice: data.isInvoice,
+        recurringRuleId: targetRule.id,
+      };
+      await DBService.saveExpense(updatedExpense);
+    } else {
+      const expense: Expense = {
+        id: `exp_rec_${Date.now()}`,
+        title: targetRule.title,
+        amount: data.amount,
+        date: data.date,
+        bucketId: data.bucketId,
+        isInvoice: data.isInvoice,
+        status: 'paid',
+        recurringRuleId: targetRule.id,
+        notes: `Confirmado desde recurrente: ${targetRule.title}`,
+        createdAt: new Date().toISOString(),
+      };
+      await DBService.saveExpense(expense);
+    }
 
     // 2. Si se solicitó actualizar la regla base o adaptarla dinámicamente al nuevo día:
     const completedDates = Array.from(new Set([...(targetRule.completedDates || []), data.date]));
@@ -437,6 +518,7 @@ export const App: React.FC = () => {
         {currentTab === 'recurring' && (
           <RecurringView
             rules={recurringRules}
+            expenses={expenses}
             buckets={buckets}
             currency={settings.currency || '€'}
             onSaveRule={handleSaveRecurringRule}
@@ -456,6 +538,7 @@ export const App: React.FC = () => {
             currency={settings.currency || '€'}
             onAddExpense={handleSaveExpense}
             onRequestConfirmRecurring={handleOpenConfirmRecurring}
+            onRevertExpense={handleRevertExpense}
           />
         )}
 

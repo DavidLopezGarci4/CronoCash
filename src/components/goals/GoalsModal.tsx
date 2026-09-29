@@ -303,10 +303,11 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
                           </span>
                           {goal.autoDeductFromSafeToSpend && !goal.isCompleted && (
                             <span
-                              className="text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                              className="text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 flex items-center gap-1"
                               title="Cuota protegida automáticamente en Safe-to-Spend"
                             >
-                              🛡️ Protegida
+                              <ShieldCheck className="w-3 h-3 text-purple-400 shrink-0" />
+                              <span>Protegida</span>
                             </span>
                           )}
                         </div>

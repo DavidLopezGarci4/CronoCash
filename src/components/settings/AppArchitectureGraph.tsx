@@ -78,7 +78,7 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
   const linksData: TechLinkConfig[] = (stackConfig.links as TechLinkConfig[]) || [];
 
   // ==========================================
-  // 🩺 DIAGNÓSTICO DE SALUD PASIVO Y SEGURO
+  // DIAGNOSTICO DE SALUD PASIVO Y SEGURO
   // ==========================================
   const runHealthChecks = useCallback(async () => {
     setIsRunningCheck(true);
@@ -270,7 +270,7 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
   }, [simulatedNodes]);
 
   // ==========================================
-  // 🎨 CANVAS ANIMATION LOOP (TELARAÑAS & ESFERAS FLOTANTES)
+  // CANVAS ANIMATION LOOP (TELARAÑAS & ESFERAS FLOTANTES)
   // ==========================================
   useEffect(() => {
     if (!isOpen) return;
@@ -480,7 +480,7 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
   }, [isOpen, canvasDimensions, linksData, hoveredNodeId, selectedNodeId, healthMap]);
 
   // ==========================================
-  // 🖱️ INTERACCIÓN TÁCTIL Y DE RATÓN
+  // INTERACCION TACTIL Y DE RATON
   // ==========================================
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;

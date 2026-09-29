@@ -4,7 +4,11 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.17.0 — Fecha de Inicio Canónica en Recurrentes, Desacoplamiento de Registro y Protección Safe-to-Spend 🌟
+## Estado Actual: v1.17.0 — Cobro Automático por Defecto, Procesamiento Manual, Alerta de No Pagado y Cese de Recurrencias 🌟
+- [x] **Motor de Cobro Automático por Defecto (`RecurringEngineService`):** Contabilización automática e idempotente de gastos recurrentes al cumplirse la fecha de vencimiento, con opción inmediata de reversión en 1 toque en Calendario.
+- [x] **Procesamiento Manual con Alerta "⚠️ No pagado":** Modalidad configurable de cobro manual con aviso visual prominente y dot de atención animado en Calendario si la fecha vence sin abonarse.
+- [x] **Cese Limpio de Recurrencias y Pestaña de Históricas:** Capacidad de cesar compromisos fijando `endDate` a hoy para anular proyecciones futuras, organizados en la pestaña "Cesadas / Históricas" con reactivación en 1 toque.
+- [x] **Historial Contable Inmutable:** Las modificaciones de cuotas aplican exclusivamente a pagos futuros, garantizando la inmutabilidad de todos los gastos ya guardados en el historial.
 - [x] **Fecha de Inicio Canónica (`startDate`):** Configuración explícita de la fecha real de inicio en compromisos y tareas recurrentes, eliminando la suposición errónea de que el gasto se originó el día que se dio de alta en la app.
 - [x] **Sincronización Asistida de Frecuencia:** Recomendación reactiva del día del mes o mes del año sin restringir la edición manual.
 - [x] **Protección Safe-to-Spend y Calendario:** Supresión de deducciones prematuras en Safe-to-Spend si la fecha de inicio es de un mes futuro y filtrado estricto en el calendario.

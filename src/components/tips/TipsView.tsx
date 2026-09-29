@@ -20,6 +20,7 @@ import {
   DollarSign,
   AlertTriangle,
   Scale,
+  X,
 } from 'lucide-react';
 import { FinancialTip } from '../../types';
 import { DBService } from '../../services/db';
@@ -206,9 +207,9 @@ export const TipsView: React.FC<TipsViewProps> = ({
         {searchQuery && (
           <button
             onClick={() => setSearchQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs px-1.5 py-0.5 rounded cursor-pointer"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition-colors cursor-pointer"
           >
-            ✕
+            <X className="w-3.5 h-3.5" />
           </button>
         )}
       </div>

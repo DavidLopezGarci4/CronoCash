@@ -11,6 +11,7 @@ import {
   AlertCircle,
   Clock,
   Zap,
+  Shield,
 } from 'lucide-react';
 import { SafeToSpendMetrics, SafeToSpendService } from '../../services/safeToSpendService';
 import { usePrivacy } from '../../context/PrivacyContext';
@@ -289,7 +290,10 @@ export const SafeToSpendWidget: React.FC<SafeToSpendWidgetProps> = ({
             {metrics.committedGoalsMonthly > 0 && (
               <div className="flex justify-between items-center text-slate-300">
                 <div className="flex items-center gap-1">
-                  <span className="text-slate-400">🛡️ Metas de Ahorro Protegidas (Crucero):</span>
+                  <span className="text-slate-400 flex items-center gap-1">
+                    <Shield className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                    <span>Metas de Ahorro Protegidas (Crucero):</span>
+                  </span>
                   {onOpenGoalsModal && (
                     <button
                       type="button"

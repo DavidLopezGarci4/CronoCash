@@ -89,6 +89,18 @@
 * **Protección contra deducciones prematuras:** Si la fecha de inicio es futura, el motor de Safe-to-Spend no restará saldo diario en el mes actual ni saturará el calendario antes de que el compromiso entre en vigor.
 * **Sincronización asistida sin bloqueo:** Al seleccionar una fecha de inicio, la app te sugiere automáticamente el día del mes y mes preferido, pero te permite modificarlos si lo necesitas.
 
+### ¿Cómo funciona el Cobro Automático por defecto y la opción de Procesamiento Manual?
+* **Cobro automático al vencimiento (Por defecto):** Cada gasto recurrente se contabiliza automáticamente como gasto ejecutado al llegar la fecha de cobro, sin requerir confirmación manual.
+* **Reversión o ajuste con 1 toque:** Si un recibo se cobró de forma errónea o cambia su importe, puedes pulsar *"Revertir"* en el Calendario para anular el gasto y restaurar el compromiso.
+* **Modalidad de Procesamiento Manual:** Puedes configurar reglas como manuales si prefieres pulsar *"Registrar Pago"* tú mismo al verificar la cuenta.
+* **Alerta destacada de No Pagado:** Si un cobro manual vence sin haber sido registrado, el Calendario y la lista de Recurrentes lo alertan con badge prominente *"⚠️ No pagado"* y dot de atención visual animado.
+
+### ¿Cómo funciona el Cese de Recurrencia y el cambio de cuotas futuras?
+* **Cese limpio de compromisos:** Al dar de baja un servicio o suscripción, pulsa *"Cesar Recurrencia"*. La app marca el cese con fecha de hoy y cancela las proyecciones futuras en Calendario y Safe-to-Spend.
+* **Historial inmutable garantizado:** Todos los gastos pasados generados por esa regla se conservan íntegros en tu base de datos con sus importes reales intactos.
+* **Pestaña de Cesadas / Históricas:** Puedes consultar en cualquier momento tus compromisos cesados y reactivarlos con 1 toque si vuelves a contratarlos.
+* **Modificación de importes futuros:** Modificar la cuota de una regla aplica únicamente a los pagos futuros, sin tocar jamás el coste de los gastos ya registrados.
+
 ---
 
 ## 4. Calendario Reactivo, Cash-Flow Runway y Comparador YoY

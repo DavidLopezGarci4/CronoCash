@@ -6,6 +6,25 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 ## [1.17.0] - 2026-09-29
 
 ### Added
+- **Motor de Cobro Automático por Defecto y Reversión en 1 Toque (`recurringEngineService.ts`, `App.tsx`, `CalendarView.tsx`):**
+  - **Cobro Idempotente al Vencimiento:** Al cumplirse la fecha de una regla recurrente, el nuevo `RecurringEngineService` genera automáticamente el gasto real en la base de datos sin requerir interacción manual del usuario.
+  - **Reversión Inmediata:** Acción de reversión en el Calendario y desglose diario para anular cobros automáticos erróneos o modificados, eliminando el gasto y restaurando el compromiso en la regla.
+  - **Selector de Modalidad:** Configuración en cada regla entre *⚡ Cobro Automático (Por defecto)* y *✋ Procesamiento Manual*.
+
+- **Procesamiento Manual con Alerta Destacada de No Pagado (`RecurringView.tsx`, `CalendarView.tsx`):**
+  - **Detección de Impagos:** Si una regla manual alcanza o supera su fecha sin que el usuario confirme el pago, se marca con badge de advertencia *"⚠️ No pagado"* en rojo/ámbar.
+  - **Puntos de Alerta en Calendario:** Visualización de dots de atención animados en las celdas del calendario para los días con recibos manuales vencidos no abonados.
+  - **Botón Directo "Pagar Ahora":** Botón de acción rápida en tonos rosa/rojo en Calendario y Recurrentes para regularizar el cobro pendiente al instante.
+
+- **Cese de Recurrencias y Pestaña de Históricas (`RecurringView.tsx`, `safeToSpendService.ts`):**
+  - **Baja Limpia con Fecha de Cese:** Botón de acción para cesar un compromiso recurrente fijando su `endDate` a la fecha actual y `isActive: false`, deteniendo proyecciones futuras en Calendario y Safe-to-Spend.
+  - **Pestañas de Filtrado de Estado:** Selector entre *Activas*, *Cesadas / Históricas* y *Todas* con contadores en tiempo real.
+  - **Opción de Reactivación:** Botón *"Reactivar"* en compromisos cesados para volver a computarlos a partir de la fecha de hoy con un solo toque.
+
+- **Historial Contable Inalterable y Preservación de Importes Pasados (`RecurringView.tsx`, `safeToSpendService.ts`):**
+  - **Independencia Histórica:** Modificar el importe o cuota de una regla afecta exclusivamente a los cobros venideros; los gastos ya registrados en la base de datos conservan inalterado su importe histórico.
+  - **Micro-copy de Garantía:** Mensaje explicativo en el formulario modal para informar al usuario de que los cambios de tarifa no distorsionan la contabilidad pasada.
+
 - **Fecha de Inicio Canónica y Desacoplamiento de Registro en Gastos Recurrentes (`RecurringView.tsx`):**
   - **Campo `startDate` explícito y editable:** Capacidad de definir la fecha real de origen o devengo de cualquier gasto o tarea recurrente (`<input type="date">`), desvinculando por completo el inicio contable del compromiso del día en que se registra en la aplicación.
   - **Sincronización asistida no intrusiva:** Al elegir una fecha de inicio, la app recomienda y sincroniza reactivamente el día del mes (`dayOfMonth`) o mes del año (`monthOfYear`), permitiendo personalización manual sin bloqueos.
@@ -20,6 +39,13 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 - **Semántica Contable de Fecha de Origen en Registro de Gastos (`ExpenseModal.tsx`):**
   - **Desacoplamiento Fecha Contable vs Timestamp Técnico:** Etiquetado explícito como "Fecha de Origen / Pago *" con indicador dinámico (ej. *"Hoy"* vs *"DD/MM/AAAA"*) y micro-copy aclaratorio.
   - **Sincronización reactiva del formulario:** Implementación de `useEffect` dependiente de `[isOpen, initialExpense, buckets]` para garantizar estado limpio y fechas correctas tanto al crear como al editar gastos.
+
+- **Idempotencia de Pagos, Contabilidad Fiel y Blindaje UX/UI en Calendario (`App.tsx`, `CalendarView.tsx`, `RecurringView.tsx`, `safeToSpendService.ts`):**
+  - **Desduplicación Estricta de Gastos:** `handleConfirmExpenseFromRecurring` actualiza el registro existente en lugar de duplicarlo si ya existe un gasto para esa regla y fecha; `loadData()` auto-sanea duplicados preexistentes en la base de datos local.
+  - **Propagación Inmediata de Estados:** Al registrar o pagar un compromiso en Recurrentes o Calendario, todas las vistas marcan la regla como completada/registrada, suprimiendo botones de acción duplicados.
+  - **Contabilidad Exacta del Total del Día:** `CalendarView` discrimina entre compromisos cumplidos y pendientes, evitando sumar dos veces el importe de un gasto ya ejecutado.
+  - **Diseño Anti-Desbordamiento en Celdas de Calendario:** Reducción semántica a máximo 1 punto por tipología (esmeralda para actividad ejecutada, azul para facturas pendientes y violeta para citas/salud), dimensionamiento ultra-compacto (`w-1.5 h-1.5`, `gap-0.5`) y contención `overflow-hidden` para erradicar cualquier invasión hacia días contiguos.
+  - **Gestión Precisa de Ocurrencias Semanales en Safe-to-Spend:** Descuento exclusivo de las semanas pendientes restantes del mes, sin penalizaciones duplicadas.
 
 ---
 

@@ -29,6 +29,12 @@ import {
   Wrench,
   Gift,
   Landmark,
+  PowerOff,
+  Hand,
+  Info,
+  CreditCard,
+  Scale,
+  CheckSquare,
 } from 'lucide-react';
 import { RecurringRule, Bucket, Expense, RecurringCostType, ReminderOffset, RecurringCategoryType } from '../../types';
 import { DBService } from '../../services/db';
@@ -36,12 +42,13 @@ import { HapticService } from '../../services/hapticService';
 
 interface RecurringViewProps {
   rules: RecurringRule[];
+  expenses?: Expense[];
   buckets: Bucket[];
   currency: string;
   onSaveRule: (rule: RecurringRule) => void;
   onDeleteRule: (id: string) => void;
   onApplyRuleNow: (rule: RecurringRule) => void;
-  onRequestConfirmRecurring?: (rule: RecurringRule) => void;
+  onRequestConfirmRecurring?: (rule: RecurringRule, targetDate?: string) => void;
   onRefresh?: () => void;
 }
 
@@ -77,6 +84,7 @@ const MONTH_NAMES = [
 
 export const RecurringView: React.FC<RecurringViewProps> = ({
   rules,
+  expenses = [],
   buckets,
   currency,
   onSaveRule,
@@ -90,6 +98,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
   const [editingRule, setEditingRule] = useState<RecurringRule | null>(null);
   const [vampireModalOpen, setVampireModalOpen] = useState(false);
   const [filterVampireOnly, setFilterVampireOnly] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'active' | 'ceased' | 'all'>('active');
 
   // Formulario
   const [title, setTitle] = useState('');
@@ -108,6 +117,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
   const [autoAdaptNextDates, setAutoAdaptNextDates] = useState(true);
   const [intervalNum, setIntervalNum] = useState<number>(1);
   const [startDate, setStartDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
+  const [autoCreateExpense, setAutoCreateExpense] = useState(true);
 
   const handleStartDateChange = (val: string) => {
     setStartDate(val);
@@ -217,9 +227,11 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
 
     const diffTime = nextDate.getTime() - today.getTime();
     const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const nextDateStr = `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}-${String(nextDate.getDate()).padStart(2, '0')}`;
 
     return {
       nextDate,
+      nextDateStr,
       daysLeft: Math.max(0, daysLeft),
       formattedDate: nextDate.toLocaleDateString('es-ES', {
         day: 'numeric',
@@ -246,6 +258,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
     setReminderOffsets(['3_days', 'same_day']);
     setReminderTime('09:00');
     setAutoAdaptNextDates(true);
+    setAutoCreateExpense(true);
     setModalOpen(true);
   };
 
@@ -267,6 +280,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
     setReminderOffsets(r.reminderOffsets && r.reminderOffsets.length > 0 ? r.reminderOffsets : ['3_days', 'same_day']);
     setReminderTime(r.reminderTime || '09:00');
     setAutoAdaptNextDates(r.autoAdaptNextDates ?? true);
+    setAutoCreateExpense(r.autoCreateExpense ?? true);
     setModalOpen(true);
   };
 
@@ -294,7 +308,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
       monthOfYear: frequency === 'yearly' ? (parseInt(monthOfYear) || 1) : undefined,
       startDate: startDate || (editingRule?.startDate ? editingRule.startDate.split('T')[0] : new Date().toISOString().split('T')[0]),
       isActive: editingRule ? editingRule.isActive : true,
-      autoCreateExpense: costType !== 'none',
+      autoCreateExpense: costType !== 'none' ? autoCreateExpense : false,
       icon,
       isVampire: costType !== 'none' ? isVampire : false,
       notes: notes.trim() || undefined,
@@ -360,18 +374,37 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
   );
   const vampireMonthlyTotal = vampireRules.reduce((sum, r) => sum + normalizeToMonthly(r.amount, r.frequency), 0);
 
-  // Ordenar reglas por proximidad del próximo cobro
-  const sortedRules = [...rules].sort((a, b) => {
-    const aDetails = getNextBillingDetails(a);
-    const bDetails = getNextBillingDetails(b);
-    return aDetails.daysLeft - bDetails.daysLeft;
+  // Conteos por estado
+  const activeRulesCount = rules.filter((r) => r.isActive !== false).length;
+  const ceasedRulesCount = rules.filter((r) => r.isActive === false).length;
+
+  // Filtrado según pestaña de estado (Activas, Cesadas, Todas)
+  const filteredByStatus = rules.filter((r) => {
+    if (statusFilter === 'active') return r.isActive !== false;
+    if (statusFilter === 'ceased') return r.isActive === false;
+    return true;
   });
 
-  const displayedRules = filterVampireOnly
-    ? sortedRules.filter((r) => r.isVampire)
-    : sortedRules;
+  const displayedRules = (filterVampireOnly
+    ? filteredByStatus.filter((r) => r.isVampire)
+    : filteredByStatus
+  ).sort((a, b) => {
+    if (a.isActive && b.isActive) {
+      const aDetails = getNextBillingDetails(a);
+      const bDetails = getNextBillingDetails(b);
+      return aDetails.daysLeft - bDetails.daysLeft;
+    }
+    if (a.isActive !== b.isActive) {
+      return a.isActive ? -1 : 1;
+    }
+    return (b.endDate || b.startDate || '').localeCompare(a.endDate || a.startDate || '');
+  });
 
-  const nextImminentRule = sortedRules[0];
+  // Regla más inminente entre las activas
+  const activeSorted = rules
+    .filter((r) => r.isActive !== false)
+    .sort((a, b) => getNextBillingDetails(a).daysLeft - getNextBillingDetails(b).daysLeft);
+  const nextImminentRule = activeSorted[0];
   const nextImminentDetails = nextImminentRule ? getNextBillingDetails(nextImminentRule) : null;
 
   return (
@@ -455,12 +488,23 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     : `${nextImminentRule.amount.toFixed(2)} ${currency}`}
                 </span>
               </div>
-              <div className="text-[11px] font-semibold text-amber-400 mt-0.5">
-                {nextImminentDetails.daysLeft === 0
-                  ? '🔴 ¡Toca HOY!'
-                  : nextImminentDetails.daysLeft === 1
-                  ? '🟠 Toca MAÑANA'
-                  : `🟡 Toca en ${nextImminentDetails.daysLeft} días (${nextImminentDetails.formattedDate})`}
+              <div className="text-[11px] font-semibold text-amber-400 mt-0.5 flex items-center gap-1.5">
+                {nextImminentDetails.daysLeft === 0 ? (
+                  <>
+                    <AlertTriangle className="w-3.5 h-3.5 text-rose-400 animate-pulse shrink-0" />
+                    <span className="text-rose-400 font-bold">¡Toca HOY!</span>
+                  </>
+                ) : nextImminentDetails.daysLeft === 1 ? (
+                  <>
+                    <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span>Toca MAÑANA</span>
+                  </>
+                ) : (
+                  <>
+                    <Clock className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                    <span>Toca en {nextImminentDetails.daysLeft} días ({nextImminentDetails.formattedDate})</span>
+                  </>
+                )}
               </div>
             </div>
           ) : (
@@ -506,24 +550,92 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
         </div>
       ) : (
         <div className="space-y-3">
-          {displayedRules.map((rule) => {
+          {/* Selector de Pestañas: Activas / Cesadas / Todas */}
+          <div className="flex items-center justify-between gap-2 flex-wrap pb-1">
+            <div className="flex items-center gap-1.5 p-1 bg-slate-900 border border-slate-800 rounded-2xl">
+              <button
+                type="button"
+                onClick={() => setStatusFilter('active')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  statusFilter === 'active'
+                    ? 'bg-emerald-500 text-slate-950 shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Activas ({activeRulesCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('ceased')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  statusFilter === 'ceased'
+                    ? 'bg-slate-700 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Cesadas / Históricas ({ceasedRulesCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('all')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  statusFilter === 'all'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Todas ({rules.length})
+              </button>
+            </div>
+            {ceasedRulesCount > 0 && statusFilter === 'ceased' && (
+              <span className="text-[11px] text-slate-400 italic">
+                Compromisos finalizados. Los gastos pasados siguen intactos en el historial.
+              </span>
+            )}
+          </div>
+
+          {displayedRules.length === 0 ? (
+            <div className="p-8 text-center bg-slate-900/40 border border-slate-800 rounded-3xl text-xs text-slate-500">
+              {statusFilter === 'ceased'
+                ? 'No tienes ningún compromiso recurrente cesado.'
+                : 'No hay recurrentes en esta categoría.'}
+            </div>
+          ) : (
+            displayedRules.map((rule) => {
             const bucket = buckets.find((b) => b.id === rule.bucketId);
-            const { daysLeft, formattedDate } = getNextBillingDetails(rule);
+            const { daysLeft, formattedDate, nextDateStr } = getNextBillingDetails(rule);
             const IconComp = RECURRING_ICON_MAP[rule.icon || ''] || Repeat;
 
             const isPureTask = rule.costType === 'none' || (!rule.amount && rule.costType !== 'estimated');
             const isEstimated = rule.costType === 'estimated';
             const todayStr = new Date().toISOString().split('T')[0];
-            const isCompletedToday =
-              (rule.completedDates || []).includes(todayStr) || rule.lastGeneratedDate === todayStr;
+            const isCompletedForTargetDate =
+              (rule.completedDates || []).includes(nextDateStr) ||
+              (rule.completedDates || []).includes(todayStr) ||
+              rule.lastGeneratedDate === nextDateStr ||
+              expenses.some(
+                (e) =>
+                  (e.recurringRuleId === rule.id ||
+                    (e.title.toLowerCase() === rule.title.toLowerCase() && e.bucketId === rule.bucketId)) &&
+                  (e.date === nextDateStr || e.date === todayStr)
+              );
+
+            const isUnpaidManual =
+              !isPureTask &&
+              rule.autoCreateExpense === false &&
+              !isCompletedForTargetDate &&
+              daysLeft <= 0;
 
             // Semáforo de cuenta atrás
             let badgeColor = 'bg-slate-800 text-slate-300 border-slate-700';
             let badgeText = `En ${daysLeft} días (${formattedDate})`;
 
-            if (isCompletedToday) {
+            if (isCompletedForTargetDate) {
               badgeColor = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
-              badgeText = `✓ Completada hoy (${formattedDate})`;
+              badgeText = `Completada (${formattedDate})`;
+            } else if (isUnpaidManual) {
+              badgeColor = 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse';
+              badgeText = `No pagado (${formattedDate})`;
             } else if (daysLeft === 0) {
               badgeColor = 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse';
               badgeText = `¡Toca HOY! (${formattedDate})`;
@@ -535,22 +647,38 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               badgeText = `En ${daysLeft} días (${formattedDate})`;
             }
 
-            let categoryBadge = '💳 Recibo';
-            if (rule.categoryType === 'health') categoryBadge = '🩺 Salud';
-            else if (rule.categoryType === 'maintenance') categoryBadge = '🔧 Mantenimiento';
-            else if (rule.categoryType === 'tax') categoryBadge = '🏛️ Impuesto';
-            else if (rule.categoryType === 'personal') categoryBadge = '🎂 Personal';
-            else if (rule.categoryType === 'subscription') categoryBadge = '🔁 Suscripción';
+            let categoryLabel = 'Recibo';
+            let CategoryIcon = CreditCard;
+            if (rule.categoryType === 'health') {
+              categoryLabel = 'Salud';
+              CategoryIcon = Stethoscope;
+            } else if (rule.categoryType === 'maintenance') {
+              categoryLabel = 'Mantenimiento';
+              CategoryIcon = Wrench;
+            } else if (rule.categoryType === 'tax') {
+              categoryLabel = 'Impuesto';
+              CategoryIcon = Landmark;
+            } else if (rule.categoryType === 'personal') {
+              categoryLabel = 'Personal';
+              CategoryIcon = Gift;
+            } else if (rule.categoryType === 'subscription') {
+              categoryLabel = 'Suscripción';
+              CategoryIcon = Repeat;
+            }
 
             return (
               <div
                 key={rule.id}
-                className={`p-4 rounded-3xl bg-slate-900/90 border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                  isCompletedToday
-                    ? 'border-emerald-500/30 shadow-md shadow-emerald-950/20'
+                className={`p-4 rounded-3xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                  !rule.isActive
+                    ? 'bg-slate-950/40 border-slate-800/80 opacity-75'
+                    : isCompletedForTargetDate
+                    ? 'bg-slate-900/90 border-emerald-500/30 shadow-md shadow-emerald-950/20'
+                    : isUnpaidManual
+                    ? 'border-rose-500/50 shadow-md shadow-rose-950/20 bg-rose-950/10'
                     : daysLeft <= 1
-                    ? 'border-amber-500/40 shadow-md shadow-amber-950/20'
-                    : 'border-slate-800 hover:border-slate-700/80'
+                    ? 'bg-slate-900/90 border-amber-500/40 shadow-md shadow-amber-950/20'
+                    : 'bg-slate-900/90 border-slate-800 hover:border-slate-700/80'
                 }`}
               >
                 <div className="flex items-center space-x-3.5 min-w-0">
@@ -568,9 +696,31 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                   <div className="min-w-0">
                     <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                       <span className="text-sm font-bold text-white truncate">{rule.title}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold border border-slate-700">
-                        {categoryBadge}
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold border border-slate-700 flex items-center gap-1">
+                        <CategoryIcon className="w-3 h-3 text-slate-400" />
+                        <span>{categoryLabel}</span>
                       </span>
+                      {!rule.isActive && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-bold border border-slate-700 flex items-center gap-1">
+                          <PowerOff className="w-3 h-3 text-slate-400" />
+                          <span>Cesada</span>
+                        </span>
+                      )}
+                      {rule.isActive && !isPureTask && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold border border-slate-700 flex items-center gap-1">
+                          {rule.autoCreateExpense !== false ? (
+                            <>
+                              <Zap className="w-3 h-3 text-emerald-400" />
+                              <span>Auto</span>
+                            </>
+                          ) : (
+                            <>
+                              <Hand className="w-3 h-3 text-amber-400" />
+                              <span>Manual</span>
+                            </>
+                          )}
+                        </span>
+                      )}
                       {isEstimated && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
                           Estimado
@@ -586,15 +736,25 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                           <Flame className="w-3 h-3 text-rose-400" /> Vampiro
                         </span>
                       )}
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${badgeColor}`}>
-                        {badgeText}
-                      </span>
+                      {rule.isActive && (
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 ${badgeColor}`}>
+                          {isCompletedForTargetDate && <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />}
+                          {isUnpaidManual && <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />}
+                          {daysLeft === 0 && !isCompletedForTargetDate && !isUnpaidManual && <Clock className="w-3 h-3 text-rose-400 shrink-0" />}
+                          <span>{badgeText}</span>
+                        </span>
+                      )}
                       {rule.startDate && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-medium border border-slate-700/80">
                           Inicio: {rule.startDate.slice(0, 10).split('-').reverse().join('/')}
                         </span>
                       )}
-                      {rule.startDate && rule.startDate.slice(0, 10) > new Date().toISOString().slice(0, 10) && (
+                      {rule.endDate && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-medium border border-slate-700/80">
+                          Cesada: {rule.endDate.slice(0, 10).split('-').reverse().join('/')}
+                        </span>
+                      )}
+                      {rule.isActive && rule.startDate && rule.startDate.slice(0, 10) > new Date().toISOString().slice(0, 10) && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">
                           Programada
                         </span>
@@ -618,8 +778,9 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                       {rule.reminderOffsets && rule.reminderOffsets.length > 0 && (
                         <>
                           <span>•</span>
-                          <span className="text-blue-400 font-medium">
-                            🔔 {rule.reminderOffsets.length} alertas ({rule.reminderTime || '09:00'})
+                          <span className="text-blue-400 font-medium flex items-center gap-1">
+                            <Bell className="w-3 h-3 text-blue-400" />
+                            <span>{rule.reminderOffsets.length} alertas ({rule.reminderTime || '09:00'})</span>
                           </span>
                         </>
                       )}
@@ -648,28 +809,53 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Botón Confirmar / Registrar / Completada */}
-                  {isCompletedToday ? (
+                  {/* Botón Confirmar / Registrar / Completada / Reactivar */}
+                  {!rule.isActive ? (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (confirm(`¿Reactivar la recurrencia "${rule.title}"? Se reanudarán los cobros periódicos a partir de hoy.`)) {
+                          await HapticService.impactMedium();
+                          const todayStr = new Date().toISOString().split('T')[0];
+                          onSaveRule({
+                            ...rule,
+                            isActive: true,
+                            startDate: todayStr,
+                            endDate: undefined,
+                          });
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                      title="Reactivar recurrencia"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-current" />
+                      <span>Reactivar</span>
+                    </button>
+                  ) : isCompletedForTargetDate ? (
                     <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 shadow-xs">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Completada</span>
+                      <span>{isPureTask ? 'Completada' : 'Registrado'}</span>
                     </span>
                   ) : (
                     <button
                       onClick={async () => {
                         if (onRequestConfirmRecurring) {
-                          onRequestConfirmRecurring(rule);
+                          onRequestConfirmRecurring(rule, nextDateStr);
                         } else {
                           onApplyRuleNow(rule);
                           await HapticService.notificationSuccess();
                         }
                       }}
-                      className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95 ${
+                        isUnpaidManual
+                          ? 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40'
+                          : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40'
+                      }`}
                       title={isPureTask ? 'Completar tarea y avanzar ciclo' : 'Confirmar o ajustar importe del gasto'}
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
                       <span>
-                        {isPureTask ? 'Completar Tarea' : isEstimated ? 'Confirmar / Ajustar' : 'Registrar Pago'}
+                        {isPureTask ? 'Completar Tarea' : isUnpaidManual ? 'Pagar Ahora' : isEstimated ? 'Confirmar / Ajustar' : 'Registrar Pago'}
                       </span>
                     </button>
                   )}
@@ -682,9 +868,30 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
 
+                  {rule.isActive !== false && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (confirm(`¿Cesar la recurrencia "${rule.title}"?\n\nNo se generarán cobros futuros ni restará saldo en el calendario, pero todos los gastos pasados registrados en tu historial permanecerán intactos.`)) {
+                          await HapticService.impactMedium();
+                          const todayStr = new Date().toISOString().split('T')[0];
+                          onSaveRule({
+                            ...rule,
+                            isActive: false,
+                            endDate: todayStr,
+                          });
+                        }
+                      }}
+                      className="p-2 text-slate-400 hover:text-amber-400 rounded-xl hover:bg-slate-800 cursor-pointer"
+                      title="Cesar recurrencia (preservando historial)"
+                    >
+                      <PowerOff className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+
                   <button
                     onClick={() => {
-                      if (confirm(`¿Eliminar "${rule.title}"?`)) {
+                      if (confirm(`¿Eliminar definitivamente "${rule.title}"?`)) {
                         onDeleteRule(rule.id);
                       }
                     }}
@@ -696,7 +903,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                 </div>
               </div>
             );
-          })}
+          }))}
         </div>
       )}
 
@@ -725,35 +932,38 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setCostType('fixed')}
-                    className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center cursor-pointer ${
+                    className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       costType === 'fixed'
                         ? 'bg-blue-500/20 border-blue-500 text-blue-300'
                         : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white'
                     }`}
                   >
-                    💳 Gasto Fijo
+                    <CreditCard className="w-3.5 h-3.5 shrink-0" />
+                    <span>Gasto Fijo</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setCostType('estimated')}
-                    className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center cursor-pointer ${
+                    className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       costType === 'estimated'
                         ? 'bg-amber-500/20 border-amber-500 text-amber-300'
                         : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white'
                     }`}
                   >
-                    ⚖️ Estimado
+                    <Scale className="w-3.5 h-3.5 shrink-0" />
+                    <span>Estimado</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setCostType('none')}
-                    className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center cursor-pointer ${
+                    className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       costType === 'none'
                         ? 'bg-purple-500/20 border-purple-500 text-purple-300'
                         : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white'
                     }`}
                   >
-                    📝 Tarea / Salud
+                    <CheckSquare className="w-3.5 h-3.5 shrink-0" />
+                    <span>Tarea / Salud</span>
                   </button>
                 </div>
               </div>
@@ -766,12 +976,12 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                   onChange={(e: any) => setCategoryType(e.target.value)}
                   className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-xs font-medium text-white focus:border-emerald-500 focus:outline-hidden"
                 >
-                  <option value="bill">💳 Recibo / Factura (Luz, Agua, Alquiler)</option>
-                  <option value="subscription">🔁 Suscripción (Streaming, Gimnasio)</option>
-                  <option value="health">🩺 Salud (Lentillas, Medicación, Dentista)</option>
-                  <option value="maintenance">🔧 Mantenimiento / Mascota (Veterinario, ITV)</option>
-                  <option value="personal">🎂 Personal (Cumpleaños, Aniversarios)</option>
-                  <option value="tax">🏛️ Impuesto / Tributo (IBI, Modelos AEAT)</option>
+                  <option value="bill">Recibo / Factura (Luz, Agua, Alquiler)</option>
+                  <option value="subscription">Suscripción (Streaming, Gimnasio)</option>
+                  <option value="health">Salud (Lentillas, Medicación, Dentista)</option>
+                  <option value="maintenance">Mantenimiento / Mascota (Veterinario, ITV)</option>
+                  <option value="personal">Personal (Cumpleaños, Aniversarios)</option>
+                  <option value="tax">Impuesto / Tributo (IBI, Modelos AEAT)</option>
                 </select>
               </div>
 
@@ -804,6 +1014,12 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                       placeholder="45.00"
                       className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono font-bold text-emerald-400 focus:border-emerald-500 focus:outline-hidden"
                     />
+                    {editingRule && (
+                      <p className="text-[10px] text-slate-400 mt-1 flex items-start gap-1">
+                        <Info className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                        <span>Modificar este importe solo afectará a los cobros futuros. El historial y gastos pasados se conservan intactos.</span>
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-1">
@@ -828,6 +1044,66 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                   </select>
                 </div>
               </div>
+
+              {/* Modalidad de Contabilización: Automático vs Manual */}
+              {costType !== 'none' && (
+                <div className="p-3.5 bg-slate-900/90 border border-slate-700/80 rounded-2xl space-y-2">
+                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                    <span>Modalidad de Cobro</span>
+                    <span className="text-[10px] font-semibold text-emerald-400 flex items-center gap-1">
+                      {autoCreateExpense ? (
+                        <>
+                          <Zap className="w-3 h-3 text-emerald-400" />
+                          <span>Cobro Automático</span>
+                        </>
+                      ) : (
+                        <>
+                          <Hand className="w-3 h-3 text-amber-400" />
+                          <span>Procesamiento Manual</span>
+                        </>
+                      )}
+                    </span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setAutoCreateExpense(true)}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        autoCreateExpense
+                          ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-xs'
+                          : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5 shrink-0" />
+                        <span>Automático</span>
+                        <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono">Por defecto</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-1 leading-tight">
+                        Se contabiliza al llegar la fecha sin requerir acción manual. Puedes revertirlo o ajustarlo.
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setAutoCreateExpense(false)}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        !autoCreateExpense
+                          ? 'bg-amber-500/20 border-amber-500 text-white shadow-xs'
+                          : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                        <Hand className="w-3.5 h-3.5 shrink-0" />
+                        <span>Manual</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-1 leading-tight">
+                        Tú confirmas el cobro. Si pasa la fecha sin cobrar, se alertará como "No pagado".
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Selector de intervalo dinámico para Semanal o Mensual */}
               {(frequency === 'weekly' || frequency === 'monthly') && (
@@ -873,10 +1149,18 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     <span>Fecha de Inicio / Origen del Compromiso *</span>
                   </label>
                   {startDate && (
-                    <span className="text-[10px] font-semibold text-slate-400">
-                      {startDate > new Date().toISOString().slice(0, 10)
-                        ? '🟡 Inicio Futuro'
-                        : '🟢 En Vigor'}
+                    <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
+                      {startDate > new Date().toISOString().slice(0, 10) ? (
+                        <>
+                          <Clock className="w-3 h-3 text-amber-400" />
+                          <span>Inicio Futuro</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                          <span>En Vigor</span>
+                        </>
+                      )}
                     </span>
                   )}
                 </div>

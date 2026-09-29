@@ -39,6 +39,7 @@ flowchart TD
 
     subgraph ENGINE_LAYER["2. Motores de Inteligencia Financiera & Bóveda"]
         VAULT["VaultCryptoService<br/>(AES-GCM-256 Envelope Encryption)"]
+        REC_ENG["RecurringEngineService<br/>(Cobro Automático Idempotente & Cese)"]
         S2S["SafeToSpendService<br/>(Recurrentes por intervalo + Colchón)"]
         SINK["SinkingFundsService<br/>(Ritmo de crucero & Sweep)"]
         TAX["TaxService<br/>(Plazos AEAT & Modelos 130/303)"]
