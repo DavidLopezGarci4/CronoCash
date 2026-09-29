@@ -16,11 +16,13 @@
       "isCurrent": true,
       "highlights": [
         "⚡ Cobro Automático por Defecto: Los compromisos recurrentes se contabilizan automáticamente en tus gastos al cumplirse la fecha de vencimiento, con opción inmediata de revertir o ajustar el importe.",
-        "✋ Procesamiento Manual con Alerta 'No Pagado': Opción configurable de cobro manual con aviso visual prominente ('⚠️ No pagado') y dot de atención animado en Calendario y Recurrentes si el plazo vence sin pagar.",
-        "⏹️ Cese de Recurrencia y Pestaña de Históricas: Da de baja compromisos con fecha de cese a hoy para detener proyecciones futuras, organizados en la nueva pestaña 'Cesadas / Históricas' con reactivación en 1 toque.",
+        "✋ Procesamiento Manual con Alerta 'No Pagado': Opción configurable de cobro manual con aviso visual prominente y atención animada en Calendario y Recurrentes si el plazo vence sin pagar.",
+        "🛡️ Anti-Expulsión en Selector de Archivos y Google Drive: Blindaje del ciclo de vida para evitar que la aplicación se bloquee o te expulse al inicio de sesión al explorar extractos bancarios o archivos de copia de seguridad en Google Drive.",
+        "💾 Sobreescritura Atómica en Ranura 1: Las copias de seguridad generadas en la primera ranura sobrescriben de inmediato la versión anterior sin duplicidades ni expulsión de sesión tras restaurar.",
+        "⏹️ Cese de Recurrencia y Pestaña de Históricas: Da de baja compromisos con fecha de cese a hoy para detener proyecciones futuras, organizados en la pestaña 'Cesadas / Históricas' con reactivación en 1 toque.",
         "🔒 Historial Contable Inmutable: Modificar la cuota de una regla aplica solo a los cobros futuros; todos los gastos pasados ya guardados conservan su importe intacto.",
         "📅 Fecha de Inicio Canónica e Intervalos Elásticos: Desacoplamiento de la fecha de registro respecto a la de origen y cálculo matemático perfecto de recurrencias cada X semanas o meses.",
-        "✨ Idempotencia y UX/UI en Calendario: Sincronización inmediata entre vistas sin duplicidades, Total del Día riguroso y contención visual perfecta en cada celda."
+        "✨ Idempotencia y UX/UI Pulida: Sincronización inmediata entre vistas sin duplicidades, eliminación de banners redundantes y estandarización completa a Lucide React."
       ]
     },
     {

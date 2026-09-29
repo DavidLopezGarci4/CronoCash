@@ -242,6 +242,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         throw new Error('Archivo de respaldo no compatible.');
       }
       await DBService.importBackupEnvelope(envelope);
+      AuthService.keepSessionUnlockedAfterRestore();
       setImportMessage({ type: 'ok', text: 'Copia de seguridad restaurada correctamente.' });
       setTimeout(() => {
         onDataRestored();
@@ -683,13 +684,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span>{exportSuccess ? '¡Descargado!' : 'Exportar Local'}</span>
               </button>
 
-              <label className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+              <label
+                onClick={() => AuthService.setPickingFile(true)}
+                className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
                 <Upload className="w-4 h-4 text-teal-400" />
                 <span>Restaurar Rápido</span>
                 <input
                   type="file"
                   accept=".json,application/json"
-                  onChange={handleImportBackup}
+                  onChange={(e) => {
+                    AuthService.setPickingFile(false);
+                    handleImportBackup(e);
+                  }}
                   className="hidden"
                 />
               </label>

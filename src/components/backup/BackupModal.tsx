@@ -29,6 +29,7 @@ import {
   BackupInspectionResult,
   DatabaseCurrentStats,
 } from '../../services/googleDriveBackup';
+import { AuthService } from '../../services/auth';
 
 interface BackupModalProps {
   isOpen: boolean;
@@ -80,12 +81,23 @@ export const BackupModal: React.FC<BackupModalProps> = ({
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    const handleFocus = () => {
+      setTimeout(() => {
+        AuthService.setPickingFile(false);
+      }, 1200);
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
+
   if (!isOpen) return null;
 
   // --- SUBIDA A GOOGLE DRIVE (2 RANURAS) ---
   const handleExportToDrive = async () => {
     setIsExporting(true);
     setFeedback(null);
+    AuthService.setPickingFile(true);
     try {
       const payload = await GoogleDriveBackupService.createBackupPayload(selectedSlot);
       const jsonStr = JSON.stringify(payload, null, 2);
@@ -117,6 +129,7 @@ export const BackupModal: React.FC<BackupModalProps> = ({
   const handleExportLocal = async () => {
     setIsExporting(true);
     setFeedback(null);
+    AuthService.setPickingFile(true);
     try {
       const payload = await GoogleDriveBackupService.createBackupPayload('actual');
       const dateTag = new Date().toISOString().split('T')[0];
@@ -193,6 +206,7 @@ export const BackupModal: React.FC<BackupModalProps> = ({
       );
 
       if (result.success) {
+        AuthService.keepSessionUnlockedAfterRestore();
         setFeedback({
           type: 'success',
           message: result.message,
@@ -229,9 +243,6 @@ export const BackupModal: React.FC<BackupModalProps> = ({
             <div>
               <h2 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
                 <span>Copias de Seguridad</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  Google Drive 2 Ranuras
-                </span>
               </h2>
               <p className="text-xs text-slate-400">
                 Resguardo seguro en la nube y comparador inteligente previo a restaurar
@@ -368,7 +379,7 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                     </div>
                   </div>
                   <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
-                    Copia principal de uso diario. Sobrescribe la versión vigente manteniendo tus datos actualizados.
+                    Copia principal de uso diario. Sobrescribe la copia anterior de forma inmediata, manteniendo siempre una única versión vigente y actualizada.
                   </p>
                 </div>
 
@@ -505,19 +516,23 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                   Selecciona tu copia de Google Drive o de tu dispositivo. El sistema realizará una <strong>inspección previa de integridad</strong> y te mostrará una comparativa antes de tocar tus datos actuales.
                 </p>
 
-                <div className="pt-1">
-                  <label className="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 flex items-center justify-center gap-2 cursor-pointer transition-all">
+                  <label
+                    onClick={() => AuthService.setPickingFile(true)}
+                    className="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 flex items-center justify-center gap-2 cursor-pointer transition-all"
+                  >
                     <FileText className="w-4 h-4 text-teal-400" />
                     <span>Examinar Archivo JSON</span>
                     <input
                       ref={fileInputRef}
                       type="file"
                       accept=".json,application/json"
-                      onChange={handleFileSelect}
+                      onChange={(e) => {
+                        AuthService.setPickingFile(false);
+                        handleFileSelect(e);
+                      }}
                       className="hidden"
                     />
                   </label>
-                </div>
               </div>
 
               {/* COMPARADOR LADO A LADO SI HAY ARCHIVO INSPECCIONADO */}

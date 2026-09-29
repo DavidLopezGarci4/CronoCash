@@ -27,9 +27,11 @@ import { App as CapApp } from '@capacitor/app';
 import { ExitConfirmModal } from './components/common/ExitConfirmModal';
 
 export const App: React.FC = () => {
-  // Estado de Bloqueo / Autenticación: Forzar bloqueo en arranque si hay PIN/huella
+  // Estado de Bloqueo / Autenticación:
+  // Si no hay PIN configurado o la sesión ya está desbloqueada o tiene auto-unlock, no bloquear
   const [isLocked, setIsLocked] = useState(() => {
     if (!AuthService.isPasswordConfigured()) return false;
+    if (AuthService.isUnlocked() || AuthService.canAutoUnlock()) return false;
     return true;
   });
 
@@ -178,13 +180,27 @@ export const App: React.FC = () => {
     NotificationService.syncAllScheduledReminders(settings, recurringRules);
   }, [recurringRules, settings.notificationsEnabled, settings.notificationHour]);
 
-  // Bloqueo al pasar a segundo plano
+  // Bloqueo inteligente al pasar a segundo plano (con gracia de 60s y exclusión de selector de archivos)
   useEffect(() => {
+    let hideTimestamp = 0;
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        if (AuthService.isPasswordConfigured()) {
-          AuthService.lock(false);
-          setIsLocked(true);
+        hideTimestamp = Date.now();
+      } else if (document.visibilityState === 'visible') {
+        // Si el usuario estaba seleccionando un archivo (ej. Excel desde Google Drive o backup), no bloquear
+        if (AuthService.isFilePickerActive()) {
+          setTimeout(() => AuthService.setPickingFile(false), 1500);
+          return;
+        }
+
+        // Si la app estuvo en segundo plano más de 60 segundos y tiene contraseña configurada, bloquear
+        if (hideTimestamp > 0) {
+          const elapsedSeconds = (Date.now() - hideTimestamp) / 1000;
+          if (elapsedSeconds > 60 && AuthService.isPasswordConfigured()) {
+            AuthService.lock(false);
+            setIsLocked(true);
+          }
         }
       }
     };

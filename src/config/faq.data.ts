@@ -234,7 +234,7 @@ export const FAQ_DATA: FAQSection[] = [
         id: 'dos-ranuras',
         question: '¿En qué consiste la estrategia canónica de 2 ranuras?',
         bullets: [
-          'Ranura 1 (CronoCash_Actual.json): Tu copia principal y más reciente de uso continuado.',
+          'Ranura 1 (CronoCash_Actual.json): Tu copia principal y más reciente. Sobrescribe la copia anterior de forma inmediata y persistente, manteniendo siempre una única versión vigente y actualizada sin generar duplicados ni desloguear tu sesión al restaurar.',
           'Ranura 2 (CronoCash_Previa.json): Copia de seguridad histórica congelada para emergencias.',
           'Integración SAF sin APIs invasivas: Utiliza la hoja nativa de compartir de Android (@capacitor/share + @capacitor/filesystem) para guardar en Google Drive sin requerir claves de desarrollador ni sufrir tokens caducados.',
         ],

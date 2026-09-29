@@ -5,6 +5,31 @@ export class AuthService {
   private static SESSION_KEY = 'gastos_unlocked_session_v1';
   private static AUTO_LOGIN_KEY = 'gastos_auto_login_active_v1';
   private static SAVED_CREDENTIAL_KEY = 'gastos_saved_credential_v1';
+  private static isPickingFile = false;
+
+  /**
+   * Marca si el usuario está interactuando con un selector de archivos externo (SAF / Google Drive)
+   */
+  static setPickingFile(active: boolean): void {
+    this.isPickingFile = active;
+  }
+
+  static isFilePickerActive(): boolean {
+    return this.isPickingFile;
+  }
+
+  /**
+   * Mantiene o renueva la sesión activa tras una restauración de datos para no expulsar al usuario
+   */
+  static keepSessionUnlockedAfterRestore(): void {
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(this.SESSION_KEY, 'true');
+      }
+    } catch {
+      // Ignorar si no hay storage
+    }
+  }
 
   /**
    * Comprueba si el usuario tiene una contraseña o PIN configurado

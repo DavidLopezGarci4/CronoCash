@@ -1077,7 +1077,6 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                       <div className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
                         <Zap className="w-3.5 h-3.5 shrink-0" />
                         <span>Automático</span>
-                        <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono">Por defecto</span>
                       </div>
                       <div className="text-[10px] text-slate-400 mt-1 leading-tight">
                         Se contabiliza al llegar la fecha sin requerir acción manual. Puedes revertirlo o ajustarlo.

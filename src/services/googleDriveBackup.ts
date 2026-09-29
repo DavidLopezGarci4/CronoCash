@@ -222,7 +222,37 @@ export class GoogleDriveBackupService {
           data: content,
           directory: Directory.Cache,
           encoding: Encoding.UTF8,
+          recursive: true,
         });
+
+        // Garantizar sobreescritura persistente en almacenamiento de la app
+        try {
+          await Filesystem.writeFile({
+            path: fileName,
+            data: content,
+            directory: Directory.Documents,
+            encoding: Encoding.UTF8,
+            recursive: true,
+          });
+        } catch {
+          try {
+            await Filesystem.writeFile({
+              path: fileName,
+              data: content,
+              directory: Directory.Data,
+              encoding: Encoding.UTF8,
+              recursive: true,
+            });
+          } catch {
+            // Fallback silencioso
+          }
+        }
+
+        // Si es Ranura 1 (Actual), guardar snapshot persistente que sobrescribe a la anterior
+        if (fileName === DRIVE_SLOT_ACTUAL && typeof localStorage !== 'undefined') {
+          localStorage.setItem('cronocash_slot_actual_payload', content);
+          localStorage.setItem('cronocash_slot_actual_date', new Date().toISOString());
+        }
 
         await Share.share({
           title,

@@ -18,6 +18,7 @@ import {
 import { Expense, Bucket, SmartRule, ExtraIncome } from '../../types';
 import { CsvImporterService, AnalyzedTransaction, BatchAnalysisResult } from '../../services/csvImporterService';
 import { DBService } from '../../services/db';
+import { AuthService } from '../../services/auth';
 
 interface CsvImportModalProps {
   isOpen: boolean;
@@ -50,6 +51,16 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
   const [importSummary, setImportSummary] = useState<{ imported: number } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    const handleFocus = () => {
+      setTimeout(() => {
+        AuthService.setPickingFile(false);
+      }, 1200);
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
 
   if (!isOpen) return null;
 
@@ -257,9 +268,6 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
             <div>
               <div className="flex items-center space-x-2">
                 <h2 className="text-base font-black text-white">Importador Bancario Universal</h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
-                  Offline 100%
-                </span>
               </div>
               <p className="text-xs text-slate-400">
                 Compatible con extractos Excel (.xlsx, .xls) y CSV de Santander, BBVA, CaixaBank, Sabadell, ING, Revolut, etc.
@@ -295,7 +303,10 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                AuthService.setPickingFile(true);
+                fileInputRef.current?.click();
+              }}
               className={`w-full max-w-lg p-8 sm:p-12 rounded-3xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center space-y-4 ${
                 isDragging
                   ? 'border-emerald-400 bg-emerald-500/10 scale-102'
@@ -331,7 +342,10 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                 ref={fileInputRef}
                 type="file"
                 accept=".csv,.xlsx,.xls,.tsv,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-                onChange={handleFileInputChange}
+                onChange={(e) => {
+                  AuthService.setPickingFile(false);
+                  handleFileInputChange(e);
+                }}
                 className="hidden"
               />
             </div>
