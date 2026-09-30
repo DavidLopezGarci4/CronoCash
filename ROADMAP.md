@@ -4,16 +4,23 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.22.0 — Modo Claro Integral (Light Mode) con Paleta Semántica y Contraste WCAG AA ☀️
-- [x] **Modo Claro Nativo & Volteado Semántico Completo:** Soporte integral de tema claro en todas las pantallas, componentes, widgets, tarjetas y modales sin filtros invertidos destructivos.
-- [x] **Selector de Tema Visual:** Configura el modo de visualización en Configuración > Preferencias entre 'Sistema (Automático)', 'Modo Claro' o 'Modo Oscuro' con previsualización en vivo e instantánea.
-- [x] **Contraste y Accesibilidad WCAG AA:** Ajuste específico de saturaciones y luminosidad para semáforos contables, barras de progreso y tipografía sobre fondos claros y oscuros.
-- [x] **Sincronización con Barra de Estado del Dispositivo:** Coordinación automática de la barra de estado de Android (tema claro con iconos oscuros vs tema oscuro) y meta tag theme-color.
-- [x] **Sincronización SemVer Global:** `v1.22.0` (Build 12200) en todos los manifiestos, configuraciones y documentación.
+## Estado Actual: v1.23.0 — Control de Capacidad Presupuestaria y Asignación de Ingresos a Bolsas ⚖️
+- [x] **Balance de Presupuesto Real (Zero-Based Envelopes):** Comparación directa entre la capacidad de ingresos estimados (salario base/real + extras) y el total asignado a bolsas.
+- [x] **Detección Instantánea de Sobre-presupuesto y Margen Libre:** Alertas en color rosa/rojo ante sobre-asignación y verde esmeralda cuando existe saldo libre para ahorro.
+- [x] **Alternador Inmediato Mes en Curso / Mes Siguiente:** Inspección en 1 toque del balance para el mes actual y el mes venidero.
+- [x] **Simulador en Vivo en Modal Crear/Editar Bolsa:** Previsualización dinámica de la variación presupuestaria según el límite introducido.
+- [x] **Telemetría en Grafo de Arquitectura:** Monitoreo en tiempo real de la capacidad presupuestaria en el motor IndexedDB.
+- [x] **Sincronización SemVer Global:** `v1.23.0` (Build 12300) en todos los manifiestos, configuraciones y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.22.0 (Completado)
+- [x] Modo Claro Nativo & Volteado Semántico Completo en el 100% de la aplicación.
+- [x] Selector de Tema Visual en Configuración (Sistema / Claro / Oscuro) con previsualización en vivo.
+- [x] Calibración de contraste y semáforos contables según WCAG AA.
+- [x] Coordinación con Barra de Estado del Dispositivo Android y meta theme-color.
 
 ### 📦 v1.21.0 (Completado)
 - [x] Segmentación Desplegable en Configuración por subsecciones temáticas.

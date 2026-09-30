@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { DBService } from '../../services/db';
+import { BudgetCapacityService } from '../../services/budgetCapacityService';
 import stackConfig from '../../config/stack.config.json';
 
 interface TechNodeConfig {
@@ -132,13 +133,16 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
     try {
       const t0 = performance.now();
       const testSettings = DBService.getSettings();
+      const testBuckets = await DBService.getBuckets();
+      const currentMonthKey = new Date().toISOString().substring(0, 7);
+      const capacity = BudgetCapacityService.calculateCapacity(testBuckets, testSettings, currentMonthKey);
       const latency = Math.max(1, Math.round(performance.now() - t0));
       results['storage'] = {
         status: testSettings ? 'healthy' : 'degraded',
         badge: testSettings ? 'ACID Conectado' : 'Sin Datos',
-        metric: `${latency}ms latencia DB`,
+        metric: `${latency}ms DB • ${testBuckets.length} Bolsas (${capacity.status === 'exceeded' ? 'Sobre-presupuestado' : capacity.status === 'balanced' ? '100% Equilibrado' : 'Margen Libre'})`,
         timestamp: now,
-        diagnostic: 'IndexedDB GastosFacturacionDB operativo con persistencia local garantizada.',
+        diagnostic: `IndexedDB persistente. Capacidad: ${capacity.totalBucketsBudget.toFixed(0)}€ bolsas vs ${capacity.totalIncome.toFixed(0)}€ ingresos (${capacity.difference >= 0 ? '+' : ''}${capacity.difference.toFixed(0)}€).`,
       };
     } catch (e: any) {
       results['storage'] = {

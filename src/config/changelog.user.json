@@ -1,6 +1,6 @@
 {
-  "currentVersion": "1.22.0",
-  "buildNumber": 12200,
+  "currentVersion": "1.23.0",
+  "buildNumber": 12300,
   "lastUpdated": "2026-09-30",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
@@ -9,11 +9,25 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.23.0",
+      "build": 12300,
+      "date": "30 Sep 2026",
+      "title": "Control de Capacidad Presupuestaria y Asignación de Ingresos a Bolsas (Zero-Based Envelopes)",
+      "isCurrent": true,
+      "highlights": [
+        "⚖️ Balance de Presupuesto Real: Widget interactivo en Bolsas que compara en tiempo real el total asignado a tus sobres con los ingresos estimados del mes (salario real o base más ingresos extras).",
+        "📊 Detección Instantánea de Sobre-presupuesto y Margen Libre: Alertas claras si tus bolsas superan tus ingresos (ej. bolsas de 2.000 € con ingresos de 1.500 € = +500 € excedido) o si dispones de margen libre para asignar o ahorrar.",
+        "🗓️ Alternador Inmediato Mes en Curso / Mes Siguiente: Comprueba con 1 toque cómo cuadran tus bolsas para el mes actual o el mes entrante, adaptándose a nóminas cobradas a partir del día 20.",
+        "💡 Simulador en Vivo al Crear o Editar Bolsas: Previsualiza exactamente cómo afectará el nuevo límite al balance total de tus ingresos antes de guardar.",
+        "🔬 Telemetría de Salud Presupuestaria en Grafo de Arquitectura: Monitoreo en tiempo real del estado de equilibrio presupuestario desde el nodo de persistencia local."
+      ]
+    },
+    {
       "version": "1.22.0",
       "build": 12200,
       "date": "30 Sep 2026",
       "title": "Modo Claro Integral (Light Mode) con Paleta Semántica y Contraste WCAG AA",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "☀️ Modo Claro Nativo & Volteado Semántico Completo: Implementación integral de tema claro en todas las pantallas, componentes, widgets, tarjetas y modales sin filtros invertidos destructivos.",
         "🎨 Selector de Tema Visual: Configura el modo de visualización en Configuración > Preferencias entre 'Sistema (Automático)', 'Modo Claro' o 'Modo Oscuro' con previsualización en vivo e instantánea.",

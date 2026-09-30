@@ -43,20 +43,25 @@ import {
   Calendar,
   BarChart3,
   GripVertical,
+  Wallet,
+  Scale,
+  CheckCircle2,
 } from 'lucide-react';
 import { format, addMonths, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { usePrivacy } from '../../context/PrivacyContext';
-import { Bucket, Expense } from '../../types';
+import { Bucket, Expense, Settings } from '../../types';
 import { DBService } from '../../services/db';
 import { HapticService } from '../../services/hapticService';
 import { useTouchSortable } from '../../hooks/useTouchSortable';
 import { CoverOverspendingModal } from './CoverOverspendingModal';
+import { BudgetCapacityService } from '../../services/budgetCapacityService';
 
 interface BucketsViewProps {
   buckets: Bucket[];
   expenses: Expense[];
   currency: string;
+  settings?: Settings;
   onSaveBucket: (bucket: Bucket) => void;
   onDeleteBucket: (id: string) => void;
   onRefresh: () => void;
@@ -81,6 +86,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   buckets,
   expenses,
   currency,
+  settings,
   onSaveBucket,
   onDeleteBucket,
   onRefresh,
@@ -132,6 +138,21 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const selectedYear = selectedDate.getFullYear();
   const selectedYearPrefix = String(selectedYear);
   const isCurrentMonth = selectedMonthPrefix === new Date().toISOString().substring(0, 7);
+
+  // Métricas de Capacidad Presupuestaria (Ingresos vs Límites de Bolsas)
+  const currentMonthDate = new Date();
+  const currentMonthKey = format(currentMonthDate, 'yyyy-MM');
+  const nextMonthDate = addMonths(new Date(), 1);
+  const nextMonthKey = format(nextMonthDate, 'yyyy-MM');
+  const isSelectedNextMonth = selectedMonthPrefix === nextMonthKey;
+
+  const effectiveSettings = settings || DBService.getSettings();
+  const capacityMetrics = BudgetCapacityService.calculateCapacity(
+    buckets,
+    effectiveSettings,
+    selectedMonthPrefix,
+    format(selectedDate, 'MMMM yyyy', { locale: es })
+  );
 
   const currentExpenses = expenses.filter((e) => (e.date || '').startsWith(selectedMonthPrefix));
   const yearExpenses = expenses.filter((e) => (e.date || '').startsWith(selectedYearPrefix));
@@ -572,6 +593,208 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
         </div>
       </div>
 
+      {/* Tarjeta de Capacidad y Asignación de Presupuesto (Ingresos Estimados vs Bolsas) */}
+      <div
+        className={`p-4 rounded-3xl border shadow-xl transition-all duration-300 space-y-3.5 ${
+          capacityMetrics.status === 'exceeded'
+            ? 'bg-rose-50/90 dark:bg-rose-950/20 border-rose-300 dark:border-rose-500/40 shadow-rose-950/5 dark:shadow-rose-950/20'
+            : capacityMetrics.status === 'balanced'
+            ? 'bg-teal-50/90 dark:bg-teal-950/20 border-teal-300 dark:border-teal-500/40 shadow-teal-950/5 dark:shadow-teal-950/20'
+            : 'bg-emerald-50/90 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-500/40 shadow-emerald-950/5 dark:shadow-emerald-950/20'
+        }`}
+      >
+        {/* Cabecera del Widget de Capacidad */}
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2.5">
+            <div
+              className={`p-2 rounded-2xl border ${
+                capacityMetrics.status === 'exceeded'
+                  ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-500/30'
+                  : capacityMetrics.status === 'balanced'
+                  ? 'bg-teal-100 dark:bg-teal-500/20 text-teal-600 dark:text-teal-400 border-teal-200 dark:border-teal-500/30'
+                  : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30'
+              }`}
+            >
+              {capacityMetrics.status === 'exceeded' ? (
+                <AlertTriangle className="w-5 h-5 animate-pulse" />
+              ) : capacityMetrics.status === 'balanced' ? (
+                <CheckCircle2 className="w-5 h-5" />
+              ) : (
+                <Wallet className="w-5 h-5" />
+              )}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white">
+                  Balance de Presupuesto Real
+                </h3>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full capitalize font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+                  {capacityMetrics.monthName}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+                Capacidad de asignación sobre ingresos estimados
+              </p>
+            </div>
+          </div>
+
+          {/* Selector Rápido Mes en curso / Mes siguiente */}
+          <div className="flex items-center gap-1 bg-white/80 dark:bg-slate-900/80 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] font-bold">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedDate(currentMonthDate);
+                HapticService.selection();
+              }}
+              className={`px-2 py-0.5 rounded-lg transition-all cursor-pointer ${
+                selectedMonthPrefix === currentMonthKey
+                  ? 'bg-emerald-500 text-slate-950 font-bold shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Mes en curso
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedDate(nextMonthDate);
+                HapticService.selection();
+              }}
+              className={`px-2 py-0.5 rounded-lg transition-all cursor-pointer ${
+                isSelectedNextMonth
+                  ? 'bg-emerald-500 text-slate-950 font-bold shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Mes siguiente
+            </button>
+          </div>
+        </div>
+
+        {/* Resumen Métrico de Capacidad: Ingresos vs Bolsas */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+          {/* 1. Ingresos Estimados */}
+          <div className="p-2.5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+              Ingresos Estimados
+            </span>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-sm sm:text-base font-mono font-black text-slate-900 dark:text-white">
+                {isPrivate ? '••••' : capacityMetrics.totalIncome.toFixed(2)} {currency}
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+              Salario: {isPrivate ? '••••' : capacityMetrics.baseSalary.toFixed(0)}€ • Extras: {isPrivate ? '••••' : (capacityMetrics.punctualExtraIncome + capacityMetrics.recurringExtraIncome).toFixed(0)}€
+            </p>
+          </div>
+
+          {/* 2. Total Asignado a Bolsas */}
+          <div className="p-2.5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+              Límite Total en Bolsas
+            </span>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-sm sm:text-base font-mono font-black text-slate-900 dark:text-white">
+                {isPrivate ? '••••' : capacityMetrics.totalBucketsBudget.toFixed(2)} {currency}
+              </span>
+              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                ({buckets.length} sobres)
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+              Compromiso mensual presupuestado
+            </p>
+          </div>
+
+          {/* 3. Margen Libre o Excedente */}
+          <div
+            className={`p-2.5 rounded-2xl border shadow-xs ${
+              capacityMetrics.status === 'exceeded'
+                ? 'bg-rose-100/70 dark:bg-rose-900/30 border-rose-300 dark:border-rose-500/40 text-rose-800 dark:text-rose-200'
+                : capacityMetrics.status === 'balanced'
+                ? 'bg-teal-100/70 dark:bg-teal-900/30 border-teal-300 dark:border-teal-500/40 text-teal-800 dark:text-teal-200'
+                : 'bg-emerald-100/70 dark:bg-emerald-900/30 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-200'
+            }`}
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider block opacity-85">
+              {capacityMetrics.status === 'exceeded'
+                ? 'Sobre-presupuestado'
+                : capacityMetrics.status === 'balanced'
+                ? 'Balance a Cero'
+                : 'Margen Libre / Sin Asignar'}
+            </span>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-sm sm:text-base font-mono font-black">
+                {capacityMetrics.status === 'exceeded' ? '+' : ''}
+                {isPrivate ? '••••' : Math.abs(capacityMetrics.difference).toFixed(2)} {currency}
+              </span>
+              <span className="text-[10px] font-bold opacity-80">
+                ({capacityMetrics.percentageAllocated}% asignado)
+              </span>
+            </div>
+            <p className="text-[10px] opacity-80 truncate mt-0.5">
+              {capacityMetrics.status === 'exceeded'
+                ? 'Excede los ingresos'
+                : capacityMetrics.status === 'balanced'
+                ? '100% de ingresos asignados'
+                : 'Disponible para bolsas/ahorro'}
+            </p>
+          </div>
+        </div>
+
+        {/* Barra Visual de Asignación Presupuestaria */}
+        <div className="space-y-1.5 pt-1">
+          <div className="flex items-center justify-between text-[11px] font-bold">
+            <span className="text-slate-600 dark:text-slate-300">
+              {capacityMetrics.status === 'exceeded'
+                ? '⚠️ Las bolsas superan los ingresos disponibles:'
+                : 'Asignación de ingresos a bolsas:'}
+            </span>
+            <span
+              className={`font-mono ${
+                capacityMetrics.status === 'exceeded'
+                  ? 'text-rose-600 dark:text-rose-400'
+                  : 'text-emerald-600 dark:text-emerald-400'
+              }`}
+            >
+              {capacityMetrics.percentageAllocated}% de los ingresos
+            </span>
+          </div>
+
+          <div className="w-full h-3 bg-slate-200/80 dark:bg-slate-800/80 rounded-full overflow-hidden p-0.5 border border-slate-300/60 dark:border-slate-700/60">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ${
+                capacityMetrics.status === 'exceeded'
+                  ? 'bg-rose-500 shadow-md shadow-rose-500/50'
+                  : capacityMetrics.status === 'balanced'
+                  ? 'bg-teal-500 shadow-md shadow-teal-500/40'
+                  : 'bg-gradient-to-r from-emerald-500 to-teal-400'
+              }`}
+              style={{ width: `${Math.min(capacityMetrics.percentageAllocated, 100)}%` }}
+            />
+          </div>
+
+          <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-300 italic">
+            {capacityMetrics.status === 'exceeded' ? (
+              <>
+                <strong className="text-rose-700 dark:text-rose-300 not-italic">Atención:</strong> Tus bolsas superan tus ingresos estimados en{' '}
+                <span className="font-mono font-bold text-rose-700 dark:text-rose-300">{isPrivate ? '••••' : Math.abs(capacityMetrics.difference).toFixed(2)} {currency}</span>. Para que tu presupuesto no se desborde, reduce los límites de tus bolsas o aumenta tus ingresos.
+              </>
+            ) : capacityMetrics.status === 'balanced' ? (
+              <>
+                <strong className="text-teal-700 dark:text-teal-300 not-italic">Equilibrio perfecto:</strong> Cada euro de tus ingresos estimados (
+                <span className="font-mono font-bold">{isPrivate ? '••••' : capacityMetrics.totalIncome.toFixed(2)} {currency}</span>) tiene una bolsa asignada sin incurrir en déficit.
+              </>
+            ) : (
+              <>
+                <strong className="text-emerald-700 dark:text-emerald-300 not-italic">Presupuesto holgado:</strong> Te quedan{' '}
+                <span className="font-mono font-bold text-emerald-700 dark:text-emerald-300">{isPrivate ? '••••' : capacityMetrics.difference.toFixed(2)} {currency}</span> libres para asignar a bolsas o transferir a tus Metas y Colchón de Ahorro.
+              </>
+            )}
+          </p>
+        </div>
+      </div>
+
       {/* Tarjeta de Resumen Global de Bolsas & Banner de Rollover */}
       <div className="p-4 rounded-3xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-3">
         <div className="flex items-center justify-between">
@@ -863,6 +1086,74 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   placeholder="300"
                   className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400 focus:border-emerald-500 focus:outline-none"
                 />
+
+                {/* Simulador de Capacidad en Tiempo Real */}
+                {(() => {
+                  const parsedInputLimit = parseFloat(budgetLimit.replace(',', '.')) || 0;
+                  const otherBucketsTotal = buckets
+                    .filter((item) => item.id !== editingBucket?.id)
+                    .reduce((sum, item) => sum + item.budgetLimit, 0);
+                  const simulatedBucketsTotal = otherBucketsTotal + parsedInputLimit;
+                  const simulatedDiff = capacityMetrics.totalIncome - simulatedBucketsTotal;
+                  const simulatedPct =
+                    capacityMetrics.totalIncome > 0
+                      ? Math.round((simulatedBucketsTotal / capacityMetrics.totalIncome) * 100)
+                      : 0;
+                  const isSimulatedExceeded = simulatedDiff < -0.005;
+                  const isSimulatedBalanced = Math.abs(simulatedDiff) <= 0.005;
+
+                  return (
+                    <div
+                      className={`p-2.5 rounded-xl border text-xs space-y-1 transition-all ${
+                        isSimulatedExceeded
+                          ? 'bg-rose-50/90 dark:bg-rose-950/20 border-rose-300 dark:border-rose-500/40 text-rose-800 dark:text-rose-200'
+                          : isSimulatedBalanced
+                          ? 'bg-teal-50/90 dark:bg-teal-950/20 border-teal-300 dark:border-teal-500/40 text-teal-800 dark:text-teal-200'
+                          : 'bg-emerald-50/90 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between font-bold text-[11px]">
+                        <span className="flex items-center gap-1">
+                          {isSimulatedExceeded ? (
+                            <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                          ) : isSimulatedBalanced ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                          ) : (
+                            <Wallet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          )}
+                          <span>Impacto en Presupuesto ({capacityMetrics.monthName}):</span>
+                        </span>
+                        <span className="font-mono">
+                          {simulatedPct}% asignado
+                        </span>
+                      </div>
+                      <p className="text-[11px] leading-relaxed">
+                        Total en bolsas pasará a{' '}
+                        <strong className="font-mono font-bold">
+                          {isPrivate ? '••••' : simulatedBucketsTotal.toFixed(2)} {currency}
+                        </strong>{' '}
+                        de{' '}
+                        <span className="font-mono">
+                          {isPrivate ? '••••' : capacityMetrics.totalIncome.toFixed(2)} {currency}
+                        </span>{' '}
+                        de ingresos.{' '}
+                        {isSimulatedExceeded ? (
+                          <span className="font-bold text-rose-700 dark:text-rose-300">
+                            ⚠️ Superarás tus ingresos en {isPrivate ? '••••' : Math.abs(simulatedDiff).toFixed(2)} {currency}.
+                          </span>
+                        ) : isSimulatedBalanced ? (
+                          <span className="font-bold text-teal-700 dark:text-teal-300">
+                            🎯 Presupuesto perfectamente equilibrado a cero.
+                          </span>
+                        ) : (
+                          <span className="font-bold text-emerald-700 dark:text-emerald-300">
+                            ✅ Quedarán {isPrivate ? '••••' : simulatedDiff.toFixed(2)} {currency} libres sin asignar.
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Selector de Icono Lucide */}

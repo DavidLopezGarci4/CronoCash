@@ -3,6 +3,21 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.23.0] - 2026-09-30
+
+### Added
+- **Control de Capacidad Presupuestaria y Asignación de Ingresos a Bolsas (Zero-Based Envelopes):**
+  - **Motor de Balance Presupuestario (`budgetCapacityService.ts`):** Servicio reactivo para calcular la capacidad presupuestaria mensual y anual, confrontando el salario real/base y los ingresos extras del mes con la suma total de límites de bolsas.
+  - **Widget de Balance de Presupuesto Real en Bolsas (`BucketsView.tsx`):**
+    - Desglose trilateral: Ingresos Estimados del Mes vs Límite Total en Bolsas vs Margen Libre o Sobre-presupuestado.
+    - Detección visual automática: Alertas en tono rojo/rosa ante sobresignación de presupuesto (ej. bolsas de 2.000 € con ingresos de 1.500 € = +500 € excedido) y tono esmeralda cuando existe margen libre para asignar o ahorrar.
+    - Barra de progreso de asignación porcentual sobre ingresos con semáforo cromático.
+    - Selectores rápidos de 1 toque: `[ Mes en curso ]` y `[ Mes siguiente ]` para auditar la holgura financiera en ambos horizontes temporales de forma inmediata.
+  - **Simulador en Tiempo Real en Modal Crear/Editar Bolsa (`BucketsView.tsx`):**
+    - Píldora interactiva bajo el campo de límite mensual que recalcula en vivo cómo impactará el nuevo valor en el presupuesto global del mes (si superará los ingresos o cuánto margen libre quedará).
+  - **Telemetría de Salud Presupuestaria en Grafo de Arquitectura (`AppArchitectureGraph.tsx`):**
+    - Monitoreo en tiempo real del balance ingresos vs bolsas en el nodo de persistencia IndexedDB.
+
 ## [1.22.0] - 2026-09-30
 
 ### Added
