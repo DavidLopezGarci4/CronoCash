@@ -127,24 +127,24 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl p-6 overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl p-6 overflow-hidden max-h-[90vh] flex flex-col text-slate-900 dark:text-white">
         {/* Luz ambiental de fondo */}
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Cabecera */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30">
+            <div className="p-2.5 rounded-2xl bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30">
               <Scale className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span>Asistente de Sobregiro</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30">
                   Cover Overspending
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Reequilibra tus bolsas con un solo toque sin descuadrar el mes
               </p>
             </div>
@@ -152,7 +152,7 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -162,19 +162,19 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
         <div className="overflow-y-auto py-4 space-y-4 flex-1 pr-1">
           {successMessage ? (
             <div className="py-8 flex flex-col items-center justify-center text-center space-y-3">
-              <CheckCircle2 className="w-12 h-12 text-emerald-400 animate-bounce" />
-              <div className="text-sm font-bold text-white">{successMessage}</div>
+              <CheckCircle2 className="w-12 h-12 text-emerald-500 dark:text-emerald-400 animate-bounce" />
+              <div className="text-sm font-bold text-slate-900 dark:text-white">{successMessage}</div>
             </div>
           ) : (
             <>
               {/* Resumen del Déficit Detectado */}
-              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-rose-300">
+              <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-rose-700 dark:text-rose-300">
                   <span className="flex items-center gap-1.5">
-                    <AlertTriangle className="w-4 h-4 text-rose-400" />
+                    <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                     <span>Déficit detectado en {overspentItems.length} {overspentItems.length === 1 ? 'bolsa' : 'bolsas'}:</span>
                   </span>
-                  <span className="font-mono text-sm text-rose-400">
+                  <span className="font-mono text-sm text-rose-600 dark:text-rose-400">
                     +{totalDeficit.toFixed(2)} {currency}
                   </span>
                 </div>
@@ -183,20 +183,20 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
                   {overspentItems.map((item) => (
                     <div
                       key={item.bucket.id}
-                      className="flex items-center justify-between p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-xs"
+                      className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-xs"
                     >
                       <div className="flex items-center gap-2">
                         <span
-                          className="w-2.5 h-2.5 rounded-full"
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
                           style={{ backgroundColor: item.bucket.color }}
                         />
-                        <span className="font-medium text-slate-200">{item.bucket.name}</span>
+                        <span className="font-medium text-slate-800 dark:text-slate-200">{item.bucket.name}</span>
                       </div>
                       <div className="text-right font-mono">
-                        <span className="text-slate-400 text-[11px] mr-2">
+                        <span className="text-slate-500 dark:text-slate-400 text-[11px] mr-2">
                           Gastado: {item.spent.toFixed(2)} / {item.limit.toFixed(2)}
                         </span>
-                        <span className="text-rose-400 font-bold">
+                        <span className="text-rose-600 dark:text-rose-400 font-bold">
                           +{item.deficit.toFixed(2)} {currency}
                         </span>
                       </div>
@@ -207,9 +207,9 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
 
               {/* Selector de Estrategia de Compensación */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                   <span>Selecciona cómo deseas compensar este exceso:</span>
-                  <span className="text-[11px] text-slate-400 font-normal">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">
                     Margen disponible en otras bolsas: {totalSurplus.toFixed(2)} {currency}
                   </span>
                 </label>
@@ -221,23 +221,23 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
                     onClick={() => setSelectedStrategy('buffer')}
                     className={`w-full p-3.5 rounded-2xl border text-left transition-all flex items-start gap-3 cursor-pointer ${
                       selectedStrategy === 'buffer'
-                        ? 'bg-blue-500/15 border-blue-500/50 shadow-md shadow-blue-900/20'
-                        : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                        ? 'bg-blue-50 dark:bg-blue-500/15 border-blue-300 dark:border-blue-500/50 shadow-md shadow-blue-900/10'
+                        : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                     }`}
                   >
-                    <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400 mt-0.5">
+                    <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 mt-0.5">
                       <Shield className="w-4 h-4" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-white">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
                           Compensar desde {bufferItem.bucket.name}
                         </span>
-                        <span className="text-xs font-mono font-bold text-blue-400">
+                        <span className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">
                           Margen: {bufferItem.surplus.toFixed(2)} {currency}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                         Utiliza el fondo de emergencia para absorber el déficit sin alterar tus límites de ocio o compras.
                       </p>
                     </div>
@@ -251,23 +251,23 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
                     onClick={() => setSelectedStrategy('highest_surplus')}
                     className={`w-full p-3.5 rounded-2xl border text-left transition-all flex items-start gap-3 cursor-pointer ${
                       selectedStrategy === 'highest_surplus'
-                        ? 'bg-emerald-500/15 border-emerald-500/50 shadow-md shadow-emerald-900/20'
-                        : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                        ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/50 shadow-md shadow-emerald-900/10'
+                        : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                     }`}
                   >
-                    <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 mt-0.5">
+                    <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 mt-0.5">
                       <Sparkles className="w-4 h-4" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-white">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
                           Compensar desde {highestSurplusItem.bucket.name}
                         </span>
-                        <span className="text-xs font-mono font-bold text-emerald-400">
+                        <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
                           Sobra: {highestSurplusItem.surplus.toFixed(2)} {currency}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                         La bolsa con más dinero disponible sin consumir asume el importe excedido de forma natural.
                       </p>
                     </div>
@@ -280,23 +280,23 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
                   onClick={() => setSelectedStrategy('proportional')}
                   className={`w-full p-3.5 rounded-2xl border text-left transition-all flex items-start gap-3 cursor-pointer ${
                     selectedStrategy === 'proportional'
-                      ? 'bg-purple-500/15 border-purple-500/50 shadow-md shadow-purple-900/20'
-                      : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                      ? 'bg-purple-50 dark:bg-purple-500/15 border-purple-300 dark:border-purple-500/50 shadow-md shadow-purple-900/10'
+                      : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
-                  <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400 mt-0.5">
+                  <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 mt-0.5">
                     <Layers className="w-4 h-4" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-white">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">
                         Prorratear entre todas las bolsas con margen
                       </span>
-                      <span className="text-xs font-mono font-bold text-purple-400">
+                      <span className="text-xs font-mono font-bold text-purple-600 dark:text-purple-400">
                         {surplusItems.length} bolsas donantes
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                       Reparte el impacto proporcionalmente para que ninguna bolsa individual sufra un recorte brusco.
                     </p>
                   </div>
@@ -304,8 +304,8 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
               </div>
 
               {/* Nota Informativa */}
-              <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-start gap-2 text-[11px] text-slate-400">
-                <Info className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 flex items-start gap-2 text-[11px] text-slate-600 dark:text-slate-400">
+                <Info className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0 mt-0.5" />
                 <p>
                   El reequilibrio ajusta los techos de gasto de las bolsas involucradas mediante vasos comunicantes. El total de presupuesto mensual permanece invariable.
                 </p>
@@ -316,11 +316,11 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
 
         {/* Pie con Botones */}
         {!successMessage && (
-          <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-2">
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-transparent transition-colors cursor-pointer"
             >
               Cancelar
             </button>
@@ -328,7 +328,7 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
               type="button"
               disabled={isApplying || totalDeficit <= 0}
               onClick={handleApplyRebalance}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-95 text-xs font-bold text-slate-950 flex items-center gap-1.5 shadow-lg shadow-emerald-950/40 transition-all cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-95 text-xs font-bold text-slate-950 flex items-center gap-1.5 shadow-lg shadow-emerald-950/20 dark:shadow-emerald-950/40 transition-all cursor-pointer disabled:opacity-50"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>{isApplying ? 'Reequilibrando...' : 'Aplicar Reequilibrio'}</span>

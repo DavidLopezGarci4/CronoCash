@@ -4,16 +4,23 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.21.0 — Reordenación Drag & Drop con Pestaña Lateral y Limpieza Visual 🌟
-- [x] **Reordenación Drag & Drop con Pestaña Lateral Táctil:** Reordenación fluida y natural en Categorías, Bolsas y Recurrentes mediante una estilizada pestaña lateral izquierda con icono Lucide `GripVertical`.
-- [x] **Cero Conflictos de Scroll Móvil (`touch-action: none`):** Scroll vertical ordinario sin fricción en el cuerpo de la tarjeta, activando el arrastre solo desde la pestaña lateral.
-- [x] **Feedback Háptico y Visual Flotante:** Respuesta por vibración al asir la tarjeta (`HapticService.selection()`), tarjeta elevada con sombra profunda y consolidación inmediata (`HapticService.notificationSuccess()`).
-- [x] **Limpieza de Badge Residual:** Supresión del banner `v1.12.0` en la cabecera de Informes y Fiscalidad.
-- [x] **Sincronización SemVer Global:** `v1.21.0` (Build 12100) en todos los manifiestos, configuraciones y documentación.
+## Estado Actual: v1.22.0 — Modo Claro Integral (Light Mode) con Paleta Semántica y Contraste WCAG AA ☀️
+- [x] **Modo Claro Nativo & Volteado Semántico Completo:** Soporte integral de tema claro en todas las pantallas, componentes, widgets, tarjetas y modales sin filtros invertidos destructivos.
+- [x] **Selector de Tema Visual:** Configura el modo de visualización en Configuración > Preferencias entre 'Sistema (Automático)', 'Modo Claro' o 'Modo Oscuro' con previsualización en vivo e instantánea.
+- [x] **Contraste y Accesibilidad WCAG AA:** Ajuste específico de saturaciones y luminosidad para semáforos contables, barras de progreso y tipografía sobre fondos claros y oscuros.
+- [x] **Sincronización con Barra de Estado del Dispositivo:** Coordinación automática de la barra de estado de Android (tema claro con iconos oscuros vs tema oscuro) y meta tag theme-color.
+- [x] **Sincronización SemVer Global:** `v1.22.0` (Build 12200) en todos los manifiestos, configuraciones y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.21.0 (Completado)
+- [x] Segmentación Desplegable en Configuración por subsecciones temáticas.
+- [x] Nóminas Mensuales Blindadas (Manual y Extracto) por mes sin duplicar ingresos.
+- [x] Tarjetas de Importación Bancaria Perfeccionadas con contenedor independiente y padding óptimo.
+- [x] Reordenación Drag & Drop con Pestaña Lateral Táctil en Categorías, Bolsas y Recurrentes.
+- [x] Limpieza Visual y Desahogo Estético de Banners obsoletos.
 
 ### 📦 v1.20.0 (Completado)
 - [x] Gestor Dinámico de Categorías Funcionales (CRUD Completo y Borrado Seguro Anti-Huérfanos).

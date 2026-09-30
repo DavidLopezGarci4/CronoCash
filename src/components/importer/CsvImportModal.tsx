@@ -314,19 +314,19 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#0b101c] border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 dark:bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+      <div className="bg-white dark:bg-[#0b101c] border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100">
         {/* Cabecera */}
-        <div className="px-5 py-4 border-b border-slate-800/80 flex items-center justify-between bg-slate-900/40">
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-slate-50 dark:bg-slate-900/40">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 text-emerald-400 border border-emerald-500/30">
+            <div className="p-2.5 rounded-2xl bg-emerald-100 dark:bg-gradient-to-br dark:from-emerald-500/20 dark:to-teal-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-base font-black text-white">Importador Bancario Universal</h2>
+                <h2 className="text-base font-black text-slate-900 dark:text-white">Importador Bancario Universal</h2>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Compatible con extractos Excel (.xlsx, .xls) y CSV de Santander, BBVA, CaixaBank, Sabadell, ING, Revolut, etc.
               </p>
             </div>
@@ -337,16 +337,16 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
               <button
                 type="button"
                 onClick={onOpenRulesManager}
-                className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-cyan-300 border border-cyan-500/30 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all"
+                className="px-3 py-1.5 rounded-xl bg-cyan-100 dark:bg-slate-800/80 hover:bg-cyan-200 dark:hover:bg-slate-700/80 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/30 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all shadow-xs"
               >
-                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                <Sparkles className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
                 <span className="hidden sm:inline">Reglas Inteligentes</span>
               </button>
             )}
 
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/70 transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -367,30 +367,30 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
               className={`w-full max-w-lg p-8 sm:p-12 rounded-3xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center space-y-4 ${
                 isDragging
                   ? 'border-emerald-400 bg-emerald-500/10 scale-102'
-                  : 'border-slate-700/80 hover:border-emerald-500/50 bg-slate-900/30 hover:bg-slate-900/60'
+                  : 'border-slate-300 dark:border-slate-700/80 hover:border-emerald-500/50 bg-slate-50/70 dark:bg-slate-900/30 hover:bg-slate-100/80 dark:hover:bg-slate-900/60'
               }`}
             >
-              <div className="w-16 h-16 rounded-3xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shadow-lg shadow-emerald-950/40">
+              <div className="w-16 h-16 rounded-3xl bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-500/30 shadow-md">
                 <Upload className="w-8 h-8 stroke-[2.2]" />
               </div>
 
               <div className="space-y-1">
-                <h3 className="text-base font-bold text-white">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
                   Arrastra tu extracto bancario en Excel (.xlsx, .xls) o CSV aquí
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   o pulsa para explorar en tus archivos
                 </p>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-2 pt-2 text-[11px] text-slate-400">
-                <span className="px-2.5 py-1 rounded-lg bg-slate-800/60 border border-slate-800">
+              <div className="flex flex-wrap justify-center gap-2 pt-2 text-[11px] text-slate-600 dark:text-slate-400">
+                <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 shadow-xs">
                   Detección de cabecera bancaria
                 </span>
-                <span className="px-2.5 py-1 rounded-lg bg-slate-800/60 border border-slate-800">
+                <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 shadow-xs">
                   Omisión de preámbulo y no consolidados
                 </span>
-                <span className="px-2.5 py-1 rounded-lg bg-slate-800/60 border border-slate-800">
+                <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 shadow-xs">
                   Deduplicación SHA-256 Gastos/Ingresos
                 </span>
               </div>
@@ -408,7 +408,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
             </div>
 
             {isProcessing && (
-              <div className="mt-4 flex items-center space-x-2 text-xs text-emerald-400 animate-pulse">
+              <div className="mt-4 flex items-center space-x-2 text-xs text-emerald-600 dark:text-emerald-400 animate-pulse">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>Analizando extracto y evaluando reglas de categorización...</span>
               </div>
@@ -418,47 +418,47 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
           /* PASO 2: BANDEJA DE REVISIÓN (STAGING TABLE) */
           <div className="flex-1 flex flex-col min-h-0">
             {/* Resumen superior con contadores */}
-            <div className="p-4 border-b border-slate-800/60 bg-slate-900/20 space-y-3">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900/20 space-y-3">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
-                  <div className="text-[10px] uppercase font-bold text-slate-400">Total Detectadas</div>
-                  <div className="text-lg font-black font-mono text-white mt-0.5">{totalCount}</div>
+                <div className="p-3 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs">
+                  <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Total Detectadas</div>
+                  <div className="text-lg font-black font-mono text-slate-900 dark:text-white mt-0.5">{totalCount}</div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-emerald-950/20 border border-emerald-500/30">
-                  <div className="text-[10px] uppercase font-bold text-emerald-400 flex items-center gap-1">
+                <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/30 shadow-xs">
+                  <div className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3" />
                     <span>Nuevas Válidas</span>
                   </div>
-                  <div className="text-lg font-black font-mono text-emerald-300 mt-0.5">{validCount}</div>
+                  <div className="text-lg font-black font-mono text-emerald-800 dark:text-emerald-300 mt-0.5">{validCount}</div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
-                  <div className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1">
-                    <ShieldAlert className="w-3 h-3 text-slate-500" />
+                <div className="p-3 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs">
+                  <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <ShieldAlert className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                     <span>Duplicadas Descartadas</span>
                   </div>
-                  <div className="text-lg font-black font-mono text-slate-400 mt-0.5">{duplicateCount}</div>
+                  <div className="text-lg font-black font-mono text-slate-500 dark:text-slate-400 mt-0.5">{duplicateCount}</div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-cyan-950/20 border border-cyan-500/30">
-                  <div className="text-[10px] uppercase font-bold text-cyan-400 flex items-center gap-1">
+                <div className="p-3 rounded-2xl bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-500/30 shadow-xs">
+                  <div className="text-[10px] uppercase font-bold text-cyan-700 dark:text-cyan-400 flex items-center gap-1">
                     <Sparkles className="w-3 h-3" />
                     <span>Auto-Asignadas</span>
                   </div>
-                  <div className="text-lg font-black font-mono text-cyan-300 mt-0.5">{matchedCount}</div>
+                  <div className="text-lg font-black font-mono text-cyan-800 dark:text-cyan-300 mt-0.5">{matchedCount}</div>
                 </div>
               </div>
 
               {/* Pestañas de filtrado & Controles de Selección masiva */}
               <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                <div className="flex items-center space-x-1 bg-slate-950/70 p-1 rounded-xl border border-slate-800">
+                <div className="flex items-center space-x-1 bg-slate-200/70 dark:bg-slate-950/70 p-1 rounded-xl border border-slate-300 dark:border-slate-800">
                   <button
                     onClick={() => setFilterView('all')}
                     className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                       filterView === 'all'
-                        ? 'bg-slate-800 text-white'
-                        : 'text-slate-400 hover:text-white'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     Todas ({totalCount})
@@ -467,8 +467,8 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                     onClick={() => setFilterView('valid')}
                     className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                       filterView === 'valid'
-                        ? 'bg-emerald-500/20 text-emerald-300'
-                        : 'text-slate-400 hover:text-emerald-300'
+                        ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-300'
                     }`}
                   >
                     Válidas ({validCount})
@@ -477,8 +477,8 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                     onClick={() => setFilterView('matched')}
                     className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                       filterView === 'matched'
-                        ? 'bg-cyan-500/20 text-cyan-300'
-                        : 'text-slate-400 hover:text-cyan-300'
+                        ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-cyan-700 dark:hover:text-cyan-300'
                     }`}
                   >
                     Por Regla ({matchedCount})
@@ -488,8 +488,8 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                       onClick={() => setFilterView('duplicates')}
                       className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                         filterView === 'duplicates'
-                          ? 'bg-rose-500/20 text-rose-300'
-                          : 'text-slate-400 hover:text-rose-300'
+                          ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 shadow-xs'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-300'
                       }`}
                     >
                       Duplicadas ({duplicateCount})
@@ -501,15 +501,15 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSelectAllValid(true)}
-                    className="text-emerald-400 hover:underline cursor-pointer font-semibold"
+                    className="text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer font-semibold"
                   >
                     Seleccionar todas las válidas
                   </button>
-                  <span className="text-slate-600">•</span>
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
                   <button
                     type="button"
                     onClick={() => handleSelectAllValid(false)}
-                    className="text-slate-400 hover:underline cursor-pointer"
+                    className="text-slate-500 dark:text-slate-400 hover:underline cursor-pointer"
                   >
                     Deseleccionar
                   </button>
@@ -520,19 +520,19 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
             {/* Tabla interactiva con scroll */}
             <div className="flex-1 overflow-y-auto min-h-[280px] p-4 space-y-2">
               {displayedTransactions.length === 0 ? (
-                <div className="py-12 text-center text-slate-500 text-xs">
+                <div className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs">
                   No hay transacciones en este filtro.
                 </div>
               ) : (
                 displayedTransactions.map((tx) => (
                   <div
                     key={tx.id}
-                    className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 ${
+                    className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-xs ${
                       tx.isDuplicate
-                        ? 'bg-slate-950/40 border-slate-900 opacity-60'
+                        ? 'bg-slate-100/50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-900 opacity-60'
                         : tx.selected
-                        ? 'bg-slate-900/70 border-slate-800 hover:border-slate-700'
-                        : 'bg-slate-950/20 border-slate-900/80 opacity-70'
+                        ? 'bg-white dark:bg-slate-900/70 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                        : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-200 dark:border-slate-900/80 opacity-70'
                     }`}
                   >
                     <div className="flex items-center space-x-3 min-w-0">
@@ -546,25 +546,25 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
 
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-xs font-mono font-bold text-slate-400">
+                          <span className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">
                             {tx.parsedDate}
                           </span>
-                          <span className="text-xs font-bold text-white truncate max-w-xs sm:max-w-md">
+                          <span className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-xs sm:max-w-md">
                             {tx.cleanConcept}
                           </span>
                           {tx.isIncome && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold flex items-center gap-1">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-bold flex items-center gap-1">
                               {tx.incomeCategoryMode === 'salary' ? (
                                 <>
                                   <span>🏦 Nómina</span>
-                                  <span className="text-emerald-400 font-mono">
+                                  <span className="text-emerald-700 dark:text-emerald-400 font-mono">
                                     &rarr; {formatMonthName(tx.targetSalaryMonth || resolveTargetSalaryMonth(tx.parsedDate))}
                                   </span>
                                 </>
                               ) : (
                                 <>
                                   <span>🎁 Ingreso Extra</span>
-                                  <span className="text-teal-300 font-mono">
+                                  <span className="text-teal-700 dark:text-teal-300 font-mono">
                                     &rarr; {formatMonthName(tx.targetExtraMonth || (tx.parsedDate ? tx.parsedDate.substring(0, 7) : ''))}
                                   </span>
                                 </>
@@ -572,25 +572,25 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                             </span>
                           )}
                           {tx.isDuplicate && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold flex items-center gap-1">
-                              <AlertTriangle className="w-3 h-3 text-rose-400" />
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 font-semibold flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3 text-rose-600 dark:text-rose-400" />
                               Duplicado ya integrado
                             </span>
                           )}
                           {tx.matchedRulePattern && !tx.isDuplicate && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold flex items-center gap-1">
-                              <Sparkles className="w-3 h-3 text-cyan-400" />
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/30 font-semibold flex items-center gap-1">
+                              <Sparkles className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
                               {tx.matchedRulePattern}
                             </span>
                           )}
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-slate-400">
+                        <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                           <span>Original: {tx.rawConcept.substring(0, 45)}</span>
                           {tx.balance !== undefined && (
                             <>
                               <span>•</span>
-                              <span className="text-slate-500 font-mono">
+                              <span className="text-slate-400 dark:text-slate-500 font-mono">
                                 Saldo: {tx.balance.toFixed(2)} {tx.currency || currency}
                               </span>
                             </>
@@ -599,14 +599,14 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-3.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/60">
+                    <div className="flex items-center justify-between sm:justify-end gap-3.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-slate-800/60">
                       {/* Selector de Destino: Bolsa para Gastos / Nómina vs Extra para Ingresos */}
                       {!tx.isIncome ? (
                         <select
                           value={tx.suggestedBucketId}
                           disabled={tx.isDuplicate}
                           onChange={(e) => handleChangeBucket(tx.id, e.target.value)}
-                          className="px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer max-w-[150px]"
+                          className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer max-w-[150px]"
                         >
                           {buckets.map((b) => (
                             <option key={b.id} value={b.id}>
@@ -631,9 +631,9 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                             const isAfter20 = day >= 20;
                             const activeMode = tx.incomeCategoryMode || 'salary';
                             const activeMonth =
-                              activeMode === 'salary'
-                                ? (tx.targetSalaryMonth || targetSalaryMonth)
-                                : (tx.targetExtraMonth || currentMonth);
+                                activeMode === 'salary'
+                                  ? (tx.targetSalaryMonth || targetSalaryMonth)
+                                  : (tx.targetExtraMonth || currentMonth);
                             const selectVal = `${activeMode}:${activeMonth}`;
 
                             return (
@@ -641,7 +641,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                                 value={selectVal}
                                 disabled={tx.isDuplicate}
                                 onChange={(e) => handleUpdateIncomeTarget(tx.id, e.target.value)}
-                                className="px-2.5 py-1.5 bg-slate-950 border border-emerald-500/40 rounded-xl text-xs text-emerald-300 font-semibold focus:outline-none focus:border-emerald-400 cursor-pointer max-w-[210px] sm:max-w-[270px] truncate"
+                                className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-emerald-300 dark:border-emerald-500/40 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 font-semibold focus:outline-none focus:border-emerald-500 cursor-pointer max-w-[210px] sm:max-w-[270px] truncate"
                               >
                                 {isAfter20 ? (
                                   <>
@@ -688,8 +688,8 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                           disabled={tx.isDuplicate}
                           className={`px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all cursor-pointer ${
                             tx.isInvoice
-                              ? 'bg-teal-500/20 border-teal-500/40 text-teal-300'
-                              : 'bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300'
+                              ? 'bg-teal-100 dark:bg-teal-500/20 border-teal-300 dark:border-teal-500/40 text-teal-800 dark:text-teal-300'
+                              : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                           }`}
                           title="Marcar como factura desgravable"
                         >
@@ -698,10 +698,10 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                       )}
 
                       {/* Importe con signo y categoría en cápsula estilizada con margen de respiro */}
-                      <div className="px-3.5 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800/80 min-w-[100px] sm:min-w-[110px] text-right shrink-0 shadow-inner flex flex-col justify-center">
+                      <div className="px-3.5 py-1.5 rounded-xl bg-slate-100/80 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 min-w-[100px] sm:min-w-[110px] text-right shrink-0 shadow-xs flex flex-col justify-center">
                         <span
                           className={`font-mono font-black text-xs sm:text-sm tracking-tight ${
-                            tx.isIncome ? 'text-emerald-400' : 'text-slate-100'
+                            tx.isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'
                           }`}
                         >
                           {tx.isIncome ? `+${tx.amount.toFixed(2)}` : `-${tx.amount.toFixed(2)}`} {currency}
@@ -710,8 +710,8 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                           className={`block text-[9px] font-bold uppercase tracking-wider ${
                             tx.isIncome
                               ? tx.incomeCategoryMode === 'salary'
-                                ? 'text-teal-400 font-extrabold'
-                                : 'text-emerald-400/90'
+                                ? 'text-teal-600 dark:text-teal-400 font-extrabold'
+                                : 'text-emerald-600/90 dark:text-emerald-400/90'
                               : 'text-slate-500'
                           }`}
                         >
@@ -725,14 +725,14 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
             </div>
 
             {/* Footer con Switch de Auto-Reglas y Botón Principal */}
-            <div className="p-4 border-t border-slate-800/80 bg-slate-900/40 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/40 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center space-x-2">
-                <label className="flex items-center space-x-2.5 cursor-pointer text-xs text-slate-300">
+                <label className="flex items-center space-x-2.5 cursor-pointer text-xs text-slate-700 dark:text-slate-300">
                   <input
                     type="checkbox"
                     checked={saveAsRules}
                     onChange={(e) => setSaveAsRules(e.target.checked)}
-                    className="rounded text-cyan-500 focus:ring-0 w-4 h-4"
+                    className="rounded text-cyan-500 focus:ring-0 w-4 h-4 cursor-pointer"
                   />
                   <span>
                     Guardar asignaciones como <strong>nuevas reglas automáticas</strong> para futuros extractos
@@ -744,7 +744,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setStep('upload')}
-                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition-all cursor-pointer flex-1 sm:flex-none text-center"
+                  className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer flex-1 sm:flex-none text-center"
                 >
                   Cambiar archivo
                 </button>
@@ -756,7 +756,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                   className={`px-5 py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg flex-1 sm:flex-none ${
                     selectedCount > 0 && !isProcessing
                       ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-emerald-500/25 active:scale-95'
-                      : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'
                   }`}
                 >
                   {isProcessing ? (

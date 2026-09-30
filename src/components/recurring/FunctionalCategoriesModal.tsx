@@ -229,21 +229,21 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/80 backdrop-blur-xs">
-      <div className="bg-[#0f172a] border border-slate-700/80 rounded-3xl w-full max-w-lg p-5 text-white shadow-2xl animate-in fade-in duration-200 flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-lg p-5 text-slate-900 dark:text-white shadow-2xl animate-in fade-in duration-200 flex flex-col max-h-[90vh]">
         {/* Cabecera */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Tag className="w-4 h-4 text-emerald-400" />
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Tag className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
               <span>Gestor de Categorías Funcionales</span>
             </h3>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
               Personaliza, añade y organiza las categorías de tus compromisos
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -253,23 +253,23 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
         {isFormOpen ? (
           <form onSubmit={handleSaveForm} className="mt-4 space-y-4 overflow-y-auto pr-1 flex-1">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-400">Nombre de la Categoría *</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Nombre de la Categoría *</label>
               <input
                 type="text"
                 required
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 placeholder="Ej. Inversiones, Mascotas VIP, Alquiler..."
-                className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:border-emerald-500 focus:outline-none"
+                className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
             {/* Selector de Icono Lucide */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-400">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-400">
                 Icono Vectorial ({MASTER_ICON_KEYS.length} disponibles)
               </label>
-              <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 p-2 bg-slate-900/60 rounded-2xl border border-slate-800 max-h-40 overflow-y-auto">
+              <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 p-2 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 max-h-40 overflow-y-auto">
                 {Object.keys(LUCIDE_CATEGORY_ICONS).map((iconKey) => {
                   const Comp = LUCIDE_CATEGORY_ICONS[iconKey] || Tag;
                   const isSelected = formIcon === iconKey;
@@ -281,7 +281,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
                       className={`p-2 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-emerald-500 text-slate-950 font-bold scale-105 shadow-md shadow-emerald-500/30'
-                          : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
+                          : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700'
                       }`}
                       title={iconKey}
                     >
@@ -294,7 +294,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
 
             {/* Selector de Color */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-400">Color Distintivo</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Color Distintivo</label>
               <div className="flex items-center space-x-2 pt-1 flex-wrap gap-y-2">
                 {COLOR_PALETTE.map((c) => (
                   <button
@@ -302,7 +302,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
                     type="button"
                     onClick={() => setFormColor(c)}
                     className={`w-7 h-7 rounded-full border-2 transition-transform cursor-pointer ${
-                      formColor === c ? 'border-white scale-110 shadow-lg' : 'border-transparent'
+                      formColor === c ? 'border-slate-900 dark:border-white scale-110 shadow-lg' : 'border-transparent'
                     }`}
                     style={{ backgroundColor: c }}
                   />
@@ -312,13 +312,13 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
 
             {/* Descripción opcional */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-400">Descripción / Ejemplos</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Descripción / Ejemplos</label>
               <input
                 type="text"
                 value={formDesc}
                 onChange={(e) => setFormDesc(e.target.value)}
                 placeholder="Qué gastos cubre esta categoría..."
-                className="w-full h-10 px-3 bg-slate-900 border border-slate-700 rounded-xl text-xs focus:border-emerald-500 focus:outline-none"
+                className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
@@ -326,7 +326,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
               <button
                 type="button"
                 onClick={() => setIsFormOpen(false)}
-                className="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold cursor-pointer"
+                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold cursor-pointer"
               >
                 Cancelar
               </button>
@@ -340,15 +340,15 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
           </form>
         ) : categoryToDelete ? (
           /* Diálogo de Borrado Seguro con Reasignación Obligatoria */
-          <div className="mt-4 p-4 rounded-2xl bg-rose-950/20 border border-rose-500/40 space-y-3">
+          <div className="mt-4 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-500/40 space-y-3">
             <div className="flex items-start gap-2.5">
-              <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 text-rose-500 dark:text-rose-400 shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-sm font-bold text-rose-200">
+                <h4 className="text-sm font-bold text-rose-800 dark:text-rose-200">
                   ¿Eliminar "{categoryToDelete.name}"?
                 </h4>
                 {rules.filter((r) => r.categoryType === categoryToDelete.id).length > 0 ? (
-                  <p className="text-xs text-rose-300/90 mt-1">
+                  <p className="text-xs text-rose-700 dark:text-rose-300/90 mt-1">
                     Esta categoría está en uso en{' '}
                     <b>
                       {rules.filter((r) => r.categoryType === categoryToDelete.id).length} compromiso(s)
@@ -357,7 +357,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
                     a la que reasignarlos:
                   </p>
                 ) : (
-                  <p className="text-xs text-slate-300 mt-1">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
                     Esta categoría no tiene ningún compromiso asignado. Puede eliminarse de forma limpia.
                   </p>
                 )}
@@ -366,13 +366,13 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
 
             {rules.filter((r) => r.categoryType === categoryToDelete.id).length > 0 && (
               <div className="space-y-1 pt-1">
-                <label className="text-[11px] font-bold text-slate-300">
+                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
                   Reasignar compromisos a:
                 </label>
                 <select
                   value={reassignTargetId}
                   onChange={(e) => setReassignTargetId(e.target.value)}
-                  className="w-full h-10 px-3 bg-slate-900 border border-rose-500/50 rounded-xl text-xs text-white focus:outline-none"
+                  className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-500/50 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none"
                 >
                   {categories
                     .filter((c) => c.id !== categoryToDelete.id)
@@ -389,7 +389,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
               <button
                 type="button"
                 onClick={() => setCategoryToDelete(null)}
-                className="px-3.5 py-1.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-300 hover:bg-slate-800 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 Cancelar
               </button>
@@ -406,7 +406,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
           /* Lista de Categorías */
           <div className="mt-4 flex-1 overflow-y-auto space-y-2 pr-1">
             <div className="flex items-center justify-between pb-2">
-              <span className="text-xs font-bold text-slate-400">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
                 {categories.length} Categorías activas
               </span>
               <button
@@ -428,16 +428,16 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
                   {...getItemProps(idx)}
                   className={`rounded-2xl border flex items-stretch transition-all duration-300 ease-out overflow-hidden ${
                     dragIndex === idx
-                      ? 'ring-2 ring-blue-400 scale-[1.03] -translate-y-1 shadow-2xl shadow-blue-500/25 z-30 bg-slate-800/95 border-blue-400 opacity-95'
+                      ? 'ring-2 ring-blue-500 scale-[1.03] -translate-y-1 shadow-2xl shadow-blue-500/25 z-30 bg-slate-100 dark:bg-slate-800/95 border-blue-500 opacity-95'
                       : overIndex === idx && dragIndex !== null
-                      ? 'scale-[0.97] translate-y-1 opacity-40 bg-slate-950/90 border-dashed border-2 border-blue-500/50 shadow-inner ring-1 ring-blue-500/20 z-10'
-                      : 'border-slate-800 hover:border-slate-700 bg-slate-900/90 scale-100 translate-y-0 opacity-100'
+                      ? 'scale-[0.97] translate-y-1 opacity-40 bg-slate-200 dark:bg-slate-950/90 border-dashed border-2 border-blue-500/50 shadow-inner ring-1 ring-blue-500/20 z-10'
+                      : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/90 shadow-xs scale-100 translate-y-0 opacity-100'
                   }`}
                 >
                   {/* Fina Pestaña Lateral Táctil (Drag Handle) */}
                   <div
                     {...getHandleProps(idx)}
-                    className="w-7 sm:w-8 flex items-center justify-center bg-slate-950/50 hover:bg-blue-600/20 active:bg-blue-600/40 border-r border-slate-800/80 cursor-grab active:cursor-grabbing text-slate-500 hover:text-blue-400 active:text-blue-300 transition-colors shrink-0 select-none group"
+                    className="w-7 sm:w-8 flex items-center justify-center bg-slate-50 dark:bg-slate-950/50 hover:bg-blue-50 dark:hover:bg-blue-600/20 active:bg-blue-100 dark:active:bg-blue-600/40 border-r border-slate-200 dark:border-slate-800/80 cursor-grab active:cursor-grabbing text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 active:text-blue-700 dark:active:text-blue-300 transition-colors shrink-0 select-none group"
                     title="Mantén pulsado y arrastra para reordenar"
                     aria-label="Arrastrar para mover"
                   >
@@ -447,7 +447,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
                   <div className="p-3 flex-1 flex items-center justify-between gap-3 min-w-0">
                     <div className="flex items-center space-x-3 min-w-0">
                       <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
+                        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border shadow-xs"
                         style={{
                           backgroundColor: `${cat.color || '#3b82f6'}20`,
                           borderColor: `${cat.color || '#3b82f6'}50`,
@@ -458,18 +458,18 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-xs font-bold text-white truncate">{cat.name}</span>
+                          <span className="text-xs font-bold text-slate-900 dark:text-white truncate">{cat.name}</span>
                           {cat.isSystem ? (
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold border border-slate-700">
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold border border-slate-200 dark:border-slate-700">
                               Sistema
                             </span>
                           ) : (
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/30">
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-500/30">
                               Personalizada
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] text-slate-500 block truncate">
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
                           {inUseCount > 0 ? `${inUseCount} compromiso(s) asignado(s)` : 'Sin compromisos activos'}
                         </span>
                       </div>
@@ -481,7 +481,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
                         type="button"
                         disabled={idx === 0}
                         onClick={() => handleMove(idx, 'up')}
-                        className="p-1 text-slate-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
+                        className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
                         title="Subir"
                       >
                         <ChevronUp className="w-3.5 h-3.5" />
@@ -490,7 +490,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
                         type="button"
                         disabled={idx === categories.length - 1}
                         onClick={() => handleMove(idx, 'down')}
-                        className="p-1 text-slate-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
+                        className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
                         title="Bajar"
                       >
                         <ChevronDown className="w-3.5 h-3.5" />
@@ -500,7 +500,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
                       <button
                         type="button"
                         onClick={() => handleOpenEdit(cat)}
-                        className="p-1.5 text-slate-400 hover:text-blue-400 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                         title="Editar"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -510,7 +510,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
                       <button
                         type="button"
                         onClick={() => handlePromptDelete(cat)}
-                        className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                         title="Eliminar"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -525,20 +525,20 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
 
         {/* Pie: Restablecer defaults */}
         {!isFormOpen && !categoryToDelete && (
-          <div className="pt-3 mt-3 border-t border-slate-800 flex items-center justify-between">
+          <div className="pt-3 mt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <button
               type="button"
               onClick={handleResetDefaults}
-              className="text-[11px] font-semibold text-slate-400 hover:text-amber-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-300 flex items-center gap-1.5 transition-colors cursor-pointer"
               title="Restaurar las 12 categorías iniciales del sistema"
             >
-              <RotateCcw className="w-3 h-3 text-amber-400" />
+              <RotateCcw className="w-3 h-3 text-amber-500 dark:text-amber-400" />
               <span>Restablecer categorías del sistema</span>
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-1.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 cursor-pointer"
+              className="px-4 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 cursor-pointer"
             >
               Cerrar
             </button>

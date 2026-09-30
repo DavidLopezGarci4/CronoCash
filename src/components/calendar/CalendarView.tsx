@@ -305,23 +305,23 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       {/* Cabecera y Selector de Modo */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-emerald-400" />
+          <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <CalendarIcon className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
             <span>Calendario & Cash-Flow</span>
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Vencimientos futuros, liquidez proyectada y análisis interanual (YoY)
           </p>
         </div>
 
         {/* Selector de Pestañas de Vista */}
-        <div className="flex items-center space-x-1 bg-slate-900 border border-slate-800 p-1 rounded-2xl">
+        <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1 rounded-2xl">
           <button
             onClick={() => setViewPeriod('month')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               viewPeriod === 'month'
                 ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             Mes
@@ -331,7 +331,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               viewPeriod === 'week'
                 ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             Semana
@@ -341,7 +341,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
               viewPeriod === 'yoy'
                 ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
@@ -355,31 +355,31 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         <>
           {/* Tarjetas de Cash-Flow Runway del Mes */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800">
-              <span className="text-[10px] uppercase font-bold text-slate-400">Gastado Real en el Mes</span>
-              <div className="text-2xl font-black font-mono text-emerald-400 mt-1">
+            <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Gastado Real en el Mes</span>
+              <div className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
                 {mask(totalMonthSpent, currency)}
               </div>
-              <span className="text-[11px] text-slate-500">
+              <span className="text-[11px] text-slate-400 dark:text-slate-500">
                 {expensesInMonth.length} movimientos ejecutados
               </span>
             </div>
 
-            <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800">
-              <span className="text-[10px] uppercase font-bold text-slate-400">Recurrentes Comprometidos</span>
-              <div className="text-2xl font-black font-mono text-blue-400 mt-1">
+            <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Recurrentes Comprometidos</span>
+              <div className="text-2xl font-black font-mono text-blue-600 dark:text-blue-400 mt-1">
                 {mask(monthlyRecurringTotal, currency)}
               </div>
-              <span className="text-[11px] text-slate-500">Previsión fija del mes</span>
+              <span className="text-[11px] text-slate-400 dark:text-slate-500">Previsión fija del mes</span>
             </div>
 
-            <div className="p-4 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800">
-              <span className="text-[10px] uppercase font-bold text-slate-400">
+            <div className="p-4 rounded-3xl bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 border border-slate-200 dark:border-slate-800 shadow-xs">
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
                 Saldo Proyectado Fin de Mes
               </span>
               <div
                 className={`text-2xl font-black font-mono mt-1 ${
-                  projectedBalanceEnd >= 0 ? 'text-white' : 'text-rose-400'
+                  projectedBalanceEnd >= 0 ? 'text-slate-900 dark:text-white' : 'text-rose-600 dark:text-rose-400'
                 }`}
               >
                 {isPrivate ? (
@@ -388,13 +388,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   `${projectedBalanceEnd >= 0 ? '+' : ''}${projectedBalanceEnd.toFixed(2)} ${currency}`
                 )}
               </div>
-              <span className="text-[11px] text-slate-400 flex items-center gap-1">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
                 <span
                   className={`w-2 h-2 rounded-full ${
                     projectedBalanceEnd > 400
-                      ? 'bg-emerald-400'
+                      ? 'bg-emerald-500 dark:bg-emerald-400'
                       : projectedBalanceEnd >= 0
-                      ? 'bg-amber-400'
+                      ? 'bg-amber-500 dark:bg-amber-400'
                       : 'bg-rose-500'
                   }`}
                 />
@@ -410,23 +410,23 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           </div>
 
           {/* Barra de Navegación de Mes/Semana (Inmediatamente sobre el Calendario) */}
-          <div className="flex items-center justify-between bg-slate-900/90 border border-slate-800 p-3 rounded-3xl">
+          <div className="flex items-center justify-between bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-3 rounded-3xl shadow-xs">
             <div className="flex items-center space-x-2">
               <button
                 onClick={handlePrev}
-                className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 title="Anterior"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={handleNext}
-                className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 title="Siguiente"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
-              <span className="text-sm font-black text-white capitalize pl-1">
+              <span className="text-sm font-black text-slate-900 dark:text-white capitalize pl-1">
                 {viewPeriod === 'month'
                   ? format(currentDate, 'MMMM yyyy', { locale: es })
                   : `Semana del ${format(weekStart, 'd MMM')} al ${format(weekEnd, 'd MMM yyyy', {
@@ -437,18 +437,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
             <button
               onClick={handleToday}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700 cursor-pointer"
             >
               Hoy
             </button>
           </div>
 
           {/* Rejilla de Días del Calendario */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl">
+          <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 shadow-xl">
             {/* Cabecera de días de la semana */}
             <div className="grid grid-cols-7 gap-1 text-center mb-2">
               {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((d, idx) => (
-                <span key={idx} className="text-[11px] font-bold text-slate-500 py-1 uppercase">
+                <span key={idx} className="text-[11px] font-bold text-slate-400 dark:text-slate-500 py-1 uppercase">
                   {d}
                 </span>
               ))}
@@ -506,24 +506,24 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     onClick={() => setSelectedDay(day)}
                     className={`h-16 p-1.5 rounded-2xl flex flex-col justify-between transition-all border text-left cursor-pointer overflow-hidden relative ${
                       isSelected
-                        ? 'border-emerald-500 bg-emerald-950/30 ring-2 ring-emerald-500/40 shadow-lg'
+                        ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 ring-2 ring-emerald-500/40 shadow-lg'
                         : isToday(day)
-                        ? 'border-emerald-500/60 bg-slate-900'
+                        ? 'border-emerald-500/60 bg-emerald-50/40 dark:bg-slate-900'
                         : hasUnpaidManualBill
-                        ? 'border-rose-500/60 bg-rose-950/20 hover:border-rose-500'
+                        ? 'border-rose-300 dark:border-rose-500/60 bg-rose-50 dark:bg-rose-950/20 hover:border-rose-500'
                         : hasActivity
-                        ? 'border-slate-700/80 bg-slate-800/60 hover:border-slate-600'
-                        : 'border-slate-800/40 bg-slate-950/30 hover:border-slate-800'
+                        ? 'border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-600'
+                        : 'border-slate-100 dark:border-slate-800/40 bg-slate-50/50 dark:bg-slate-950/30 hover:border-slate-200 dark:hover:border-slate-800'
                     } ${!isCurrentMonth && viewPeriod === 'month' ? 'opacity-30' : 'opacity-100'}`}
                   >
                     <div className="flex items-center justify-between w-full min-w-0">
                       <span
                         className={`text-xs font-bold shrink-0 ${
                           isToday(day)
-                            ? 'text-emerald-400 font-black'
+                            ? 'text-emerald-600 dark:text-emerald-400 font-black'
                             : isSelected
-                            ? 'text-white'
-                            : 'text-slate-300'
+                            ? 'text-slate-900 dark:text-white'
+                            : 'text-slate-700 dark:text-slate-300'
                         }`}
                       >
                         {dayNum}
@@ -533,25 +533,25 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       <div className="flex items-center space-x-0.5 shrink-0 max-w-[24px] overflow-hidden">
                         {hasUnpaidManualBill ? (
                           <span
-                            className="w-1.5 h-1.5 rounded-full bg-rose-400 shadow-xs shadow-rose-400/50 shrink-0 animate-pulse"
+                            className="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 shadow-xs shadow-rose-400/50 shrink-0 animate-pulse"
                             title="Pago manual vencido pendiente de abonar"
                           />
                         ) : null}
                         {hasExecutedActivity && (
                           <span
-                            className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"
+                            className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 shrink-0"
                             title="Gastos o tareas completadas en esta fecha"
                           />
                         )}
                         {hasPendingBill && !hasUnpaidManualBill && (
                           <span
-                            className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-xs shadow-blue-400/50 shrink-0"
+                            className="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400 shadow-xs shadow-blue-400/50 shrink-0"
                             title="Facturas o pagos programados pendientes"
                           />
                         )}
                         {hasPendingTask && (
                           <span
-                            className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-xs shadow-purple-400/50 shrink-0"
+                            className="w-1.5 h-1.5 rounded-full bg-purple-500 dark:bg-purple-400 shadow-xs shadow-purple-400/50 shrink-0"
                             title="Tareas periódicas o salud pendientes"
                           />
                         )}
@@ -561,12 +561,12 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     {/* Desglose resumido de importes */}
                     <div className="w-full truncate min-w-0">
                       {totalDaySpent > 0 && (
-                        <div className="text-[9px] font-mono font-bold text-rose-300 truncate leading-tight">
+                        <div className="text-[9px] font-mono font-bold text-rose-600 dark:text-rose-300 truncate leading-tight">
                           -{totalDaySpent.toFixed(0)} {currency}
                         </div>
                       )}
                       {totalDayPendingRecurring > 0 && totalDaySpent === 0 && (
-                        <div className="text-[9px] font-mono font-bold text-blue-300 truncate leading-tight">
+                        <div className="text-[9px] font-mono font-bold text-blue-600 dark:text-blue-300 truncate leading-tight">
                           ~{totalDayPendingRecurring.toFixed(0)} {currency}
                         </div>
                       )}
@@ -578,16 +578,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           </div>
 
           {/* Panel de Detalle del Día Seleccionado */}
-          <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <div>
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <CalendarDays className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <CalendarDays className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                   <span>
                     Detalle del {format(selectedDay, "d 'de' MMMM, yyyy", { locale: es })}
                   </span>
                 </h3>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">
                   {selectedDayExpenses.length} {selectedDayExpenses.length === 1 ? 'gasto ejecutado' : 'gastos ejecutados'}
                   {selectedDayPendingRecurring.length > 0
                     ? ` • ${selectedDayPendingRecurring.length} ${selectedDayPendingRecurring.length === 1 ? 'pago pendiente' : 'pagos pendientes'}`
@@ -598,8 +598,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               </div>
 
               <div className="text-right">
-                <span className="text-[10px] text-slate-400 uppercase font-bold">Total del Día</span>
-                <div className="text-base font-mono font-black text-emerald-400">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Total del Día</span>
+                <div className="text-base font-mono font-black text-emerald-600 dark:text-emerald-400">
                   {selectedDayRealTotal.toFixed(2)} {currency}
                 </div>
               </div>
@@ -608,7 +608,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             {/* Listado de Actos y Vencimientos Programados para este día */}
             {selectedDayRecurring.length > 0 && (
               <div className="space-y-2">
-                <span className="text-xs font-bold text-blue-400 flex items-center gap-1.5">
+                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" />
                   <span>Actos y Recordatorios Previstos para este Día:</span>
                 </span>
@@ -640,72 +640,72 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         key={rule.id}
                         className={`p-3 rounded-2xl border flex items-center justify-between transition-all ${
                           isTaskCompleted
-                            ? 'bg-emerald-950/20 border-emerald-500/40'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-500/40'
                             : isUnpaidManual
-                            ? 'bg-rose-950/25 border-rose-500/50 shadow-md shadow-rose-950/20'
+                            ? 'bg-rose-50 dark:bg-rose-950/25 border-rose-200 dark:border-rose-500/50 shadow-md shadow-rose-950/20'
                             : isTask
-                            ? 'bg-purple-950/20 border-purple-500/30'
+                            ? 'bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-500/30'
                             : isEstimated
-                            ? 'bg-amber-950/20 border-amber-500/30'
-                            : 'bg-blue-950/20 border-blue-500/30'
+                            ? 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-500/30'
+                            : 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-500/30'
                         }`}
                       >
                         <div>
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-xs font-bold text-white">{rule.title}</span>
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">
+                            <span className="text-xs font-bold text-slate-900 dark:text-white">{rule.title}</span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">
                               {categoryBadge}
                             </span>
                             {rule.costType !== 'none' && (
-                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold border border-slate-700 flex items-center gap-1">
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border border-slate-200 dark:border-slate-700 flex items-center gap-1">
                                 {rule.autoCreateExpense !== false ? (
                                   <>
-                                    <Zap className="w-2.5 h-2.5 text-emerald-400" />
+                                    <Zap className="w-2.5 h-2.5 text-emerald-500 dark:text-emerald-400" />
                                     <span>Auto</span>
                                   </>
                                 ) : (
                                   <>
-                                    <Hand className="w-2.5 h-2.5 text-amber-400" />
+                                    <Hand className="w-2.5 h-2.5 text-amber-500 dark:text-amber-400" />
                                     <span>Manual</span>
                                   </>
                                 )}
                               </span>
                             )}
                             {isTaskCompleted && (
-                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 flex items-center gap-1">
-                                <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-500/30 flex items-center gap-1">
+                                <CheckCircle2 className="w-2.5 h-2.5 text-emerald-500 dark:text-emerald-400" />
                                 <span>Completada</span>
                               </span>
                             )}
                             {isUnpaidManual && (
-                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold border border-rose-500/40 animate-pulse flex items-center gap-1">
-                                <AlertTriangle className="w-2.5 h-2.5 text-rose-400" />
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 font-bold border border-rose-200 dark:border-rose-500/40 animate-pulse flex items-center gap-1">
+                                <AlertTriangle className="w-2.5 h-2.5 text-rose-500 dark:text-rose-400" />
                                 <span>No pagado</span>
                               </span>
                             )}
                           </div>
-                          <div className="text-[10px] text-slate-400 mt-0.5">
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                             {bucket?.name || 'General'} • {rule.frequency}
                             {rule.reminderOffsets && rule.reminderOffsets.length > 0 && (
-                              <span className="text-slate-500"> • {rule.reminderOffsets.length} alertas</span>
+                              <span className="text-slate-400 dark:text-slate-500"> • {rule.reminderOffsets.length} alertas</span>
                             )}
                           </div>
                         </div>
 
                         <div className="flex items-center space-x-2">
-                          <span className="text-xs font-mono font-bold text-white mr-1">
+                          <span className="text-xs font-mono font-bold text-slate-900 dark:text-white mr-1">
                             {isTask ? (
-                              <span className="text-purple-300 text-[11px] font-semibold">Sin coste</span>
+                              <span className="text-purple-600 dark:text-purple-300 text-[11px] font-semibold">Sin coste</span>
                             ) : isEstimated ? (
-                              <span className="text-amber-300 font-black">~{rule.amount.toFixed(2)} {currency}</span>
+                              <span className="text-amber-600 dark:text-amber-300 font-black">~{rule.amount.toFixed(2)} {currency}</span>
                             ) : (
                               <span>{rule.amount.toFixed(2)} {currency}</span>
                             )}
                           </span>
 
                           {isTaskCompleted ? (
-                            <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1 shadow-xs">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/40 text-[11px] font-bold flex items-center gap-1 shadow-xs">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                               <span>{isTask ? 'Completada' : 'Registrado'}</span>
                             </span>
                           ) : (
@@ -713,8 +713,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                               onClick={() => handlePayRecurringNow(rule)}
                               className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all active:scale-95 ${
                                 isUnpaidManual
-                                  ? 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40'
-                                  : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
+                                  ? 'bg-rose-50 dark:bg-rose-500/20 hover:bg-rose-100 dark:hover:bg-rose-500/30 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/40'
+                                  : 'bg-emerald-50 dark:bg-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/40'
                               }`}
                             >
                               <Play className="w-3 h-3 fill-current" />
@@ -732,8 +732,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             {/* Listado de Gastos Realizados en este día */}
             {selectedDayExpenses.length > 0 ? (
               <div className="space-y-2">
-                <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                   <span>Gastos Registrados:</span>
                 </span>
 
@@ -744,24 +744,24 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     return (
                       <div
                         key={exp.id}
-                        className="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between gap-2"
+                        className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between gap-2"
                       >
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-xs font-bold text-white truncate">{exp.title}</span>
+                            <span className="text-xs font-bold text-slate-900 dark:text-white truncate">{exp.title}</span>
                             {isAutoExpense && (
-                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30 shrink-0 flex items-center gap-1">
-                                <Zap className="w-2.5 h-2.5 text-emerald-400" />
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-500/30 shrink-0 flex items-center gap-1">
+                                <Zap className="w-2.5 h-2.5 text-emerald-500 dark:text-emerald-400" />
                                 <span>Cobro Automático</span>
                               </span>
                             )}
                           </div>
-                          <div className="text-[10px] text-slate-400">
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400">
                             {bucket?.name || 'General'} {exp.supplier ? `• ${exp.supplier}` : ''}
                           </div>
                         </div>
                         <div className="flex items-center space-x-2 shrink-0">
-                          <div className="text-xs font-mono font-bold text-rose-300">
+                          <div className="text-xs font-mono font-bold text-rose-600 dark:text-rose-300">
                             -{exp.amount.toFixed(2)} {currency}
                           </div>
                           {onRevertExpense && (
@@ -773,7 +773,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                                   onRevertExpense(exp);
                                 }
                               }}
-                              className="px-2 py-1 rounded-lg border border-slate-700 hover:border-rose-500/50 hover:bg-rose-500/15 text-slate-400 hover:text-rose-300 text-[10px] font-medium transition-all cursor-pointer flex items-center gap-1"
+                              className="px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-rose-300 hover:bg-rose-50 dark:hover:bg-rose-500/15 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-300 text-[10px] font-medium transition-all cursor-pointer flex items-center gap-1"
                               title="Revertir y eliminar este gasto"
                             >
                               <RotateCcw className="w-3 h-3" />
@@ -788,7 +788,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               </div>
             ) : (
               selectedDayRecurring.length === 0 && (
-                <div className="py-4 text-center text-xs text-slate-500">
+                <div className="py-4 text-center text-xs text-slate-400 dark:text-slate-500">
                   No hay movimientos registrados ni cobros programados para esta fecha.
                 </div>
               )
@@ -801,13 +801,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       {viewPeriod === 'yoy' && (
         <div className="space-y-6">
           {/* Selectores de Años */}
-          <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
             <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-emerald-400" />
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                 <span>Análisis Comparativo Interanual</span>
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Compara el gasto total y la variación porcentual entre dos ejercicios
               </p>
             </div>
@@ -816,7 +816,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               <select
                 value={compareYearA}
                 onChange={(e) => setCompareYearA(parseInt(e.target.value))}
-                className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-white"
+                className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white"
               >
                 {[currentYear, currentYear - 1, currentYear - 2].map((y) => (
                   <option key={y} value={y}>
@@ -825,12 +825,12 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 ))}
               </select>
 
-              <span className="text-xs font-bold text-slate-500">vs</span>
+              <span className="text-xs font-bold text-slate-400 dark:text-slate-500">vs</span>
 
               <select
                 value={compareYearB}
                 onChange={(e) => setCompareYearB(parseInt(e.target.value))}
-                className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-slate-400"
+                className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400"
               >
                 {[currentYear - 1, currentYear - 2, currentYear - 3].map((y) => (
                   <option key={y} value={y}>
@@ -843,25 +843,25 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
           {/* Tarjetas de Resumen YoY */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800">
-              <span className="text-[10px] uppercase font-bold text-slate-400">Gasto Total {compareYearA}</span>
-              <div className="text-2xl font-black font-mono text-emerald-400 mt-1">
+            <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Gasto Total {compareYearA}</span>
+              <div className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
                 {dataYearA.totalYear.toFixed(2)} {currency}
               </div>
             </div>
 
-            <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800">
-              <span className="text-[10px] uppercase font-bold text-slate-400">Gasto Total {compareYearB}</span>
-              <div className="text-2xl font-black font-mono text-slate-300 mt-1">
+            <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Gasto Total {compareYearB}</span>
+              <div className="text-2xl font-black font-mono text-slate-700 dark:text-slate-300 mt-1">
                 {dataYearB.totalYear.toFixed(2)} {currency}
               </div>
             </div>
 
-            <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800">
-              <span className="text-[10px] uppercase font-bold text-slate-400">Variación Interanual</span>
+            <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Variación Interanual</span>
               <div
                 className={`text-2xl font-black font-mono mt-1 flex items-center gap-1.5 ${
-                  diffYear <= 0 ? 'text-emerald-400' : 'text-rose-400'
+                  diffYear <= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                 }`}
               >
                 {diffYear <= 0 ? <TrendingDown className="w-5 h-5" /> : <TrendingUp className="w-5 h-5" />}
@@ -877,8 +877,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           </div>
 
           {/* Comparativa Mes a Mes */}
-          <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-xs">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Evolución Comparativa Mensual
             </h4>
 
@@ -893,9 +893,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 return (
                   <div key={lbl} className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-slate-300 w-10">{lbl}</span>
+                      <span className="font-bold text-slate-700 dark:text-slate-300 w-10">{lbl}</span>
                       <div className="space-x-3 text-right font-mono text-[11px]">
-                        <span className="text-emerald-400 font-bold">
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">
                           {compareYearA}: {valA.toFixed(0)} {currency}
                         </span>
                         <span className="text-slate-500">
@@ -904,13 +904,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       </div>
                     </div>
 
-                    <div className="w-full h-2 bg-slate-800 rounded-full flex gap-1 overflow-hidden">
+                    <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full flex gap-1 overflow-hidden">
                       <div
                         className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                         style={{ width: `${pctA / 2}%` }}
                       />
                       <div
-                        className="h-full bg-slate-600 rounded-full transition-all duration-500"
+                        className="h-full bg-slate-400 dark:bg-slate-600 rounded-full transition-all duration-500"
                         style={{ width: `${pctB / 2}%` }}
                       />
                     </div>

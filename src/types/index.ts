@@ -175,7 +175,7 @@ export interface Settings {
   notificationsEnabled: boolean;
   notificationHour?: string;
   hapticsEnabled?: boolean;
-  theme: 'dark' | 'light';
+  theme: 'system' | 'dark' | 'light';
   updatedAt: string;
 }
 

@@ -72,46 +72,46 @@ export const SweepSurplusModal: React.FC<SweepSurplusModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl overflow-y-auto max-h-[92vh]">
+      <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl overflow-y-auto max-h-[92vh] text-slate-900 dark:text-white">
         {/* Cabecera */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400">
+            <div className="p-2.5 rounded-2xl bg-cyan-50 dark:bg-cyan-500/20 border border-cyan-200 dark:border-cyan-500/40 text-cyan-600 dark:text-cyan-400">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-black text-white flex items-center gap-1.5">
+              <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-1.5">
                 <span>Sweep & Fund</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/30">
                   Reparto Inteligente
                 </span>
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Inyecta superávit mensual en tus metas activas ponderando por prioridad
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Resumen de Liquidez Disponible */}
-        <div className="mt-4 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+        <div className="mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div>
-            <span className="text-[11px] uppercase font-bold text-slate-400 block">
+            <span className="text-[11px] uppercase font-bold text-slate-500 dark:text-slate-400 block">
               Superávit Safe-to-Spend Calculado:
             </span>
-            <span className="text-xl font-black font-mono text-emerald-400">
+            <span className="text-xl font-black font-mono text-emerald-600 dark:text-emerald-400">
               +{surplusAvailable.toFixed(2)} {currency}
             </span>
           </div>
           <div className="text-right">
-            <span className="text-[11px] text-slate-400 block">Déficit acumulado en metas:</span>
-            <span className="text-xs font-mono font-bold text-slate-300">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 block">Déficit acumulado en metas:</span>
+            <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
               {totalDeficit.toFixed(2)} {currency}
             </span>
           </div>
@@ -119,7 +119,7 @@ export const SweepSurplusModal: React.FC<SweepSurplusModalProps> = ({
 
         {/* Input Importe a Repartir */}
         <div className="mt-4 space-y-2">
-          <label className="block text-slate-300 font-bold text-xs">
+          <label className="block text-slate-700 dark:text-slate-300 font-bold text-xs">
             Importe a distribuir en este barrido ({currency}):
           </label>
           <div className="relative">
@@ -129,7 +129,7 @@ export const SweepSurplusModal: React.FC<SweepSurplusModalProps> = ({
               min="1"
               value={sweepAmount}
               onChange={(e) => setSweepAmount(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-base font-mono font-bold text-white focus:outline-none focus:border-cyan-400"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-base font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:border-cyan-400"
             />
             <span className="absolute right-3.5 top-2.5 text-sm font-mono text-slate-400">{currency}</span>
           </div>
@@ -141,7 +141,7 @@ export const SweepSurplusModal: React.FC<SweepSurplusModalProps> = ({
                 key={val}
                 type="button"
                 onClick={() => setSweepAmount(String(val))}
-                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-xs font-semibold cursor-pointer transition-colors"
+                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-transparent font-mono text-xs font-semibold cursor-pointer transition-colors"
               >
                 {val} {currency}
               </button>
@@ -151,14 +151,14 @@ export const SweepSurplusModal: React.FC<SweepSurplusModalProps> = ({
 
         {/* Desglose de Distribución Ponderada */}
         <div className="mt-5 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-bold px-1">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-bold px-1">
             <span>Metas Beneficiarias ({allocations.length}):</span>
-            <span className="text-[11px] text-cyan-400 font-normal">Ponderado por Prioridad (3x/2x/1x)</span>
+            <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-normal">Ponderado por Prioridad (3x/2x/1x)</span>
           </div>
 
           {activeGoals.length === 0 ? (
-            <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 text-center text-xs text-slate-400 flex items-center justify-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>¡Todas tus metas de ahorro están completadas al 100%!</span>
             </div>
           ) : (
@@ -172,7 +172,7 @@ export const SweepSurplusModal: React.FC<SweepSurplusModalProps> = ({
                 return (
                   <div
                     key={alloc.goalId}
-                    className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs flex items-center justify-between gap-3"
+                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 text-xs flex items-center justify-between gap-3"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div
@@ -180,19 +180,19 @@ export const SweepSurplusModal: React.FC<SweepSurplusModalProps> = ({
                         style={{ backgroundColor: goal.color }}
                       />
                       <div className="truncate">
-                        <span className="font-bold text-slate-200 block truncate">{goal.title}</span>
-                        <span className="text-[10px] text-slate-400 font-mono">
+                        <span className="font-bold text-slate-900 dark:text-slate-200 block truncate">{goal.title}</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                           {goal.currentAmount.toFixed(0)}€ →{' '}
-                          <span className="text-emerald-400 font-bold">{newTotal.toFixed(0)}€</span> ({newPct}%)
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{newTotal.toFixed(0)}€</span> ({newPct}%)
                         </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                         {goal.priority === 1 ? 'P1 (3x)' : goal.priority === 2 ? 'P2 (2x)' : 'P3 (1x)'}
                       </span>
-                      <span className="font-mono font-bold text-cyan-300 text-sm">
+                      <span className="font-mono font-bold text-cyan-600 dark:text-cyan-300 text-sm">
                         +{alloc.amount.toFixed(2)} {currency}
                       </span>
                     </div>
@@ -204,11 +204,11 @@ export const SweepSurplusModal: React.FC<SweepSurplusModalProps> = ({
         </div>
 
         {/* Footer Acciones */}
-        <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-end gap-2">
+        <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-colors cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-transparent font-bold text-xs transition-colors cursor-pointer"
           >
             Cancelar
           </button>

@@ -151,18 +151,18 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-3xl bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col max-h-[92vh]">
+      <div className="relative w-full max-w-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col max-h-[92vh] text-slate-900 dark:text-white">
         {/* Cabecera Principal */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800 flex-shrink-0">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 sm:p-2.5 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 text-purple-300 shadow-inner">
+            <div className="p-2 sm:p-2.5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 dark:from-purple-500/20 dark:to-blue-500/20 border border-purple-300 dark:border-purple-500/30 text-purple-600 dark:text-purple-300 shadow-inner">
               <Target className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black tracking-tight text-white">Metas & Sinking Funds</h2>
+                <h2 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">Metas & Sinking Funds</h2>
               </div>
-              <p className="text-[11px] sm:text-xs text-slate-400">
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
                 Ahorro autónomo con ritmo de crucero y blindaje Safe-to-Spend
               </p>
             </div>
@@ -171,7 +171,7 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -180,51 +180,51 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
 
         {/* Tarjetas de Resumen KPI Compactas */}
         <div className="grid grid-cols-3 gap-2 my-2.5 flex-shrink-0">
-          <div className="p-2 sm:p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80">
-            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 tracking-wider block truncate">
+          <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80">
+            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider block truncate">
               Total Ahorrado
             </span>
-            <div className="text-xs sm:text-base font-black font-mono text-emerald-400 mt-0.5 truncate">
+            <div className="text-xs sm:text-base font-black font-mono text-emerald-600 dark:text-emerald-400 mt-0.5 truncate">
               {isPrivate ? '••••' : totalSaved.toFixed(2)} {currency}
             </div>
-            <span className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 block truncate">{goals.length} metas activas</span>
+            <span className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 block truncate">{goals.length} metas activas</span>
           </div>
 
-          <div className="p-2 sm:p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80">
-            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-purple-400 tracking-wider flex items-center gap-1 truncate">
-              <ShieldCheck className="w-3 h-3 text-purple-400 flex-shrink-0" />
+          <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80">
+            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-purple-600 dark:text-purple-400 tracking-wider flex items-center gap-1 truncate">
+              <ShieldCheck className="w-3 h-3 text-purple-600 dark:text-purple-400 flex-shrink-0" />
               <span>Crucero</span>
             </span>
-            <div className="text-xs sm:text-base font-black font-mono text-purple-300 mt-0.5 truncate">
+            <div className="text-xs sm:text-base font-black font-mono text-purple-700 dark:text-purple-300 mt-0.5 truncate">
               {isPrivate ? '••••' : totalCommittedCruising.toFixed(2)} {currency}
             </div>
-            <span className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 block truncate">Blindado Safe-to-Spend</span>
+            <span className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 block truncate">Blindado Safe-to-Spend</span>
           </div>
 
-          <div className="p-2 sm:p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80">
-            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-cyan-400 tracking-wider flex items-center gap-1 truncate">
-              <Award className="w-3 h-3 text-cyan-400 flex-shrink-0" />
+          <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80">
+            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-cyan-600 dark:text-cyan-400 tracking-wider flex items-center gap-1 truncate">
+              <Award className="w-3 h-3 text-cyan-600 dark:text-cyan-400 flex-shrink-0" />
               <span>Cumplidas</span>
             </span>
-            <div className="text-xs sm:text-base font-black font-mono text-cyan-300 mt-0.5 truncate">
+            <div className="text-xs sm:text-base font-black font-mono text-cyan-700 dark:text-cyan-300 mt-0.5 truncate">
               {completedCount} / {goals.length}
             </div>
-            <span className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 block truncate">Completadas</span>
+            <span className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 block truncate">Completadas</span>
           </div>
         </div>
 
         {/* Barra de Acciones: Botón Nueva Meta y Botón Sweep & Fund */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 mb-2 border-b border-slate-800/60 flex-shrink-0">
-          <div className="text-xs font-bold text-slate-300">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 mb-2 border-b border-slate-100 dark:border-slate-800/60 flex-shrink-0">
+          <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
             Listado de Fondos Específicos
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSweepOpen(true)}
-              className="px-2.5 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+              className="px-2.5 py-1.5 rounded-xl bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-500/15 dark:hover:bg-cyan-500/25 border border-cyan-300 dark:border-cyan-500/30 text-cyan-700 dark:text-cyan-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
               title="Repartir superávit Safe-to-Spend entre metas de forma proporcional"
             >
-              <Coins className="w-3.5 h-3.5 text-cyan-400" />
+              <Coins className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
               <span className="hidden sm:inline">Repartir Excedente (Sweep)</span>
               <span className="sm:hidden">Sweep</span>
             </button>
@@ -242,9 +242,9 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
         {/* Lista Scrollable de Tarjetas de Metas */}
         <div className="flex-1 overflow-y-auto space-y-3 pr-1">
           {goals.length === 0 ? (
-            <div className="p-8 text-center rounded-2xl bg-slate-950/40 border border-slate-800 text-slate-400">
-              <Target className="w-10 h-10 mx-auto text-slate-600 mb-2" />
-              <p className="text-sm font-bold text-slate-300">No hay metas de ahorro configuradas</p>
+            <div className="p-8 text-center rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
+              <Target className="w-10 h-10 mx-auto text-slate-400 dark:text-slate-600 mb-2" />
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-300">No hay metas de ahorro configuradas</p>
               <p className="text-xs text-slate-500 mt-1">
                 Crea tu primera meta (seguro del coche, IBI, vacaciones) y mantén tu ritmo de crucero financiero.
               </p>
@@ -263,22 +263,22 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
               const statusConfig = {
                 completed: {
                   label: 'Completada',
-                  bg: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+                  bg: 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30',
                   icon: CheckCircle2,
                 },
                 on_track: {
                   label: 'En ritmo',
-                  bg: 'bg-teal-500/15 text-teal-300 border-teal-500/30',
+                  bg: 'bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-500/30',
                   icon: TrendingUp,
                 },
                 behind: {
                   label: 'Requiere atención',
-                  bg: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+                  bg: 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30',
                   icon: Clock,
                 },
                 critical: {
                   label: 'Crítica / Vencida',
-                  bg: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
+                  bg: 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/30',
                   icon: AlertTriangle,
                 },
               }[pace.status];
@@ -288,12 +288,12 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
               return (
                 <div
                   key={goal.id}
-                  className={`rounded-2xl bg-slate-950/70 border transition-all ${
+                  className={`rounded-2xl bg-white dark:bg-slate-950/70 border transition-all ${
                     goal.isCompleted
-                      ? 'border-emerald-500/30'
+                      ? 'border-emerald-300 dark:border-emerald-500/30'
                       : pace.status === 'critical'
-                      ? 'border-rose-500/30'
-                      : 'border-slate-800 hover:border-slate-700'
+                      ? 'border-rose-300 dark:border-rose-500/30'
+                      : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm'
                   } p-3.5 sm:p-4`}
                 >
                   {/* Fila Principal de la Tarjeta */}
@@ -312,7 +312,7 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
 
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <h4 className="text-xs sm:text-sm font-black text-white truncate max-w-[150px] sm:max-w-xs">{goal.title}</h4>
+                          <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate max-w-[150px] sm:max-w-xs">{goal.title}</h4>
                           <span
                             className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full border flex items-center gap-1 ${statusConfig.bg}`}
                           >
@@ -321,25 +321,25 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
                           </span>
                           {goal.autoDeductFromSafeToSpend && !goal.isCompleted && (
                             <span
-                              className="text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 flex items-center gap-1"
+                              className="text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/20 flex items-center gap-1"
                               title="Cuota protegida automáticamente en Safe-to-Spend"
                             >
-                              <ShieldCheck className="w-3 h-3 text-purple-400 shrink-0" />
+                              <ShieldCheck className="w-3 h-3 text-purple-600 dark:text-purple-400 shrink-0" />
                               <span>Protegida</span>
                             </span>
                           )}
                         </div>
 
-                        <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-x-2 gap-y-0.5 flex-wrap">
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-x-2 gap-y-0.5 flex-wrap">
                           <span>
-                            Meta: <strong className="font-mono text-slate-200">{isPrivate ? '••••' : goal.targetAmount.toFixed(2)} {currency}</strong>
+                            Meta: <strong className="font-mono text-slate-800 dark:text-slate-200">{isPrivate ? '••••' : goal.targetAmount.toFixed(2)} {currency}</strong>
                           </span>
-                          <span className="text-slate-600 hidden xs:inline">•</span>
+                          <span className="text-slate-400 dark:text-slate-600 hidden xs:inline">•</span>
                           <span>
-                            Obj: <strong className="font-mono text-slate-300">{goal.targetDate}</strong>
+                            Obj: <strong className="font-mono text-slate-700 dark:text-slate-300">{goal.targetDate}</strong>
                           </span>
-                          <span className="text-slate-600 hidden xs:inline">•</span>
-                          <span className="text-slate-300 font-medium">
+                          <span className="text-slate-400 dark:text-slate-600 hidden xs:inline">•</span>
+                          <span className="text-slate-700 dark:text-slate-300 font-medium">
                             {pace.monthsRemaining > 0
                               ? `Faltan ${pace.monthsRemaining} ${pace.monthsRemaining === 1 ? 'mes' : 'meses'}`
                               : 'Vence este mes'}
@@ -353,7 +353,7 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setContributingGoal(goal)}
-                        className="px-2.5 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-400 font-bold text-xs flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+                        className="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 border border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 font-bold text-xs flex items-center gap-1 cursor-pointer transition-all active:scale-95"
                         title="Añadir aportación a esta meta"
                       >
                         <Plus className="w-3.5 h-3.5 stroke-[3]" />
@@ -363,7 +363,7 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handleDelete(goal.id, goal.title)}
-                        className="p-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 hover:text-rose-300 transition-all cursor-pointer active:scale-95"
+                        className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 transition-all cursor-pointer active:scale-95"
                         title={`Eliminar meta "${goal.title}"`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -372,7 +372,7 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setExpandedGoalId(isExpanded ? null : goal.id)}
-                        className="p-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                        className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
                         title="Ver detalles e historial de aportaciones"
                       >
                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -384,24 +384,24 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
                   <div className="mt-2.5">
                     <div className="flex items-center justify-between text-xs mb-1">
                       <div className="font-mono">
-                        <span className="font-black text-white text-xs sm:text-sm">
+                        <span className="font-black text-slate-900 dark:text-white text-xs sm:text-sm">
                           {isPrivate ? '••••' : goal.currentAmount.toFixed(2)}
                         </span>
-                        <span className="text-slate-400 text-[11px] sm:text-xs"> / {isPrivate ? '••••' : goal.targetAmount.toFixed(2)} {currency}</span>
+                        <span className="text-slate-500 dark:text-slate-400 text-[11px] sm:text-xs"> / {isPrivate ? '••••' : goal.targetAmount.toFixed(2)} {currency}</span>
                       </div>
                       <div className="flex items-center gap-1.5 font-mono text-xs">
                         <span className="font-bold text-[11px] sm:text-xs" style={{ color: goal.color }}>
                           {percentage}%
                         </span>
                         {!goal.isCompleted && pace.monthlyContribution > 0 && (
-                          <span className="text-purple-300 font-bold text-[10px] sm:text-[11px] bg-purple-500/10 px-1.5 py-0.5 rounded-md border border-purple-500/20">
+                          <span className="text-purple-700 dark:text-purple-300 font-bold text-[10px] sm:text-[11px] bg-purple-50 dark:bg-purple-500/10 px-1.5 py-0.5 rounded-md border border-purple-200 dark:border-purple-500/20">
                             Crucero: ~{isPrivate ? '••••' : pace.monthlyContribution.toFixed(2)} {currency}/m
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div className="relative w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="relative w-full h-2 bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-transparent rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{
@@ -414,38 +414,38 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
 
                   {/* Panel Desplegable: Historial de Aportaciones, Notas y Botones Editar/Borrar */}
                   {isExpanded && (
-                    <div className="mt-4 pt-3 border-t border-slate-800/80 space-y-3 animate-fadeIn text-xs">
+                    <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-3 animate-fadeIn text-xs">
                       {goal.notes && (
-                        <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800/80 text-slate-300 text-[11px]">
-                          <span className="font-bold text-slate-400 block mb-0.5">Notas:</span>
+                        <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 text-[11px]">
+                          <span className="font-bold text-slate-500 dark:text-slate-400 block mb-0.5">Notas:</span>
                           {goal.notes}
                         </div>
                       )}
 
                       {/* Historial de aportaciones */}
                       <div>
-                        <span className="font-bold text-slate-400 block text-[11px] uppercase tracking-wider mb-1.5">
+                        <span className="font-bold text-slate-500 dark:text-slate-400 block text-[11px] uppercase tracking-wider mb-1.5">
                           Historial de Aportaciones ({goal.contributions?.length || 0}):
                         </span>
 
                         {(!goal.contributions || goal.contributions.length === 0) ? (
-                          <p className="text-slate-500 text-[11px] italic">Sin aportaciones registradas aún.</p>
+                          <p className="text-slate-400 dark:text-slate-500 text-[11px] italic">Sin aportaciones registradas aún.</p>
                         ) : (
                           <div className="max-h-36 overflow-y-auto space-y-1.5 pr-1">
                             {goal.contributions.slice().reverse().map((c) => (
                               <div
                                 key={c.id}
-                                className="flex items-center justify-between p-2 rounded-xl bg-slate-900/90 border border-slate-800/70 text-[11px]"
+                                className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/70 text-[11px]"
                               >
                                 <div className="truncate">
-                                  <span className="text-slate-300 font-medium block truncate">
+                                  <span className="text-slate-800 dark:text-slate-300 font-medium block truncate">
                                     {c.notes || (c.source === 'safe_to_spend_surplus' ? 'Superávit Safe-to-Spend' : 'Aportación puntual')}
                                   </span>
-                                  <span className="text-[10px] text-slate-500 font-mono">
+                                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                                     {c.date} • {c.source}
                                   </span>
                                 </div>
-                                <span className="font-mono font-bold text-emerald-400">
+                                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
                                   +{c.amount.toFixed(2)} {currency}
                                 </span>
                               </div>
@@ -455,10 +455,10 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
                       </div>
 
                       {/* Botones de gestión Editar / Eliminar */}
-                      <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-800/60">
+                      <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-800/60">
                         <button
                           onClick={() => handleDelete(goal.id, goal.title)}
-                          className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           <span>Eliminar</span>
@@ -466,7 +466,7 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
 
                         <button
                           onClick={() => handleEdit(goal)}
-                          className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                           <span>Editar Meta</span>

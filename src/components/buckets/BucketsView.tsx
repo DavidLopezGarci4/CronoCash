@@ -401,11 +401,11 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
       {/* Cabecera y Acciones Rápidas */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-2">
-            <PieChart className="w-5 h-5 text-emerald-400" />
+          <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <PieChart className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             <span>Bolsas de Presupuesto</span>
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Envelopes elásticos con vasos comunicantes y protección de ahorro
           </p>
         </div>
@@ -414,9 +414,9 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           <button
             onClick={handleSmartSeeds}
             title="Cargar 8 Bolsas Maestras (Smart Seeds)"
-            className="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 cursor-pointer"
+            className="px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-300 dark:border-slate-700 cursor-pointer transition-colors"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
             <span>Smart Seeds</span>
           </button>
 
@@ -424,10 +424,10 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             <button
               type="button"
               onClick={onOpenSmartRules}
-              className="px-3 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
+              className="px-3 py-2 rounded-xl bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-500/15 dark:hover:bg-cyan-500/25 text-cyan-700 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
               title="Gestionar reglas automáticas de asignación de extractos bancarios"
             >
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <Sparkles className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
               <span>Reglas Inteligentes</span>
             </button>
           )}
@@ -436,10 +436,10 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             <button
               type="button"
               onClick={onOpenGoals}
-              className="px-3 py-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
+              className="px-3 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-500/15 dark:hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
               title="Metas de Ahorro y Sinking Funds"
             >
-              <Target className="w-3.5 h-3.5 text-purple-400" />
+              <Target className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
               <span>Metas & Sinking Funds</span>
             </button>
           )}
@@ -454,9 +454,9 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
               setVasoTo(buckets[1]?.id || '');
               setVasoModalOpen(true);
             }}
-            className="px-3 py-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-200 border border-cyan-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-2 rounded-xl bg-cyan-100 hover:bg-cyan-200 dark:bg-cyan-600/30 dark:hover:bg-cyan-600/50 text-cyan-800 dark:text-cyan-200 border border-cyan-300 dark:border-cyan-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
           >
-            <ArrowRightLeft className="w-3.5 h-3.5 text-cyan-300" />
+            <ArrowRightLeft className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-300" />
             <span>Vasos Comunicantes</span>
           </button>
 
@@ -472,19 +472,19 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
       {/* Banner Asistente Cover Overspending si hay déficit */}
       {overspentBuckets.length > 0 && (
-        <div className="p-4 rounded-3xl bg-gradient-to-r from-rose-500/20 via-slate-900 to-rose-500/10 border border-rose-500/40 flex items-center justify-between gap-3 shadow-xl shadow-rose-950/30 backdrop-blur-md animate-fadeIn">
+        <div className="p-4 rounded-3xl bg-gradient-to-r from-rose-50 dark:from-rose-500/20 via-white dark:via-slate-900 to-rose-50/60 dark:to-rose-500/10 border border-rose-300 dark:border-rose-500/40 flex items-center justify-between gap-3 shadow-xl shadow-rose-950/5 dark:shadow-rose-950/30 backdrop-blur-md animate-fadeIn">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-rose-500/25 text-rose-400 border border-rose-500/40 shadow-inner">
+            <div className="p-2.5 rounded-2xl bg-rose-100 dark:bg-rose-500/25 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/40 shadow-inner">
               <AlertTriangle className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <div className="text-xs font-bold text-rose-300 flex items-center gap-1.5">
+              <div className="text-xs font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
                 <span>{overspentBuckets.length} {overspentBuckets.length === 1 ? 'bolsa en sobregiro' : 'bolsas en sobregiro'}</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/30 text-rose-200 font-bold border border-rose-500/40">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-500/30 text-rose-800 dark:text-rose-200 font-bold border border-rose-300 dark:border-rose-500/40">
                   +{isPrivate ? '••••' : totalOverspending.toFixed(2)} {currency}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 Reequilibra tus vasos comunicantes automáticamente con 1 solo toque guiado.
               </p>
             </div>
@@ -501,27 +501,27 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
       )}
 
       {/* Selector de Mes Navegable y Conmutador de Proyección Anual */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-2.5 bg-slate-900/60 border border-slate-800/80 rounded-2xl shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-2.5 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm">
         {/* Controles de Navegación Mensual */}
         <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={handlePrevMonth}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             title="Mes anterior"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
 
-          <span className="text-xs font-bold text-white px-2 capitalize flex items-center gap-1.5 min-w-[130px] justify-center">
-            <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="text-xs font-bold text-slate-900 dark:text-white px-2 capitalize flex items-center gap-1.5 min-w-[130px] justify-center">
+            <Calendar className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>{format(selectedDate, 'MMMM yyyy', { locale: es })}</span>
           </span>
 
           <button
             type="button"
             onClick={handleNextMonth}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             title="Mes siguiente"
           >
             <ChevronRight className="w-4 h-4" />
@@ -531,7 +531,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             <button
               type="button"
               onClick={handleCurrentMonth}
-              className="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition-all cursor-pointer ml-1"
+              className="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 hover:bg-emerald-100 dark:hover:bg-emerald-500/30 transition-all cursor-pointer ml-1"
             >
               Hoy
             </button>
@@ -539,7 +539,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
         </div>
 
         {/* Toggle [ Mes | Proyección Anual ] */}
-        <div className="flex items-center p-0.5 rounded-xl bg-slate-950/80 border border-slate-800/80 text-xs self-start sm:self-auto">
+        <div className="flex items-center p-0.5 rounded-xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 text-xs self-start sm:self-auto">
           <button
             type="button"
             onClick={() => {
@@ -549,7 +549,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
               viewMode === 'month'
                 ? 'bg-emerald-500 text-slate-950 shadow-xs'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             Mes
@@ -563,7 +563,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1 ${
               viewMode === 'annual'
                 ? 'bg-emerald-500 text-slate-950 shadow-xs'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
@@ -573,22 +573,22 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
       </div>
 
       {/* Tarjeta de Resumen Global de Bolsas & Banner de Rollover */}
-      <div className="p-4 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 shadow-xl space-y-3">
+      <div className="p-4 rounded-3xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Coins className="w-4 h-4 text-emerald-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <Coins className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               {viewMode === 'annual'
                 ? `Proyección Anual Ejercicio ${selectedYear} (${buckets.length} Bolsas)`
                 : `Presupuesto Mensual Activo (${buckets.length} Bolsas)`}
             </span>
           </div>
-          <span className="text-xs font-mono font-bold text-emerald-400">
+          <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
             {isPrivate ? '••••' : totalSpent.toFixed(2)} / {isPrivate ? '••••' : totalBudget.toFixed(2)} {currency}
           </span>
         </div>
 
-        <div className="w-full h-3 bg-slate-800/80 rounded-full overflow-hidden p-0.5">
+        <div className="w-full h-3 bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-transparent rounded-full overflow-hidden p-0.5">
           <div
             className={`h-full rounded-full transition-all duration-700 ${
               globalPct > 100
@@ -602,12 +602,12 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
         </div>
 
         <div className="flex items-center justify-between text-xs pt-1">
-          <span className="text-slate-400">
+          <span className="text-slate-500 dark:text-slate-400">
             {viewMode === 'annual' ? 'Consumo anual acumulado: ' : 'Consumo total: '}
-            <strong className="text-white">{globalPct}%</strong>
+            <strong className="text-slate-900 dark:text-white">{globalPct}%</strong>
             {viewMode === 'annual' && (
-              <span className="ml-2 text-slate-500">
-                (Margen restante: <span className="text-emerald-400 font-mono font-bold">{isPrivate ? '••••' : annualRemaining.toFixed(2)} {currency}</span>)
+              <span className="ml-2 text-slate-500 dark:text-slate-400">
+                (Margen restante: <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{isPrivate ? '••••' : annualRemaining.toFixed(2)} {currency}</span>)
               </span>
             )}
           </span>
@@ -615,9 +615,9 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           {viewMode === 'month' && isCurrentMonth && potentialSurplus > 0 && (
             <button
               onClick={() => setRolloverModalOpen(true)}
-              className="px-2.5 py-1 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-500/20 hover:bg-teal-100 dark:hover:bg-teal-500/30 text-teal-700 dark:text-teal-300 border border-teal-300 dark:border-teal-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
             >
-              <TrendingUp className="w-3 h-3 text-teal-400" />
+              <TrendingUp className="w-3 h-3 text-teal-600 dark:text-teal-400" />
               <span>Rollover Ahorro: +{isPrivate ? '••••' : potentialSurplus.toFixed(2)} {currency}</span>
             </button>
           )}
@@ -626,14 +626,14 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
       {/* Barra de Ordenación de Bolsas */}
       <div className="flex items-center justify-between gap-2 px-1">
-        <div className="flex items-center gap-1.5 text-xs text-slate-400">
-          <ArrowUpDown className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+          <ArrowUpDown className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           <span className="font-bold">Ordenar por:</span>
         </div>
         <select
           value={sortMode}
           onChange={(e) => handleSortChange(e.target.value as BucketSortMode)}
-          className="bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-sm"
+          className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-xs"
         >
           <option value="manual">Manual (Personalizado)</option>
           <option value="alpha_asc">Nombre (A - Z)</option>
@@ -664,23 +664,23 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
               {...getItemProps(index)}
               className={`rounded-3xl border flex items-stretch transition-all duration-300 ease-out overflow-hidden ${
                 dragIndex === index
-                  ? 'ring-2 ring-emerald-400 scale-[1.03] -translate-y-1 shadow-2xl shadow-emerald-500/25 z-30 bg-slate-800/95 border-emerald-400 opacity-95'
+                  ? 'ring-2 ring-emerald-500 scale-[1.03] -translate-y-1 shadow-2xl shadow-emerald-500/25 z-30 bg-slate-100 dark:bg-slate-800/95 border-emerald-500 opacity-95'
                   : overIndex === index && dragIndex !== null
-                  ? 'scale-[0.97] translate-y-1 opacity-40 bg-slate-950/90 border-dashed border-2 border-emerald-500/50 shadow-inner ring-1 ring-emerald-500/20 z-10'
+                  ? 'scale-[0.97] translate-y-1 opacity-40 bg-slate-200 dark:bg-slate-950/90 border-dashed border-2 border-emerald-500/50 shadow-inner ring-1 ring-emerald-500/20 z-10'
                   : b.isBuffer
-                  ? 'border-teal-500/40 bg-teal-950/10 shadow-lg shadow-teal-950/20 scale-100 translate-y-0 opacity-100'
+                  ? 'border-teal-300 dark:border-teal-500/40 bg-teal-50/70 dark:bg-teal-950/10 shadow-sm scale-100 translate-y-0 opacity-100'
                   : isOver
-                  ? 'border-rose-500/60 bg-rose-950/10 scale-100 translate-y-0 opacity-100'
+                  ? 'border-rose-300 dark:border-rose-500/60 bg-rose-50/70 dark:bg-rose-950/10 shadow-sm scale-100 translate-y-0 opacity-100'
                   : isWarning
-                  ? 'border-amber-500/50 bg-amber-950/10 scale-100 translate-y-0 opacity-100'
-                  : 'border-slate-800 hover:border-slate-700 bg-slate-900/90 scale-100 translate-y-0 opacity-100'
+                  ? 'border-amber-300 dark:border-amber-500/50 bg-amber-50/70 dark:bg-amber-950/10 shadow-sm scale-100 translate-y-0 opacity-100'
+                  : 'border-slate-200 hover:border-slate-300 dark:border-slate-800 dark:hover:border-slate-700 bg-white dark:bg-slate-900/90 shadow-sm scale-100 translate-y-0 opacity-100'
               }`}
             >
               {/* Pestaña lateral de arrastre táctil (visible en modo manual) */}
               {sortMode === 'manual' && (
                 <div
                   {...getHandleProps(index)}
-                  className="w-7 sm:w-8 flex items-center justify-center bg-slate-950/50 hover:bg-emerald-600/20 active:bg-emerald-600/40 border-r border-slate-800/80 cursor-grab active:cursor-grabbing text-slate-500 hover:text-emerald-400 active:text-emerald-300 transition-colors shrink-0 select-none group"
+                  className="w-7 sm:w-8 flex items-center justify-center bg-slate-50 dark:bg-slate-950/50 hover:bg-emerald-50 dark:hover:bg-emerald-600/20 active:bg-emerald-100 dark:active:bg-emerald-600/40 border-r border-slate-200 dark:border-slate-800/80 cursor-grab active:cursor-grabbing text-slate-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 active:text-emerald-700 dark:active:text-emerald-300 transition-colors shrink-0 select-none group"
                   title="Mantén pulsado y arrastra para reordenar esta bolsa"
                   aria-label="Arrastrar para mover bolsa"
                 >
@@ -692,35 +692,35 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
                   <div
-                    className="w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-white shadow-md"
+                    className="w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-white shadow-md shrink-0"
                     style={{ backgroundColor: b.color }}
                   >
                     <IconComp className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap">
                       <span>{b.name}</span>
                       {b.rolloverSurplus && viewMode === 'month' && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-bold border border-teal-500/40 flex items-center gap-1">
-                          <PiggyBank className="w-3 h-3 text-teal-400" />
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 font-bold border border-teal-200 dark:border-teal-500/40 flex items-center gap-1">
+                          <PiggyBank className="w-3 h-3 text-teal-600 dark:text-teal-400" />
                           <span>Hucha +{isPrivate ? '••••' : accumulated.toFixed(2)} {currency}</span>
                         </span>
                       )}
                     </h3>
-                    <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
                       {b.notes || 'Partida presupuestaria'}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-1 shrink-0">
                   {sortMode === 'manual' && (
-                    <div className="flex items-center space-x-0.5 bg-slate-800/80 rounded-xl p-0.5 border border-slate-700/60 mr-1">
+                    <div className="flex items-center space-x-0.5 bg-slate-100 dark:bg-slate-800/80 rounded-xl p-0.5 border border-slate-200 dark:border-slate-700/60 mr-1">
                       <button
                         onClick={() => handleMoveBucket(b.id, 'up')}
                         disabled={index === 0}
                         title="Subir posición de la bolsa"
-                        className="p-1 text-slate-400 hover:text-emerald-300 disabled:opacity-20 disabled:hover:text-slate-400 transition-colors cursor-pointer"
+                        className="p-1 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-300 disabled:opacity-20 disabled:hover:text-slate-400 transition-colors cursor-pointer"
                       >
                         <ChevronUp className="w-3.5 h-3.5" />
                       </button>
@@ -728,7 +728,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                         onClick={() => handleMoveBucket(b.id, 'down')}
                         disabled={index === sortedBuckets.length - 1}
                         title="Bajar posición de la bolsa"
-                        className="p-1 text-slate-400 hover:text-emerald-300 disabled:opacity-20 disabled:hover:text-slate-400 transition-colors cursor-pointer"
+                        className="p-1 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-300 disabled:opacity-20 disabled:hover:text-slate-400 transition-colors cursor-pointer"
                       >
                         <ChevronDown className="w-3.5 h-3.5" />
                       </button>
@@ -742,13 +742,13 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                       setVasoModalOpen(true);
                     }}
                     title="Compensar con otra bolsa (Vasos Comunicantes)"
-                    className="p-1.5 text-cyan-400 hover:text-cyan-200 rounded-lg hover:bg-slate-800 transition-colors"
+                    className="p-1.5 text-cyan-600 dark:text-cyan-400 hover:text-cyan-800 dark:hover:text-cyan-200 rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-colors"
                   >
                     <ArrowRightLeft className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => openEdit(b)}
-                    className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+                    className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
@@ -758,7 +758,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                         onDeleteBucket(b.id);
                       }
                     }}
-                    className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors"
+                    className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-slate-800 transition-colors"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -766,20 +766,20 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
               </div>
 
               {/* Números y Barra de Progreso */}
-              <div className="mt-4 pt-3 border-t border-slate-800/80 space-y-2">
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
                     {viewMode === 'annual' ? 'Consumido en el año' : 'Consumido este mes'}
                   </span>
                   <div className="text-sm font-mono font-bold">
-                    <span className={isOver ? 'text-rose-400 font-black' : 'text-white'}>
+                    <span className={isOver ? 'text-rose-600 dark:text-rose-400 font-black' : 'text-slate-900 dark:text-white'}>
                       {isPrivate ? '••••' : spent.toFixed(2)} {currency}
                     </span>
-                    <span className="text-slate-500 text-xs"> / {isPrivate ? '••••' : limit.toFixed(2)} {currency}</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-xs"> / {isPrivate ? '••••' : limit.toFixed(2)} {currency}</span>
                   </div>
                 </div>
 
-                <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-transparent rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -790,14 +790,14 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500">{pct}% del techo {viewMode === 'annual' ? 'anual' : 'mensual'}</span>
+                  <span className="text-slate-500 dark:text-slate-400">{pct}% del techo {viewMode === 'annual' ? 'anual' : 'mensual'}</span>
                   <span
                     className={`font-semibold ${
                       isOver
-                        ? 'text-rose-400 font-bold'
+                        ? 'text-rose-600 dark:text-rose-400 font-bold'
                         : isWarning
-                        ? 'text-amber-400'
-                        : 'text-emerald-400'
+                        ? 'text-amber-600 dark:text-amber-400'
+                        : 'text-emerald-600 dark:text-emerald-400'
                     }`}
                   >
                     {isOver ? (
@@ -819,18 +819,18 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
       {/* MODAL 1: Crear / Editar Bolsa */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-[#0f172a] border border-slate-700/80 rounded-3xl w-full max-w-md max-h-[92vh] text-white shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-md max-h-[92vh] text-slate-900 dark:text-white shadow-2xl flex flex-col overflow-hidden">
             {/* Cabecera fija que NUNCA desaparece ni se bloquea al hacer scroll */}
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800 shrink-0 bg-[#0f172a]/95 backdrop-blur-xs">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <PieChart className="w-4 h-4 text-emerald-400" />
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 shrink-0 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xs">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <PieChart className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>{editingBucket ? 'Editar Bolsa' : 'Nueva Bolsa de Presupuesto'}</span>
               </h3>
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 title="Cerrar modal"
               >
                 <X className="w-5 h-5" />
@@ -839,19 +839,19 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
             <form onSubmit={handleSave} className="p-4 sm:p-5 overflow-y-auto flex-1 space-y-3.5 overscroll-contain">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">Nombre de la Bolsa *</label>
+                <label className="text-xs font-bold text-slate-600 dark:text-slate-400">Nombre de la Bolsa *</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ej. Transporte, Ocio, Suministros..."
-                  className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:border-emerald-500 focus:outline-none"
+                  className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:border-emerald-500 focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">
+                <label className="text-xs font-bold text-slate-600 dark:text-slate-400">
                   Límite Mensual ({currency}) *
                 </label>
                 <input
@@ -861,13 +861,13 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   value={budgetLimit}
                   onChange={(e) => setBudgetLimit(e.target.value)}
                   placeholder="300"
-                  className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono font-bold text-emerald-400 focus:border-emerald-500 focus:outline-none"
+                  className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400 focus:border-emerald-500 focus:outline-none"
                 />
               </div>
 
               {/* Selector de Icono Lucide */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">
+                <label className="text-xs font-bold text-slate-600 dark:text-slate-400">
                   Icono Representativo ({availableIcons.length} disponibles)
                 </label>
                 <div className="grid grid-cols-6 sm:grid-cols-8 gap-1.5 pt-1 max-h-36 overflow-y-auto pr-1">
@@ -881,7 +881,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                         className={`p-2 rounded-xl flex items-center justify-center transition-all ${
                           icon === ic
                             ? 'bg-emerald-500 text-slate-950 font-bold scale-105 shadow-md shadow-emerald-500/30'
-                            : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-800'
+                            : 'bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800'
                         }`}
                       >
                         <Comp className="w-4 h-4" />
@@ -893,7 +893,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
               {/* Selector de Color */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">Color Distintivo</label>
+                <label className="text-xs font-bold text-slate-600 dark:text-slate-400">Color Distintivo</label>
                 <div className="flex items-center space-x-2 pt-1 flex-wrap gap-y-2">
                   {palette.map((p) => (
                     <button
@@ -901,7 +901,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                       type="button"
                       onClick={() => setColor(p)}
                       className={`w-7 h-7 rounded-full border-2 transition-transform cursor-pointer ${
-                        color === p ? 'border-white scale-110 shadow-lg' : 'border-transparent'
+                        color === p ? 'border-slate-900 dark:border-white scale-110 shadow-lg' : 'border-transparent'
                       }`}
                       style={{ backgroundColor: p }}
                     />
@@ -912,7 +912,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
               {/* Checkbox Colchón Buffer */}
               <div
                 onClick={() => setIsBuffer(!isBuffer)}
-                className="p-3 rounded-2xl bg-teal-950/20 border border-teal-500/30 flex items-center space-x-3 cursor-pointer"
+                className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-500/30 flex items-center space-x-3 cursor-pointer"
               >
                 <div
                   className={`w-5 h-5 rounded-md border flex items-center justify-center ${
@@ -924,17 +924,17 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   {isBuffer && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-teal-200">
+                  <div className="text-xs font-bold text-teal-800 dark:text-teal-200">
                     Es Bolsa de Imprevistos / Colchón de Ahorro
                   </div>
-                  <div className="text-[10px] text-teal-300/80">
+                  <div className="text-[10px] text-teal-700/80 dark:text-teal-300/80">
                     Recibe automáticamente el rollover de ahorro mensual de las demás bolsas
                   </div>
                 </div>
               </div>
 
               {/* Opción Sinking Fund / Trasvase de Remanente al Siguiente Mes */}
-              <div className="space-y-2 p-3 rounded-2xl bg-indigo-950/20 border border-indigo-500/30">
+              <div className="space-y-2 p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-500/30">
                 <div
                   onClick={() => setRolloverSurplus(!rolloverSurplus)}
                   className="flex items-center space-x-3 cursor-pointer"
@@ -949,19 +949,19 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                     {rolloverSurplus && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                   </div>
                   <div className="flex-1">
-                    <div className="text-xs font-bold text-indigo-200 flex items-center gap-1.5">
-                      <PiggyBank className="w-3.5 h-3.5 text-indigo-400" />
+                    <div className="text-xs font-bold text-indigo-800 dark:text-indigo-200 flex items-center gap-1.5">
+                      <PiggyBank className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                       <span>Trasvasar remanente al siguiente mes (Sinking Fund)</span>
                     </div>
-                    <div className="text-[10px] text-indigo-300/80">
+                    <div className="text-[10px] text-indigo-700/80 dark:text-indigo-300/80">
                       Ideal para seguros o gastos periódicos. El saldo no consumido se acumula en esta bolsa mes a mes.
                     </div>
                   </div>
                 </div>
 
                 {rolloverSurplus && (
-                  <div className="pt-2 pl-8 border-t border-indigo-500/20">
-                    <label className="text-[11px] font-semibold text-indigo-300 block mb-1">
+                  <div className="pt-2 pl-8 border-t border-indigo-200 dark:border-indigo-500/20">
+                    <label className="text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 block mb-1">
                       Remanente acumulado actual ({currency})
                     </label>
                     <input
@@ -970,28 +970,28 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                       value={accumulatedSurplus}
                       onChange={(e) => setAccumulatedSurplus(e.target.value)}
                       placeholder="0.00"
-                      className="w-full h-9 px-3 bg-slate-900 border border-indigo-500/40 rounded-xl text-xs font-mono font-bold text-indigo-300 focus:border-indigo-400 focus:outline-none"
+                      className="w-full h-9 px-3 bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-500/40 rounded-xl text-xs font-mono font-bold text-indigo-700 dark:text-indigo-300 focus:border-indigo-500 focus:outline-none"
                     />
                   </div>
                 )}
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">Descripción / Notas</label>
+                <label className="text-xs font-bold text-slate-600 dark:text-slate-400">Descripción / Notas</label>
                 <input
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Qué gastos cubre esta partida..."
-                  className="w-full h-10 px-3 bg-slate-900 border border-slate-700 rounded-xl text-xs"
+                  className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-800 flex justify-end space-x-2 shrink-0">
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end space-x-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -1009,18 +1009,18 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
       {/* MODAL 2: Vasos Comunicantes (Trasvase Elástico de Límites) */}
       {vasosModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-[#0f172a] border border-cyan-500/50 rounded-3xl w-full max-w-md max-h-[92vh] text-white shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0f172a] border border-cyan-300 dark:border-cyan-500/50 rounded-3xl w-full max-w-md max-h-[92vh] text-slate-900 dark:text-white shadow-2xl flex flex-col overflow-hidden">
             {/* Cabecera fija que NUNCA desaparece */}
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800 shrink-0 bg-[#0f172a]/95 backdrop-blur-xs">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <ArrowRightLeft className="w-5 h-5 text-cyan-400" />
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 shrink-0 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xs">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <ArrowRightLeft className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
                 <span>Vasos Comunicantes (Compensación)</span>
               </h3>
               <button
                 type="button"
                 onClick={() => setVasoModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 title="Cerrar modal"
               >
                 <X className="w-5 h-5" />
@@ -1028,18 +1028,18 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             </div>
 
             <div className="p-4 sm:p-5 overflow-y-auto flex-1 space-y-4 overscroll-contain">
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                 Reequilibra tus bolsas elásticamente: transfiere límite de presupuesto desde una bolsa con
                 remanente hacia una que esté en tensión o déficit.
               </p>
 
               <form onSubmit={handleExecuteVasos} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-400">1. Bolsa Origen (Cede Saldo)</label>
+                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400">1. Bolsa Origen (Cede Saldo)</label>
                   <select
                     value={vasoFrom}
                     onChange={(e) => setVasoFrom(e.target.value)}
-                    className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm"
+                    className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white"
                   >
                     {buckets.map((b) => (
                       <option key={b.id} value={b.id} disabled={b.id === vasoTo}>
@@ -1050,17 +1050,17 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 </div>
 
                 <div className="flex justify-center -my-2">
-                  <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300">
+                  <div className="w-8 h-8 rounded-full bg-cyan-50 dark:bg-cyan-500/20 border border-cyan-300 dark:border-cyan-500/40 flex items-center justify-center text-cyan-600 dark:text-cyan-300">
                     ↓
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-400">2. Bolsa Destino (Recibe Fondos)</label>
+                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400">2. Bolsa Destino (Recibe Fondos)</label>
                   <select
                     value={vasoTo}
                     onChange={(e) => setVasoTo(e.target.value)}
-                    className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm"
+                    className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white"
                   >
                     {buckets.map((b) => (
                       <option key={b.id} value={b.id} disabled={b.id === vasoFrom}>
@@ -1071,7 +1071,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-400">
+                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400">
                     Importe a Trasvasar ({currency})
                   </label>
                   <input
@@ -1080,7 +1080,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                     required
                     value={vasoAmount}
                     onChange={(e) => setVasoAmount(e.target.value)}
-                    className="w-full h-11 px-3 bg-slate-900 border border-cyan-500/50 rounded-xl text-sm font-mono font-bold text-cyan-300"
+                    className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-cyan-300 dark:border-cyan-500/50 rounded-xl text-sm font-mono font-bold text-cyan-600 dark:text-cyan-300"
                   />
 
                   <div className="flex items-center gap-2 pt-1 flex-wrap">
@@ -1089,7 +1089,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                         key={val}
                         type="button"
                         onClick={() => setVasoAmount(String(val))}
-                        className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-300 border border-slate-700 transition-colors cursor-pointer"
+                        className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
                       >
                         +{val} {currency}
                       </button>
@@ -1097,11 +1097,11 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-800 flex justify-end space-x-2 shrink-0">
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end space-x-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => setVasoModalOpen(false)}
-                    className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition-colors cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-colors cursor-pointer"
                   >
                     Cancelar
                   </button>
@@ -1120,35 +1120,35 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
       {/* MODAL 3: Rollover de Ahorro Mensual */}
       {rolloverModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
-          <div className="bg-[#0f172a] border border-teal-500/50 rounded-3xl w-full max-w-md p-5 text-white shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-teal-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
+          <div className="bg-white dark:bg-[#0f172a] border border-teal-300 dark:border-teal-500/50 rounded-3xl w-full max-w-md p-5 text-slate-900 dark:text-white shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-teal-600 dark:text-teal-400" />
                 <span>Cierre de Mes y Rollover de Ahorro</span>
               </h3>
               <button
                 onClick={() => setRolloverModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800"
+                className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="mt-4 space-y-3">
-              <div className="p-4 rounded-2xl bg-teal-950/20 border border-teal-500/30 text-center space-y-1">
-                <span className="text-xs text-teal-300 uppercase tracking-wider font-bold">
+              <div className="p-4 rounded-2xl bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-500/30 text-center space-y-1">
+                <span className="text-xs text-teal-700 dark:text-teal-300 uppercase tracking-wider font-bold">
                   Excedente No Gastado Identificado
                 </span>
-                <div className="text-3xl font-mono font-black text-emerald-400">
+                <div className="text-3xl font-mono font-black text-emerald-600 dark:text-emerald-400">
                   +{potentialSurplus.toFixed(2)} {currency}
                 </div>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Suma de presupuestos sobrantes de las bolsas activas
                 </p>
               </div>
 
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                 Al ejecutar el <strong>Rollover</strong>, este superávit se añade automáticamente a tu{' '}
                 <strong>Colchón de Ahorro e Imprevistos</strong>, premiando tu disciplina financiera sin
                 perder el rastro del dinero.
@@ -1158,7 +1158,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setRolloverModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold"
+                  className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold"
                 >
                   Cancelar
                 </button>

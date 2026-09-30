@@ -586,11 +586,11 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
       {/* Cabecera y Acciones Rápidas */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-2">
-            <Repeat className="w-5 h-5 text-emerald-400" />
+          <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <Repeat className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             <span>Facturas, Tareas y Recurrentes</span>
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Avisos escalonados, costes estimados y desplazamiento adaptativo de ciclos
           </p>
         </div>
@@ -599,10 +599,10 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
           {vampireRules.length > 0 && (
             <button
               onClick={() => setVampireModalOpen(true)}
-              className="px-2.5 py-2 rounded-xl bg-purple-950/40 hover:bg-purple-900/50 text-purple-300 border border-purple-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-2.5 py-2 rounded-xl bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
               title="Auditoría de Gastos Vampiro"
             >
-              <Flame className="w-3.5 h-3.5 text-purple-400" />
+              <Flame className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
               <span>Gastos Vampiro ({vampireRules.length})</span>
             </button>
           )}
@@ -610,9 +610,9 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
           <button
             onClick={handleSmartSeeds}
             title="Cargar Facturas Maestras"
-            className="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 cursor-pointer"
+            className="px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-300 dark:border-slate-700 cursor-pointer transition-colors"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
             <span>Smart Seeds</span>
           </button>
 
@@ -620,9 +620,9 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
             type="button"
             onClick={() => setCategoriesModalOpen(true)}
             title="Gestionar Categorías Funcionales (Crear, Editar, Eliminar y Reordenar)"
-            className="px-2.5 py-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 border border-cyan-500/40 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+            className="px-2.5 py-2 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/40 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
           >
-            <Tag className="w-3.5 h-3.5 text-cyan-400" />
+            <Tag className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
             <span>Categorías</span>
           </button>
 
@@ -639,13 +639,13 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
       {/* Dashboard Superior de Compromisos y Cobro Inminente */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Tarjeta 1: Compromiso Mensual */}
-        <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-blue-400" />
+        <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
             <span>Comprometido / Mes</span>
           </span>
           <div className="mt-2">
-            <div className="text-2xl font-black font-mono text-white">
+            <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
               {totalMonthlyCommitment.toFixed(2)} {currency}
             </div>
             <span className="text-[11px] text-slate-500">
@@ -655,16 +655,16 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
         </div>
 
         {/* Tarjeta 2: Cobro Más Cercano */}
-        <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+        <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
             <span>Próximo Hito</span>
           </span>
           {nextImminentRule && nextImminentDetails ? (
             <div className="mt-2">
-              <div className="text-sm font-bold text-white truncate flex items-center justify-between">
+              <div className="text-sm font-bold text-slate-900 dark:text-white truncate flex items-center justify-between">
                 <span>{nextImminentRule.title}</span>
-                <span className="font-mono text-emerald-400">
+                <span className="font-mono text-emerald-600 dark:text-emerald-400">
                   {nextImminentRule.costType === 'none'
                     ? 'Sin coste'
                     : nextImminentRule.costType === 'estimated'
@@ -672,43 +672,43 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     : `${nextImminentRule.amount.toFixed(2)} ${currency}`}
                 </span>
               </div>
-              <div className="text-[11px] font-semibold text-amber-400 mt-0.5 flex items-center gap-1.5">
+              <div className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-0.5 flex items-center gap-1.5">
                 {nextImminentDetails.daysLeft === 0 ? (
                   <>
-                    <AlertTriangle className="w-3.5 h-3.5 text-rose-400 animate-pulse shrink-0" />
-                    <span className="text-rose-400 font-bold">¡Toca HOY!</span>
+                    <AlertTriangle className="w-3.5 h-3.5 text-rose-500 animate-pulse shrink-0" />
+                    <span className="text-rose-600 dark:text-rose-400 font-bold">¡Toca HOY!</span>
                   </>
                 ) : nextImminentDetails.daysLeft === 1 ? (
                   <>
-                    <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                     <span>Toca MAÑANA</span>
                   </>
                 ) : (
                   <>
-                    <Clock className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                    <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-300 shrink-0" />
                     <span>Toca en {nextImminentDetails.daysLeft} días ({nextImminentDetails.formattedDate})</span>
                   </>
                 )}
               </div>
             </div>
           ) : (
-            <div className="mt-2 text-xs text-slate-500">Sin vencimientos activos</div>
+            <div className="mt-2 text-xs text-slate-400 dark:text-slate-500">Sin vencimientos activos</div>
           )}
         </div>
 
         {/* Tarjeta 3: Detección Vampiro */}
-        <div className="p-4 rounded-3xl bg-gradient-to-br from-purple-950/30 to-slate-900 border border-purple-500/30 flex flex-col justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
-            <Flame className="w-3.5 h-3.5 text-purple-400" />
+        <div className="p-4 rounded-3xl bg-purple-50/60 dark:bg-gradient-to-br dark:from-purple-950/30 dark:to-slate-900 border border-purple-200 dark:border-purple-500/30 shadow-sm flex flex-col justify-between">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+            <Flame className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
             <span>Coste Vampiro / Mes</span>
           </span>
           <div className="mt-2">
-            <div className="text-2xl font-black font-mono text-purple-300">
+            <div className="text-2xl font-black font-mono text-purple-700 dark:text-purple-300">
               {vampireMonthlyTotal.toFixed(2)} {currency}
             </div>
             <button
               onClick={() => setVampireModalOpen(true)}
-              className="text-[11px] text-purple-400 hover:text-purple-200 underline font-semibold mt-0.5 cursor-pointer"
+              className="text-[11px] text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 underline font-semibold mt-0.5 cursor-pointer"
             >
               Auditar {vampireRules.length} servicios para ahorrar
             </button>
@@ -736,14 +736,14 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
         <div className="space-y-3">
           {/* Selector de Pestañas: Activas / Cesadas / Todas */}
           <div className="flex items-center justify-between gap-2 flex-wrap pb-1">
-            <div className="flex items-center gap-1.5 p-1 bg-slate-900 border border-slate-800 rounded-2xl">
+            <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
               <button
                 type="button"
                 onClick={() => setStatusFilter('active')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   statusFilter === 'active'
                     ? 'bg-emerald-500 text-slate-950 shadow-xs'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 Activas ({activeRulesCount})
@@ -754,7 +754,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   statusFilter === 'ceased'
                     ? 'bg-slate-700 text-white shadow-xs'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 Cesadas / Históricas ({ceasedRulesCount})
@@ -765,7 +765,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   statusFilter === 'all'
                     ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 Todas ({rules.length})
@@ -773,36 +773,36 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
             </div>
 
             {/* Selector de Ordenación de Recurrentes */}
-            <div className="flex items-center gap-1.5 bg-slate-950/70 p-1 rounded-2xl border border-slate-800/80 text-xs">
-              <span className="text-slate-400 pl-2 flex items-center gap-1">
-                <ArrowUpDown className="w-3.5 h-3.5 text-blue-400" />
+            <div className="flex items-center gap-1.5 bg-white dark:bg-slate-950/70 p-1 rounded-2xl border border-slate-200 dark:border-slate-800/80 text-xs shadow-xs">
+              <span className="text-slate-500 dark:text-slate-400 pl-2 flex items-center gap-1">
+                <ArrowUpDown className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
                 <span className="hidden sm:inline font-medium">Ordenar:</span>
               </span>
               <select
                 value={sortMode}
                 onChange={(e) => handleSortChange(e.target.value as RecurringSortMode)}
-                className="bg-transparent text-slate-200 text-xs font-semibold px-2 py-1 rounded-xl outline-none cursor-pointer hover:text-white transition-colors"
+                className="bg-transparent text-slate-800 dark:text-slate-200 text-xs font-semibold px-2 py-1 rounded-xl outline-none cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors"
                 title="Criterio de ordenación"
               >
-                <option value="imminent" className="bg-slate-900 text-slate-200">Próximo cobro (Inminente)</option>
-                <option value="manual" className="bg-slate-900 text-slate-200">Orden manual</option>
-                <option value="category" className="bg-slate-900 text-slate-200">Por categoría (Jerárquico)</option>
-                <option value="category_alpha" className="bg-slate-900 text-slate-200">Por categoría (A-Z)</option>
-                <option value="alpha_asc" className="bg-slate-900 text-slate-200">Título (A-Z)</option>
-                <option value="alpha_desc" className="bg-slate-900 text-slate-200">Título (Z-A)</option>
-                <option value="amount_desc" className="bg-slate-900 text-slate-200">Mayor importe</option>
-                <option value="amount_asc" className="bg-slate-900 text-slate-200">Menor importe</option>
+                <option value="imminent" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">Próximo cobro (Inminente)</option>
+                <option value="manual" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">Orden manual</option>
+                <option value="category" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">Por categoría (Jerárquico)</option>
+                <option value="category_alpha" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">Por categoría (A-Z)</option>
+                <option value="alpha_asc" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">Título (A-Z)</option>
+                <option value="alpha_desc" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">Título (Z-A)</option>
+                <option value="amount_desc" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">Mayor importe</option>
+                <option value="amount_asc" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">Menor importe</option>
               </select>
             </div>
             {ceasedRulesCount > 0 && statusFilter === 'ceased' && (
-              <span className="text-[11px] text-slate-400 italic">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 italic">
                 Compromisos finalizados. Los gastos pasados siguen intactos en el historial.
               </span>
             )}
           </div>
 
           {displayedRules.length === 0 ? (
-            <div className="p-8 text-center bg-slate-900/40 border border-slate-800 rounded-3xl text-xs text-slate-500">
+            <div className="p-8 text-center bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-3xl text-xs text-slate-500">
               {statusFilter === 'ceased'
                 ? 'No tienes ningún compromiso recurrente cesado.'
                 : 'No hay recurrentes en esta categoría.'}
@@ -834,23 +834,23 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               daysLeft <= 0;
 
             // Semáforo de cuenta atrás
-            let badgeColor = 'bg-slate-800 text-slate-300 border-slate-700';
+            let badgeColor = 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
             let badgeText = `En ${daysLeft} días (${formattedDate})`;
 
             if (isCompletedForTargetDate) {
-              badgeColor = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+              badgeColor = 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/40';
               badgeText = `Completada (${formattedDate})`;
             } else if (isUnpaidManual) {
-              badgeColor = 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse';
+              badgeColor = 'bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/40 animate-pulse';
               badgeText = `No pagado (${formattedDate})`;
             } else if (daysLeft === 0) {
-              badgeColor = 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse';
+              badgeColor = 'bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/40 animate-pulse';
               badgeText = `¡Toca HOY! (${formattedDate})`;
             } else if (daysLeft === 1) {
-              badgeColor = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+              badgeColor = 'bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/40';
               badgeText = `¡Mañana! (${formattedDate})`;
             } else if (daysLeft <= 3) {
-              badgeColor = 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+              badgeColor = 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30';
               badgeText = `En ${daysLeft} días (${formattedDate})`;
             }
 
@@ -864,25 +864,25 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                 {...getItemProps(idx)}
                 className={`rounded-3xl border flex items-stretch transition-all duration-300 ease-out overflow-hidden ${
                   dragIndex === idx
-                    ? 'ring-2 ring-blue-400 scale-[1.03] -translate-y-1 shadow-2xl shadow-blue-500/25 z-30 bg-slate-800/95 border-blue-400 opacity-95'
+                    ? 'ring-2 ring-blue-500 scale-[1.03] -translate-y-1 shadow-2xl shadow-blue-500/25 z-30 bg-slate-100 dark:bg-slate-800/95 border-blue-500 opacity-95'
                     : overIndex === idx && dragIndex !== null
-                    ? 'scale-[0.97] translate-y-1 opacity-40 bg-slate-950/90 border-dashed border-2 border-blue-500/50 shadow-inner ring-1 ring-blue-500/20 z-10'
+                    ? 'scale-[0.97] translate-y-1 opacity-40 bg-slate-200 dark:bg-slate-950/90 border-dashed border-2 border-blue-500/50 shadow-inner ring-1 ring-blue-500/20 z-10'
                     : !rule.isActive
-                    ? 'bg-slate-950/40 border-slate-800/80 opacity-75 scale-100 translate-y-0'
+                    ? 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/80 opacity-75 scale-100 translate-y-0'
                     : isCompletedForTargetDate
-                    ? 'bg-slate-900/90 border-emerald-500/30 shadow-md shadow-emerald-950/20 scale-100 translate-y-0 opacity-100'
+                    ? 'bg-white dark:bg-slate-900/90 border-emerald-200 dark:border-emerald-500/30 shadow-sm scale-100 translate-y-0 opacity-100'
                     : isUnpaidManual
-                    ? 'border-rose-500/50 shadow-md shadow-rose-950/20 bg-rose-950/10 scale-100 translate-y-0 opacity-100'
+                    ? 'border-rose-300 dark:border-rose-500/50 shadow-sm bg-rose-50/50 dark:bg-rose-950/10 scale-100 translate-y-0 opacity-100'
                     : daysLeft <= 1
-                    ? 'bg-slate-900/90 border-amber-500/40 shadow-md shadow-amber-950/20 scale-100 translate-y-0 opacity-100'
-                    : 'bg-slate-900/90 border-slate-800 hover:border-slate-700/80 scale-100 translate-y-0 opacity-100'
+                    ? 'bg-white dark:bg-slate-900/90 border-amber-300 dark:border-amber-500/40 shadow-sm scale-100 translate-y-0 opacity-100'
+                    : 'bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700/80 shadow-sm scale-100 translate-y-0 opacity-100'
                 }`}
               >
                 {/* Pestaña lateral de arrastre táctil (visible en modo manual) */}
                 {sortMode === 'manual' && (
                   <div
                     {...getHandleProps(idx)}
-                    className="w-7 sm:w-8 flex items-center justify-center bg-slate-950/50 hover:bg-blue-600/20 active:bg-blue-600/40 border-r border-slate-800/80 cursor-grab active:cursor-grabbing text-slate-500 hover:text-blue-400 active:text-blue-300 transition-colors shrink-0 select-none group"
+                    className="w-7 sm:w-8 flex items-center justify-center bg-slate-50 dark:bg-slate-950/50 hover:bg-blue-50 dark:hover:bg-blue-600/20 active:bg-blue-100 dark:active:bg-blue-600/40 border-r border-slate-200 dark:border-slate-800/80 cursor-grab active:cursor-grabbing text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 active:text-blue-700 dark:active:text-blue-300 transition-colors shrink-0 select-none group"
                     title="Mantén pulsado y arrastra para reordenar este recurrente"
                     aria-label="Arrastrar para mover recurrente"
                   >
@@ -905,7 +905,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
 
                   <div className="min-w-0">
                     <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                      <span className="text-sm font-bold text-white truncate">{rule.title}</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{rule.title}</span>
                       <span
                         className="text-[10px] px-2 py-0.5 rounded-full font-semibold border flex items-center gap-1"
                         style={{
@@ -918,67 +918,67 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                         <span>{categoryLabel}</span>
                       </span>
                       {!rule.isActive && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-bold border border-slate-700 flex items-center gap-1">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold border border-slate-200 dark:border-slate-700 flex items-center gap-1">
                           <PowerOff className="w-3 h-3 text-slate-400" />
                           <span>Cesada</span>
                         </span>
                       )}
                       {rule.isActive && !isPureTask && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold border border-slate-700 flex items-center gap-1">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border border-slate-200 dark:border-slate-700 flex items-center gap-1">
                           {rule.autoCreateExpense !== false ? (
                             <>
-                              <Zap className="w-3 h-3 text-emerald-400" />
+                              <Zap className="w-3 h-3 text-emerald-500 dark:text-emerald-400" />
                               <span>Auto</span>
                             </>
                           ) : (
                             <>
-                              <Hand className="w-3 h-3 text-amber-400" />
+                              <Hand className="w-3 h-3 text-amber-500 dark:text-amber-400" />
                               <span>Manual</span>
                             </>
                           )}
                         </span>
                       )}
                       {isEstimated && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/30">
                           Estimado
                         </span>
                       )}
                       {isPureTask && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-700 dark:text-purple-300 font-bold border border-purple-500/30">
                           Tarea
                         </span>
                       )}
                       {rule.isVampire && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-semibold border border-rose-500/30 flex items-center gap-1">
-                          <Flame className="w-3 h-3 text-rose-400" /> Vampiro
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-700 dark:text-rose-300 font-semibold border border-rose-500/30 flex items-center gap-1">
+                          <Flame className="w-3 h-3 text-rose-500 dark:text-rose-400" /> Vampiro
                         </span>
                       )}
                       {rule.isActive && (
                         <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 ${badgeColor}`}>
-                          {isCompletedForTargetDate && <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />}
-                          {isUnpaidManual && <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />}
-                          {daysLeft === 0 && !isCompletedForTargetDate && !isUnpaidManual && <Clock className="w-3 h-3 text-rose-400 shrink-0" />}
+                          {isCompletedForTargetDate && <CheckCircle2 className="w-3 h-3 text-emerald-500 dark:text-emerald-400 shrink-0" />}
+                          {isUnpaidManual && <AlertTriangle className="w-3 h-3 text-rose-500 dark:text-rose-400 shrink-0" />}
+                          {daysLeft === 0 && !isCompletedForTargetDate && !isUnpaidManual && <Clock className="w-3 h-3 text-rose-500 dark:text-rose-400 shrink-0" />}
                           <span>{badgeText}</span>
                         </span>
                       )}
                       {rule.startDate && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-medium border border-slate-700/80">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium border border-slate-200 dark:border-slate-700/80">
                           Inicio: {rule.startDate.slice(0, 10).split('-').reverse().join('/')}
                         </span>
                       )}
                       {rule.endDate && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-medium border border-slate-700/80">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium border border-slate-200 dark:border-slate-700/80">
                           Cesada: {rule.endDate.slice(0, 10).split('-').reverse().join('/')}
                         </span>
                       )}
                       {rule.isActive && rule.startDate && rule.startDate.slice(0, 10) > new Date().toISOString().slice(0, 10) && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-500/30">
                           Programada
                         </span>
                       )}
                     </div>
 
-                    <div className="text-xs text-slate-400 flex items-center space-x-2 mt-1">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center space-x-2 mt-1">
                       <span className="font-semibold" style={{ color: isPureTask ? '#c084fc' : bucket?.color }}>
                         {isPureTask ? 'Recordatorio' : bucket?.name || 'General'}
                       </span>
@@ -995,8 +995,8 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                       {rule.reminderOffsets && rule.reminderOffsets.length > 0 && (
                         <>
                           <span>•</span>
-                          <span className="text-blue-400 font-medium flex items-center gap-1">
-                            <Bell className="w-3 h-3 text-blue-400" />
+                          <span className="text-blue-600 dark:text-blue-400 font-medium flex items-center gap-1">
+                            <Bell className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                             <span>{rule.reminderOffsets.length} alertas ({rule.reminderTime || '09:00'})</span>
                           </span>
                         </>
@@ -1006,24 +1006,24 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                         !rule.title.toLowerCase().startsWith(rule.notes.toLowerCase().slice(0, 5)) && (
                           <>
                             <span>•</span>
-                            <span className="truncate max-w-[150px] text-slate-500">{rule.notes}</span>
+                            <span className="truncate max-w-[150px] text-slate-400 dark:text-slate-500">{rule.notes}</span>
                           </>
                         )}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end space-x-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
+                <div className="flex items-center justify-between sm:justify-end space-x-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-slate-800/80">
                   {sortMode === 'manual' && (
-                    <div className="flex items-center gap-0.5 mr-1 bg-slate-950/60 p-0.5 rounded-xl border border-slate-800/80">
+                    <div className="flex items-center gap-0.5 mr-1 bg-slate-100 dark:bg-slate-950/60 p-0.5 rounded-xl border border-slate-200 dark:border-slate-800/80">
                       <button
                         type="button"
                         onClick={() => handleMoveRule(rule.id, 'up')}
                         disabled={idx === 0}
                         className={`p-1.5 rounded-lg transition-all ${
                           idx === 0
-                            ? 'text-slate-600 cursor-not-allowed'
-                            : 'text-slate-300 hover:text-white hover:bg-slate-800/80 cursor-pointer active:scale-95'
+                            ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed'
+                            : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800/80 cursor-pointer active:scale-95'
                         }`}
                         title="Subir de posición"
                       >
@@ -1035,8 +1035,8 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                         disabled={idx === displayedRules.length - 1}
                         className={`p-1.5 rounded-lg transition-all ${
                           idx === displayedRules.length - 1
-                            ? 'text-slate-600 cursor-not-allowed'
-                            : 'text-slate-300 hover:text-white hover:bg-slate-800/80 cursor-pointer active:scale-95'
+                            ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed'
+                            : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800/80 cursor-pointer active:scale-95'
                         }`}
                         title="Bajar de posición"
                       >
@@ -1046,11 +1046,11 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                   )}
 
                   <div className="text-left sm:text-right mr-2">
-                    <div className="text-base font-black font-mono text-white">
+                    <div className="text-base font-black font-mono text-slate-900 dark:text-white">
                       {isPureTask ? (
-                        <span className="text-purple-300 text-xs font-semibold">Sin coste</span>
+                        <span className="text-purple-600 dark:text-purple-300 text-xs font-semibold">Sin coste</span>
                       ) : isEstimated ? (
-                        <span className="text-amber-300">~{rule.amount.toFixed(2)} {currency}</span>
+                        <span className="text-amber-600 dark:text-amber-300">~{rule.amount.toFixed(2)} {currency}</span>
                       ) : (
                         `${rule.amount.toFixed(2)} ${currency}`
                       )}
@@ -1073,15 +1073,15 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                           });
                         }
                       }}
-                      className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                      className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
                       title="Reactivar recurrencia"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
                       <span>Reactivar</span>
                     </button>
                   ) : isCompletedForTargetDate ? (
-                    <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 shadow-xs">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 shadow-xs">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                       <span>{isPureTask ? 'Completada' : 'Registrado'}</span>
                     </span>
                   ) : (
@@ -1096,8 +1096,8 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                       }}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95 ${
                         isUnpaidManual
-                          ? 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40'
-                          : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40'
+                          ? 'bg-rose-50 dark:bg-rose-500/20 hover:bg-rose-100 dark:hover:bg-rose-500/30 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/40'
+                          : 'bg-emerald-50 dark:bg-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/40'
                       }`}
                       title={isPureTask ? 'Completar tarea y avanzar ciclo' : 'Confirmar o ajustar importe del gasto'}
                     >
@@ -1110,7 +1110,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
 
                   <button
                     onClick={() => openEdit(rule)}
-                    className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 cursor-pointer"
+                    className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                     title="Editar"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -1130,7 +1130,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                           });
                         }
                       }}
-                      className="p-2 text-slate-400 hover:text-amber-400 rounded-xl hover:bg-slate-800 cursor-pointer"
+                      className="p-2 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                       title="Cesar recurrencia (preservando historial)"
                     >
                       <PowerOff className="w-3.5 h-3.5" />
@@ -1143,7 +1143,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                         onDeleteRule(rule.id);
                       }
                     }}
-                    className="p-2 text-slate-400 hover:text-rose-400 rounded-xl hover:bg-slate-800 cursor-pointer"
+                    className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                     title="Eliminar"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -1159,15 +1159,15 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
       {/* MODAL CREAR / EDITAR RECURRENTE */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto text-white">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Repeat className="w-5 h-5 text-emerald-400" />
+          <div className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto text-slate-900 dark:text-white">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Repeat className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
                 <span>{editingRule ? 'Editar Acto Recurrente' : 'Nuevo Acto Recurrente'}</span>
               </h3>
               <button
                 onClick={() => setModalOpen(false)}
-                className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 cursor-pointer"
+                className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1176,15 +1176,15 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
             <form onSubmit={handleSave} className="space-y-4">
               {/* Selector de Tipo de Coste */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-400">Tipo de Compromiso / Coste *</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Tipo de Compromiso / Coste *</label>
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => setCostType('fixed')}
                     className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       costType === 'fixed'
-                        ? 'bg-blue-500/20 border-blue-500 text-blue-300'
-                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white'
+                        ? 'bg-blue-50 dark:bg-blue-500/20 border-blue-500 text-blue-700 dark:text-blue-300'
+                        : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     <CreditCard className="w-3.5 h-3.5 shrink-0" />
@@ -1195,8 +1195,8 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     onClick={() => setCostType('estimated')}
                     className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       costType === 'estimated'
-                        ? 'bg-amber-500/20 border-amber-500 text-amber-300'
-                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white'
+                        ? 'bg-amber-50 dark:bg-amber-500/20 border-amber-500 text-amber-700 dark:text-amber-300'
+                        : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     <Scale className="w-3.5 h-3.5 shrink-0" />
@@ -1207,8 +1207,8 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     onClick={() => setCostType('none')}
                     className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       costType === 'none'
-                        ? 'bg-purple-500/20 border-purple-500 text-purple-300'
-                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white'
+                        ? 'bg-purple-50 dark:bg-purple-500/20 border-purple-500 text-purple-700 dark:text-purple-300'
+                        : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     <CheckSquare className="w-3.5 h-3.5 shrink-0" />
@@ -1220,11 +1220,11 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               {/* Categoría Funcional */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-400">Categoría Funcional *</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Categoría Funcional *</label>
                   <button
                     type="button"
                     onClick={() => setCategoriesModalOpen(true)}
-                    className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer transition-colors"
+                    className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 flex items-center gap-1 cursor-pointer transition-colors"
                     title="Crear, editar o eliminar categorías"
                   >
                     <Tag className="w-3 h-3" />
@@ -1234,7 +1234,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                 <select
                   value={categoryType}
                   onChange={(e: any) => setCategoryType(e.target.value)}
-                  className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-xs font-medium text-white focus:border-emerald-500 focus:outline-hidden"
+                  className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:border-emerald-500 focus:outline-hidden"
                 >
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -1246,14 +1246,14 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
 
               {/* Concepto */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">Concepto / Nombre del Acto *</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Concepto / Nombre del Acto *</label>
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Ej. Cambio lentillas, Vacuna perro, Seguro coche..."
-                  className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:border-emerald-500 focus:outline-hidden"
+                  className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-emerald-500 focus:outline-hidden"
                 />
               </div>
 
@@ -1261,7 +1261,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 {costType !== 'none' ? (
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-400">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-400">
                       {costType === 'estimated' ? 'Coste Estimado' : 'Importe Fijo'} ({currency}) *
                     </label>
                     <input
@@ -1271,30 +1271,30 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
                       placeholder="45.00"
-                      className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono font-bold text-emerald-400 focus:border-emerald-500 focus:outline-hidden"
+                      className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-hidden"
                     />
                     {editingRule && (
-                      <p className="text-[10px] text-slate-400 mt-1 flex items-start gap-1">
-                        <Info className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 flex items-start gap-1">
+                        <Info className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5" />
                         <span>Modificar este importe solo afectará a los cobros futuros. El historial y gastos pasados se conservan intactos.</span>
                       </p>
                     )}
                   </div>
                 ) : (
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-400">Coste Económico</label>
-                    <div className="h-11 px-3 bg-slate-950 border border-slate-800 rounded-xl text-xs flex items-center text-purple-300 font-semibold">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Coste Económico</label>
+                    <div className="h-11 px-3 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs flex items-center text-purple-700 dark:text-purple-300 font-semibold">
                       Sin coste directo (0.00 {currency})
                     </div>
                   </div>
                 )}
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-400">Frecuencia *</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Frecuencia *</label>
                   <select
                     value={frequency}
                     onChange={(e: any) => setFrequency(e.target.value)}
-                    className="w-full h-11 px-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs font-medium text-white focus:border-emerald-500 focus:outline-hidden"
+                    className="w-full h-11 px-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:border-emerald-500 focus:outline-hidden"
                   >
                     <option value="weekly">Semanal</option>
                     <option value="monthly">Mensual</option>
@@ -1306,18 +1306,18 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
 
               {/* Modalidad de Contabilización: Automático vs Manual */}
               {costType !== 'none' && (
-                <div className="p-3.5 bg-slate-900/90 border border-slate-700/80 rounded-2xl space-y-2">
-                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-2">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                     <span>Modalidad de Cobro</span>
-                    <span className="text-[10px] font-semibold text-emerald-400 flex items-center gap-1">
+                    <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                       {autoCreateExpense ? (
                         <>
-                          <Zap className="w-3 h-3 text-emerald-400" />
+                          <Zap className="w-3 h-3 text-emerald-500 dark:text-emerald-400" />
                           <span>Cobro Automático</span>
                         </>
                       ) : (
                         <>
-                          <Hand className="w-3 h-3 text-amber-400" />
+                          <Hand className="w-3 h-3 text-amber-500 dark:text-amber-400" />
                           <span>Procesamiento Manual</span>
                         </>
                       )}
@@ -1329,15 +1329,15 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                       onClick={() => setAutoCreateExpense(true)}
                       className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                         autoCreateExpense
-                          ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-xs'
-                          : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white'
+                          ? 'bg-emerald-50 dark:bg-emerald-500/20 border-emerald-500 text-slate-900 dark:text-white shadow-xs'
+                          : 'bg-white dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
-                      <div className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                      <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                         <Zap className="w-3.5 h-3.5 shrink-0" />
                         <span>Automático</span>
                       </div>
-                      <div className="text-[10px] text-slate-400 mt-1 leading-tight">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-tight">
                         Se contabiliza al llegar la fecha sin requerir acción manual. Puedes revertirlo o ajustarlo.
                       </div>
                     </button>
@@ -1347,15 +1347,15 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                       onClick={() => setAutoCreateExpense(false)}
                       className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                         !autoCreateExpense
-                          ? 'bg-amber-500/20 border-amber-500 text-white shadow-xs'
-                          : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white'
+                          ? 'bg-amber-50 dark:bg-amber-500/20 border-amber-500 text-slate-900 dark:text-white shadow-xs'
+                          : 'bg-white dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
-                      <div className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                      <div className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
                         <Hand className="w-3.5 h-3.5 shrink-0" />
                         <span>Manual</span>
                       </div>
-                      <div className="text-[10px] text-slate-400 mt-1 leading-tight">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-tight">
                         Tú confirmas el cobro. Si pasa la fecha sin cobrar, se alertará como "No pagado".
                       </div>
                     </button>
@@ -1365,12 +1365,12 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
 
               {/* Selector de intervalo dinámico para Semanal o Mensual */}
               {(frequency === 'weekly' || frequency === 'monthly') && (
-                <div className="p-3 bg-slate-900/80 border border-slate-700/80 rounded-2xl flex items-center justify-between shadow-xs">
+                <div className="p-3 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex items-center justify-between shadow-xs">
                   <div className="space-y-0.5">
-                    <label className="text-xs font-bold text-slate-300">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                       Cadencia de Repetición
                     </label>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
                       {frequency === 'weekly'
                         ? intervalNum === 1
                           ? 'Repetición cada semana'
@@ -1381,16 +1381,16 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-400 font-medium">Cada</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Cada</span>
                     <input
                       type="number"
                       min="1"
                       max={frequency === 'weekly' ? 52 : 24}
                       value={intervalNum}
                       onChange={(e) => setIntervalNum(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-16 h-10 px-2 bg-slate-950 border border-slate-700 rounded-xl text-sm font-mono font-bold text-center text-emerald-400 focus:border-emerald-500 focus:outline-hidden"
+                      className="w-16 h-10 px-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono font-bold text-center text-emerald-600 dark:text-emerald-400 focus:border-emerald-500 focus:outline-hidden"
                     />
-                    <span className="text-xs font-semibold text-slate-300">
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       {frequency === 'weekly'
                         ? (intervalNum === 1 ? 'semana' : 'semanas')
                         : (intervalNum === 1 ? 'mes' : 'meses')}
@@ -1400,22 +1400,22 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               )}
 
               {/* Fecha de Inicio / Origen del Compromiso */}
-              <div className="p-3.5 bg-slate-900/90 border border-slate-700/80 rounded-2xl space-y-1.5 shadow-xs">
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-1.5 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                     <span>Fecha de Inicio / Origen del Compromiso *</span>
                   </label>
                   {startDate && (
-                    <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
+                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
                       {startDate > new Date().toISOString().slice(0, 10) ? (
                         <>
-                          <Clock className="w-3 h-3 text-amber-400" />
+                          <Clock className="w-3 h-3 text-amber-500 dark:text-amber-400" />
                           <span>Inicio Futuro</span>
                         </>
                       ) : (
                         <>
-                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                          <CheckCircle2 className="w-3 h-3 text-emerald-500 dark:text-emerald-400" />
                           <span>En Vigor</span>
                         </>
                       )}
@@ -1428,10 +1428,10 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     required
                     value={startDate}
                     onChange={(e) => handleStartDateChange(e.target.value)}
-                    className="w-full h-11 px-3.5 bg-slate-950 border border-slate-700 rounded-xl text-sm font-mono font-medium text-white focus:border-emerald-500 focus:outline-hidden cursor-pointer [color-scheme:dark]"
+                    className="w-full h-11 px-3.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono font-medium text-slate-900 dark:text-white focus:border-emerald-500 focus:outline-hidden cursor-pointer"
                   />
                 </div>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Día real en que comenzó o comenzará este compromiso. Los ciclos periódicos e intervalos se computan anclados a esta fecha.
                 </p>
               </div>
@@ -1440,11 +1440,11 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               {frequency === 'yearly' && (
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-400">Mes del Año *</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Mes del Año *</label>
                     <select
                       value={monthOfYear}
                       onChange={(e) => setMonthOfYear(e.target.value)}
-                      className="w-full h-11 px-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs font-medium text-white focus:border-emerald-500 focus:outline-hidden"
+                      className="w-full h-11 px-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:border-emerald-500 focus:outline-hidden"
                     >
                       {MONTH_NAMES.map((name, i) => (
                         <option key={i + 1} value={i + 1}>
@@ -1454,14 +1454,14 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     </select>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-400">Día del Mes (1-31) *</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Día del Mes (1-31) *</label>
                     <input
                       type="number"
                       min="1"
                       max="31"
                       value={dayOfMonth}
                       onChange={(e) => setDayOfMonth(e.target.value)}
-                      className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono text-white focus:border-emerald-500 focus:outline-hidden"
+                      className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:border-emerald-500 focus:outline-hidden"
                     />
                   </div>
                 </div>
@@ -1471,23 +1471,23 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               {frequency !== 'yearly' && (
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-400">Día de Cobro/Hito (1-31)</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Día de Cobro/Hito (1-31)</label>
                     <input
                       type="number"
                       min="1"
                       max="31"
                       value={dayOfMonth}
                       onChange={(e) => setDayOfMonth(e.target.value)}
-                      className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono text-white focus:border-emerald-500 focus:outline-hidden"
+                      className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:border-emerald-500 focus:outline-hidden"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-400">Bolsa Asignada</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Bolsa Asignada</label>
                     <select
                       value={bucketId}
                       onChange={(e) => setBucketId(e.target.value)}
-                      className="w-full h-11 px-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs font-medium text-white focus:border-emerald-500 focus:outline-hidden"
+                      className="w-full h-11 px-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:border-emerald-500 focus:outline-hidden"
                     >
                       {buckets.map((b) => (
                         <option key={b.id} value={b.id}>
@@ -1500,19 +1500,19 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               )}
 
               {/* Avisos Escalonados con Antelación */}
-              <div className="p-3.5 rounded-2xl bg-blue-950/20 border border-blue-500/30 space-y-2">
+              <div className="p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-500/30 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-blue-300 flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
                     <Bell className="w-3.5 h-3.5" />
                     <span>Avisar con Antelación (Escalonado):</span>
                   </span>
                   <div className="flex items-center gap-1">
-                    <span className="text-[10px] text-slate-400">Hora:</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">Hora:</span>
                     <input
                       type="time"
                       value={reminderTime}
                       onChange={(e) => setReminderTime(e.target.value)}
-                      className="bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-xs text-white"
+                      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-1.5 py-0.5 text-xs text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -1535,8 +1535,8 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                         }}
                         className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                           isSelected
-                            ? 'bg-blue-500 text-white border-blue-400 shadow-xs'
-                            : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                            ? 'bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-400 shadow-xs'
+                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       >
                         {off.label}
@@ -1544,27 +1544,27 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     );
                   })}
                 </div>
-                <span className="text-[10px] text-slate-400 block mt-1">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-1">
                   Se programarán notificaciones de alta prioridad para cada plazo marcado.
                 </span>
               </div>
 
               {/* Toggle de Adaptabilidad de Ciclos Futuros */}
-              <label className="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-950/60 border border-slate-800 cursor-pointer">
+              <label className="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={autoAdaptNextDates}
                   onChange={(e) => setAutoAdaptNextDates(e.target.checked)}
-                  className="rounded border-slate-700 text-emerald-500 focus:ring-0 w-4 h-4 bg-slate-900 cursor-pointer"
+                  className="rounded border-slate-300 dark:border-slate-700 text-emerald-500 focus:ring-0 w-4 h-4 bg-white dark:bg-slate-900 cursor-pointer"
                 />
-                <span className="text-xs text-slate-300">
+                <span className="text-xs text-slate-600 dark:text-slate-300">
                   <b>Adaptabilidad dinámica</b>: Si realizas esta tarea o pago un día antes o después, reprogramar automáticamente los meses siguientes a esa nueva fecha.
                 </span>
               </label>
 
               {/* Selector de Icono Lucide */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-400">
                   Icono Identificativo ({MASTER_ICON_KEYS.length} disponibles)
                 </label>
                 <div className="flex items-center gap-2 pt-1 flex-wrap max-h-40 overflow-y-auto pr-1">
@@ -1578,7 +1578,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                         className={`p-2 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
                           icon === ic
                             ? 'bg-emerald-500 text-slate-950 font-bold scale-105'
-                            : 'bg-slate-800 text-slate-400 hover:text-white'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                         }`}
                         title={ic}
                       >
@@ -1593,22 +1593,22 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               {costType !== 'none' && (
                 <div
                   onClick={() => setIsVampire(!isVampire)}
-                  className="p-3 rounded-2xl bg-purple-950/20 border border-purple-500/30 flex items-center space-x-3 cursor-pointer"
+                  className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-500/30 flex items-center space-x-3 cursor-pointer"
                 >
                   <div
                     className={`w-5 h-5 rounded-md border flex items-center justify-center ${
                       isVampire
-                        ? 'bg-purple-500 border-purple-500 text-slate-950'
-                        : 'border-purple-400/50'
+                        ? 'bg-purple-600 dark:bg-purple-500 border-purple-600 dark:border-purple-500 text-white dark:text-slate-950'
+                        : 'border-purple-300 dark:border-purple-400/50'
                     }`}
                   >
                     {isVampire && <Flame className="w-3.5 h-3.5" />}
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-purple-200">
+                    <div className="text-xs font-bold text-purple-900 dark:text-purple-200">
                       Marcar como Gasto Vampiro / Suscripción Prescindible
                     </div>
-                    <div className="text-[10px] text-purple-300/80">
+                    <div className="text-[10px] text-purple-700/80 dark:text-purple-300/80">
                       Se incluirá en el panel de auditoría para liberar ahorro mensual
                     </div>
                   </div>
@@ -1616,13 +1616,13 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               )}
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">Observaciones / Referencia</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-400">Observaciones / Referencia</label>
                 <input
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Ej. Contrato renovación, graduación lentillas..."
-                  className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:border-emerald-500 focus:outline-hidden"
+                  className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-emerald-500 focus:outline-hidden"
                 />
               </div>
 
@@ -1630,7 +1630,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="flex-1 py-3 px-4 rounded-xl border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-400 cursor-pointer"
+                  className="flex-1 py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-400 cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -1649,53 +1649,53 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
       {/* MODAL AUDITORÍA DE GASTOS VAMPIRO */}
       {vampireModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="w-full max-w-lg bg-slate-900 border border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-white">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="w-full max-w-lg bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-slate-900 dark:text-white">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
-                <Flame className="w-6 h-6 text-purple-400" />
+                <Flame className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 <div>
-                  <h3 className="text-base font-bold text-white">Auditoría de Gastos Vampiro</h3>
-                  <p className="text-[11px] text-purple-300">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Auditoría de Gastos Vampiro</h3>
+                  <p className="text-[11px] text-purple-600 dark:text-purple-300">
                     Suscripciones y micro-servicios que drenan tu capacidad de ahorro
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setVampireModalOpen(false)}
-                className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 cursor-pointer"
+                className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-4 rounded-2xl bg-purple-950/30 border border-purple-500/30 flex items-center justify-between">
+            <div className="p-4 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-500/30 flex items-center justify-between">
               <div>
-                <span className="text-xs text-purple-200 uppercase font-bold">Fuga Mensual Detectada</span>
-                <div className="text-2xl font-black font-mono text-purple-400">
+                <span className="text-xs text-purple-800 dark:text-purple-200 uppercase font-bold">Fuga Mensual Detectada</span>
+                <div className="text-2xl font-black font-mono text-purple-600 dark:text-purple-400">
                   {vampireMonthlyTotal.toFixed(2)} {currency}
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-xs text-purple-200 uppercase font-bold">Ahorro Anual Potencial</span>
-                <div className="text-xl font-bold font-mono text-emerald-400">
+                <span className="text-xs text-purple-800 dark:text-purple-200 uppercase font-bold">Ahorro Anual Potencial</span>
+                <div className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
                   {(vampireMonthlyTotal * 12).toFixed(2)} {currency}
                 </div>
               </div>
             </div>
 
             <div className="space-y-2">
-              <span className="text-xs font-bold text-slate-300">Servicios Auditados ({vampireRules.length}):</span>
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Servicios Auditados ({vampireRules.length}):</span>
               {vampireRules.map((r) => (
                 <div
                   key={r.id}
-                  className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800 flex items-center justify-between"
+                  className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between"
                 >
                   <div>
-                    <span className="text-xs font-bold text-white">{r.title}</span>
-                    <span className="text-[10px] text-slate-400 block">{frequencyLabels[r.frequency]}</span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">{r.title}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block">{frequencyLabels[r.frequency]}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono font-bold text-purple-300">
+                    <span className="text-xs font-mono font-bold text-purple-600 dark:text-purple-300">
                       {r.amount.toFixed(2)} {currency}
                     </span>
                     <button
@@ -1703,7 +1703,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                         setVampireModalOpen(false);
                         openEdit(r);
                       }}
-                      className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded-lg text-slate-300 cursor-pointer"
+                      className="px-2 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-[11px] rounded-lg text-slate-700 dark:text-slate-300 cursor-pointer"
                     >
                       Modificar
                     </button>

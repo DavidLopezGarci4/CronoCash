@@ -183,9 +183,9 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl overflow-y-auto max-h-[92vh]">
+      <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl overflow-y-auto max-h-[92vh] text-slate-900 dark:text-white">
         {/* Cabecera */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
             <div
               className="p-2.5 rounded-2xl border"
@@ -194,17 +194,17 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
               <Target className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-black text-white">
+              <h3 className="text-base font-black text-slate-900 dark:text-white">
                 {initialGoal ? 'Editar Meta de Ahorro' : 'Nueva Meta (Sinking Fund)'}
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Planifica compras futuras y gastos previsibles con ritmo de crucero
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -214,21 +214,21 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
         <form onSubmit={handleSubmit} className="mt-5 space-y-4 text-xs">
           {/* Título de la Meta */}
           <div>
-            <label className="block text-slate-300 font-bold mb-1.5">Nombre de la Meta</label>
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">Nombre de la Meta</label>
             <input
               type="text"
               required
               placeholder="Ej: Seguro Anual Coche, Vacaciones, IBI..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-medium text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500"
             />
           </div>
 
           {/* Importe Objetivo y Saldo Actual */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-bold mb-1.5">Importe Objetivo ({currency})</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">Importe Objetivo ({currency})</label>
               <input
                 type="number"
                 step="any"
@@ -237,12 +237,12 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
                 placeholder="480.00"
                 value={targetAmount}
                 onChange={(e) => setTargetAmount(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-mono text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-slate-300 font-bold mb-1.5">Saldo Acumulado ({currency})</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">Saldo Acumulado ({currency})</label>
               <input
                 type="number"
                 step="any"
@@ -250,7 +250,7 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
                 placeholder="0.00"
                 value={currentAmount}
                 onChange={(e) => setCurrentAmount(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-mono text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500"
               />
             </div>
           </div>
@@ -258,22 +258,22 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
           {/* Fecha Límite y Prioridad */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-bold mb-1.5">Fecha Objetivo</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">Fecha Objetivo</label>
               <input
                 type="date"
                 required
                 value={targetDate}
                 onChange={(e) => setTargetDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-mono text-white focus:outline-none focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-slate-300 font-bold mb-1.5">Prioridad de Reparto</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">Prioridad de Reparto</label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
               >
                 <option value={1}>Alta (Peso 3x - Innegociable)</option>
                 <option value={2}>Media (Peso 2x - Estándar)</option>
@@ -285,11 +285,11 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
           {/* Categoría y Bolsa Vinculada */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-bold mb-1.5">Categoría</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">Categoría</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as any)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
               >
                 <option value="essential">Esencial / Impuesto</option>
                 <option value="maintenance">Mantenimiento / Vehículo</option>
@@ -299,11 +299,11 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-slate-300 font-bold mb-1.5">Bolsa Vinculada (Opcional)</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">Bolsa Vinculada (Opcional)</label>
               <select
                 value={bucketId}
                 onChange={(e) => setBucketId(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
               >
                 <option value="">(Sin bolsa vinculada)</option>
                 {buckets.map((b) => (
@@ -316,13 +316,13 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
           </div>
 
           {/* Switch Auto-Deducción Safe-to-Spend */}
-          <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between gap-3">
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
             <div className="space-y-0.5">
-              <span className="font-bold text-slate-200 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>Proteger Cuota en Safe-to-Spend</span>
               </span>
-              <p className="text-[11px] text-slate-400 leading-tight">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
                 Resta automáticamente la cuota mensual de crucero del cálculo diario seguro para que nunca te lo gastes.
               </p>
             </div>
@@ -330,7 +330,7 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
               type="button"
               onClick={() => setAutoDeductFromSafeToSpend(!autoDeductFromSafeToSpend)}
               className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                autoDeductFromSafeToSpend ? 'bg-emerald-500' : 'bg-slate-700'
+                autoDeductFromSafeToSpend ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
               }`}
             >
               <span
@@ -343,7 +343,7 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
 
           {/* Selector de Icono */}
           <div>
-            <label className="block text-slate-300 font-bold mb-1.5">Icono Representativo</label>
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">Icono Representativo</label>
             <div className="flex flex-wrap gap-2 max-h-44 overflow-y-auto pr-1">
               {AVAILABLE_ICONS.map((item) => {
                 const IconComp = item.icon;
@@ -355,8 +355,8 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
                     onClick={() => setIcon(item.name)}
                     className={`p-2.5 rounded-xl border flex items-center gap-1.5 transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500'
-                        : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                        ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500 shadow-xs'
+                        : 'bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     <IconComp className="w-4 h-4" />
@@ -369,7 +369,7 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
 
           {/* Selector de Color */}
           <div>
-            <label className="block text-slate-300 font-bold mb-1.5">Color Temático</label>
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">Color Temático</label>
             <div className="flex items-center gap-2">
               {PRESET_COLORS.map((c) => (
                 <button
@@ -377,7 +377,7 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
                   type="button"
                   onClick={() => setColor(c)}
                   className={`w-7 h-7 rounded-full flex items-center justify-center transition-transform cursor-pointer ${
-                    color === c ? 'scale-110 ring-2 ring-white' : 'opacity-70 hover:opacity-100'
+                    color === c ? 'scale-110 ring-2 ring-slate-900 dark:ring-white' : 'opacity-70 hover:opacity-100'
                   }`}
                   style={{ backgroundColor: c }}
                 >
@@ -389,22 +389,22 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
 
           {/* Notas */}
           <div>
-            <label className="block text-slate-300 font-bold mb-1.5">Notas y Detalles (Opcional)</label>
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">Notas y Detalles (Opcional)</label>
             <textarea
               rows={2}
               placeholder="Detalles sobre renovación, número de póliza o presupuesto..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500"
             />
           </div>
 
           {/* Botones de Acción */}
-          <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-transparent font-bold transition-colors cursor-pointer"
             >
               Cancelar
             </button>

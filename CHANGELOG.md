@@ -3,6 +3,21 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.22.0] - 2026-09-30
+
+### Added
+- **Modo Claro Nativo Integral (Light Mode) con Volteado Semántico Completo:**
+  - **Motor de Temas (`themeService.ts`):** Servicio reactivo para gestión y alternancia de temas (`system` | `light` | `dark`), con persistencia cifrada en `Settings`, actualización atómica de clases `.dark` / `.light` en `document.documentElement`, `.dark-theme` / `.light-theme` en `body`, `<meta name="theme-color">` y control del StatusBar de Capacitor.
+  - **Sincronización Automática con Sistema:** Detección y escucha activa de `prefers-color-scheme: dark` para cambiar dinámicamente según la preferencia del sistema operativo cuando está en modo `system`.
+  - **Selector de Tema Visual en Configuración (`SettingsModal.tsx`):** Selector de 3 botones en la subsección Preferencias con vista previa instantánea sin recarga.
+  - **Adaptación Visual Exhaustiva en Todos los Módulos:**
+    - **Navegación y Cabeceras:** `Header.tsx`, `BottomNav.tsx`, `App.tsx` y `index.html`.
+    - **Dashboard y Transacciones:** `Dashboard.tsx`, `SafeToSpendWidget.tsx`, `ExpenseModal.tsx`, `ExtraIncomeModal.tsx`, `ExitConfirmModal.tsx`.
+    - **Bolsas y Metas:** `BucketsView.tsx`, `CoverOverspendingModal.tsx`, `GoalsModal.tsx`, `GoalFormModal.tsx`, `SweepSurplusModal.tsx`, `QuickContributeModal.tsx`.
+    - **Recurrentes y Calendario:** `RecurringView.tsx`, `FunctionalCategoriesModal.tsx`, `ConfirmRecurringExpenseModal.tsx`, `CalendarView.tsx`.
+    - **Modales del Sistema:** `BackupModal.tsx`, `CsvImportModal.tsx`, `SmartRulesModal.tsx`, `ReportsModal.tsx`, `FAQModal.tsx`, `AboutModal.tsx`, `AppArchitectureGraph.tsx`.
+  - **Accesibilidad y Contraste WCAG AA:** Semáforos contables legibles (verde esmeralda, ámbar y carmesí con luminosidad calibrada para fondos blancos y oscuros), contrastes tipográficos nítidos y selectores de fecha nativos con selector adaptativo.
+
 ## [1.21.0] - 2026-09-29
 
 ### Added

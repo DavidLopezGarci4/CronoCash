@@ -1,7 +1,7 @@
 {
-  "currentVersion": "1.21.0",
-  "buildNumber": 12100,
-  "lastUpdated": "2026-09-29",
+  "currentVersion": "1.22.0",
+  "buildNumber": 12200,
+  "lastUpdated": "2026-09-30",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
   "privacyBadge": "100% Local y Privado • Sin Rastreadores • Sin Servidores Externos",
@@ -9,11 +9,24 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.22.0",
+      "build": 12200,
+      "date": "30 Sep 2026",
+      "title": "Modo Claro Integral (Light Mode) con Paleta Semántica y Contraste WCAG AA",
+      "isCurrent": true,
+      "highlights": [
+        "☀️ Modo Claro Nativo & Volteado Semántico Completo: Implementación integral de tema claro en todas las pantallas, componentes, widgets, tarjetas y modales sin filtros invertidos destructivos.",
+        "🎨 Selector de Tema Visual: Configura el modo de visualización en Configuración > Preferencias entre 'Sistema (Automático)', 'Modo Claro' o 'Modo Oscuro' con previsualización en vivo e instantánea.",
+        "👁️ Contraste y Accesibilidad WCAG AA: Ajuste específico de saturaciones y luminosidad para semáforos contables, barras de progreso y tipografía sobre fondos claros y oscuros.",
+        "📱 Sincronización con Barra de Estado del Dispositivo: Coordinación automática de la barra de estado de Android (tema claro con iconos oscuros vs tema oscuro) y meta tag theme-color."
+      ]
+    },
+    {
       "version": "1.21.0",
       "build": 12100,
       "date": "30 Sep 2026",
       "title": "Subsecciones de Configuración, Nómina Blindada por Mes y Limpieza Visual",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "📑 Segmentación Desplegable en Configuración: Navegación modular por subsecciones (Perfil & Salario, Seguridad & Cifrado, Preferencias, Automatización & Fiscalidad, Copias de Seguridad, Documentación) que elimina el scroll vertical abrumador.",
         "🏦 Nóminas Mensuales Blindadas (Manual y Extracto): Soporte para fijar o importar el importe salarial real mes a mes sin duplicar ingresos en Safe-to-Spend ni alterar el salario base estimado.",

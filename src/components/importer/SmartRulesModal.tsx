@@ -113,36 +113,36 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
   const getBucket = (bucketId: string) => buckets.find((b) => b.id === bucketId);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#0b101b] border border-slate-800 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 dark:bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-white dark:bg-[#0b101b] border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100">
         {/* Cabecera */}
-        <div className="px-5 py-4 border-b border-slate-800/80 flex items-center justify-between bg-slate-900/50">
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
           <div className="flex items-center space-x-2.5">
-            <div className="p-2 rounded-2xl bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
+            <div className="p-2 rounded-2xl bg-cyan-100 dark:bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/30">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-black text-white flex items-center gap-2">
+              <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
                 Reglas Inteligentes de Categorización
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/30">
                   {rules.length} Activas
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Clasificación automática offline por comercio y concepto bancario
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/70 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Barra de herramientas */}
-        <div className="p-4 border-b border-slate-800/60 bg-slate-900/30 space-y-3">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800/60 bg-slate-50/70 dark:bg-slate-900/30 space-y-3">
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -151,14 +151,14 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar por comercio (ej: Mercadona, Cepsa)..."
-                className="w-full pl-9 pr-3 py-2 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-950/70 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500 shadow-xs"
               />
             </div>
 
             <select
               value={filterBucket}
               onChange={(e) => setFilterBucket(e.target.value)}
-              className="px-3 py-2 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-300 focus:outline-none focus:border-cyan-500 cursor-pointer"
+              className="px-3 py-2 bg-white dark:bg-slate-950/70 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-300 focus:outline-none focus:border-cyan-500 cursor-pointer shadow-xs"
             >
               <option value="all">Todas las bolsas</option>
               {buckets.map((b) => (
@@ -170,7 +170,7 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
 
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-cyan-500/20 cursor-pointer transition-all shrink-0"
+              className="px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-cyan-500/20 cursor-pointer transition-all shrink-0 active:scale-95"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
               <span className="hidden sm:inline">Nueva Regla</span>
@@ -179,20 +179,20 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
 
           {/* Formulario desplegable Nueva Regla */}
           {showAddForm && (
-            <form onSubmit={handleCreateRule} className="p-3.5 rounded-2xl bg-slate-900/90 border border-cyan-500/30 space-y-3 animate-fadeIn">
-              <div className="flex items-center justify-between text-xs font-bold text-cyan-300">
+            <form onSubmit={handleCreateRule} className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-cyan-300 dark:border-cyan-500/30 space-y-3 animate-fadeIn shadow-xs">
+              <div className="flex items-center justify-between text-xs font-bold text-cyan-800 dark:text-cyan-300">
                 <span>Definir Nueva Regla de Asignación</span>
                 <button
                   type="button"
                   onClick={() => setShowAddForm(false)}
-                  className="text-slate-400 hover:text-white"
+                  className="text-slate-400 hover:text-slate-700 dark:hover:text-white"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {errorMsg && (
-                <div className="p-2 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-1.5">
+                <div className="p-2 rounded-lg bg-rose-100 dark:bg-rose-500/20 border border-rose-300 dark:border-rose-500/40 text-rose-800 dark:text-rose-300 text-xs flex items-center gap-1.5">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{errorMsg}</span>
                 </div>
@@ -200,7 +200,7 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                  <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Patrón / Término a Coincidir
                   </label>
                   <input
@@ -209,18 +209,18 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
                     onChange={(e) => setNewPattern(e.target.value)}
                     placeholder="Ej: MCDONALDS o ZARA"
                     required
-                    className="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white font-mono uppercase focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white font-mono uppercase focus:outline-none focus:border-cyan-500 shadow-xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                  <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Tipo de Coincidencia
                   </label>
                   <select
                     value={newMatchType}
                     onChange={(e) => setNewMatchType(e.target.value as any)}
-                    className="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 shadow-xs"
                   >
                     <option value="contains">Contiene el texto (Recomendado)</option>
                     <option value="startsWith">Empieza por el texto</option>
@@ -230,13 +230,13 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                  <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Bolsa Presupuestaria Destino
                   </label>
                   <select
                     value={newBucketId}
                     onChange={(e) => setNewBucketId(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 shadow-xs"
                   >
                     {buckets.map((b) => (
                       <option key={b.id} value={b.id}>
@@ -247,7 +247,7 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                  <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Prioridad de Evaluación (1 - 100)
                   </label>
                   <input
@@ -256,13 +256,13 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
                     max="100"
                     value={newPriority}
                     onChange={(e) => setNewPriority(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white font-mono focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white font-mono focus:outline-none focus:border-cyan-500 shadow-xs"
                   />
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <label className="flex items-center space-x-2 cursor-pointer text-xs text-slate-300">
+                <label className="flex items-center space-x-2 cursor-pointer text-xs text-slate-700 dark:text-slate-300">
                   <input
                     type="checkbox"
                     checked={newIsInvoice}
@@ -274,7 +274,7 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
 
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs cursor-pointer shadow-md transition-all"
+                  className="px-4 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs cursor-pointer shadow-md transition-all active:scale-95"
                 >
                   Guardar Regla
                 </button>
@@ -286,7 +286,7 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
         {/* Lista de Reglas */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
           {filteredRules.length === 0 ? (
-            <div className="py-12 text-center text-slate-500 text-xs">
+            <div className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs">
               No se encontraron reglas con los filtros actuales.
             </div>
           ) : (
@@ -295,10 +295,10 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
               return (
                 <div
                   key={rule.id}
-                  className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                  className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 shadow-xs ${
                     rule.isActive
-                      ? 'bg-slate-900/70 border-slate-800 hover:border-slate-700'
-                      : 'bg-slate-950/40 border-slate-900 opacity-60'
+                      ? 'bg-white dark:bg-slate-900/70 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                      : 'bg-slate-100/50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-900 opacity-60'
                   }`}
                 >
                   <div className="flex items-center space-x-3 min-w-0">
@@ -307,8 +307,8 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
                       onClick={() => handleToggleActive(rule)}
                       className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
                         rule.isActive
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                          : 'bg-slate-800 text-slate-500 border border-slate-700'
+                          ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/40'
+                          : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-300 dark:border-slate-700'
                       }`}
                       title={rule.isActive ? 'Regla activa' : 'Regla pausada'}
                     >
@@ -317,23 +317,23 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
 
                     <div className="min-w-0">
                       <div className="flex items-center space-x-2">
-                        <span className="font-mono font-bold text-xs text-white truncate">
+                        <span className="font-mono font-bold text-xs text-slate-900 dark:text-white truncate">
                           {rule.pattern}
                         </span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-mono">
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono">
                           {rule.matchType}
                         </span>
                         {rule.isInvoice && (
-                          <span className="text-[10px] px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-300 font-semibold border border-teal-500/30">
+                          <span className="text-[10px] px-1.5 py-0.2 rounded bg-teal-100 dark:bg-teal-500/20 text-teal-800 dark:text-teal-300 font-semibold border border-teal-300 dark:border-teal-500/30">
                             Factura
                           </span>
                         )}
                       </div>
 
                       <div className="flex items-center space-x-2 mt-1 text-[11px]">
-                        <span className="text-slate-500">Asigna a:</span>
+                        <span className="text-slate-400 dark:text-slate-500">Asigna a:</span>
                         {bucket ? (
-                          <span className="flex items-center space-x-1.5 font-semibold text-slate-200">
+                          <span className="flex items-center space-x-1.5 font-semibold text-slate-700 dark:text-slate-200">
                             <span
                               className="w-2 h-2 rounded-full inline-block"
                               style={{ backgroundColor: bucket.color }}
@@ -341,10 +341,10 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
                             <span>{bucket.name}</span>
                           </span>
                         ) : (
-                          <span className="text-amber-400">Bolsa no encontrada</span>
+                          <span className="text-amber-600 dark:text-amber-400">Bolsa no encontrada</span>
                         )}
-                        <span className="text-slate-600">•</span>
-                        <span className="text-slate-500 text-[10px]">Prio: {rule.priority}</span>
+                        <span className="text-slate-300 dark:text-slate-600">•</span>
+                        <span className="text-slate-400 dark:text-slate-500 text-[10px]">Prio: {rule.priority}</span>
                       </div>
                     </div>
                   </div>
@@ -353,7 +353,7 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleDeleteRule(rule.id)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
                       title="Eliminar regla"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -366,11 +366,11 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-800/80 bg-slate-900/40 flex items-center justify-between">
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/40 flex items-center justify-between">
           <button
             type="button"
             onClick={handleResetSeeds}
-            className="text-xs text-slate-400 hover:text-cyan-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="text-xs text-slate-500 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-300 flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Restablecer Semillas Oficiales</span>
@@ -379,7 +379,7 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white transition-all cursor-pointer"
+            className="px-5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-800 dark:text-white transition-all cursor-pointer"
           >
             Cerrar
           </button>

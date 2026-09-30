@@ -547,23 +547,23 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
 
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[#0b101d] border border-slate-700/80 rounded-3xl w-full max-w-xl max-h-[92vh] flex flex-col text-white shadow-2xl overflow-hidden">
+      <div className="bg-white dark:bg-[#0b101d] border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-xl max-h-[92vh] flex flex-col text-slate-900 dark:text-white shadow-2xl overflow-hidden">
         {/* Cabecera del Grafo */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-[#090d16]/95">
+        <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#090d16]/95">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+            <div className="p-2.5 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
               <Layers className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-black tracking-tight text-white">
+                <h2 className="text-base font-black tracking-tight text-slate-900 dark:text-white">
                   {stackConfig.appName} Architecture
                 </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-emerald-500/30 font-bold">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-bold">
                   v{stackConfig.version}
                 </span>
               </div>
-              <p className="text-xs text-slate-400">Grafo interactivo del stack y salud en tiempo real</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Grafo interactivo del stack y salud en tiempo real</p>
             </div>
           </div>
 
@@ -571,14 +571,14 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
             <button
               onClick={runHealthChecks}
               disabled={isRunningCheck}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-emerald-400 transition-colors border border-slate-700/60 cursor-pointer"
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors border border-slate-300 dark:border-slate-700/60 cursor-pointer"
               title="Re-ejecutar diagnóstico"
             >
-              <RefreshCw className={`w-4 h-4 ${isRunningCheck ? 'animate-spin text-emerald-400' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isRunningCheck ? 'animate-spin text-emerald-600 dark:text-emerald-400' : ''}`} />
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700/60 cursor-pointer"
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors border border-slate-300 dark:border-slate-700/60 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -588,7 +588,7 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
         {/* Área del Canvas Interactivo */}
         <div
           ref={containerRef}
-          className="relative bg-gradient-to-b from-[#090d16] via-[#0d1424] to-[#090d16] border-b border-slate-800/80 select-none overflow-hidden touch-none"
+          className="relative bg-slate-950 dark:bg-gradient-to-b dark:from-[#090d16] dark:via-[#0d1424] dark:to-[#090d16] border-b border-slate-200 dark:border-slate-800/80 select-none overflow-hidden touch-none"
           style={{ height: `${canvasDimensions.height}px` }}
         >
           <canvas
@@ -600,11 +600,11 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
 
           {/* Leyenda sutil superior */}
           <div className="absolute top-2.5 left-3 flex items-center gap-2 pointer-events-none">
-            <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded-full border border-slate-800">
+            <span className="inline-flex items-center gap-1 text-[10px] text-slate-300 dark:text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded-full border border-slate-800">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Conexiones Activas</span>
             </span>
-            <span className="text-[10px] text-slate-500 hidden sm:inline">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 hidden sm:inline">
               Toca cualquier esfera para inspeccionar
             </span>
           </div>
@@ -612,7 +612,7 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
 
         {/* Panel Inferior de Inspección y Diagnóstico */}
         {activeNode && (
-          <div className="p-4 bg-[#090d16] space-y-3 overflow-y-auto">
+          <div className="p-4 bg-slate-50 dark:bg-[#090d16] space-y-3 overflow-y-auto">
             {/* Cabecera del Nodo Seleccionado */}
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center space-x-3">
@@ -628,14 +628,14 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-white">{activeNode.label}</h3>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">{activeNode.label}</h3>
                     {activeNode.version && (
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
                         {activeNode.version}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-400">{activeNode.role}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{activeNode.role}</p>
                 </div>
               </div>
 
@@ -644,20 +644,20 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
                 <div
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${
                     activeHealth.status === 'healthy'
-                      ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
                       : activeHealth.status === 'degraded'
-                      ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                      ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30'
                       : activeHealth.status === 'static'
-                      ? 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30'
-                      : 'bg-rose-500/15 text-rose-300 border-rose-500/30'
+                      ? 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30'
+                      : 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30'
                   }`}
                 >
                   {activeHealth.status === 'healthy' ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   ) : activeHealth.status === 'degraded' ? (
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                   ) : (
-                    <Info className="w-3.5 h-3.5 text-indigo-400" />
+                    <Info className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                   )}
                   <span>{activeHealth.badge}</span>
                 </div>
@@ -666,35 +666,35 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
 
             {/* Diagnóstico en tiempo real y detalles */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
-                <div className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1">
-                  <Activity className="w-3 h-3 text-emerald-400" />
+              <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                  <Activity className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                   <span>Telemetría / Métrica</span>
                 </div>
-                <div className="font-mono text-emerald-300 font-semibold text-[11px]">
+                <div className="font-mono text-emerald-700 dark:text-emerald-300 font-semibold text-[11px]">
                   {activeHealth?.metric || 'Calculando...'}
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
-                <div className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3 text-blue-400" />
+              <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                   <span>Eje Ontológico</span>
                 </div>
-                <div className="text-slate-300 font-medium text-[11px] capitalize">
+                <div className="text-slate-700 dark:text-slate-300 font-medium text-[11px] capitalize">
                   {activeNode.category.replace('_', ' ')}
                 </div>
               </div>
             </div>
 
-            <p className="text-[11px] text-slate-300 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/80 leading-relaxed">
+            <p className="text-[11px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800/80 leading-relaxed">
               {activeNode.details}
             </p>
 
             {/* Diagnóstico técnico */}
             {activeHealth?.diagnostic && (
-              <p className="text-[10px] text-slate-400 flex items-center gap-1.5 italic">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 italic">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
                 <span>{activeHealth.diagnostic}</span>
               </p>
             )}
@@ -702,14 +702,14 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
         )}
 
         {/* Pie de modal */}
-        <div className="p-3 border-t border-slate-800 bg-[#070a12] flex items-center justify-between text-[11px] text-slate-400">
+        <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#070a12] flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Gentle AI Architecture Compliance</span>
           </span>
           <button
             onClick={onClose}
-            className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold cursor-pointer"
+            className="px-3 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold cursor-pointer"
           >
             Cerrar
           </button>

@@ -116,27 +116,27 @@ export const Dashboard: React.FC<DashboardProps> = ({
       />
 
       {/* Widget Resumen Metas & Sinking Funds */}
-      <div className="p-4 rounded-3xl bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 border border-purple-500/30 shadow-lg flex flex-wrap items-center justify-between gap-3">
+      <div className="p-4 rounded-3xl bg-gradient-to-r from-purple-50 via-white to-indigo-50 dark:from-purple-950/40 dark:via-slate-900 dark:to-indigo-950/40 border border-purple-200 dark:border-purple-500/30 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/30 shadow-inner">
+          <div className="p-2.5 rounded-2xl bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 shadow-inner">
             <Target className="w-5 h-5 stroke-[2.5]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-xs font-black uppercase tracking-wider text-purple-300">
+              <h3 className="text-xs font-black uppercase tracking-wider text-purple-800 dark:text-purple-300">
                 Metas & Sinking Funds
               </h3>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30">
                 {savingsGoals.length} {savingsGoals.length === 1 ? 'meta' : 'metas'}
               </span>
             </div>
-            <p className="text-xs text-slate-300 font-medium mt-0.5">
+            <p className="text-xs text-slate-600 dark:text-slate-300 font-medium mt-0.5">
               Acumulado:{' '}
-              <strong className="font-mono text-emerald-400 font-bold">
+              <strong className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
                 {isPrivate ? '••••' : totalSavedGoals.toFixed(2)} {currency}
               </strong>
               {safeMetrics.committedGoalsMonthly > 0 && (
-                <span className="text-slate-400 ml-2 font-mono text-[11px]">
+                <span className="text-slate-500 dark:text-slate-400 ml-2 font-mono text-[11px]">
                   (Crucero: -{isPrivate ? '••••' : safeMetrics.committedGoalsMonthly.toFixed(2)} {currency}/mes)
                 </span>
               )}
@@ -148,10 +148,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <button
             type="button"
             onClick={onOpenGoalsModal}
-            className="px-3.5 py-2 rounded-2xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+            className="px-3.5 py-2 rounded-2xl bg-purple-100 hover:bg-purple-200 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 border border-purple-300 dark:border-purple-500/40 text-purple-800 dark:text-purple-200 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
           >
             <span>Gestionar Metas</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-purple-400" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
           </button>
         )}
       </div>
@@ -159,14 +159,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* 1. Tarjetas de Resumen Financiero */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {/* Gastos Totales */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
+        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">Gastos Mes</span>
-            <div className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400">
+            <div className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400">
               <TrendingDown className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black font-mono text-white">
+          <div className="text-xl sm:text-2xl font-black font-mono text-slate-900 dark:text-white">
             {isPrivate ? '••••' : totalSpentMonth.toFixed(2)}
             <span className="text-sm text-slate-400 ml-1">{currency}</span>
           </div>
@@ -176,12 +176,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* Saldo Restante / Ahorro */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
+        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">Disponible</span>
             <div
               className={`p-1.5 rounded-lg ${
-                remainingBudget >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
+                remainingBudget >= 0 ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400'
               }`}
             >
               {remainingBudget >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
@@ -189,7 +189,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
           <div
             className={`text-xl sm:text-2xl font-black font-mono ${
-              remainingBudget >= 0 ? 'text-emerald-400' : 'text-rose-400'
+              remainingBudget >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
             }`}
           >
             {isPrivate ? '••••' : `${remainingBudget >= 0 ? '+' : ''}${remainingBudget.toFixed(2)}`}
@@ -209,72 +209,72 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* Facturación y Deducible */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
+        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">Facturas</span>
-            <div className="p-1.5 rounded-lg bg-teal-500/10 text-teal-400">
+            <div className="p-1.5 rounded-lg bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400">
               <Receipt className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black font-mono text-teal-300">
+          <div className="text-xl sm:text-2xl font-black font-mono text-teal-700 dark:text-teal-300">
             {isPrivate ? '••••' : totalInvoiced.toFixed(2)}
             <span className="text-sm text-slate-400 ml-1">{currency}</span>
           </div>
-          <div className="text-[10px] text-teal-400/80 mt-1">
+          <div className="text-[10px] text-teal-600 dark:text-teal-400/80 mt-1">
             {invoiceExpenses.length} con factura oficial
           </div>
         </div>
 
         {/* IVA Desgravable Estimado */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
+        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">IVA Deducible</span>
-            <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">
+            <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
               <FileText className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black font-mono text-blue-300">
+          <div className="text-xl sm:text-2xl font-black font-mono text-blue-700 dark:text-blue-300">
             {isPrivate ? '••••' : totalTaxDeductible.toFixed(2)}
             <span className="text-sm text-slate-400 ml-1">{currency}</span>
           </div>
-          <div className="text-[10px] text-blue-400/80 mt-1">Deducción fiscal directa</div>
+          <div className="text-[10px] text-blue-600 dark:text-blue-400/80 mt-1">Deducción fiscal directa</div>
         </div>
       </div>
 
       {/* Botón Flotante / Destacado Añadir Gasto & Ingreso */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-black tracking-tight text-white">Estado de Presupuestos</h2>
-          <p className="text-xs text-slate-400">Monitoreo activo por bolsas financieras</p>
+          <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-white">Estado de Presupuestos</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Monitoreo activo por bolsas financieras</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {onOpenReports && (
             <button
               onClick={onOpenReports}
-              className="px-3.5 py-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 hover:border-blue-500/40 text-blue-300 font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer transition-all"
+              className="px-3.5 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/90 dark:hover:bg-slate-700/90 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500/40 text-blue-700 dark:text-blue-300 font-bold text-xs flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer transition-all"
               title="Informes ejecutivos en PDF y Cuadro Fiscal Trimestral Mod. 130 / 303"
             >
-              <FileText className="w-4 h-4 text-blue-400" />
+              <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span>Informes & Fiscalidad</span>
             </button>
           )}
           {onOpenImporter && (
             <button
               onClick={onOpenImporter}
-              className="px-3.5 py-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 hover:border-emerald-500/40 text-emerald-300 font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer transition-all"
+              className="px-3.5 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/90 dark:hover:bg-slate-700/90 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 dark:hover:border-emerald-500/40 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer transition-all"
               title="Importar extracto bancario con deduplicación y auto-reglas"
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Importar Banco</span>
             </button>
           )}
           {onOpenIncomeModal && (
             <button
               onClick={onOpenIncomeModal}
-              className="px-3.5 py-2.5 rounded-2xl bg-teal-950/50 hover:bg-teal-900/60 border border-teal-500/40 hover:border-teal-400 text-teal-300 font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer transition-all"
+              className="px-3.5 py-2.5 rounded-2xl bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/50 dark:hover:bg-teal-900/60 border border-teal-200 dark:border-teal-500/40 text-teal-800 dark:text-teal-300 font-bold text-xs flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer transition-all"
               title="Registrar o consultar ingresos extras (regalos, ventas, alquileres)"
             >
-              <TrendingUp className="w-4 h-4 text-teal-400" />
+              <TrendingUp className="w-4 h-4 text-teal-600 dark:text-teal-400" />
               <span>+ Ingreso Extra</span>
             </button>
           )}
@@ -301,12 +301,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div
               key={bucket.id}
               onClick={onSelectBucketTab}
-              className={`p-3.5 rounded-2xl bg-slate-900/90 border cursor-pointer hover:border-slate-700 transition-all ${
+              className={`p-3.5 rounded-2xl bg-white dark:bg-slate-900/90 border cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition-all ${
                 bucket.isBuffer
-                  ? 'border-purple-500/40 bg-purple-950/15'
+                  ? 'border-purple-300 dark:border-purple-500/40 bg-purple-50/50 dark:bg-purple-950/15'
                   : isOver
-                  ? 'border-rose-500/40'
-                  : 'border-slate-800'
+                  ? 'border-rose-300 dark:border-rose-500/40'
+                  : 'border-slate-200 dark:border-slate-800'
               }`}
             >
               <div className="flex items-center justify-between mb-2">
@@ -315,10 +315,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: bucket.color }}
                   />
-                  <span className="text-xs font-bold text-slate-200">{bucket.name}</span>
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{bucket.name}</span>
                 </div>
                 <div className="text-xs font-mono font-bold">
-                  <span className={isOver ? 'text-rose-400' : 'text-slate-200'}>
+                  <span className={isOver ? 'text-rose-600 dark:text-rose-400' : 'text-slate-800 dark:text-slate-200'}>
                     {isPrivate ? '••••' : spent.toFixed(1)}
                   </span>
                   <span className="text-slate-500"> / {isPrivate ? '••••' : limit} {currency}</span>
@@ -326,7 +326,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{
@@ -336,11 +336,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 />
               </div>
 
-              <div className="flex justify-between items-center mt-1.5 text-[10px] text-slate-400">
+              <div className="flex justify-between items-center mt-1.5 text-[10px] text-slate-500 dark:text-slate-400">
                 <span>{percentage}% utilizado</span>
                 <span>
                   {isOver ? (
-                    <span className="text-rose-400 font-bold">Excedido en {isPrivate ? '••••' : (spent - limit).toFixed(1)} {currency}</span>
+                    <span className="text-rose-600 dark:text-rose-400 font-bold">Excedido en {isPrivate ? '••••' : (spent - limit).toFixed(1)} {currency}</span>
                   ) : (
                     <span>Restan {isPrivate ? '••••' : (limit - spent).toFixed(1)} {currency}</span>
                   )}
@@ -354,15 +354,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* 3. Lista de Movimientos / Gastos Recientes */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-black tracking-tight text-white">Movimientos Recientes</h2>
+          <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-white">Movimientos Recientes</h2>
           {/* Filtros */}
-          <div className="flex items-center space-x-1 bg-slate-900 border border-slate-800 rounded-xl p-1">
+          <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1">
             <button
               onClick={() => setFilterType('all')}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                 filterType === 'all'
-                  ? 'bg-slate-800 text-emerald-400'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-white dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Todos ({expenses.length})
@@ -371,8 +371,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
               onClick={() => setFilterType('invoices')}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                 filterType === 'invoices'
-                  ? 'bg-slate-800 text-teal-400'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-white dark:bg-slate-800 text-teal-700 dark:text-teal-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Facturas ({expenses.filter((e) => e.isInvoice).length})
@@ -381,8 +381,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
               onClick={() => setFilterType('pending')}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                 filterType === 'pending'
-                  ? 'bg-slate-800 text-amber-400'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-white dark:bg-slate-800 text-amber-700 dark:text-amber-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Pendientes
@@ -391,9 +391,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {filteredList.length === 0 ? (
-          <div className="p-8 text-center bg-slate-900/50 border border-slate-800/80 rounded-3xl space-y-2">
-            <Wallet className="w-10 h-10 text-slate-600 mx-auto" />
-            <h3 className="text-sm font-bold text-slate-300">No hay movimientos registrados</h3>
+          <div className="p-8 text-center bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-3xl space-y-2">
+            <Wallet className="w-10 h-10 text-slate-400 dark:text-slate-600 mx-auto" />
+            <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300">No hay movimientos registrados</h3>
             <p className="text-xs text-slate-500 max-w-xs mx-auto">
               Presiona el botón de "Nuevo Gasto" para empezar a registrar compras y facturas.
             </p>
@@ -406,7 +406,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               return (
                 <div
                   key={expense.id}
-                  className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700/80 flex items-center justify-between gap-3 transition-all"
+                  className="p-3.5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700/80 flex items-center justify-between gap-3 transition-all shadow-xs"
                 >
                   <div className="flex items-center space-x-3 min-w-0">
                     <div
@@ -421,28 +421,28 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center space-x-2">
-                        <span className="text-sm font-bold text-white truncate">
+                        <span className="text-sm font-bold text-slate-900 dark:text-white truncate">
                           {expense.title}
                         </span>
                         {expense.isInvoice && (
-                          <span className="text-[10px] px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-300 font-mono font-bold">
+                          <span className="text-[10px] px-1.5 py-0.2 rounded bg-teal-100 dark:bg-teal-500/20 text-teal-800 dark:text-teal-300 font-mono font-bold">
                             FACTURA
                           </span>
                         )}
                         {expense.status === 'pending' && (
-                          <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold">
+                          <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold">
                             PENDIENTE
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-slate-400 flex items-center space-x-2 mt-0.5">
+                      <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center space-x-2 mt-0.5">
                         <span>{expense.date}</span>
                         <span>•</span>
                         <span style={{ color: bucket?.color }}>{bucket?.name || 'General'}</span>
                         {expense.invoiceNumber && (
                           <>
                             <span>•</span>
-                            <span className="font-mono text-slate-400">Nº {expense.invoiceNumber}</span>
+                            <span className="font-mono text-slate-500 dark:text-slate-400">Nº {expense.invoiceNumber}</span>
                           </>
                         )}
                       </div>
@@ -451,11 +451,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                   <div className="flex items-center space-x-2 shrink-0">
                     <div className="text-right">
-                      <div className="text-sm font-black font-mono text-white">
+                      <div className="text-sm font-black font-mono text-slate-900 dark:text-white">
                         -{isPrivate ? '••••' : expense.amount.toFixed(2)} {currency}
                       </div>
                       {expense.isInvoice && expense.taxAmount ? (
-                        <div className="text-[10px] text-teal-400 font-mono">
+                        <div className="text-[10px] text-teal-600 dark:text-teal-400 font-mono">
                           IVA: {isPrivate ? '••••' : `${expense.taxAmount.toFixed(2)} ${currency}`}
                         </div>
                       ) : null}
@@ -464,7 +464,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="flex items-center space-x-1 pl-1">
                       <button
                         onClick={() => onEditExpense(expense)}
-                        className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         title="Editar"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -475,7 +475,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                             onDeleteExpense(expense.id);
                           }
                         }}
-                        className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         title="Eliminar"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

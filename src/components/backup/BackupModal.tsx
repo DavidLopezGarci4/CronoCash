@@ -231,40 +231,40 @@ export const BackupModal: React.FC<BackupModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/85 backdrop-blur-md">
-      <div className="bg-[#0b111e] border border-slate-800 rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/60 dark:bg-black/85 backdrop-blur-md">
+      <div className="bg-white dark:bg-[#0b111e] border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Cabecera del Modal */}
-        <div className="px-5 py-4 border-b border-slate-800/80 flex items-center justify-between bg-slate-900/50">
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs">
               <Cloud className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                 <span>Copias de Seguridad</span>
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Resguardo seguro en la nube y comparador inteligente previo a restaurar
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Pestañas de Navegación */}
-        <div className="flex border-b border-slate-800/80 bg-slate-950/60 p-1.5 gap-1.5 px-4">
+        <div className="flex border-b border-slate-200 dark:border-slate-800/80 bg-slate-100/70 dark:bg-slate-950/60 p-1.5 gap-1.5 px-4">
           <button
             onClick={() => setActiveTab('drive')}
             className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'drive'
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-xs'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-900/50'
             }`}
           >
             <Cloud className="w-3.5 h-3.5" />
@@ -275,8 +275,8 @@ export const BackupModal: React.FC<BackupModalProps> = ({
             onClick={() => setActiveTab('local')}
             className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'local'
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-xs'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-900/50'
             }`}
           >
             <HardDrive className="w-3.5 h-3.5" />
@@ -287,8 +287,8 @@ export const BackupModal: React.FC<BackupModalProps> = ({
             onClick={() => setActiveTab('restore')}
             className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'restore'
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-xs'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-900/50'
             }`}
           >
             <ArrowRightLeft className="w-3.5 h-3.5" />
@@ -298,13 +298,13 @@ export const BackupModal: React.FC<BackupModalProps> = ({
 
         {/* Mensaje de Feedback */}
         {feedback && (
-          <div className="p-3 mx-4 mt-3 rounded-2xl flex items-start gap-2.5 text-xs animate-in fade-in duration-150 border leading-relaxed bg-slate-900/90 shadow-md">
+          <div className="p-3 mx-4 mt-3 rounded-2xl flex items-start gap-2.5 text-xs animate-in fade-in duration-150 border leading-relaxed bg-white dark:bg-slate-900/90 shadow-md border-slate-200 dark:border-slate-800">
             {feedback.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
             )}
-            <div className={feedback.type === 'success' ? 'text-emerald-200' : 'text-rose-200'}>
+            <div className={feedback.type === 'success' ? 'text-emerald-800 dark:text-emerald-200' : 'text-rose-800 dark:text-rose-200'}>
               {feedback.message}
             </div>
           </div>
@@ -316,29 +316,29 @@ export const BackupModal: React.FC<BackupModalProps> = ({
           {/* TAB 1: GOOGLE DRIVE (2 RANURAS CANÓNICAS) */}
           {activeTab === 'drive' && (
             <div className="space-y-4">
-              <div className="p-3.5 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-2">
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Estrategia Canónica de 2 Ranuras</span>
                   </span>
                   <button
                     type="button"
                     onClick={() => setShowDriveHelp(!showDriveHelp)}
-                    className="text-[11px] text-slate-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer transition-colors"
+                    className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-300 flex items-center gap-1 cursor-pointer transition-colors"
                   >
                     <HelpCircle className="w-3 h-3" />
                     <span>{showDriveHelp ? 'Ocultar guía' : '¿Cómo funciona?'}</span>
                   </button>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Permite mantener en tu Google Drive <strong>dos archivos fijos</strong>: tu copia más reciente (<span className="text-emerald-300 font-mono text-[11px]">CronoCash_Actual.json</span>) y una de respaldo previa (<span className="text-blue-300 font-mono text-[11px]">CronoCash_Previa.json</span>). Sin riesgo de tokens caídos ni permisos invasivos.
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Permite mantener en tu Google Drive <strong>dos archivos fijos</strong>: tu copia más reciente (<span className="text-emerald-700 dark:text-emerald-300 font-mono text-[11px]">CronoCash_Actual.json</span>) y una de respaldo previa (<span className="text-blue-700 dark:text-blue-300 font-mono text-[11px]">CronoCash_Previa.json</span>). Sin riesgo de tokens caídos ni permisos invasivos.
                 </p>
 
                 {showDriveHelp && (
-                  <div className="mt-2 pt-2 border-t border-slate-800 text-[11px] text-slate-300 space-y-1.5 bg-slate-950/60 p-2.5 rounded-xl">
-                    <p className="font-bold text-emerald-300">Pasos para guardar en tu Google Drive en Android:</p>
-                    <ol className="list-decimal list-inside space-y-1 pl-1 text-slate-400">
+                  <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-300 space-y-1.5 bg-white dark:bg-slate-950/60 p-2.5 rounded-xl">
+                    <p className="font-bold text-emerald-700 dark:text-emerald-300">Pasos para guardar en tu Google Drive en Android:</p>
+                    <ol className="list-decimal list-inside space-y-1 pl-1 text-slate-500 dark:text-slate-400">
                       <li>Selecciona la ranura deseada y pulsa <strong>"Subir a Google Drive"</strong>.</li>
                       <li>Se desplegará el panel oficial de Android para compartir (SAF).</li>
                       <li>Elige la app de <strong>Google Drive</strong> y la carpeta que desees.</li>
@@ -355,30 +355,30 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                   onClick={() => setSelectedSlot('actual')}
                   className={`p-3.5 rounded-2xl border transition-all cursor-pointer relative ${
                     selectedSlot === 'actual'
-                      ? 'bg-emerald-950/20 border-emerald-500/50 shadow-md shadow-emerald-500/10'
-                      : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'
+                      ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-400 dark:border-emerald-500/50 shadow-md shadow-emerald-500/10'
+                      : 'bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30">
                         Ranura 1 (Recomendada)
                       </span>
-                      <h4 className="text-sm font-bold text-white mt-1.5 font-mono">
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-1.5 font-mono">
                         {DRIVE_SLOT_ACTUAL}
                       </h4>
                     </div>
                     <div
                       className={`w-4 h-4 rounded-full border flex items-center justify-center ${
                         selectedSlot === 'actual'
-                          ? 'border-emerald-400 bg-emerald-400'
-                          : 'border-slate-600'
+                          ? 'border-emerald-500 dark:border-emerald-400 bg-emerald-500 dark:bg-emerald-400'
+                          : 'border-slate-300 dark:border-slate-600'
                       }`}
                     >
-                      {selectedSlot === 'actual' && <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
+                      {selectedSlot === 'actual' && <div className="w-1.5 h-1.5 rounded-full bg-white dark:bg-slate-950" />}
                     </div>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
                     Copia principal de uso diario. Sobrescribe la copia anterior de forma inmediata, manteniendo siempre una única versión vigente y actualizada.
                   </p>
                 </div>
@@ -388,30 +388,30 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                   onClick={() => setSelectedSlot('previa')}
                   className={`p-3.5 rounded-2xl border transition-all cursor-pointer relative ${
                     selectedSlot === 'previa'
-                      ? 'bg-blue-950/20 border-blue-500/50 shadow-md shadow-blue-500/10'
-                      : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'
+                      ? 'bg-blue-50/60 dark:bg-blue-950/20 border-blue-400 dark:border-blue-500/50 shadow-md shadow-blue-500/10'
+                      : 'bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30">
                         Ranura 2 (Seguridad)
                       </span>
-                      <h4 className="text-sm font-bold text-white mt-1.5 font-mono">
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-1.5 font-mono">
                         {DRIVE_SLOT_PREVIA}
                       </h4>
                     </div>
                     <div
                       className={`w-4 h-4 rounded-full border flex items-center justify-center ${
                         selectedSlot === 'previa'
-                          ? 'border-blue-400 bg-blue-400'
-                          : 'border-slate-600'
+                          ? 'border-blue-500 dark:border-blue-400 bg-blue-500 dark:bg-blue-400'
+                          : 'border-slate-300 dark:border-slate-600'
                       }`}
                     >
-                      {selectedSlot === 'previa' && <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
+                      {selectedSlot === 'previa' && <div className="w-1.5 h-1.5 rounded-full bg-white dark:bg-slate-950" />}
                     </div>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
                     Copia de salvaguarda histórica. Ideal para congelar un estado anterior antes de cambios grandes.
                   </p>
                 </div>
@@ -419,29 +419,29 @@ export const BackupModal: React.FC<BackupModalProps> = ({
 
               {/* Estadísticas de la base de datos a empaquetar */}
               {currentStats && (
-                <div className="p-3 bg-slate-950/70 border border-slate-800/80 rounded-2xl space-y-2">
-                  <div className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
-                    <Database className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="p-3 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl space-y-2">
+                  <div className="text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+                    <Database className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                     <span>Datos que se incluirán en la copia:</span>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                    <div className="p-2 bg-slate-900/60 rounded-xl border border-slate-800">
-                      <div className="text-xs font-mono font-bold text-white">{currentStats.expensesCount}</div>
-                      <div className="text-[10px] text-slate-400">Gastos</div>
+                    <div className="p-2 bg-white dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800">
+                      <div className="text-xs font-mono font-bold text-slate-900 dark:text-white">{currentStats.expensesCount}</div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400">Gastos</div>
                     </div>
-                    <div className="p-2 bg-slate-900/60 rounded-xl border border-slate-800">
-                      <div className="text-xs font-mono font-bold text-white">{currentStats.bucketsCount}</div>
-                      <div className="text-[10px] text-slate-400">Bolsas</div>
+                    <div className="p-2 bg-white dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800">
+                      <div className="text-xs font-mono font-bold text-slate-900 dark:text-white">{currentStats.bucketsCount}</div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400">Bolsas</div>
                     </div>
-                    <div className="p-2 bg-slate-900/60 rounded-xl border border-slate-800">
-                      <div className="text-xs font-mono font-bold text-white">{currentStats.recurringRulesCount}</div>
-                      <div className="text-[10px] text-slate-400">Recurrentes</div>
+                    <div className="p-2 bg-white dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800">
+                      <div className="text-xs font-mono font-bold text-slate-900 dark:text-white">{currentStats.recurringRulesCount}</div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400">Recurrentes</div>
                     </div>
-                    <div className="p-2 bg-slate-900/60 rounded-xl border border-slate-800">
-                      <div className="text-xs font-mono font-bold text-emerald-400">
+                    <div className="p-2 bg-white dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800">
+                      <div className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
                         {currentStats.totalHistoricalSpent.toFixed(0)} {currency}
                       </div>
-                      <div className="text-[10px] text-slate-400">Total Histórico</div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400">Total Histórico</div>
                     </div>
                   </div>
                 </div>
@@ -452,7 +452,7 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                 type="button"
                 onClick={handleExportToDrive}
                 disabled={isExporting}
-                className="w-full py-3.5 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-3.5 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95"
               >
                 <Share2 className="w-4 h-4 stroke-[2.5]" />
                 <span>
@@ -467,23 +467,23 @@ export const BackupModal: React.FC<BackupModalProps> = ({
           {/* TAB 2: EXPORTACIÓN LOCAL */}
           {activeTab === 'local' && (
             <div className="space-y-4">
-              <div className="p-3.5 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                  <HardDrive className="w-3.5 h-3.5 text-emerald-400" />
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <HardDrive className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>Descarga de Archivo JSON Fechado</span>
                 </span>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                   Exporta un archivo JSON completo con la fecha de hoy en el nombre para almacenarlo en tu ordenador, memoria USB o enviarlo por correo.
                 </p>
               </div>
 
-              <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-2xl flex items-center justify-between">
+              <div className="p-4 bg-white dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-center justify-between shadow-xs">
                 <div className="space-y-0.5">
-                  <div className="text-xs font-mono font-bold text-white flex items-center gap-1.5">
-                    <FileText className="w-4 h-4 text-emerald-400" />
+                  <div className="text-xs font-mono font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     <span>CronoCash_Backup_{new Date().toISOString().split('T')[0]}.json</span>
                   </div>
-                  <div className="text-[11px] text-slate-400">
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400">
                     Incluye envelope de seguridad, checksum y fecha en franja horaria Europa/Madrid.
                   </div>
                 </div>
@@ -493,9 +493,9 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                 type="button"
                 onClick={handleExportLocal}
                 disabled={isExporting}
-                className="w-full py-3.5 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold text-sm border border-slate-300 dark:border-slate-700 shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95"
               >
-                <Download className="w-4 h-4 text-emerald-400" />
+                <Download className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>{isExporting ? 'Generando archivo...' : 'Descargar / Compartir Archivo Local'}</span>
               </button>
             </div>
@@ -505,22 +505,22 @@ export const BackupModal: React.FC<BackupModalProps> = ({
           {activeTab === 'restore' && (
             <div className="space-y-4">
               {/* Selector de Archivo */}
-              <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-3">
+              <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                    <Upload className="w-3.5 h-3.5 text-teal-400" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <Upload className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                     <span>Seleccionar Archivo de Respaldo (.json)</span>
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                   Selecciona tu copia de Google Drive o de tu dispositivo. El sistema realizará una <strong>inspección previa de integridad</strong> y te mostrará una comparativa antes de tocar tus datos actuales.
                 </p>
 
                   <label
                     onClick={() => AuthService.setPickingFile(true)}
-                    className="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 flex items-center justify-center gap-2 cursor-pointer transition-all"
+                    className="w-full py-3 px-4 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center justify-center gap-2 cursor-pointer transition-all shadow-xs"
                   >
-                    <FileText className="w-4 h-4 text-teal-400" />
+                    <FileText className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                     <span>Examinar Archivo JSON</span>
                     <input
                       ref={fileInputRef}
@@ -538,14 +538,14 @@ export const BackupModal: React.FC<BackupModalProps> = ({
               {/* COMPARADOR LADO A LADO SI HAY ARCHIVO INSPECCIONADO */}
               {inspectedBackup && currentStats && (
                 <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
-                  <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-between">
+                  <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                      <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                       <div>
-                        <div className="text-xs font-bold text-emerald-300">
+                        <div className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
                           Archivo Válido: {inspectedBackup.inspection.fileNameSuggested}
                         </div>
-                        <div className="text-[10px] text-emerald-400/80 font-mono">
+                        <div className="text-[10px] text-emerald-700 dark:text-emerald-400/80 font-mono">
                           Exportado el: {inspectedBackup.inspection.exportDateMadrid} | Checksum: {inspectedBackup.inspection.checksum.substring(0, 8)}
                         </div>
                       </div>
@@ -555,39 +555,39 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                   {/* Tabla / Matriz Lado a Lado */}
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     {/* Columna Izquierda: TELÉFONO ACTUAL */}
-                    <div className="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl space-y-2.5">
-                      <div className="border-b border-slate-800 pb-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    <div className="p-3.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2.5 shadow-xs">
+                      <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                           Dispositivo Actual
                         </span>
-                        <div className="text-xs font-bold text-white flex items-center gap-1 mt-0.5">
-                          <HardDrive className="w-3.5 h-3.5 text-blue-400" />
+                        <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1 mt-0.5">
+                          <HardDrive className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
                           <span>Base de Datos Local</span>
                         </div>
                       </div>
 
                       <div className="space-y-2 text-[11px]">
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Gastos:</span>
-                          <span className="font-mono font-bold text-white">{currentStats.expensesCount}</span>
+                          <span className="text-slate-500 dark:text-slate-400">Gastos:</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white">{currentStats.expensesCount}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Bolsas:</span>
-                          <span className="font-mono font-bold text-white">{currentStats.bucketsCount}</span>
+                          <span className="text-slate-500 dark:text-slate-400">Bolsas:</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white">{currentStats.bucketsCount}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Recurrentes:</span>
-                          <span className="font-mono font-bold text-white">{currentStats.recurringRulesCount}</span>
+                          <span className="text-slate-500 dark:text-slate-400">Recurrentes:</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white">{currentStats.recurringRulesCount}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Total acumulado:</span>
-                          <span className="font-mono font-bold text-slate-200">
+                          <span className="text-slate-500 dark:text-slate-400">Total acumulado:</span>
+                          <span className="font-mono font-bold text-slate-700 dark:text-slate-200">
                             {currentStats.totalHistoricalSpent.toFixed(2)} {currency}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Último gasto:</span>
-                          <span className="font-mono text-slate-300 text-[10px]">
+                          <span className="text-slate-500 dark:text-slate-400">Último gasto:</span>
+                          <span className="font-mono text-slate-700 dark:text-slate-300 text-[10px]">
                             {currentStats.latestExpenseRaw || 'Ninguno'}
                           </span>
                         </div>
@@ -595,28 +595,28 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                     </div>
 
                     {/* Columna Derecha: COPIA DE SEGURIDAD */}
-                    <div className="p-3.5 bg-slate-950 border border-emerald-500/40 rounded-2xl space-y-2.5 shadow-md shadow-emerald-500/5">
-                      <div className="border-b border-slate-800 pb-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                    <div className="p-3.5 bg-emerald-50/20 dark:bg-slate-950 border border-emerald-300 dark:border-emerald-500/40 rounded-2xl space-y-2.5 shadow-xs">
+                      <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
                           Copia a Restaurar
                         </span>
-                        <div className="text-xs font-bold text-white flex items-center gap-1 mt-0.5">
-                          <Cloud className="w-3.5 h-3.5 text-emerald-400" />
+                        <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1 mt-0.5">
+                          <Cloud className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                           <span className="truncate">{inspectedBackup.inspection.fileNameSuggested}</span>
                         </div>
                       </div>
 
                       <div className="space-y-2 text-[11px]">
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Gastos:</span>
+                          <span className="text-slate-500 dark:text-slate-400">Gastos:</span>
                           <div className="flex items-center gap-1.5 font-mono font-bold">
-                            <span className="text-white">{inspectedBackup.inspection.expensesCount}</span>
+                            <span className="text-slate-900 dark:text-white">{inspectedBackup.inspection.expensesCount}</span>
                             {inspectedBackup.inspection.expensesCount !== currentStats.expensesCount && (
                               <span
                                 className={`text-[10px] px-1 rounded ${
                                   inspectedBackup.inspection.expensesCount > currentStats.expensesCount
-                                    ? 'bg-emerald-500/20 text-emerald-400'
-                                    : 'bg-amber-500/20 text-amber-400'
+                                    ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400'
+                                    : 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400'
                                 }`}
                               >
                                 {inspectedBackup.inspection.expensesCount > currentStats.expensesCount ? '+' : ''}
@@ -627,29 +627,29 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                         </div>
 
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Bolsas:</span>
-                          <span className="font-mono font-bold text-white">
+                          <span className="text-slate-500 dark:text-slate-400">Bolsas:</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white">
                             {inspectedBackup.inspection.bucketsCount}
                           </span>
                         </div>
 
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Recurrentes:</span>
-                          <span className="font-mono font-bold text-white">
+                          <span className="text-slate-500 dark:text-slate-400">Recurrentes:</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white">
                             {inspectedBackup.inspection.recurringRulesCount}
                           </span>
                         </div>
 
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Total acumulado:</span>
-                          <span className="font-mono font-bold text-emerald-400">
+                          <span className="text-slate-500 dark:text-slate-400">Total acumulado:</span>
+                          <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
                             {inspectedBackup.inspection.totalHistoricalSpent.toFixed(2)} {currency}
                           </span>
                         </div>
 
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Último gasto:</span>
-                          <span className="font-mono text-emerald-300 text-[10px]">
+                          <span className="text-slate-500 dark:text-slate-400">Último gasto:</span>
+                          <span className="font-mono text-emerald-700 dark:text-emerald-300 text-[10px]">
                             {inspectedBackup.inspection.latestExpenseRaw || 'Ninguno'}
                           </span>
                         </div>
@@ -658,16 +658,16 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                   </div>
 
                   {/* Modo de Restauración */}
-                  <div className="p-3 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-2 text-xs">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2 text-xs">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                       Modo de Restauración:
                     </span>
                     <div className="grid grid-cols-2 gap-2">
                       <label
                         className={`p-2.5 rounded-xl border flex items-start gap-2 cursor-pointer transition-all ${
                           restoreMode === 'overwrite'
-                            ? 'bg-emerald-950/20 border-emerald-500/50 text-white'
-                            : 'bg-slate-950 border-slate-800 text-slate-400'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-500/50 text-slate-900 dark:text-white'
+                            : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
                         }`}
                       >
                         <input
@@ -678,16 +678,16 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                           className="mt-0.5 text-emerald-500"
                         />
                         <div>
-                          <div className="font-bold text-[11px] text-emerald-300">Sobrescribir Completo</div>
-                          <div className="text-[10px] text-slate-400">Reemplaza íntegramente la BD con la copia.</div>
+                          <div className="font-bold text-[11px] text-emerald-700 dark:text-emerald-300">Sobrescribir Completo</div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400">Reemplaza íntegramente la BD con la copia.</div>
                         </div>
                       </label>
 
                       <label
                         className={`p-2.5 rounded-xl border flex items-start gap-2 cursor-pointer transition-all ${
                           restoreMode === 'merge'
-                            ? 'bg-emerald-950/20 border-emerald-500/50 text-white'
-                            : 'bg-slate-950 border-slate-800 text-slate-400'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-500/50 text-slate-900 dark:text-white'
+                            : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
                         }`}
                       >
                         <input
@@ -698,22 +698,22 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                           className="mt-0.5 text-emerald-500"
                         />
                         <div>
-                          <div className="font-bold text-[11px] text-teal-300">Fusionar Registros</div>
-                          <div className="text-[10px] text-slate-400">Combina sin borrar gastos no presentes.</div>
+                          <div className="font-bold text-[11px] text-teal-700 dark:text-teal-300">Fusionar Registros</div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400">Combina sin borrar gastos no presentes.</div>
                         </div>
                       </label>
                     </div>
                   </div>
 
                   {/* Checkbox de Confirmación Obligatoria */}
-                  <label className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 cursor-pointer">
+                  <label className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 flex items-start gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={confirmCheckbox}
                       onChange={(e) => setConfirmCheckbox(e.target.checked)}
                       className="mt-1 rounded text-amber-500 focus:ring-0 cursor-pointer"
                     />
-                    <div className="text-xs text-amber-200 leading-relaxed">
+                    <div className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
                       <strong>Confirmo la restauración:</strong> He revisado la comparativa y entiendo que se{' '}
                       {restoreMode === 'overwrite' ? 'reemplazarán' : 'fusionarán'} los datos del teléfono con los de la copia de seguridad.
                     </div>
@@ -724,7 +724,7 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setInspectedBackup(null)}
-                      className="flex-1 py-3 px-3 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold cursor-pointer"
+                      className="flex-1 py-3 px-3 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold cursor-pointer transition-colors"
                     >
                       Cancelar Selección
                     </button>
@@ -732,7 +732,7 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                       type="button"
                       onClick={handleConfirmRestore}
                       disabled={!confirmCheckbox || isRestoring}
-                      className="flex-2 py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40"
+                      className="flex-2 py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 active:scale-95"
                     >
                       <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
                       <span>{isRestoring ? 'Restaurando...' : 'Ejecutar Restauración Ahora'}</span>
@@ -746,11 +746,11 @@ export const BackupModal: React.FC<BackupModalProps> = ({
         </div>
 
         {/* Pie de Cierre */}
-        <div className="px-5 py-3 border-t border-slate-800/80 bg-slate-950/70 flex justify-end">
+        <div className="px-5 py-3 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/70 flex justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold cursor-pointer transition-colors"
           >
             Cerrar
           </button>

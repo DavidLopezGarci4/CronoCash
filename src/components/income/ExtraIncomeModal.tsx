@@ -142,19 +142,19 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-lg bg-[#0d1424] border border-slate-800 rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 dark:bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+      <div className="w-full max-w-lg bg-white dark:bg-[#0d1424] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Cabecera */}
-        <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between shrink-0 bg-slate-900/60">
+        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0 bg-slate-50 dark:bg-slate-900/60">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-teal-500/20 to-emerald-500/20 text-teal-400 border border-teal-500/30">
+            <div className="p-2.5 rounded-2xl bg-teal-100 dark:bg-gradient-to-br dark:from-teal-500/20 dark:to-emerald-500/20 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-500/30">
               <TrendingUp className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-black text-white flex items-center gap-2">
+              <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
                 <span>Ingresos Extras & Entradas</span>
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Puntuales (regalos, ventas) o recurrentes (alquileres, dividendos)
               </p>
             </div>
@@ -162,30 +162,30 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Resumen del Impacto en el Mes */}
-        <div className="p-4 bg-slate-900/40 border-b border-slate-800/80 shrink-0">
+        <div className="p-4 bg-slate-50/60 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800/80 shrink-0">
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80">
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">Salario Base</span>
-              <span className="text-xs sm:text-sm font-mono font-bold text-slate-300">
+            <div className="p-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80">
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 block">Salario Base</span>
+              <span className="text-xs sm:text-sm font-mono font-bold text-slate-800 dark:text-slate-300">
                 {mask(monthlyBaseIncome, currency, 0)}
               </span>
             </div>
-            <div className="p-2.5 rounded-xl bg-teal-500/10 border border-teal-500/20">
-              <span className="text-[10px] uppercase font-bold text-teal-400 block">+ Extras Mes</span>
-              <span className="text-xs sm:text-sm font-mono font-bold text-teal-300">
+            <div className="p-2.5 rounded-xl bg-teal-50 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/20">
+              <span className="text-[10px] uppercase font-bold text-teal-700 dark:text-teal-400 block">+ Extras Mes</span>
+              <span className="text-xs sm:text-sm font-mono font-bold text-teal-700 dark:text-teal-300">
                 +{mask(totalExtrasThisMonth, currency)}
               </span>
             </div>
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-              <span className="text-[10px] uppercase font-bold text-emerald-400 block">= Total Disponible</span>
-              <span className="text-xs sm:text-sm font-mono font-bold text-emerald-400">
+            <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
+              <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 block">= Total Disponible</span>
+              <span className="text-xs sm:text-sm font-mono font-bold text-emerald-700 dark:text-emerald-400">
                 {mask(totalBudgetMonth, currency, 0)}
               </span>
             </div>
@@ -193,13 +193,13 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
         </div>
 
         {/* Pestañas: Crear vs Lista */}
-        <div className="flex border-b border-slate-800 bg-slate-900/30 px-4 pt-2 shrink-0">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-900/30 px-4 pt-2 shrink-0">
           <button
             onClick={() => setActiveTab('create')}
             className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'create'
-                ? 'text-teal-400 border-teal-500'
-                : 'text-slate-400 border-transparent hover:text-slate-300'
+                ? 'text-teal-700 dark:text-teal-400 border-teal-600 dark:border-teal-500'
+                : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-300'
             }`}
           >
             <PlusCircle className="w-3.5 h-3.5" />
@@ -210,8 +210,8 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
             onClick={() => setActiveTab('list')}
             className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'list'
-                ? 'text-teal-400 border-teal-500'
-                : 'text-slate-400 border-transparent hover:text-slate-300'
+                ? 'text-teal-700 dark:text-teal-400 border-teal-600 dark:border-teal-500'
+                : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-300'
             }`}
           >
             <CircleDollarSign className="w-3.5 h-3.5" />
@@ -233,19 +233,19 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
               {/* Concepto e Importe */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="sm:col-span-2 space-y-1">
-                  <label className="text-xs font-bold text-slate-300">Concepto / Procedencia *</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Concepto / Procedencia *</label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Ej. Regalo cumpleaños, Venta bicicleta, Alquiler garaje"
-                    className="w-full h-11 px-3 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+                    className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-teal-500"
                     required
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-300">Importe *</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Importe *</label>
                   <div className="relative flex items-center">
                     <input
                       type="number"
@@ -253,7 +253,7 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
                       placeholder="150"
-                      className="w-full h-11 px-3 pr-8 bg-slate-950 border border-slate-700/80 rounded-xl text-xs font-mono font-bold text-emerald-400 focus:outline-none focus:border-teal-500"
+                      className="w-full h-11 px-3 pr-8 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 focus:outline-none focus:border-teal-500"
                       required
                     />
                     <span className="absolute right-3 text-xs text-slate-400 font-mono">{currency}</span>
@@ -263,7 +263,7 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
 
               {/* Selector de Tipo (Puntual vs Recurrente) */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-300">Naturaleza del Ingreso</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Naturaleza del Ingreso</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -273,11 +273,11 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                     }}
                     className={`p-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       type === 'punctual'
-                        ? 'bg-teal-500/20 text-teal-300 border-teal-500/40 shadow-xs'
-                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        ? 'bg-teal-100 dark:bg-teal-500/20 text-teal-800 dark:text-teal-300 border-teal-300 dark:border-teal-500/40 shadow-xs'
+                        : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    <Calendar className="w-4 h-4 text-teal-400" />
+                    <Calendar className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                     <div className="text-left">
                       <div>Puntual</div>
                       <div className="text-[10px] font-normal opacity-80">Un solo mes (venta, regalo)</div>
@@ -292,11 +292,11 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                     }}
                     className={`p-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       type === 'recurring'
-                        ? 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-xs'
-                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        ? 'bg-purple-100 dark:bg-purple-500/20 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-500/40 shadow-xs'
+                        : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    <Repeat className="w-4 h-4 text-purple-400" />
+                    <Repeat className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                     <div className="text-left">
                       <div>Recurrente</div>
                       <div className="text-[10px] font-normal opacity-80">Cada mes (alquiler, renta)</div>
@@ -307,7 +307,7 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
 
               {/* Categoría */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-300">Categoría</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Categoría</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {CATEGORIES.map((cat) => {
                     const Icon = cat.icon;
@@ -322,8 +322,8 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                         }}
                         className={`p-2 rounded-xl border text-[11px] font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                           isSelected
-                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-xs'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/40 shadow-xs'
+                            : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       >
                         <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -337,12 +337,12 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
               {/* Fecha / Periodicidad */}
               {type === 'punctual' ? (
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-300">Fecha del Ingreso Puntual</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Fecha del Ingreso Puntual</label>
                   <input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full h-11 px-3 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500"
+                    className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                     required
                   />
                   <p className="text-[10px] text-slate-500">
@@ -351,14 +351,14 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                 </div>
               ) : (
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-300">Día de Cobro Estimado (1-31)</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Día de Cobro Estimado (1-31)</label>
                   <input
                     type="number"
                     min="1"
                     max="31"
                     value={dayOfMonth}
                     onChange={(e) => setDayOfMonth(Math.max(1, Math.min(31, parseInt(e.target.value) || 1)))}
-                    className="w-full h-11 px-3 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500"
+                    className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                   />
                   <p className="text-[10px] text-slate-500">
                     Este ingreso se sumará de manera automática a tu disponibilidad presupuestaria cada mes.
@@ -368,13 +368,13 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
 
               {/* Notas opcionales */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-300">Notas Opcionales</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Notas Opcionales</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Detalles sobre el comprador, cuenta bancaria o motivo..."
                   rows={2}
-                  className="w-full p-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 resize-none"
+                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-teal-500 resize-none"
                 />
               </div>
 
@@ -391,13 +391,13 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
           ) : (
             <div className="space-y-2">
               {extraIncomes.length === 0 ? (
-                <div className="text-center py-8 text-slate-400 space-y-2">
-                  <CircleDollarSign className="w-10 h-10 mx-auto text-slate-600" />
+                <div className="text-center py-8 text-slate-500 dark:text-slate-400 space-y-2">
+                  <CircleDollarSign className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" />
                   <p className="text-xs">No tienes ingresos extras registrados todavía.</p>
                   <button
                     type="button"
                     onClick={() => setActiveTab('create')}
-                    className="text-xs text-teal-400 hover:underline font-bold"
+                    className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-bold"
                   >
                     + Registrar el primero ahora
                   </button>
@@ -411,39 +411,39 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                       key={inc.id}
                       className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
                         inc.isActive === false
-                          ? 'bg-slate-950/40 border-slate-800/50 opacity-60'
-                          : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                          ? 'bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/50 opacity-60'
+                          : 'bg-white dark:bg-slate-950/70 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
                       }`}
                     >
                       <div className="flex items-center space-x-3 min-w-0">
                         <div
                           className={`p-2.5 rounded-xl shrink-0 ${
                             inc.type === 'recurring'
-                              ? 'bg-purple-500/15 text-purple-400 border border-purple-500/25'
-                              : 'bg-teal-500/15 text-teal-400 border border-teal-500/25'
+                              ? 'bg-purple-100 dark:bg-purple-500/15 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-500/25'
+                              : 'bg-teal-100 dark:bg-teal-500/15 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-500/25'
                           }`}
                         >
                           <Icon className="w-4 h-4" />
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <h4 className="text-xs font-bold text-white truncate">{inc.title}</h4>
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">{inc.title}</h4>
                             <span
                               className={`text-[9px] font-mono px-1.5 py-0.2 rounded-full border ${
                                 inc.type === 'recurring'
-                                  ? 'bg-purple-500/10 text-purple-300 border-purple-500/30'
-                                  : 'bg-teal-500/10 text-teal-300 border-teal-500/30'
+                                  ? 'bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-500/30'
+                                  : 'bg-teal-100 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-500/30'
                               }`}
                             >
                               {inc.type === 'recurring' ? 'Recurrente' : 'Puntual'}
                             </span>
                             {isCurrent && (
-                              <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1 rounded">
+                              <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 px-1 rounded">
                                 Activo este mes
                               </span>
                             )}
                           </div>
-                          <p className="text-[10px] text-slate-400 mt-0.5 truncate">
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                             {inc.type === 'recurring' ? `Cobro día ${inc.dayOfMonth || 1} de cada mes` : `Fecha: ${inc.date}`}
                             {inc.notes ? ` · ${inc.notes}` : ''}
                           </p>
@@ -451,7 +451,7 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                       </div>
 
                       <div className="flex items-center space-x-2 shrink-0">
-                        <span className="text-xs sm:text-sm font-mono font-bold text-emerald-400">
+                        <span className="text-xs sm:text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400">
                           +{mask(inc.amount, currency)}
                         </span>
 
@@ -461,8 +461,8 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                             onClick={() => handleToggleActive(inc)}
                             className={`p-1.5 rounded-lg border text-[10px] font-bold cursor-pointer transition-colors ${
                               inc.isActive !== false
-                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                                : 'bg-slate-800 text-slate-400 border-slate-700'
+                                ? 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30'
+                                : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
                             }`}
                             title={inc.isActive !== false ? 'Pausar ingreso recurrente' : 'Activar ingreso recurrente'}
                           >
@@ -473,7 +473,7 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                         <button
                           type="button"
                           onClick={() => handleDelete(inc.id)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
                           title="Eliminar ingreso extra"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

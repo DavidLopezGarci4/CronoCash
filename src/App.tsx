@@ -25,6 +25,7 @@ import { ExtraIncomeModal } from './components/income/ExtraIncomeModal';
 import { RecurringEngineService } from './services/recurringEngineService';
 import { App as CapApp } from '@capacitor/app';
 import { ExitConfirmModal } from './components/common/ExitConfirmModal';
+import { ThemeService } from './services/themeService';
 
 export const App: React.FC = () => {
   // Estado de Bloqueo / Autenticación:
@@ -78,6 +79,13 @@ export const App: React.FC = () => {
       }
     };
   }, []);
+
+  // Sincronizar tema de la aplicación (Claro / Oscuro / Sistema) y escuchar preferencias del SO
+  useEffect(() => {
+    ThemeService.applyTheme(settings.theme || 'dark');
+    const cleanupListener = ThemeService.initSystemListener(() => settings.theme || 'dark');
+    return cleanupListener;
+  }, [settings.theme]);
 
   // Carga inicial de datos desde IndexedDB
   const loadData = async () => {
@@ -471,7 +479,7 @@ export const App: React.FC = () => {
   return (
     <PrivacyProvider>
       <div
-        className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans selection:bg-emerald-500/30"
+        className="min-h-screen bg-theme-app text-theme-main flex flex-col font-sans selection:bg-emerald-500/30 transition-colors duration-150"
         style={{
           paddingTop: 'max(0.7cm, env(safe-area-inset-top, 0px))',
         }}

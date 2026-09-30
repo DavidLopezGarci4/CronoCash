@@ -30,7 +30,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-[#090d16]/95 backdrop-blur-lg border-t border-slate-800/80 px-2 py-1.5 transition-all md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#090d16]/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800/80 px-2 py-1.5 transition-colors md:hidden"
       style={{
         paddingBottom: 'calc(max(0.7cm, env(safe-area-inset-bottom, 0px)) + 0.35rem)',
       }}
@@ -47,8 +47,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
               onClick={() => handleTabClick(tab.id)}
               className={`flex flex-col items-center justify-center min-w-[48px] min-h-[48px] py-1 px-2 rounded-xl transition-all cursor-pointer active:scale-95 ${
                 isActive
-                  ? 'text-emerald-400 font-bold scale-105'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'text-emerald-600 dark:text-emerald-400 font-bold scale-105'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
               aria-label={`Ir a pestaña ${tab.label}`}
               aria-current={isActive ? 'page' : undefined}

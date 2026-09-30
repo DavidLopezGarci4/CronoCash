@@ -41,8 +41,8 @@ export const QuickContributeModal: React.FC<QuickContributeModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+      <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-2xl text-slate-900 dark:text-white">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5">
             <div
               className="p-2 rounded-xl"
@@ -51,13 +51,13 @@ export const QuickContributeModal: React.FC<QuickContributeModalProps> = ({
               <PiggyBank className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Aportar a Meta</h3>
-              <p className="text-xs text-slate-400 truncate max-w-[200px]">{goal.title}</p>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Aportar a Meta</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">{goal.title}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -65,7 +65,7 @@ export const QuickContributeModal: React.FC<QuickContributeModalProps> = ({
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-3.5 text-xs">
           <div>
-            <div className="flex justify-between items-center text-slate-400 mb-1">
+            <div className="flex justify-between items-center text-slate-500 dark:text-slate-400 mb-1">
               <span>Importe a ingresar:</span>
               <span className="font-mono text-[11px]">Resta: {deficit.toFixed(2)} {currency}</span>
             </div>
@@ -77,7 +77,7 @@ export const QuickContributeModal: React.FC<QuickContributeModalProps> = ({
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-lg font-mono font-bold text-white focus:outline-none focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-lg font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
               />
               <span className="absolute right-3.5 top-2.5 text-sm font-mono text-slate-400">{currency}</span>
             </div>
@@ -89,8 +89,8 @@ export const QuickContributeModal: React.FC<QuickContributeModalProps> = ({
                   onClick={() => setAmount(val)}
                   className={`flex-1 py-1 rounded-lg font-mono font-bold text-xs border transition-colors cursor-pointer ${
                     amount === val
-                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
-                      : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700'
+                      ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-500/40'
+                      : 'bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
                   +{val}€
@@ -100,21 +100,21 @@ export const QuickContributeModal: React.FC<QuickContributeModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-slate-400 font-medium mb-1">Nota o concepto (Opcional):</label>
+            <label className="block text-slate-600 dark:text-slate-400 font-medium mb-1">Nota o concepto (Opcional):</label>
             <input
               type="text"
               placeholder="Ej: Ahorro quincenal, propina, ingreso extra..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500"
             />
           </div>
 
-          <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-800">
+          <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-transparent font-bold transition-colors cursor-pointer"
             >
               Cancelar
             </button>
