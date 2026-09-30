@@ -718,17 +718,17 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
 
       {/* Lista de Recurrentes */}
       {rules.length === 0 ? (
-        <div className="p-8 text-center bg-slate-900/50 border border-slate-800/80 rounded-3xl space-y-3">
-          <Repeat className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-sm font-bold text-slate-300">No hay actos o tareas recurrentes</h3>
-          <p className="text-xs text-slate-500 max-w-xs mx-auto">
+        <div className="p-8 text-center bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-3xl space-y-3 shadow-xs">
+          <Repeat className="w-10 h-10 text-slate-400 dark:text-slate-600 mx-auto" />
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-300">No hay actos o tareas recurrentes</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
             Configura compromisos (lentillas, vacunas, cumpleaños, seguros, luz, internet) con avisos escalonados a tu medida.
           </p>
           <button
             onClick={handleSmartSeeds}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 inline-flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1.5 cursor-pointer transition-colors"
           >
-            <Sparkles className="w-4 h-4 text-amber-400" />
+            <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" />
             <span>Cargar Plantilla de Ejemplo</span>
           </button>
         </div>
@@ -911,7 +911,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                         style={{
                           backgroundColor: `${catObj.color || '#3b82f6'}15`,
                           borderColor: `${catObj.color || '#3b82f6'}40`,
-                          color: catObj.color || '#93c5fd',
+                          color: catObj.color || '#2563eb',
                         }}
                       >
                         <CategoryIcon className="w-3 h-3" />

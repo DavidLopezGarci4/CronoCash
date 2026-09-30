@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --safe-top: max(0.7cm, env(safe-area-inset-top, 0px));
   --safe-bottom: max(0.7cm, env(safe-area-inset-bottom, 0px));
