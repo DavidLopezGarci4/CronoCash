@@ -4,17 +4,24 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.23.0 — Control de Capacidad Presupuestaria y Asignación de Ingresos a Bolsas ⚖️
-- [x] **Balance de Presupuesto Real (Zero-Based Envelopes):** Comparación directa entre la capacidad de ingresos estimados (salario base/real + extras) y el total asignado a bolsas.
-- [x] **Detección Instantánea de Sobre-presupuesto y Margen Libre:** Alertas en color rosa/rojo ante sobre-asignación y verde esmeralda cuando existe saldo libre para ahorro.
-- [x] **Alternador Inmediato Mes en Curso / Mes Siguiente:** Inspección en 1 toque del balance para el mes actual y el mes venidero.
-- [x] **Simulador en Vivo en Modal Crear/Editar Bolsa:** Previsualización dinámica de la variación presupuestaria según el límite introducido.
-- [x] **Telemetría en Grafo de Arquitectura:** Monitoreo en tiempo real de la capacidad presupuestaria en el motor IndexedDB.
-- [x] **Sincronización SemVer Global:** `v1.23.0` (Build 12300) en todos los manifiestos, configuraciones y documentación.
+## Estado Actual: v1.24.0 — Direccionamiento de Ingresos a Bolsas (Inyecciones y Reembolsos) 🎯
+- [x] **Asignación Directa de Ingresos Extras a Bolsas:** Posibilidad de vincular cobros extras a sobres específicos.
+- [x] **Reembolso / Compensación de Gastos (Bizums y Devoluciones):** Minoración directa de gastos registrados en bolsa sin inflar ingresos brutos ni alterar tramos fiscales.
+- [x] **Inyecciones a Presupuesto (Top-Up):** Suplemento mensual directo de límite de bolsa blindado contra dilución en el gasto diario.
+- [x] **Integración con Extractos Bancarios (CSV / Excel):** Asignación inmediata de abonos a reembolsos o inyecciones con previsualización.
+- [x] **Motor Desacoplado `IncomeAllocationService`:** Arquitectura modular pura con blindaje contra el doble cómputo.
+- [x] **Sincronización SemVer Global:** `v1.24.0` (Build 12400) en todos los manifiestos, configuraciones y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.23.0 (Completado)
+- [x] Balance de Presupuesto Real (Zero-Based Envelopes) comparando capacidad de ingresos y límites de bolsas.
+- [x] Detección Instantánea de Sobre-presupuesto y Margen Libre con alertas cromáticas.
+- [x] Alternador Inmediato Mes en Curso / Mes Siguiente.
+- [x] Simulador en Vivo en Modal Crear/Editar Bolsa.
+- [x] Telemetría en Grafo de Arquitectura y corrección de contraste en modo oscuro.
 
 ### 📦 v1.22.0 (Completado)
 - [x] Modo Claro Nativo & Volteado Semántico Completo en el 100% de la aplicación.

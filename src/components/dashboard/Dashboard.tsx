@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Expense, Bucket, Settings, RecurringRule, SavingsGoal } from '../../types';
 import { SafeToSpendService } from '../../services/safeToSpendService';
+import { IncomeAllocationService } from '../../services/incomeAllocationService';
 import { SafeToSpendWidget } from './SafeToSpendWidget';
 import { usePrivacy } from '../../context/PrivacyContext';
 
@@ -64,20 +65,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
     (e.date || '').startsWith(currentMonthPrefix)
   );
 
-  // Computar ingresos extras (puntuales del mes + recurrentes activos)
+  // Computar ingresos extras (puntuales del mes + recurrentes activos, excluyendo reembolsos)
   const extraIncomes = settings.extraIncomes || [];
+  const totalRefundsMonth = IncomeAllocationService.getAllRefundsForMonth(currentMonthPrefix, settings);
   const punctualExtraIncome = extraIncomes
-    .filter((inc) => inc.isActive !== false && inc.type === 'punctual' && (inc.date || '').startsWith(currentMonthPrefix))
+    .filter((inc) => inc.isActive !== false && inc.type === 'punctual' && (inc.date || '').startsWith(currentMonthPrefix) && inc.allocationMode !== 'bucket_refund')
     .reduce((sum, inc) => sum + inc.amount, 0);
 
   const recurringExtraIncome = extraIncomes
-    .filter((inc) => inc.isActive !== false && inc.type === 'recurring')
+    .filter((inc) => inc.isActive !== false && inc.type === 'recurring' && inc.allocationMode !== 'bucket_refund' && IncomeAllocationService.isMatchingMonth(inc, currentMonthPrefix))
     .reduce((sum, inc) => sum + inc.amount, 0);
 
   const totalExtraIncomeMonth = punctualExtraIncome + recurringExtraIncome;
   const effectiveMonthlyIncome = monthlyIncome + totalExtraIncomeMonth;
 
-  const totalSpentMonth = currentMonthExpenses.reduce((acc, curr) => acc + curr.amount, 0);
+  const totalSpentGross = currentMonthExpenses.reduce((acc, curr) => acc + curr.amount, 0);
+  const totalSpentMonth = Math.max(0, totalSpentGross - totalRefundsMonth);
   const remainingBudget = effectiveMonthlyIncome - totalSpentMonth;
 
   // Cálculo del motor Safe-to-Spend
@@ -87,7 +90,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
     buckets,
     effectiveMonthlyIncome,
     new Date(),
-    savingsGoals
+    savingsGoals,
+    totalRefundsMonth
   );
 
   const totalSavedGoals = savingsGoals.reduce((sum, g) => sum + (g.currentAmount || 0), 0);

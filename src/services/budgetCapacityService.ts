@@ -1,5 +1,6 @@
 import { Bucket, Settings } from '../types';
 import { DBService } from './db';
+import { IncomeAllocationService } from './incomeAllocationService';
 
 export interface BudgetCapacityMetrics {
   monthKey: string; // YYYY-MM
@@ -8,7 +9,7 @@ export interface BudgetCapacityMetrics {
   punctualExtraIncome: number;
   recurringExtraIncome: number;
   totalIncome: number;
-  totalBucketsBudget: number; // Suma de límites mensuales de bolsas
+  totalBucketsBudget: number; // Suma de límites mensuales de bolsas (incluye inyecciones por ingresos asignados)
   difference: number; // totalIncome - totalBucketsBudget (>0: libre, <0: excedido, ===0: equilibrado)
   status: 'free' | 'exceeded' | 'balanced';
   percentageAllocated: number; // Porcentaje de ingresos asignado a bolsas
@@ -17,7 +18,7 @@ export interface BudgetCapacityMetrics {
 export class BudgetCapacityService {
   /**
    * Obtiene el ingreso estimado total para un mes específico (YYYY-MM).
-   * Considera salario base o blindado real para ese mes + ingresos extras puntuales del mes + recurrentes activos.
+   * Considera salario base o blindado real para ese mes + ingresos extras (excluyendo reembolsos de gastos).
    */
   static getMonthlyEstimatedIncome(settings: Settings, monthKey: string): {
     baseSalary: number;
@@ -29,11 +30,23 @@ export class BudgetCapacityService {
     const extraIncomes = settings.extraIncomes || [];
 
     const punctualExtraIncome = extraIncomes
-      .filter((inc) => inc.isActive !== false && inc.type === 'punctual' && (inc.date || '').startsWith(monthKey))
+      .filter(
+        (inc) =>
+          inc.isActive !== false &&
+          inc.type === 'punctual' &&
+          (inc.date || '').startsWith(monthKey) &&
+          inc.allocationMode !== 'bucket_refund'
+      )
       .reduce((sum, inc) => sum + (Number(inc.amount) || 0), 0);
 
     const recurringExtraIncome = extraIncomes
-      .filter((inc) => inc.isActive !== false && inc.type === 'recurring')
+      .filter(
+        (inc) =>
+          inc.isActive !== false &&
+          inc.type === 'recurring' &&
+          inc.allocationMode !== 'bucket_refund' &&
+          IncomeAllocationService.isMatchingMonth(inc, monthKey)
+      )
       .reduce((sum, inc) => sum + (Number(inc.amount) || 0), 0);
 
     const totalIncome = baseSalary + punctualExtraIncome + recurringExtraIncome;
@@ -56,7 +69,10 @@ export class BudgetCapacityService {
     monthName: string = monthKey
   ): BudgetCapacityMetrics {
     const incomeDetails = this.getMonthlyEstimatedIncome(settings, monthKey);
-    const totalBucketsBudget = buckets.reduce((sum, b) => sum + (Number(b.budgetLimit) || 0), 0);
+    const totalBucketsBudget = buckets.reduce((sum, b) => {
+      const injected = IncomeAllocationService.getBucketInjectedBudget(b.id, monthKey, settings);
+      return sum + (Number(b.budgetLimit) || 0) + injected;
+    }, 0);
     const difference = incomeDetails.totalIncome - totalBucketsBudget;
 
     let status: 'free' | 'exceeded' | 'balanced' = 'balanced';

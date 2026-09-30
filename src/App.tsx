@@ -23,6 +23,7 @@ import { ConfirmRecurringExpenseModal } from './components/expenses/ConfirmRecur
 import { PrivacyProvider } from './context/PrivacyContext';
 import { ExtraIncomeModal } from './components/income/ExtraIncomeModal';
 import { RecurringEngineService } from './services/recurringEngineService';
+import { IncomeAllocationService } from './services/incomeAllocationService';
 import { App as CapApp } from '@capacitor/app';
 import { ExitConfirmModal } from './components/common/ExitConfirmModal';
 import { ThemeService } from './services/themeService';
@@ -453,14 +454,15 @@ export const App: React.FC = () => {
     .filter((e) => (e.date || '').startsWith(currentMonthPrefix))
     .reduce((sum, e) => sum + e.amount, 0);
 
-  // Computar ingresos extras del mes (puntuales del mes + recurrentes activos)
+  // Computar ingresos extras del mes (excluyendo reembolsos que ya minoran gastos)
   const extraIncomes = settings.extraIncomes || [];
+  const totalRefundsMonth = IncomeAllocationService.getAllRefundsForMonth(currentMonthPrefix, settings);
   const punctualExtraIncome = extraIncomes
-    .filter((inc) => inc.isActive !== false && inc.type === 'punctual' && (inc.date || '').startsWith(currentMonthPrefix))
+    .filter((inc) => inc.isActive !== false && inc.type === 'punctual' && (inc.date || '').startsWith(currentMonthPrefix) && inc.allocationMode !== 'bucket_refund')
     .reduce((sum, inc) => sum + inc.amount, 0);
 
   const recurringExtraIncome = extraIncomes
-    .filter((inc) => inc.isActive !== false && inc.type === 'recurring')
+    .filter((inc) => inc.isActive !== false && inc.type === 'recurring' && inc.allocationMode !== 'bucket_refund' && IncomeAllocationService.isMatchingMonth(inc, currentMonthPrefix))
     .reduce((sum, inc) => sum + inc.amount, 0);
 
   const totalExtraIncomeMonth = punctualExtraIncome + recurringExtraIncome;
@@ -473,7 +475,8 @@ export const App: React.FC = () => {
     buckets,
     effectiveMonthlyIncome,
     new Date(),
-    savingsGoals
+    savingsGoals,
+    totalRefundsMonth
   );
 
   return (
@@ -702,6 +705,7 @@ export const App: React.FC = () => {
           isOpen={incomeModalOpen}
           onClose={() => setIncomeModalOpen(false)}
           extraIncomes={settings.extraIncomes || []}
+          buckets={buckets}
           currency={settings.currency || '€'}
           monthlyBaseIncome={effectiveBaseSalary}
           onSaveIncome={handleSaveExtraIncome}

@@ -132,6 +132,8 @@ export type ExtraIncomeCategory =
   | 'investment'  // Dividendos o rentabilidad de inversiones
   | 'other';      // Otros ingresos
 
+export type IncomeAllocationMode = 'general' | 'bucket_budget' | 'bucket_refund';
+
 export interface ExtraIncome {
   id: string;
   title: string;
@@ -145,6 +147,8 @@ export interface ExtraIncome {
   notes?: string;
   rawHash?: string;           // Hash SHA-256 para deduplicación bancaria
   createdAt: string;
+  targetBucketId?: string;    // ID opcional de la bolsa a la que se destina
+  allocationMode?: IncomeAllocationMode; // 'general' (liquidez general) | 'bucket_budget' (inyección a presupuesto de bolsa) | 'bucket_refund' (reembolso/minoración de gasto en bolsa)
 }
 
 export interface MonthlySalaryOverride {

@@ -40,7 +40,8 @@ export class SafeToSpendService {
     buckets: Bucket[],
     monthlyIncome: number,
     referenceDate = new Date(),
-    savingsGoals: SavingsGoal[] = []
+    savingsGoals: SavingsGoal[] = [],
+    totalRefunds = 0
   ): SafeToSpendMetrics {
     const year = referenceDate.getFullYear();
     const month = referenceDate.getMonth(); // 0-11
@@ -54,11 +55,12 @@ export class SafeToSpendService {
     const monthStr = String(month + 1).padStart(2, '0');
     const currentMonthPrefix = `${year}-${monthStr}`;
 
-    // Gastos consolidados del mes
+    // Gastos consolidados del mes (restando reembolsos de bolsas/gastos si los hubiera)
     const currentMonthExpenses = expenses.filter((e) =>
       (e.date || '').startsWith(currentMonthPrefix)
     );
-    const totalSpentMonth = currentMonthExpenses.reduce((acc, curr) => acc + (curr.amount || 0), 0);
+    const totalSpentGross = currentMonthExpenses.reduce((acc, curr) => acc + (curr.amount || 0), 0);
+    const totalSpentMonth = Math.max(0, totalSpentGross - (Number(totalRefunds) || 0));
 
     // Identificar reglas recurrentes pendientes de cobro este mes
     const pendingBills: PendingBill[] = [];

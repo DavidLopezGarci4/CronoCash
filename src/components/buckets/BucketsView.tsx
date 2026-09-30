@@ -56,6 +56,7 @@ import { HapticService } from '../../services/hapticService';
 import { useTouchSortable } from '../../hooks/useTouchSortable';
 import { CoverOverspendingModal } from './CoverOverspendingModal';
 import { BudgetCapacityService } from '../../services/budgetCapacityService';
+import { IncomeAllocationService } from '../../services/incomeAllocationService';
 
 interface BucketsViewProps {
   buckets: Bucket[];
@@ -309,12 +310,16 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   // Iconos disponibles (Catálogo Maestro Unificado de 51 iconos)
   const availableIcons = MASTER_ICON_KEYS;
 
-  // Totales mensuales
+  // Totales mensuales con inyecciones y reembolsos
+  const totalInjectedMonthly = viewMode === 'month' ? IncomeAllocationService.getAllBudgetInjectionsForMonth(selectedMonthPrefix, effectiveSettings) : 0;
+  const totalRefundsMonthly = viewMode === 'month' ? IncomeAllocationService.getAllRefundsForMonth(selectedMonthPrefix, effectiveSettings) : 0;
+
   const totalBudgetMonthly = buckets.reduce(
     (sum, b) => sum + b.budgetLimit + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0),
     0
-  );
-  const totalSpentMonthly = currentExpenses.reduce((sum, e) => sum + e.amount, 0);
+  ) + totalInjectedMonthly;
+  const totalSpentMonthlyGross = currentExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalSpentMonthly = Math.max(0, totalSpentMonthlyGross - totalRefundsMonthly);
   const monthlyPct = totalBudgetMonthly > 0 ? Math.min(Math.round((totalSpentMonthly / totalBudgetMonthly) * 100), 100) : 0;
 
   // Totales anuales (Proyección Anual)
@@ -332,27 +337,43 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const potentialSurplus = buckets
     .filter((b) => !b.isBuffer && !b.rolloverSurplus)
     .reduce((sum, b) => {
-      const spent = currentExpenses
-        .filter((e) => e.bucketId === b.id)
-        .reduce((s, e) => s + e.amount, 0);
-      const rem = b.budgetLimit - spent;
+      const bInjected = IncomeAllocationService.getBucketInjectedBudget(b.id, selectedMonthPrefix, effectiveSettings);
+      const bRefunds = IncomeAllocationService.getBucketRefunds(b.id, selectedMonthPrefix, effectiveSettings);
+      const spent = Math.max(
+        0,
+        currentExpenses
+          .filter((e) => e.bucketId === b.id)
+          .reduce((s, e) => s + e.amount, 0) - bRefunds
+      );
+      const effectiveLimit = b.budgetLimit + bInjected;
+      const rem = effectiveLimit - spent;
       return rem > 0 ? sum + rem : sum;
     }, 0);
 
   // Detección de sobregiros para el Asistente Inteligente Cover Overspending
   const overspentBuckets = buckets.filter((b) => {
-    const effectiveLimit = b.budgetLimit + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0);
-    const spent = currentExpenses
-      .filter((e) => e.bucketId === b.id)
-      .reduce((s, e) => s + e.amount, 0);
+    const bInjected = IncomeAllocationService.getBucketInjectedBudget(b.id, selectedMonthPrefix, effectiveSettings);
+    const bRefunds = IncomeAllocationService.getBucketRefunds(b.id, selectedMonthPrefix, effectiveSettings);
+    const effectiveLimit = b.budgetLimit + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0) + bInjected;
+    const spent = Math.max(
+      0,
+      currentExpenses
+        .filter((e) => e.bucketId === b.id)
+        .reduce((s, e) => s + e.amount, 0) - bRefunds
+    );
     return spent > effectiveLimit;
   });
 
   const totalOverspending = overspentBuckets.reduce((acc, b) => {
-    const effectiveLimit = b.budgetLimit + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0);
-    const spent = currentExpenses
-      .filter((e) => e.bucketId === b.id)
-      .reduce((s, e) => s + e.amount, 0);
+    const bInjected = IncomeAllocationService.getBucketInjectedBudget(b.id, selectedMonthPrefix, effectiveSettings);
+    const bRefunds = IncomeAllocationService.getBucketRefunds(b.id, selectedMonthPrefix, effectiveSettings);
+    const effectiveLimit = b.budgetLimit + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0) + bInjected;
+    const spent = Math.max(
+      0,
+      currentExpenses
+        .filter((e) => e.bucketId === b.id)
+        .reduce((s, e) => s + e.amount, 0) - bRefunds
+    );
     return acc + (spent - effectiveLimit);
   }, 0);
 
@@ -371,12 +392,20 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
       return a.budgetLimit - b.budgetLimit;
     }
     if (sortMode === 'spent_desc') {
-      const spentA = currentExpenses
-        .filter((e) => e.bucketId === a.id)
-        .reduce((sum, e) => sum + e.amount, 0);
-      const spentB = currentExpenses
-        .filter((e) => e.bucketId === b.id)
-        .reduce((sum, e) => sum + e.amount, 0);
+      const bRefundsA = viewMode === 'month' ? IncomeAllocationService.getBucketRefunds(a.id, selectedMonthPrefix, effectiveSettings) : 0;
+      const bRefundsB = viewMode === 'month' ? IncomeAllocationService.getBucketRefunds(b.id, selectedMonthPrefix, effectiveSettings) : 0;
+      const spentA = Math.max(
+        0,
+        activeExpenses
+          .filter((e) => e.bucketId === a.id)
+          .reduce((sum, e) => sum + e.amount, 0) - bRefundsA
+      );
+      const spentB = Math.max(
+        0,
+        activeExpenses
+          .filter((e) => e.bucketId === b.id)
+          .reduce((sum, e) => sum + e.amount, 0) - bRefundsB
+      );
       return spentB - spentA;
     }
     // 'manual' (respeta b.order, si no existe toma posición previa)
@@ -877,10 +906,13 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
         {sortedBuckets.map((b, index) => {
           const IconComp = ICON_MAP[b.icon] || PieChart;
           const accumulated = b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0;
-          const limit = viewMode === 'annual' ? (b.budgetLimit * 12) : (b.budgetLimit + accumulated);
-          const spent = activeExpenses
+          const injected = viewMode === 'month' ? IncomeAllocationService.getBucketInjectedBudget(b.id, selectedMonthPrefix, effectiveSettings) : 0;
+          const refunds = viewMode === 'month' ? IncomeAllocationService.getBucketRefunds(b.id, selectedMonthPrefix, effectiveSettings) : 0;
+          const limit = viewMode === 'annual' ? (b.budgetLimit * 12) : (b.budgetLimit + accumulated + injected);
+          const grossSpent = activeExpenses
             .filter((e) => e.bucketId === b.id)
             .reduce((sum, e) => sum + e.amount, 0);
+          const spent = Math.max(0, grossSpent - refunds);
           const pct = limit > 0 ? Math.min(Math.round((spent / limit) * 100), 100) : 0;
           const isOver = spent > limit;
           const remaining = limit - spent;
@@ -932,6 +964,18 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 font-bold border border-teal-200 dark:border-teal-500/40 flex items-center gap-1">
                           <PiggyBank className="w-3 h-3 text-teal-600 dark:text-teal-400" />
                           <span>Hucha +{isPrivate ? '••••' : accumulated.toFixed(2)} {currency}</span>
+                        </span>
+                      )}
+                      {injected > 0 && viewMode === 'month' && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-500/40 flex items-center gap-1" title="Ingresos asignados para ampliar esta bolsa este mes">
+                          <TrendingUp className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                          <span>Extra +{isPrivate ? '••••' : injected.toFixed(2)} {currency}</span>
+                        </span>
+                      )}
+                      {refunds > 0 && viewMode === 'month' && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-50 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-200 dark:border-cyan-500/40 flex items-center gap-1" title="Gastos minorados por reembolsos o devoluciones recibidas">
+                          <ArrowRightLeft className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
+                          <span>Reembolso -{isPrivate ? '••••' : refunds.toFixed(2)} {currency}</span>
                         </span>
                       )}
                     </h3>
@@ -997,7 +1041,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
               <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
                 <div className="flex items-baseline justify-between">
                   <span className="text-xs text-slate-500 dark:text-slate-400">
-                    {viewMode === 'annual' ? 'Consumido en el año' : 'Consumido este mes'}
+                    {viewMode === 'annual' ? 'Consumido en el año' : refunds > 0 ? 'Consumido neto' : 'Consumido este mes'}
                   </span>
                   <div className="text-sm font-mono font-bold whitespace-nowrap shrink-0">
                     <span className={isOver ? 'text-rose-600 dark:text-rose-400 font-black' : 'text-slate-900 dark:text-white'}>
@@ -1006,6 +1050,12 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                     <span className="text-slate-400 dark:text-slate-500 text-xs"> / {isPrivate ? '••••' : limit.toFixed(2)}&nbsp;{currency}</span>
                   </div>
                 </div>
+                {refunds > 0 && viewMode === 'month' && (
+                  <div className="text-[10px] text-cyan-700 dark:text-cyan-300 font-mono flex items-center justify-between">
+                    <span>Compensación por reembolso</span>
+                    <span>-{isPrivate ? '••••' : refunds.toFixed(2)} {currency} (Bruto: {isPrivate ? '••••' : grossSpent.toFixed(2)}€)</span>
+                  </div>
+                )}
 
                 <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-transparent rounded-full overflow-hidden">
                   <div

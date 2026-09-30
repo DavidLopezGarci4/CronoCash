@@ -101,6 +101,8 @@ export interface AnalyzedTransaction extends RawBankTransaction {
   incomeCategoryMode?: 'salary' | 'extra'; // 'salary' para Nómina Mensual blindada, 'extra' para Ingreso Extra
   targetSalaryMonth?: string; // 'YYYY-MM' mes al que imputa el salario (regla >= 20 -> mes siguiente)
   targetExtraMonth?: string; // 'YYYY-MM' mes al que imputa el ingreso extra (por defecto mes actual de la tx)
+  targetBucketId?: string; // ID opcional de la bolsa a la que se destina
+  allocationMode?: 'general' | 'bucket_budget' | 'bucket_refund'; // Inyección a techo vs compensación de gasto
 }
 
 export interface BatchAnalysisResult {

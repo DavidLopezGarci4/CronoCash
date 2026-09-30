@@ -1,6 +1,6 @@
 {
-  "currentVersion": "1.23.0",
-  "buildNumber": 12300,
+  "currentVersion": "1.24.0",
+  "buildNumber": 12400,
   "lastUpdated": "2026-09-30",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
@@ -9,11 +9,25 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.24.0",
+      "build": 12400,
+      "date": "30 Sep 2026",
+      "title": "Direccionamiento de Ingresos a Bolsas: Inyecciones de Presupuesto y Reembolsos de Gastos",
+      "isCurrent": true,
+      "highlights": [
+        "🎯 Asignación Directa de Ingresos a Bolsas: Posibilidad de vincular cualquier ingreso extra (puntual o recurrente) directamente a una bolsa para cubrir sus costes específicos.",
+        "🔄 Reembolso / Compensación de Gastos (Bizums y Devoluciones): Minora directamente los gastos registrados en la bolsa destino sin distorsionar tus ingresos brutos ni el cómputo de impuestos.",
+        "🚀 Inyecciones a Presupuesto (Top-Up): Amplía el techo presupuestario de la bolsa para el mes asignado, mostrándose claramente con insignias visuales dinámicas.",
+        "🏦 Asignación en Importador Bancario (CSV / Excel): Clasifica cobros y transferencias entrantes como reembolsos o inyecciones a bolsas directamente durante la revisión del extracto.",
+        "🛡️ Blindaje Contable Anti-Doble Cómputo: Mantiene la ecuación universal entre la suma de gastos por bolsa, el Dashboard y el motor de Gasto Diario Seguro (Safe-to-Spend)."
+      ]
+    },
+    {
       "version": "1.23.0",
       "build": 12300,
       "date": "30 Sep 2026",
       "title": "Control de Capacidad Presupuestaria y Asignación de Ingresos a Bolsas (Zero-Based Envelopes)",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "⚖️ Balance de Presupuesto Real: Widget interactivo en Bolsas que compara en tiempo real el total asignado a tus sobres con los ingresos estimados del mes (salario real o base más ingresos extras).",
         "📊 Detección Instantánea de Sobre-presupuesto y Margen Libre: Alertas claras si tus bolsas superan tus ingresos (ej. bolsas de 2.000 € con ingresos de 1.500 € = +500 € excedido) o si dispones de margen libre para asignar o ahorrar.",

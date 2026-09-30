@@ -3,6 +3,26 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.24.0] - 2026-09-30
+
+### Added
+- **Direccionamiento de Ingresos a Bolsas (Inyecciones de Presupuesto y Reembolsos de Gastos):**
+  - **Servicio Desacoplado `IncomeAllocationService` (`src/services/incomeAllocationService.ts`):**
+    - Métodos puros para calcular inyecciones temporales de límite (`getBucketInjectedBudget`) y reembolsos de gasto (`getBucketRefunds`).
+    - Exclusión automática de reembolsos en los ingresos brutos del mes para evitar el doble cómputo en `BudgetCapacityService` y `SafeToSpendService`.
+  - **Modelado en `ExtraIncome` (`src/types/index.ts`):**
+    - Campos opcionales no invasivos `targetBucketId?: string` y `allocationMode?: 'general' | 'bucket_budget' | 'bucket_refund'`.
+  - **Modal de Ingresos Extras (`ExtraIncomeModal.tsx`):**
+    - Selector desplegable para destinar un ingreso extra directamente a una bolsa de presupuesto existente.
+    - Selector de modo: 🚀 *Inyección Presupuestaria* (incrementa el techo de la bolsa) vs 🔄 *Reembolso / Compensación* (minora directamente los gastos registrados en la bolsa, ideal para Bizums y devoluciones).
+    - Visualización de insignias de asignación a bolsa en el listado de ingresos registrados.
+  - **Visualización y Cuadre Contable en Bolsas (`BucketsView.tsx`):**
+    - Cálculo de gasto neto (`grossSpent - refunds`) y límite efectivo ajustado (`budgetLimit + surplus + injected`).
+    - Insignias dinámicas en las tarjetas de bolsas: `Extra +X €` y `Reembolso -X €`.
+    - Desglose contable transparente de gasto neto y reembolsos recibidos.
+  - **Integración en Importador de Extractos Bancarios (`CsvImportModal.tsx`):**
+    - Clasificación con 1 solo toque de transferencias o cobros entrantes como reembolsos o inyecciones a bolsas directamente desde el extracto bancario CSV / Excel.
+
 ## [1.23.0] - 2026-09-30
 
 ### Added

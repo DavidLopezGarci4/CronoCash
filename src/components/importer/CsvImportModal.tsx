@@ -16,6 +16,8 @@ import {
   Loader2,
   Building,
   Coins,
+  ArrowRightLeft,
+  TrendingUp,
 } from 'lucide-react';
 import { Expense, Bucket, SmartRule, ExtraIncome } from '../../types';
 import {
@@ -161,14 +163,40 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
   };
 
   const handleUpdateIncomeTarget = (id: string, compositeValue: string) => {
-    const [mode, month] = compositeValue.split(':');
+    const [mode, param] = compositeValue.split(':');
     setTransactions((prev) =>
       prev.map((t) => {
         if (t.id !== id) return t;
         if (mode === 'salary') {
-          return { ...t, incomeCategoryMode: 'salary', targetSalaryMonth: month };
+          return {
+            ...t,
+            incomeCategoryMode: 'salary',
+            targetSalaryMonth: param,
+            targetBucketId: undefined,
+            allocationMode: 'general',
+          };
+        } else if (mode === 'bucket_budget') {
+          return {
+            ...t,
+            incomeCategoryMode: 'extra',
+            targetBucketId: param,
+            allocationMode: 'bucket_budget',
+          };
+        } else if (mode === 'bucket_refund') {
+          return {
+            ...t,
+            incomeCategoryMode: 'extra',
+            targetBucketId: param,
+            allocationMode: 'bucket_refund',
+          };
         } else {
-          return { ...t, incomeCategoryMode: 'extra', targetExtraMonth: month };
+          return {
+            ...t,
+            incomeCategoryMode: 'extra',
+            targetExtraMonth: param,
+            targetBucketId: undefined,
+            allocationMode: 'general',
+          };
         }
       })
     );
@@ -196,10 +224,16 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
   });
 
   // Asentar e Importar
-  const handleCommitImport = async () => {
-    const toImport = transactions.filter((t) => t.selected);
+  const handleCommitImport = async (importAllValid: boolean = false) => {
+    const toImport = importAllValid
+      ? transactions.filter((t) => !t.isDuplicate)
+      : transactions.filter((t) => t.selected);
     if (toImport.length === 0) {
-      alert('Selecciona al menos una transacción para importar.');
+      alert(
+        importAllValid
+          ? 'No hay transacciones válidas para importar en este extracto.'
+          : 'Selecciona al menos una transacción para importar o pulsa "Importar Todas".'
+      );
       return;
     }
 
@@ -248,6 +282,8 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
             date: finalDate,
             isActive: true,
             rawHash: tx.rawHash,
+            targetBucketId: tx.targetBucketId,
+            allocationMode: tx.allocationMode || (tx.targetBucketId ? 'bucket_budget' : 'general'),
             notes: `Abono bancario importado (${fileName})${finalDate !== tx.parsedDate ? ` • Imputado a ${formatMonthName(targetExtraMonth)} (cobro ${tx.parsedDate})` : ''}`,
             createdAt: timestamp,
           });
@@ -319,36 +355,73 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 dark:bg-slate-950/85 backdrop-blur-md animate-fadeIn">
       <div className="bg-white dark:bg-[#0b101c] border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100">
         {/* Cabecera */}
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-slate-50 dark:bg-slate-900/40">
-          <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-100 dark:bg-gradient-to-br dark:from-emerald-500/20 dark:to-teal-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-slate-50 dark:bg-slate-900/40 shrink-0">
+          <div className="flex items-center space-x-3 min-w-0">
+            <div className="p-2 sm:p-2.5 rounded-2xl bg-emerald-100 dark:bg-gradient-to-br dark:from-emerald-500/20 dark:to-teal-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 shrink-0">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center space-x-2">
-                <h2 className="text-base font-black text-slate-900 dark:text-white">Importador Bancario Universal</h2>
+                <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate">Importador Bancario Universal</h2>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Compatible con extractos Excel (.xlsx, .xls) y CSV de Santander, BBVA, CaixaBank, Sabadell, ING, Revolut, etc.
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
+                Compatible con extractos Excel (.xlsx, .xls) y CSV de Santander, BBVA, Bankinter, CaixaBank, ING, etc.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 shrink-0">
+            {step === 'review' && (
+              <>
+                {selectedCount > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => handleCommitImport(false)}
+                    disabled={isProcessing}
+                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-emerald-500/25 active:scale-95 cursor-pointer transition-all"
+                    title={`Asentar las ${selectedCount} transacciones seleccionadas`}
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                    )}
+                    <span>Asentar ({selectedCount})</span>
+                  </button>
+                ) : validCount > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => handleCommitImport(true)}
+                    disabled={isProcessing}
+                    className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer transition-all"
+                    title={`Importar todas las ${validCount} transacciones válidas a la vez`}
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    )}
+                    <span className="hidden sm:inline">Importar</span> Todas ({validCount})
+                  </button>
+                ) : null}
+              </>
+            )}
+
             {onOpenRulesManager && (
               <button
                 type="button"
                 onClick={onOpenRulesManager}
-                className="px-3 py-1.5 rounded-xl bg-cyan-100 dark:bg-slate-800/80 hover:bg-cyan-200 dark:hover:bg-slate-700/80 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/30 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all shadow-xs"
+                className="hidden md:flex px-3 py-1.5 rounded-xl bg-cyan-100 dark:bg-slate-800/80 hover:bg-cyan-200 dark:hover:bg-slate-700/80 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/30 text-xs font-semibold items-center gap-1.5 cursor-pointer transition-all shadow-xs"
               >
                 <Sparkles className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-                <span className="hidden sm:inline">Reglas Inteligentes</span>
+                <span>Reglas</span>
               </button>
             )}
 
             <button
               onClick={onClose}
               className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-colors cursor-pointer"
+              title="Cerrar modal"
             >
               <X className="w-5 h-5" />
             </button>
@@ -418,46 +491,46 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
           </div>
         ) : (
           /* PASO 2: BANDEJA DE REVISIÓN (STAGING TABLE) */
-          <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {/* Resumen superior con contadores */}
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900/20 space-y-3">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <div className="p-3 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs">
+            <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900/20 space-y-2.5 sm:space-y-3 shrink-0">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+                <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs">
                   <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Total Detectadas</div>
-                  <div className="text-lg font-black font-mono text-slate-900 dark:text-white mt-0.5">{totalCount}</div>
+                  <div className="text-base sm:text-lg font-black font-mono text-slate-900 dark:text-white mt-0.5">{totalCount}</div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/30 shadow-xs">
+                <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/30 shadow-xs">
                   <div className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3" />
                     <span>Nuevas Válidas</span>
                   </div>
-                  <div className="text-lg font-black font-mono text-emerald-800 dark:text-emerald-300 mt-0.5">{validCount}</div>
+                  <div className="text-base sm:text-lg font-black font-mono text-emerald-800 dark:text-emerald-300 mt-0.5">{validCount}</div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs">
+                <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs">
                   <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
                     <ShieldAlert className="w-3 h-3 text-slate-400 dark:text-slate-500" />
-                    <span>Duplicadas Descartadas</span>
+                    <span>Duplicadas</span>
                   </div>
-                  <div className="text-lg font-black font-mono text-slate-500 dark:text-slate-400 mt-0.5">{duplicateCount}</div>
+                  <div className="text-base sm:text-lg font-black font-mono text-slate-500 dark:text-slate-400 mt-0.5">{duplicateCount}</div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-500/30 shadow-xs">
+                <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-500/30 shadow-xs">
                   <div className="text-[10px] uppercase font-bold text-cyan-700 dark:text-cyan-400 flex items-center gap-1">
                     <Sparkles className="w-3 h-3" />
                     <span>Auto-Asignadas</span>
                   </div>
-                  <div className="text-lg font-black font-mono text-cyan-800 dark:text-cyan-300 mt-0.5">{matchedCount}</div>
+                  <div className="text-base sm:text-lg font-black font-mono text-cyan-800 dark:text-cyan-300 mt-0.5">{matchedCount}</div>
                 </div>
               </div>
 
               {/* Pestañas de filtrado & Controles de Selección masiva */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                <div className="flex items-center space-x-1 bg-slate-200/70 dark:bg-slate-950/70 p-1 rounded-xl border border-slate-300 dark:border-slate-800">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                <div className="flex items-center space-x-1 bg-slate-200/70 dark:bg-slate-950/70 p-1 rounded-xl border border-slate-300 dark:border-slate-800 text-xs">
                   <button
                     onClick={() => setFilterView('all')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                    className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
                       filterView === 'all'
                         ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -467,7 +540,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                   </button>
                   <button
                     onClick={() => setFilterView('valid')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                    className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
                       filterView === 'valid'
                         ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 shadow-xs'
                         : 'text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-300'
@@ -477,7 +550,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                   </button>
                   <button
                     onClick={() => setFilterView('matched')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                    className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
                       filterView === 'matched'
                         ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 shadow-xs'
                         : 'text-slate-600 dark:text-slate-400 hover:text-cyan-700 dark:hover:text-cyan-300'
@@ -488,7 +561,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                   {duplicateCount > 0 && (
                     <button
                       onClick={() => setFilterView('duplicates')}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
                         filterView === 'duplicates'
                           ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 shadow-xs'
                           : 'text-slate-600 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-300'
@@ -503,24 +576,28 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSelectAllValid(true)}
-                    className="text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer font-semibold"
+                    className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-500/30 font-bold transition-all cursor-pointer"
                   >
-                    Seleccionar todas las válidas
+                    Seleccionar válidas ({validCount})
                   </button>
-                  <span className="text-slate-300 dark:text-slate-600">•</span>
                   <button
                     type="button"
                     onClick={() => handleSelectAllValid(false)}
-                    className="text-slate-500 dark:text-slate-400 hover:underline cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700 font-medium transition-all cursor-pointer"
                   >
                     Deseleccionar
                   </button>
+                  {selectedCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-mono font-bold text-[11px] border border-emerald-300 dark:border-emerald-500/30 animate-pulse">
+                      {selectedCount} elegidas
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Tabla interactiva con scroll */}
-            <div className="flex-1 overflow-y-auto min-h-[280px] p-4 space-y-2">
+            <div className="flex-1 overflow-y-auto min-h-0 p-3 sm:p-4 space-y-2.5">
               {displayedTransactions.length === 0 ? (
                 <div className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs">
                   No hay transacciones en este filtro.
@@ -533,17 +610,20 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                       tx.isDuplicate
                         ? 'bg-slate-100/50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-900 opacity-60'
                         : tx.selected
-                        ? 'bg-white dark:bg-slate-900/70 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-                        : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-200 dark:border-slate-900/80 opacity-70'
+                        ? 'bg-emerald-50/20 dark:bg-emerald-950/15 border-emerald-300 dark:border-emerald-500/40 shadow-xs'
+                        : 'bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 opacity-80'
                     }`}
                   >
-                    <div className="flex items-center space-x-3 min-w-0">
+                    <div
+                      className="flex items-center space-x-3 min-w-0 cursor-pointer select-none"
+                      onClick={() => !tx.isDuplicate && handleToggleSelect(tx.id)}
+                    >
                       <input
                         type="checkbox"
                         checked={tx.selected}
                         disabled={tx.isDuplicate}
                         onChange={() => handleToggleSelect(tx.id)}
-                        className="rounded text-emerald-500 focus:ring-0 w-4 h-4 cursor-pointer"
+                        className="rounded text-emerald-500 focus:ring-0 w-4 h-4 cursor-pointer shrink-0"
                       />
 
                       <div className="min-w-0">
@@ -556,7 +636,23 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                           </span>
                           {tx.isIncome && (
                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-bold flex items-center gap-1.5">
-                              {tx.incomeCategoryMode === 'salary' ? (
+                              {tx.targetBucketId ? (
+                                (() => {
+                                  const targetB = buckets.find((b) => b.id === tx.targetBucketId);
+                                  const bName = targetB?.name || 'Bolsa';
+                                  return tx.allocationMode === 'bucket_refund' ? (
+                                    <>
+                                      <ArrowRightLeft className="w-3 h-3 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                                      <span>Reembolso {bName}</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <TrendingUp className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                      <span>Inyección {bName}</span>
+                                    </>
+                                  );
+                                })()
+                              ) : tx.incomeCategoryMode === 'salary' ? (
                                 <>
                                   <Building className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
                                   <span>Nómina</span>
@@ -638,7 +734,9 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                                 activeMode === 'salary'
                                   ? (tx.targetSalaryMonth || targetSalaryMonth)
                                   : (tx.targetExtraMonth || currentMonth);
-                            const selectVal = `${activeMode}:${activeMonth}`;
+                            const selectVal = tx.targetBucketId
+                              ? `${tx.allocationMode || 'bucket_budget'}:${tx.targetBucketId}`
+                              : `${activeMode}:${activeMonth}`;
 
                             return (
                               <select
@@ -647,35 +745,53 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                                 onChange={(e) => handleUpdateIncomeTarget(tx.id, e.target.value)}
                                 className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-emerald-300 dark:border-emerald-500/40 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 font-semibold focus:outline-none focus:border-emerald-500 cursor-pointer max-w-[210px] sm:max-w-[270px] truncate"
                               >
-                                {isAfter20 ? (
+                                <optgroup label="Nóminas y Salarios">
+                                  {isAfter20 ? (
+                                    <>
+                                      <option value={`salary:${targetSalaryMonth}`}>
+                                        Nómina {formatMonthName(targetSalaryMonth)} (Financia prox. mes)
+                                      </option>
+                                      <option value={`salary:${currentMonth}`}>
+                                        Nómina {formatMonthName(currentMonth)} (Mes del cobro)
+                                      </option>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <option value={`salary:${currentMonth}`}>
+                                        Nómina {formatMonthName(currentMonth)} (Financia mes actual)
+                                      </option>
+                                      <option value={`salary:${prevMonth}`}>
+                                        Nómina {formatMonthName(prevMonth)} (Mes anterior)
+                                      </option>
+                                    </>
+                                  )}
+                                </optgroup>
+
+                                <optgroup label="Ingresos Extras Generales">
+                                  <option value={`extra:${currentMonth}`}>
+                                    Ingreso Extra {formatMonthName(currentMonth)} (Mes actual)
+                                  </option>
+                                  <option value={`extra:${nextMonth}`}>
+                                    Ingreso Extra {formatMonthName(nextMonth)} (Mes siguiente)
+                                  </option>
+                                </optgroup>
+
+                                {buckets && buckets.length > 0 && (
                                   <>
-                                    <option value={`salary:${targetSalaryMonth}`}>
-                                      Nómina {formatMonthName(targetSalaryMonth)} (Financia prox. mes)
-                                    </option>
-                                    <option value={`salary:${currentMonth}`}>
-                                      Nómina {formatMonthName(currentMonth)} (Mes del cobro)
-                                    </option>
-                                    <option value={`extra:${currentMonth}`}>
-                                      Ingreso Extra {formatMonthName(currentMonth)} (Mes actual)
-                                    </option>
-                                    <option value={`extra:${nextMonth}`}>
-                                      Ingreso Extra {formatMonthName(nextMonth)} (Mes siguiente)
-                                    </option>
-                                  </>
-                                ) : (
-                                  <>
-                                    <option value={`salary:${currentMonth}`}>
-                                      Nómina {formatMonthName(currentMonth)} (Financia mes actual)
-                                    </option>
-                                    <option value={`salary:${prevMonth}`}>
-                                      Nómina {formatMonthName(prevMonth)} (Mes anterior)
-                                    </option>
-                                    <option value={`extra:${currentMonth}`}>
-                                      Ingreso Extra {formatMonthName(currentMonth)} (Mes actual)
-                                    </option>
-                                    <option value={`extra:${nextMonth}`}>
-                                      Ingreso Extra {formatMonthName(nextMonth)} (Mes siguiente)
-                                    </option>
+                                    <optgroup label="Reembolso de Gastos (Minora gasto)">
+                                      {buckets.map((b) => (
+                                        <option key={`refund:${b.id}`} value={`bucket_refund:${b.id}`}>
+                                          Reembolso en {b.name} (-gasto)
+                                        </option>
+                                      ))}
+                                    </optgroup>
+                                    <optgroup label="Inyección a Bolsa (Amplía límite)">
+                                      {buckets.map((b) => (
+                                        <option key={`budget:${b.id}`} value={`bucket_budget:${b.id}`}>
+                                          Inyección en {b.name} (+límite)
+                                        </option>
+                                      ))}
+                                    </optgroup>
                                   </>
                                 )}
                               </select>
@@ -728,10 +844,10 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
               )}
             </div>
 
-            {/* Footer con Switch de Auto-Reglas y Botón Principal */}
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/40 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center space-x-2">
-                <label className="flex items-center space-x-2.5 cursor-pointer text-xs text-slate-700 dark:text-slate-300">
+            {/* Footer Fijo con Acciones Principales y Soporte Dual de Importación */}
+            <div className="shrink-0 sticky bottom-0 z-30 p-3.5 sm:p-4 border-t border-slate-200 dark:border-slate-800/90 bg-white/95 dark:bg-[#0b101c]/95 backdrop-blur-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-2xl">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <label className="flex items-center space-x-2.5 cursor-pointer text-xs text-slate-700 dark:text-slate-300 select-none">
                   <input
                     type="checkbox"
                     checked={saveAsRules}
@@ -739,29 +855,56 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                     className="rounded text-cyan-500 focus:ring-0 w-4 h-4 cursor-pointer"
                   />
                   <span>
-                    Guardar asignaciones como <strong>nuevas reglas automáticas</strong> para futuros extractos
+                    Crear <strong>reglas inteligentes</strong> con las asignaciones
                   </span>
                 </label>
+
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">{selectedCount}</span> de{' '}
+                  <span className="font-bold">{validCount}</span> válidas seleccionadas
+                </div>
               </div>
 
               <div className="flex items-center space-x-2 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setStep('upload')}
-                  className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer flex-1 sm:flex-none text-center"
+                  className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer flex-1 sm:flex-none text-center"
                 >
                   Cambiar archivo
                 </button>
 
+                {/* Opción 1: Importar todas las válidas directamente */}
                 <button
                   type="button"
-                  onClick={handleCommitImport}
+                  onClick={() => handleCommitImport(true)}
+                  disabled={validCount === 0 || isProcessing}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
+                    validCount > 0 && !isProcessing
+                      ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600 active:scale-95 shadow-xs'
+                      : 'bg-slate-100 dark:bg-slate-900 text-slate-400 dark:text-slate-600 border-transparent cursor-not-allowed shadow-none'
+                  }`}
+                  title="Importar todas las transacciones válidas sin duplicados de una sola vez"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                  <span>Importar Todas ({validCount})</span>
+                </button>
+
+                {/* Opción 2: Asentar solo las seleccionadas por el usuario */}
+                <button
+                  type="button"
+                  onClick={() => handleCommitImport(false)}
                   disabled={selectedCount === 0 || isProcessing}
                   className={`px-5 py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg flex-1 sm:flex-none ${
                     selectedCount > 0 && !isProcessing
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-emerald-500/25 active:scale-95'
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-emerald-500/25 active:scale-95 ring-2 ring-emerald-500/20'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed shadow-none'
                   }`}
+                  title={
+                    selectedCount > 0
+                      ? `Guardar en la base de datos las ${selectedCount} transacciones seleccionadas`
+                      : 'Selecciona una o más transacciones para asentar'
+                  }
                 >
                   {isProcessing ? (
                     <>
@@ -771,12 +914,12 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                   ) : importSummary ? (
                     <>
                       <Check className="w-4 h-4 stroke-[3]" />
-                      <span>¡{importSummary.imported} Transacciones Importadas!</span>
+                      <span>¡{importSummary.imported} Importadas!</span>
                     </>
                   ) : (
                     <>
                       <ArrowRight className="w-4 h-4 stroke-[3]" />
-                      <span>Asentar e Importar {selectedCount} Movimientos</span>
+                      <span>Asentar {selectedCount > 0 ? `${selectedCount} ` : ''}Seleccionadas</span>
                     </>
                   )}
                 </button>

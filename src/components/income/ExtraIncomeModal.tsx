@@ -15,8 +15,10 @@ import {
   Check,
   Info,
   DollarSign,
+  ArrowRightLeft,
+  Layers,
 } from 'lucide-react';
-import { ExtraIncome, ExtraIncomeType, ExtraIncomeCategory } from '../../types';
+import { ExtraIncome, ExtraIncomeType, ExtraIncomeCategory, IncomeAllocationMode, Bucket } from '../../types';
 import { HapticService } from '../../services/hapticService';
 import { usePrivacy } from '../../context/PrivacyContext';
 
@@ -24,6 +26,7 @@ interface ExtraIncomeModalProps {
   isOpen: boolean;
   onClose: () => void;
   extraIncomes: ExtraIncome[];
+  buckets?: Bucket[];
   onSaveIncome: (income: ExtraIncome) => Promise<void>;
   onDeleteIncome: (id: string) => Promise<void>;
   currency: string;
@@ -44,6 +47,7 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
   isOpen,
   onClose,
   extraIncomes,
+  buckets = [],
   onSaveIncome,
   onDeleteIncome,
   currency,
@@ -59,6 +63,8 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
   const [category, setCategory] = useState<ExtraIncomeCategory>('gift');
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [dayOfMonth, setDayOfMonth] = useState<number>(() => new Date().getDate());
+  const [targetBucketId, setTargetBucketId] = useState<string>('');
+  const [allocationMode, setAllocationMode] = useState<IncomeAllocationMode>('bucket_budget');
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -106,12 +112,16 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
         isActive: true,
         notes: notes.trim() || undefined,
         createdAt: new Date().toISOString(),
+        targetBucketId: targetBucketId || undefined,
+        allocationMode: targetBucketId ? allocationMode : 'general',
       };
 
       await onSaveIncome(newIncome);
       HapticService.impactMedium();
       setTitle('');
       setAmount('');
+      setTargetBucketId('');
+      setAllocationMode('bucket_budget');
       setNotes('');
       setActiveTab('list');
     } catch (err: any) {
@@ -366,6 +376,92 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                 </div>
               )}
 
+              {/* Asignación Directa a Bolsa (Opcional) */}
+              <div className="space-y-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                    <span>Destinar a una Bolsa Específica (Opcional)</span>
+                  </label>
+                  {targetBucketId && (
+                    <button
+                      type="button"
+                      onClick={() => setTargetBucketId('')}
+                      className="text-[10px] text-slate-500 hover:text-rose-500 dark:text-slate-400 dark:hover:text-rose-400 cursor-pointer font-semibold"
+                    >
+                      Desvincular
+                    </button>
+                  )}
+                </div>
+
+                <select
+                  value={targetBucketId}
+                  onChange={(e) => {
+                    HapticService.selection();
+                    setTargetBucketId(e.target.value);
+                  }}
+                  className="w-full h-11 px-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-teal-500 cursor-pointer"
+                >
+                  <option value="">Ninguna — Liquidez General / Salario (Sin bolsa)</option>
+                  {(buckets || []).map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name} (Límite: {b.budgetLimit} {currency})
+                    </option>
+                  ))}
+                </select>
+
+                {targetBucketId && (
+                  <div className="space-y-2 pt-1 animate-fadeIn">
+                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
+                      Efecto financiero en la bolsa seleccionada:
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          HapticService.selection();
+                          setAllocationMode('bucket_budget');
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                          allocationMode === 'bucket_budget'
+                            ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/40 shadow-xs ring-1 ring-emerald-500/30'
+                            : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-xs">
+                          <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <span>Inyección Presupuestaria</span>
+                        </div>
+                        <p className="text-[10px] mt-1 opacity-80 leading-snug">
+                          Amplía el límite de gasto de esta bolsa sin diluirse en el gasto diario.
+                        </p>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          HapticService.selection();
+                          setAllocationMode('bucket_refund');
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                          allocationMode === 'bucket_refund'
+                            ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40 shadow-xs ring-1 ring-cyan-500/30'
+                            : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-xs">
+                          <ArrowRightLeft className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                          <span>Reembolso / Devolución</span>
+                        </div>
+                        <p className="text-[10px] mt-1 opacity-80 leading-snug">
+                          Minora directamente los gastos registrados en esta bolsa (Bizums, devoluciones).
+                        </p>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Notas opcionales */}
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Notas Opcionales</label>
@@ -406,6 +502,7 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                 extraIncomes.map((inc) => {
                   const Icon = getCategoryIcon(inc.category);
                   const isCurrent = inc.type === 'recurring' || (inc.date || '').startsWith(currentMonthPrefix);
+                  const targetBucket = (buckets || []).find((b) => b.id === inc.targetBucketId);
                   return (
                     <div
                       key={inc.id}
@@ -426,7 +523,7 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                           <Icon className="w-4 h-4" />
                         </div>
                         <div className="min-w-0">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">{inc.title}</h4>
                             <span
                               className={`text-[9px] font-mono px-1.5 py-0.2 rounded-full border ${
@@ -437,6 +534,22 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                             >
                               {inc.type === 'recurring' ? 'Recurrente' : 'Puntual'}
                             </span>
+                            {targetBucket && (
+                              <span
+                                className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border flex items-center gap-1 ${
+                                  inc.allocationMode === 'bucket_refund'
+                                    ? 'bg-cyan-100 dark:bg-cyan-500/15 text-cyan-800 dark:text-cyan-300 border-cyan-200 dark:border-cyan-500/30'
+                                    : 'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30'
+                                }`}
+                              >
+                                {inc.allocationMode === 'bucket_refund' ? (
+                                  <ArrowRightLeft className="w-2.5 h-2.5 shrink-0" />
+                                ) : (
+                                  <TrendingUp className="w-2.5 h-2.5 shrink-0" />
+                                )}
+                                <span>{targetBucket.name} ({inc.allocationMode === 'bucket_refund' ? 'Reembolso' : 'Inyección'})</span>
+                              </span>
+                            )}
                             {isCurrent && (
                               <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 px-1 rounded">
                                 Activo este mes
@@ -451,7 +564,11 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                       </div>
 
                       <div className="flex items-center space-x-2 shrink-0">
-                        <span className="text-xs sm:text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                        <span className={`text-xs sm:text-sm font-mono font-bold ${
+                          inc.allocationMode === 'bucket_refund'
+                            ? 'text-cyan-600 dark:text-cyan-400'
+                            : 'text-emerald-600 dark:text-emerald-400'
+                        }`}>
                           +{mask(inc.amount, currency)}
                         </span>
 
