@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import {
   X,
   Shield,
@@ -17,6 +17,7 @@ import {
   Cloud,
   Layers,
   ChevronRight,
+  ChevronDown,
   FileText,
   BookOpen,
   Smartphone,
@@ -47,6 +48,60 @@ import { ThemeService } from '../../services/themeService';
 import { resolveTargetSalaryMonth, formatMonthName } from '../../services/csvImporterService';
 import { AboutModal } from '../about/AboutModal';
 import { FAQModal } from '../faq/FAQModal';
+
+export type SettingsSectionKey =
+  | 'profile'
+  | 'security'
+  | 'preferences'
+  | 'automation_reports'
+  | 'backups'
+  | 'help_system';
+
+interface SettingsSubsectionConfig {
+  key: SettingsSectionKey;
+  label: string;
+  tagline: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const SETTINGS_SUBSECTIONS: SettingsSubsectionConfig[] = [
+  {
+    key: 'profile',
+    label: 'Perfil & Salario Real',
+    tagline: 'Datos fiscales, nóminas blindadas e ingresos base',
+    icon: User,
+  },
+  {
+    key: 'security',
+    label: 'Seguridad & Bóveda Cifrada',
+    tagline: 'Cifrado AES-256-GCM, PIN de acceso y biometría',
+    icon: ShieldCheck,
+  },
+  {
+    key: 'preferences',
+    label: 'Preferencias & Modo Visual',
+    tagline: 'Tema visual, avisos y respuesta háptica',
+    icon: Sliders,
+  },
+  {
+    key: 'automation_reports',
+    label: 'Reglas Inteligentes & Fiscalidad',
+    tagline: 'Motor de reglas offline e informes Mod. 130/303',
+    icon: Sparkles,
+  },
+  {
+    key: 'backups',
+    label: 'Copias de Seguridad & Nube',
+    tagline: 'Drive 2 ranuras y respaldo local cifrado',
+    icon: Cloud,
+  },
+  {
+    key: 'help_system',
+    label: 'Ayuda, Iconos & Arquitectura',
+    tagline: 'Guía FAQ, catálogo Verticons y grafo del sistema',
+    icon: BookOpen,
+  },
+];
 
 const AppArchitectureGraph = React.lazy(() => import('./AppArchitectureGraph'));
 
@@ -104,10 +159,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [downloadingFile, setDownloadingFile] = useState<string | null>(null);
   const [vaultStatus, setVaultStatus] = useState<string | null>(null);
 
-  // Segmentación por subsecciones
-  const [activeSection, setActiveSection] = useState<
-    'all' | 'profile' | 'security' | 'preferences' | 'automation_reports' | 'backups' | 'help_system'
-  >('all');
+  // Segmentación por subsecciones (desplegable principal integrado)
+  const [activeSection, setActiveSection] = useState<SettingsSectionKey>('profile');
+  const [isSectionDropdownOpen, setIsSectionDropdownOpen] = useState(false);
+  const sectionDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Cerrar desplegable de navegación al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        sectionDropdownRef.current &&
+        !sectionDropdownRef.current.contains(e.target as Node)
+      ) {
+        setIsSectionDropdownOpen(false);
+      }
+    };
+    if (isSectionDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSectionDropdownOpen]);
 
   // Nóminas mensuales reales blindadas
   const [currentSalaries, setCurrentSalaries] = useState<Record<string, MonthlySalaryOverride>>(
@@ -310,6 +383,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
+  const currentSectionConfig =
+    SETTINGS_SUBSECTIONS.find((s) => s.key === activeSection) || SETTINGS_SUBSECTIONS[0];
+  const CurrentSectionIcon = currentSectionConfig.icon;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
       <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-lg p-5 text-slate-900 dark:text-white shadow-2xl overflow-y-auto max-h-[90vh]">
@@ -331,32 +408,116 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </button>
         </div>
 
-        {/* Selector Desplegable de Subsecciones (Elimina scroll vertical excesivo) */}
-        <div className="mt-3 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
-          <label htmlFor="settingsSectionSelect" className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5 shrink-0">
-            <Sliders className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
-            <span className="hidden sm:inline">Subsección de Ajustes:</span>
-            <span className="sm:hidden">Sección:</span>
-          </label>
-          <select
-            id="settingsSectionSelect"
-            value={activeSection}
-            onChange={(e) => setActiveSection(e.target.value as any)}
-            className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700/80 hover:border-emerald-500/50 rounded-xl px-3 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-300 focus:outline-none focus:border-emerald-500 cursor-pointer transition-all shadow-xs"
+        {/* Selector Desplegable Principal de Subsecciones (100% Integrado y con Iconos Lucide) */}
+        <div ref={sectionDropdownRef} className="mt-3 relative z-30">
+          <div className="text-[10px] uppercase tracking-wider font-extrabold text-slate-500 dark:text-slate-400 mb-1.5 px-1 flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Sliders className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+              <span>Navegación de Ajustes</span>
+            </span>
+            <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">
+              {SETTINGS_SUBSECTIONS.findIndex((s) => s.key === activeSection) + 1} de {SETTINGS_SUBSECTIONS.length}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsSectionDropdownOpen((prev) => !prev)}
+            aria-expanded={isSectionDropdownOpen}
+            className={`w-full p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border text-left transition-all flex items-center justify-between gap-3 shadow-xs cursor-pointer ${
+              isSectionDropdownOpen
+                ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md'
+                : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+            }`}
           >
-            <option value="all">📋 Todas las Subsecciones (Vista Completa)</option>
-            <option value="profile">👤 Perfil, Facturación & Salario Real</option>
-            <option value="security">🛡️ Seguridad, PIN & Bóveda Cifrada</option>
-            <option value="preferences">⚙️ Notificaciones & Respuesta Háptica</option>
-            <option value="automation_reports">📊 Auto-Categorización & Fiscalidad</option>
-            <option value="backups">☁️ Copias de Seguridad & Exportación</option>
-            <option value="help_system">ℹ️ Ayuda, Arquitectura & Iconos</option>
-          </select>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0">
+                <CurrentSectionIcon className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                  {currentSectionConfig.label}
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                  {currentSectionConfig.tagline}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-1 rounded-lg text-slate-400 dark:text-slate-500 shrink-0">
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  isSectionDropdownOpen ? 'rotate-180 text-emerald-500' : ''
+                }`}
+              />
+            </div>
+          </button>
+
+          {/* Menú Flotante de Subsecciones (100% SVG Lucide, Sin Emojis ni Diálogo Nativo) */}
+          {isSectionDropdownOpen && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden p-1.5 space-y-1 animate-in fade-in duration-150 z-50">
+              {SETTINGS_SUBSECTIONS.map((section) => {
+                const IconComponent = section.icon;
+                const isSelected = section.key === activeSection;
+
+                return (
+                  <button
+                    key={section.key}
+                    type="button"
+                    onClick={() => {
+                      setActiveSection(section.key);
+                      setIsSectionDropdownOpen(false);
+                      if (hapticsEnabled) {
+                        HapticService.impactLight();
+                      }
+                    }}
+                    className={`w-full p-2.5 rounded-xl text-left transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                      isSelected
+                        ? 'bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-500/30'
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={`p-2 rounded-xl shrink-0 transition-colors ${
+                          isSelected
+                            ? 'bg-emerald-500 text-slate-950 font-bold'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                        }`}
+                      >
+                        <IconComponent className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <div
+                          className={`text-xs font-bold leading-tight ${
+                            isSelected
+                              ? 'text-emerald-800 dark:text-emerald-300'
+                              : 'text-slate-800 dark:text-slate-200'
+                          }`}
+                        >
+                          {section.label}
+                        </div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
+                          {section.tagline}
+                        </div>
+                      </div>
+                    </div>
+
+                    {isSelected && (
+                      <div className="p-1 text-emerald-600 dark:text-emerald-400 shrink-0">
+                        <Check className="w-4 h-4 stroke-[2.5]" />
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSaveGeneral} className="mt-4 space-y-4">
           {/* SUBSECCIÓN: PERFIL, FACTURACIÓN & NÓMINAS */}
-          {(activeSection === 'all' || activeSection === 'profile') && (
+          {activeSection === 'profile' && (
             <>
               {/* Perfil & Datos Fiscales */}
               <div className="space-y-3 p-3 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
@@ -566,7 +727,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
 
           {/* SUBSECCIÓN: SEGURIDAD, PIN & BÓVEDA CIFRADA */}
-          {(activeSection === 'all' || activeSection === 'security') && (
+          {activeSection === 'security' && (
             <>
               {/* Seguridad y Clave PIN */}
               <div className="space-y-3 p-3 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
@@ -657,7 +818,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
 
           {/* SUBSECCIÓN: PREFERENCIAS & HÁPTICA */}
-          {(activeSection === 'all' || activeSection === 'preferences') && (
+          {activeSection === 'preferences' && (
             <>
               {/* Modo Visual y Tema (Light / Dark / System) */}
               <div className="space-y-3 p-3 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
@@ -848,7 +1009,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
 
           {/* SUBSECCIÓN: AUTOMATIZACIÓN & FISCALIDAD */}
-          {(activeSection === 'all' || activeSection === 'automation_reports') && (
+          {activeSection === 'automation_reports' && (
             <>
               {/* Reglas Inteligentes de Categorización */}
               <div className="space-y-3 p-3 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
@@ -912,7 +1073,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
 
           {/* SUBSECCIÓN: COPIAS DE SEGURIDAD & DATOS */}
-          {(activeSection === 'all' || activeSection === 'backups') && (
+          {activeSection === 'backups' && (
             <>
               {/* Copias de Seguridad */}
               <div className="space-y-3 p-3 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
@@ -985,7 +1146,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
 
           {/* SUBSECCIÓN: AYUDA, ARQUITECTURA & ICONOS */}
-          {(activeSection === 'all' || activeSection === 'help_system') && (
+          {activeSection === 'help_system' && (
             <>
               {/* Centro de Ayuda & FAQ */}
               <div className="space-y-2 p-3 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">

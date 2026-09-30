@@ -745,10 +745,15 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
         {/* Barra Visual de Asignación Presupuestaria */}
         <div className="space-y-1.5 pt-1">
           <div className="flex items-center justify-between text-[11px] font-bold">
-            <span className="text-slate-600 dark:text-slate-300">
-              {capacityMetrics.status === 'exceeded'
-                ? '⚠️ Las bolsas superan los ingresos disponibles:'
-                : 'Asignación de ingresos a bolsas:'}
+            <span className="text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+              {capacityMetrics.status === 'exceeded' && (
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+              )}
+              <span>
+                {capacityMetrics.status === 'exceeded'
+                  ? 'Las bolsas superan los ingresos disponibles:'
+                  : 'Asignación de ingresos a bolsas:'}
+              </span>
             </span>
             <span
               className={`font-mono ${
@@ -1138,16 +1143,19 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                         </span>{' '}
                         de ingresos.{' '}
                         {isSimulatedExceeded ? (
-                          <span className="font-bold text-rose-700 dark:text-rose-300">
-                            ⚠️ Superarás tus ingresos en {isPrivate ? '••••' : Math.abs(simulatedDiff).toFixed(2)} {currency}.
+                          <span className="font-bold text-rose-700 dark:text-rose-300 inline-flex items-center gap-1">
+                            <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-rose-600 dark:text-rose-400" />
+                            <span>Superarás tus ingresos en {isPrivate ? '••••' : Math.abs(simulatedDiff).toFixed(2)} {currency}.</span>
                           </span>
                         ) : isSimulatedBalanced ? (
-                          <span className="font-bold text-teal-700 dark:text-teal-300">
-                            🎯 Presupuesto perfectamente equilibrado a cero.
+                          <span className="font-bold text-teal-700 dark:text-teal-300 inline-flex items-center gap-1">
+                            <Target className="w-3.5 h-3.5 shrink-0 text-teal-600 dark:text-teal-400" />
+                            <span>Presupuesto perfectamente equilibrado a cero.</span>
                           </span>
                         ) : (
-                          <span className="font-bold text-emerald-700 dark:text-emerald-300">
-                            ✅ Quedarán {isPrivate ? '••••' : simulatedDiff.toFixed(2)} {currency} libres sin asignar.
+                          <span className="font-bold text-emerald-700 dark:text-emerald-300 inline-flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                            <span>Quedarán {isPrivate ? '••••' : simulatedDiff.toFixed(2)} {currency} libres sin asignar.</span>
                           </span>
                         )}
                       </p>

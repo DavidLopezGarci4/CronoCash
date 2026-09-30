@@ -14,6 +14,8 @@ import {
   Check,
   ShieldAlert,
   Loader2,
+  Building,
+  Coins,
 } from 'lucide-react';
 import { Expense, Bucket, SmartRule, ExtraIncome } from '../../types';
 import {
@@ -553,17 +555,19 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                             {tx.cleanConcept}
                           </span>
                           {tx.isIncome && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-bold flex items-center gap-1">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-bold flex items-center gap-1.5">
                               {tx.incomeCategoryMode === 'salary' ? (
                                 <>
-                                  <span>🏦 Nómina</span>
+                                  <Building className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                  <span>Nómina</span>
                                   <span className="text-emerald-700 dark:text-emerald-400 font-mono">
                                     &rarr; {formatMonthName(tx.targetSalaryMonth || resolveTargetSalaryMonth(tx.parsedDate))}
                                   </span>
                                 </>
                               ) : (
                                 <>
-                                  <span>🎁 Ingreso Extra</span>
+                                  <Coins className="w-3 h-3 text-teal-600 dark:text-teal-400 shrink-0" />
+                                  <span>Ingreso Extra</span>
                                   <span className="text-teal-700 dark:text-teal-300 font-mono">
                                     &rarr; {formatMonthName(tx.targetExtraMonth || (tx.parsedDate ? tx.parsedDate.substring(0, 7) : ''))}
                                   </span>
@@ -646,31 +650,31 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                                 {isAfter20 ? (
                                   <>
                                     <option value={`salary:${targetSalaryMonth}`}>
-                                      🏦 Nómina {formatMonthName(targetSalaryMonth)} (Financia prox. mes)
+                                      Nómina {formatMonthName(targetSalaryMonth)} (Financia prox. mes)
                                     </option>
                                     <option value={`salary:${currentMonth}`}>
-                                      🏦 Nómina {formatMonthName(currentMonth)} (Mes del cobro)
+                                      Nómina {formatMonthName(currentMonth)} (Mes del cobro)
                                     </option>
                                     <option value={`extra:${currentMonth}`}>
-                                      🎁 Ingreso Extra {formatMonthName(currentMonth)} (Mes actual)
+                                      Ingreso Extra {formatMonthName(currentMonth)} (Mes actual)
                                     </option>
                                     <option value={`extra:${nextMonth}`}>
-                                      🎁 Ingreso Extra {formatMonthName(nextMonth)} (Mes siguiente)
+                                      Ingreso Extra {formatMonthName(nextMonth)} (Mes siguiente)
                                     </option>
                                   </>
                                 ) : (
                                   <>
                                     <option value={`salary:${currentMonth}`}>
-                                      🏦 Nómina {formatMonthName(currentMonth)} (Financia mes actual)
+                                      Nómina {formatMonthName(currentMonth)} (Financia mes actual)
                                     </option>
                                     <option value={`salary:${prevMonth}`}>
-                                      🏦 Nómina {formatMonthName(prevMonth)} (Mes anterior)
+                                      Nómina {formatMonthName(prevMonth)} (Mes anterior)
                                     </option>
                                     <option value={`extra:${currentMonth}`}>
-                                      🎁 Ingreso Extra {formatMonthName(currentMonth)} (Mes actual)
+                                      Ingreso Extra {formatMonthName(currentMonth)} (Mes actual)
                                     </option>
                                     <option value={`extra:${nextMonth}`}>
-                                      🎁 Ingreso Extra {formatMonthName(nextMonth)} (Mes siguiente)
+                                      Ingreso Extra {formatMonthName(nextMonth)} (Mes siguiente)
                                     </option>
                                   </>
                                 )}
