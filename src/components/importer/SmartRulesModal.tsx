@@ -124,9 +124,6 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
             <div>
               <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
                 Reglas Inteligentes de Categorización
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/30">
-                  {rules.length} Activas
-                </span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Clasificación automática offline por comercio y concepto bancario

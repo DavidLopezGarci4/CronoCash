@@ -210,22 +210,22 @@ export const TipsView: React.FC<TipsViewProps> = ({
       {/* Cabecera y Título */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-2">
-            <Lightbulb className="w-5 h-5 text-amber-400" />
+          <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <Lightbulb className="w-5 h-5 text-amber-500 dark:text-amber-400" />
             <span>Estrategias Financieras & Ahorro Inteligente</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Métodos legales probados para optimizar gastos, generar ingresos y proteger tu capital
           </p>
         </div>
 
         {/* Badge de Progreso */}
-        <div className="flex items-center space-x-2 bg-slate-900/90 border border-slate-800 px-3.5 py-1.5 rounded-2xl self-start sm:self-auto">
-          <Award className="w-4 h-4 text-emerald-400" />
-          <span className="text-xs font-bold text-slate-300">
+        <div className="flex items-center space-x-2 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-xs px-3.5 py-1.5 rounded-2xl self-start sm:self-auto">
+          <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
             {appliedCount} de {totalTips} aplicadas
           </span>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-500/30">
             {appliedPercentage}%
           </span>
         </div>
@@ -233,48 +233,48 @@ export const TipsView: React.FC<TipsViewProps> = ({
 
       {/* Banner Resumen y Escudo Activo */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-3.5 bg-gradient-to-br from-emerald-950/40 to-slate-900/60 border border-emerald-500/30 rounded-2xl space-y-1">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+        <div className="p-3.5 bg-white dark:bg-gradient-to-br dark:from-emerald-950/40 dark:to-slate-900/60 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl space-y-1 shadow-xs">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>Ahorro Estimado Anual</span>
           </div>
-          <div className="text-lg font-mono font-black text-white">800€ - 2.500€</div>
-          <p className="text-[11px] text-slate-400">Renegociación de luz, telecos y corte de comisiones.</p>
+          <div className="text-lg font-mono font-black text-slate-900 dark:text-white">800€ - 2.500€</div>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400">Renegociación de luz, telecos y corte de comisiones.</p>
         </div>
 
-        <div className="p-3.5 bg-gradient-to-br from-blue-950/40 to-slate-900/60 border border-blue-500/30 rounded-2xl space-y-1">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
+        <div className="p-3.5 bg-white dark:bg-gradient-to-br dark:from-blue-950/40 dark:to-slate-900/60 border border-blue-200 dark:border-blue-500/30 rounded-2xl space-y-1 shadow-xs">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400 flex items-center gap-1.5">
             <PiggyBank className="w-3.5 h-3.5" />
             <span>Ingresos Pasivos Legales</span>
           </div>
-          <div className="text-lg font-mono font-black text-white">3% - 4% TAE</div>
-          <p className="text-[11px] text-slate-400">Cuentas remuneradas con FGD y fondos monetarios.</p>
+          <div className="text-lg font-mono font-black text-slate-900 dark:text-white">3% - 4% TAE</div>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400">Cuentas remuneradas con FGD y fondos monetarios.</p>
         </div>
 
-        <div className="p-3.5 bg-gradient-to-br from-rose-950/40 to-slate-900/60 border border-rose-500/30 rounded-2xl space-y-1">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+        <div className="p-3.5 bg-white dark:bg-gradient-to-br dark:from-rose-950/40 dark:to-slate-900/60 border border-rose-200 dark:border-rose-500/30 rounded-2xl space-y-1 shadow-xs">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
             <ShieldAlert className="w-3.5 h-3.5" />
             <span>Escudo Anti-Estafas</span>
           </div>
-          <div className="text-lg font-mono font-black text-white">100% Protegido</div>
-          <p className="text-[11px] text-slate-400">Comprobación en CNMV y prevención de esquemas Ponzi.</p>
+          <div className="text-lg font-mono font-black text-slate-900 dark:text-white">100% Protegido</div>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400">Comprobación en CNMV y prevención de esquemas Ponzi.</p>
         </div>
       </div>
 
       {/* Buscador de Estrategias */}
       <div className="relative">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Buscar por palabra clave (ej. luz, Wallapop, CNMV, seguros, FGD)..."
-          className="w-full h-11 pl-10 pr-4 bg-slate-900/80 border border-slate-800 rounded-2xl text-xs text-white placeholder-slate-500 focus:border-emerald-500/60 focus:outline-none transition-all shadow-inner"
+          className="w-full h-11 pl-10 pr-4 bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-emerald-500/60 focus:outline-none transition-all shadow-xs"
         />
         {searchQuery && (
           <button
             onClick={() => setSearchQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition-colors cursor-pointer"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -283,12 +283,12 @@ export const TipsView: React.FC<TipsViewProps> = ({
 
       {/* Selector Desplegable Vertical de Categorías (100% Integrado, Sin Banners Horizontales) */}
       <div ref={categoryDropdownRef} className="relative z-20">
-        <div className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 mb-1.5 px-1 flex items-center justify-between">
+        <div className="text-[10px] uppercase tracking-wider font-extrabold text-slate-500 dark:text-slate-400 mb-1.5 px-1 flex items-center justify-between">
           <span className="flex items-center gap-1.5">
-            <Sliders className="w-3.5 h-3.5 text-emerald-400" />
+            <Sliders className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Categoría de Estrategias</span>
           </span>
-          <span className="text-[10px] font-mono text-emerald-400">
+          <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
             {CATEGORIES.findIndex((c) => c.id === selectedCategory) + 1} de {CATEGORIES.length}
           </span>
         </div>

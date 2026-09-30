@@ -628,7 +628,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white">
                   Balance de Presupuesto Real
                 </h3>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full capitalize font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+                <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full capitalize font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 inline-flex items-center justify-center text-center">
                   {capacityMetrics.monthName}
                 </span>
               </div>
