@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   Lightbulb,
   Sparkles,
@@ -21,9 +21,11 @@ import {
   AlertTriangle,
   Scale,
   X,
+  Sliders,
 } from 'lucide-react';
 import { FinancialTip } from '../../types';
 import { DBService } from '../../services/db';
+import { HapticService } from '../../services/hapticService';
 
 interface TipsViewProps {
   tips: FinancialTip[];
@@ -31,7 +33,7 @@ interface TipsViewProps {
   currency?: string;
 }
 
-type TipCategory =
+export type TipCategory =
   | 'todas'
   | 'ahorro'
   | 'dinero_rapido'
@@ -39,6 +41,58 @@ type TipCategory =
   | 'anti_estafas'
   | 'fiscal'
   | 'presupuesto';
+
+interface TipCategoryConfig {
+  id: TipCategory;
+  label: string;
+  tagline: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const CATEGORIES: TipCategoryConfig[] = [
+  {
+    id: 'todas',
+    label: 'Todas las Estrategias',
+    tagline: 'Catálogo global de optimización financiera',
+    icon: Sparkles,
+  },
+  {
+    id: 'ahorro',
+    label: 'Ahorro & Recibos',
+    tagline: 'Optimización de luz, suministros y corte de comisiones',
+    icon: TrendingUp,
+  },
+  {
+    id: 'dinero_rapido',
+    label: 'Dinero Rápido',
+    tagline: 'Venta de excedentes y monetización inmediata',
+    icon: Zap,
+  },
+  {
+    id: 'dinero_pasivo',
+    label: 'Ingresos Pasivos',
+    tagline: 'Cuentas remuneradas con FGD y fondos monetarios',
+    icon: PiggyBank,
+  },
+  {
+    id: 'anti_estafas',
+    label: 'Escudo Anti-Estafas',
+    tagline: 'Comprobación en CNMV y prevención de fraude',
+    icon: ShieldAlert,
+  },
+  {
+    id: 'fiscal',
+    label: 'Fiscal & Facturas',
+    tagline: 'Deducciones IRPF, tributación y gastos deducibles',
+    icon: FileCheck,
+  },
+  {
+    id: 'presupuesto',
+    label: 'Presupuesto & Control',
+    tagline: 'Reglas de control y optimización de gasto diario',
+    icon: Award,
+  },
+];
 
 export const TipsView: React.FC<TipsViewProps> = ({
   tips,
@@ -48,17 +102,26 @@ export const TipsView: React.FC<TipsViewProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<TipCategory>('todas');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedTipIds, setExpandedTipIds] = useState<Record<string, boolean>>({});
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Categorías con etiquetas y badges
-  const categories: { id: TipCategory; label: string; icon: React.FC<{ className?: string }> }[] = [
-    { id: 'todas', label: 'Todas', icon: Sparkles },
-    { id: 'ahorro', label: 'Ahorro & Recibos', icon: TrendingUp },
-    { id: 'dinero_rapido', label: 'Dinero Rápido', icon: Zap },
-    { id: 'dinero_pasivo', label: 'Ingresos Pasivos', icon: PiggyBank },
-    { id: 'anti_estafas', label: 'Escudo Anti-Estafas', icon: ShieldAlert },
-    { id: 'fiscal', label: 'Fiscal & Facturas', icon: FileCheck },
-    { id: 'presupuesto', label: 'Presupuesto', icon: Award },
-  ];
+  // Cerrar desplegable de categorías al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(e.target as Node)
+      ) {
+        setIsCategoryDropdownOpen(false);
+      }
+    };
+    if (isCategoryDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isCategoryDropdownOpen]);
 
   // Alternar expansión de pasos de acción
   const toggleExpanded = (tipId: string) => {
@@ -138,6 +201,10 @@ export const TipsView: React.FC<TipsViewProps> = ({
     }
   };
 
+  const currentCategoryConfig =
+    CATEGORIES.find((c) => c.id === selectedCategory) || CATEGORIES[0];
+  const CurrentCategoryIcon = currentCategoryConfig.icon;
+
   return (
     <div className="space-y-6 pb-28">
       {/* Cabecera y Título */}
@@ -214,27 +281,127 @@ export const TipsView: React.FC<TipsViewProps> = ({
         )}
       </div>
 
-      {/* Filtros por Categoría */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-        {categories.map((cat) => {
-          const Icon = cat.icon;
-          const isSelected = selectedCategory === cat.id;
+      {/* Selector Desplegable Vertical de Categorías (100% Integrado, Sin Banners Horizontales) */}
+      <div ref={categoryDropdownRef} className="relative z-20">
+        <div className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 mb-1.5 px-1 flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <Sliders className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Categoría de Estrategias</span>
+          </span>
+          <span className="text-[10px] font-mono text-emerald-400">
+            {CATEGORIES.findIndex((c) => c.id === selectedCategory) + 1} de {CATEGORIES.length}
+          </span>
+        </div>
 
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all cursor-pointer ${
-                isSelected
-                  ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                  : 'bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{cat.label}</span>
-            </button>
-          );
-        })}
+        <button
+          type="button"
+          onClick={() => setIsCategoryDropdownOpen((prev) => !prev)}
+          aria-expanded={isCategoryDropdownOpen}
+          className={`w-full p-2.5 rounded-2xl bg-slate-900/90 border text-left transition-all flex items-center justify-between gap-3 shadow-xs cursor-pointer ${
+            isCategoryDropdownOpen
+              ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md'
+              : 'border-slate-800 hover:border-slate-700'
+          }`}
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 shrink-0">
+              <CurrentCategoryIcon className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-white truncate">
+                {currentCategoryConfig.label}
+              </div>
+              <div className="text-[10px] text-slate-400 truncate">
+                {currentCategoryConfig.tagline}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+              {filteredTips.length} {filteredTips.length === 1 ? 'disponible' : 'disponibles'}
+            </span>
+            <div className="p-1 rounded-lg text-slate-400">
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  isCategoryDropdownOpen ? 'rotate-180 text-emerald-400' : ''
+                }`}
+              />
+            </div>
+          </div>
+        </button>
+
+        {/* Menú Flotante Vertical (100% SVG Lucide, Sin Scroll Horizontal) */}
+        {isCategoryDropdownOpen && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden p-1.5 space-y-1 animate-in fade-in duration-150 z-30">
+            {CATEGORIES.map((cat) => {
+              const IconComponent = cat.icon;
+              const isSelected = selectedCategory === cat.id;
+              const catCount =
+                cat.id === 'todas'
+                  ? tips.length
+                  : tips.filter((t) => t.category === cat.id).length;
+
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory(cat.id);
+                    setIsCategoryDropdownOpen(false);
+                    HapticService.impactLight();
+                  }}
+                  className={`w-full p-2.5 rounded-xl text-left transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                    isSelected
+                      ? 'bg-emerald-500/15 border border-emerald-500/30'
+                      : 'hover:bg-slate-800/60 border border-transparent'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className={`p-2 rounded-xl shrink-0 transition-colors ${
+                        isSelected
+                          ? 'bg-emerald-500 text-slate-950 font-bold'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}
+                    >
+                      <IconComponent className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div
+                        className={`text-xs font-bold leading-tight ${
+                          isSelected ? 'text-emerald-300' : 'text-slate-200'
+                        }`}
+                      >
+                        {cat.label}
+                      </div>
+                      <div className="text-[10px] text-slate-400 leading-tight mt-0.5">
+                        {cat.tagline}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                        isSelected
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}
+                    >
+                      {catCount}
+                    </span>
+                    {isSelected && (
+                      <div className="p-0.5 text-emerald-400">
+                        <Check className="w-4 h-4 stroke-[2.5]" />
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Listado de Estrategias */}
