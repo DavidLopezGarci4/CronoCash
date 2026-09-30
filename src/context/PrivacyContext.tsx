@@ -13,7 +13,7 @@ const PrivacyContext = createContext<PrivacyContextType>({
   isPrivate: false,
   togglePrivacy: () => {},
   setPrivacy: () => {},
-  mask: (amount, currency = '€') => `${amount} ${currency}`,
+  mask: (amount, currency = '€') => `${amount}\u00A0${currency}`,
   maskRaw: (text) => text,
 });
 
@@ -47,13 +47,13 @@ export const PrivacyProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const mask = (amount: number | string, currency = '€', decimals = 2): string => {
     if (isPrivate) {
-      return currency ? `•••• ${currency}` : '••••';
+      return currency ? `••••\u00A0${currency}` : '••••';
     }
     const num = typeof amount === 'number' ? amount : parseFloat(amount);
     if (isNaN(num)) {
-      return `${amount} ${currency}`.trim();
+      return `${amount}\u00A0${currency}`.trim();
     }
-    return `${num.toFixed(decimals)} ${currency}`.trim();
+    return `${num.toFixed(decimals)}\u00A0${currency}`.trim();
   };
 
   const maskRaw = (text: string): string => {

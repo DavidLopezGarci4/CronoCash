@@ -451,12 +451,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                   <div className="flex items-center space-x-2 shrink-0">
                     <div className="text-right">
-                      <div className="text-sm font-black font-mono text-slate-900 dark:text-white">
-                        -{isPrivate ? '••••' : expense.amount.toFixed(2)} {currency}
+                      <div className="text-sm font-black font-mono text-slate-900 dark:text-white whitespace-nowrap">
+                        -{isPrivate ? '••••' : expense.amount.toFixed(2)}&nbsp;{currency}
                       </div>
                       {expense.isInvoice && expense.taxAmount ? (
-                        <div className="text-[10px] text-teal-600 dark:text-teal-400 font-mono">
-                          IVA: {isPrivate ? '••••' : `${expense.taxAmount.toFixed(2)} ${currency}`}
+                        <div className="text-[10px] text-teal-600 dark:text-teal-400 font-mono whitespace-nowrap">
+                          IVA: {isPrivate ? '••••' : `${expense.taxAmount.toFixed(2)}\u00A0${currency}`}
                         </div>
                       ) : null}
                     </div>

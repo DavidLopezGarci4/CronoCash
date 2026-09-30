@@ -645,11 +645,11 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
             <span>Comprometido / Mes</span>
           </span>
           <div className="mt-2">
-            <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
-              {totalMonthlyCommitment.toFixed(2)} {currency}
+            <div className="text-2xl font-black font-mono text-slate-900 dark:text-white whitespace-nowrap">
+              {totalMonthlyCommitment.toFixed(2)}&nbsp;{currency}
             </div>
-            <span className="text-[11px] text-slate-500">
-              Proyección anual: ~{totalYearlyCommitment.toFixed(0)} {currency}
+            <span className="text-[11px] text-slate-500 whitespace-nowrap">
+              Proyección anual: ~{totalYearlyCommitment.toFixed(0)}&nbsp;{currency}
             </span>
           </div>
         </div>
@@ -662,14 +662,14 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
           </span>
           {nextImminentRule && nextImminentDetails ? (
             <div className="mt-2">
-              <div className="text-sm font-bold text-slate-900 dark:text-white truncate flex items-center justify-between">
-                <span>{nextImminentRule.title}</span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-400">
+              <div className="text-sm font-bold text-slate-900 dark:text-white truncate flex items-center justify-between gap-2">
+                <span className="truncate">{nextImminentRule.title}</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
                   {nextImminentRule.costType === 'none'
                     ? 'Sin coste'
                     : nextImminentRule.costType === 'estimated'
-                    ? `~${nextImminentRule.amount.toFixed(2)} ${currency}`
-                    : `${nextImminentRule.amount.toFixed(2)} ${currency}`}
+                    ? `~${nextImminentRule.amount.toFixed(2)}\u00A0${currency}`
+                    : `${nextImminentRule.amount.toFixed(2)}\u00A0${currency}`}
                 </span>
               </div>
               <div className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-0.5 flex items-center gap-1.5">
@@ -1045,14 +1045,14 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     </div>
                   )}
 
-                  <div className="text-left sm:text-right mr-2">
-                    <div className="text-base font-black font-mono text-slate-900 dark:text-white">
+                  <div className="text-left sm:text-right mr-2 shrink-0">
+                    <div className="text-base font-black font-mono text-slate-900 dark:text-white whitespace-nowrap">
                       {isPureTask ? (
-                        <span className="text-purple-600 dark:text-purple-300 text-xs font-semibold">Sin coste</span>
+                        <span className="text-purple-600 dark:text-purple-300 text-xs font-semibold whitespace-nowrap">Sin coste</span>
                       ) : isEstimated ? (
-                        <span className="text-amber-600 dark:text-amber-300">~{rule.amount.toFixed(2)} {currency}</span>
+                        <span className="text-amber-600 dark:text-amber-300 whitespace-nowrap">~{rule.amount.toFixed(2)}&nbsp;{currency}</span>
                       ) : (
-                        `${rule.amount.toFixed(2)} ${currency}`
+                        <span className="whitespace-nowrap">{rule.amount.toFixed(2)}&nbsp;{currency}</span>
                       )}
                     </div>
                   </div>

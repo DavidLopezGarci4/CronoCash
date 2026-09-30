@@ -999,11 +999,11 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   <span className="text-xs text-slate-500 dark:text-slate-400">
                     {viewMode === 'annual' ? 'Consumido en el año' : 'Consumido este mes'}
                   </span>
-                  <div className="text-sm font-mono font-bold">
+                  <div className="text-sm font-mono font-bold whitespace-nowrap shrink-0">
                     <span className={isOver ? 'text-rose-600 dark:text-rose-400 font-black' : 'text-slate-900 dark:text-white'}>
-                      {isPrivate ? '••••' : spent.toFixed(2)} {currency}
+                      {isPrivate ? '••••' : spent.toFixed(2)}&nbsp;{currency}
                     </span>
-                    <span className="text-slate-400 dark:text-slate-500 text-xs"> / {isPrivate ? '••••' : limit.toFixed(2)} {currency}</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-xs"> / {isPrivate ? '••••' : limit.toFixed(2)}&nbsp;{currency}</span>
                   </div>
                 </div>
 
@@ -1029,12 +1029,15 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                     }`}
                   >
                     {isOver ? (
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1 whitespace-nowrap">
                         <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                        <span>Exceso: {isPrivate ? '••••' : (spent - limit).toFixed(2)} {currency}</span>
+                        <span>Exceso: {isPrivate ? '••••' : (spent - limit).toFixed(2)}&nbsp;{currency}</span>
                       </span>
                     ) : (
-                      `${viewMode === 'annual' ? 'Margen anual: ' : 'Disponible: '}${isPrivate ? '••••' : remaining.toFixed(2)} ${currency}`
+                      <span className="whitespace-nowrap">
+                        {viewMode === 'annual' ? 'Margen anual: ' : 'Disponible: '}
+                        {isPrivate ? '••••' : remaining.toFixed(2)}&nbsp;{currency}
+                      </span>
                     )}
                   </span>
                 </div>
