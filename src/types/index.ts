@@ -7,9 +7,21 @@ export interface Bucket {
   isBuffer: boolean;
   rolloverSurplus?: boolean; // Si true, trasvasa y acumula el saldo no gastado en esta misma bolsa (Sinking Fund)
   accumulatedSurplus?: number; // Saldo acumulado arrastrado de meses previos
+  monthlyAdjustments?: Record<string, number>; // Ajustes puntuales acotados por mes ('YYYY-MM') por vasos comunicantes o reequilibrio
   notes?: string;
   order?: number; // Índice de ordenación manual
   createdAt: string;
+}
+
+/**
+ * Obtiene el límite base mensual de una bolsa para un mes específico ('YYYY-MM'),
+ * considerando los ajustes puntuales (por vasos comunicantes o reequilibrio) de ese mes
+ * sin contaminar los meses futuros ni alterar el límite maestro de la bolsa.
+ */
+export function getBucketMonthLimit(bucket: Bucket, monthPrefix?: string): number {
+  if (!monthPrefix) return Number(bucket.budgetLimit) || 0;
+  const adj = bucket.monthlyAdjustments?.[monthPrefix] || 0;
+  return Math.max(0, Math.round(((Number(bucket.budgetLimit) || 0) + adj) * 100) / 100);
 }
 
 export interface Expense {

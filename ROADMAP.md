@@ -4,17 +4,23 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.25.0 — Imputación Dual de Gastos (Mes Efectivo), Doble Conformidad y Blindaje Visual 🎯
-- [x] **Imputación a Bolsa del Mes Siguiente (Dual Date):** Fecha física de pago vs mes efectivo de imputación a bolsa.
-- [x] **Selector Rápido "⏩ Mes +1":** Integrado en el formulario de gasto y en el importador de extractos bancarios.
-- [x] **Insignias y Desglose Informativo:** Identificación visual clara en movimientos de bolsa y vista diaria de calendario.
-- [x] **Doble Paso de Conformidad:** Protección táctil irreversible para eliminar o conciliar gastos de extracto sin dañar recurrencias.
-- [x] **Blindaje Tipográfico Anti-Desborde:** Arquitectura flexbox defensiva en vistas verticales y pantallas estrechas.
-- [x] **Sincronización SemVer Global:** `v1.25.0` (Build 12500) en todos los manifiestos, FAQ, Acerca de y documentación.
+## Estado Actual: v1.26.0 — Ajustes Puntuales de Bolsas por Mes y Retrocesión de Vasos Comunicantes 🎯
+- [x] **Ajustes Puntuales Acotados por Mes:** Reequilibrio de sobregiros y vasos comunicantes asignados exclusivamente al mes seleccionado (`YYYY-MM`).
+- [x] **Límites Maestros Base 100% Inmutables:** Los meses siguientes conservan sus techos base originales sin contaminación cruzada.
+- [x] **Insignias y Desglose Informativo:** Distintivo `⚡ Puntual (+X € / -X €)` y notas de límite base en tarjetas de bolsas.
+- [x] **Botones de Retrocesión en 1 Toque:** Reversión individual por bolsa y reversión global para todo el mes seleccionado.
+- [x] **Sincronización en Motor Presupuestario:** `BudgetCapacityService` calcula la capacidad real respetando ajustes puntuales.
+- [x] **Sincronización SemVer Global:** `v1.26.0` (Build 12600) en manifiestos, FAQ, Acerca de y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.25.0 (Completado)
+- [x] Imputación a Bolsa del Mes Siguiente (Dual Date): Fecha física de pago vs mes efectivo de imputación a bolsa.
+- [x] Selector Rápido "⏩ Mes +1" en gastos manuales y extracto bancario.
+- [x] Insignias informativas y conciliación con doble paso de conformidad.
+- [x] Blindaje tipográfico anti-desborde en vista vertical.
 
 ### 📦 v1.24.0 (Completado)
 - [x] Direccionamiento de Ingresos a Bolsas (Inyecciones y Reembolsos).

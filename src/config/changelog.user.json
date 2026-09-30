@@ -1,6 +1,6 @@
 {
-  "currentVersion": "1.25.0",
-  "buildNumber": 12500,
+  "currentVersion": "1.26.0",
+  "buildNumber": 12600,
   "lastUpdated": "2026-09-30",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
@@ -9,11 +9,24 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.26.0",
+      "build": 12600,
+      "date": "30 Sep 2026",
+      "title": "Ajustes Puntuales de Bolsas por Mes y Retrocesión de Vasos Comunicantes",
+      "isCurrent": true,
+      "highlights": [
+        "⚡ Ajustes de Bolsas Estrictamente Puntuales por Mes: Al compensar gastos o reequilibrar sobregiros entre bolsas, las modificaciones se acotan única y exclusivamente al mes activo (YYYY-MM).",
+        "🔒 Límites Maestros Base 100% Inmutables: Los meses siguientes (Mes +1, Mes +2...) conservan de forma automática sus límites base originales configurados sin sufrir alteraciones ni contaminación.",
+        "🏷️ Insignia Visual de Ajuste Puntual: Las bolsas calibradas muestran claramente su ajuste temporal (+X € / -X €) junto al límite base original para máxima transparencia.",
+        "↩ Botón de Retrocesión en 1 Toque: Botón individual en cada tarjeta de bolsa y botón global en la cabecera para revertir calibraciones y restaurar los límites base del mes al instante."
+      ]
+    },
+    {
       "version": "1.25.0",
       "build": 12500,
       "date": "30 Sep 2026",
       "title": "Imputación Dual de Gastos (Mes Efectivo), Conciliación con Doble Conformidad y Blindaje Visual",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "🗓️ Imputación a Bolsa del Mes Siguiente (Dual Date): Permite realizar compras u oportunidades a fin de mes e imputar su límite contable al sobre presupuestario del mes siguiente (Mes +1), manteniendo la fecha física del pago en el calendario y extracto.",
         "⏩ Selector Rápido Mes +1 en Formulario y Banco: Botón de un solo toque tanto al crear/editar gastos manuales como en el revisor de extractos bancarios CSV / Excel para diferir la imputación contable al instante.",

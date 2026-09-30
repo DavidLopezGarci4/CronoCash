@@ -1167,11 +1167,21 @@ export class DBService {
   /**
    * Vasos Comunicantes: Trasvase elástico de límite presupuestario entre dos bolsas
    */
+  /**
+   * Vasos Comunicantes: Trasvase elástico de límite presupuestario entre dos bolsas.
+   * Si se especifica 'monthPrefix', el trasvase se acota de forma puntual a dicho mes
+   * en 'monthlyAdjustments', sin mutar el 'budgetLimit' maestro ni contaminar los meses futuros.
+   */
   static async transferBucketBalance(
     fromBucketId: string,
     toBucketId: string,
-    amount: number
+    amount: number,
+    monthPrefix?: string
   ): Promise<{ fromBucket: Bucket; toBucket: Bucket }> {
+    if (monthPrefix) {
+      return this.transferBucketMonthlyBalance(fromBucketId, toBucketId, amount, monthPrefix);
+    }
+
     if (amount <= 0) throw new Error('El importe a transferir debe ser mayor a 0');
     if (fromBucketId === toBucketId) throw new Error('No puedes transferir a la misma bolsa');
 
@@ -1208,6 +1218,148 @@ export class DBService {
     }
 
     return { fromBucket, toBucket };
+  }
+
+  /**
+   * Vasos Comunicantes Puntuales por Mes: Trasvase acotado exclusivamente a un mes ('YYYY-MM').
+   * Modifica 'monthlyAdjustments[monthPrefix]' sin tocar 'budgetLimit', garantizando que los meses
+   * siguientes se mantengan inmutables con sus parámetros originales.
+   */
+  static async transferBucketMonthlyBalance(
+    fromBucketId: string,
+    toBucketId: string,
+    amount: number,
+    monthPrefix: string
+  ): Promise<{ fromBucket: Bucket; toBucket: Bucket }> {
+    if (amount <= 0) throw new Error('El importe a transferir debe ser mayor a 0');
+    if (fromBucketId === toBucketId) throw new Error('No puedes transferir a la misma bolsa');
+    if (!monthPrefix) throw new Error('El mes de trasvase es obligatorio');
+
+    const buckets = await this.getBuckets();
+    const fromIdx = buckets.findIndex((b) => b.id === fromBucketId);
+    const toIdx = buckets.findIndex((b) => b.id === toBucketId);
+
+    if (fromIdx < 0 || toIdx < 0) throw new Error('Una de las bolsas seleccionadas no existe');
+
+    const fromBucket = { ...buckets[fromIdx] };
+    const toBucket = { ...buckets[toIdx] };
+
+    const fromAdj = fromBucket.monthlyAdjustments || {};
+    const toAdj = toBucket.monthlyAdjustments || {};
+
+    fromBucket.monthlyAdjustments = {
+      ...fromAdj,
+      [monthPrefix]: Math.round(((fromAdj[monthPrefix] || 0) - amount) * 100) / 100,
+    };
+
+    toBucket.monthlyAdjustments = {
+      ...toAdj,
+      [monthPrefix]: Math.round(((toAdj[monthPrefix] || 0) + amount) * 100) / 100,
+    };
+
+    buckets[fromIdx] = fromBucket;
+    buckets[toIdx] = toBucket;
+
+    this.setLocalStorageItem('gastos_buckets', buckets);
+
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.BUCKETS, 'readwrite');
+        const store = tx.objectStore(STORES.BUCKETS);
+        store.put(fromBucket);
+        store.put(toBucket);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al registrar vasos comunicantes mensuales en IndexedDB:', e);
+    }
+
+    return { fromBucket, toBucket };
+  }
+
+  /**
+   * Retrocesión / Reversión del ajuste puntual de una bolsa para un mes específico.
+   * Elimina el ajuste puntual de 'monthlyAdjustments[monthPrefix]', devolviendo la bolsa
+   * exactamente a su límite base maestro.
+   */
+  static async revertBucketMonthlyAdjustment(
+    bucketId: string,
+    monthPrefix: string
+  ): Promise<Bucket | null> {
+    const buckets = await this.getBuckets();
+    const idx = buckets.findIndex((b) => b.id === bucketId);
+    if (idx < 0) return null;
+
+    const b = { ...buckets[idx] };
+    if (!b.monthlyAdjustments || !(monthPrefix in b.monthlyAdjustments)) {
+      return b;
+    }
+
+    const nextAdj = { ...b.monthlyAdjustments };
+    delete nextAdj[monthPrefix];
+    b.monthlyAdjustments = Object.keys(nextAdj).length > 0 ? nextAdj : undefined;
+
+    buckets[idx] = b;
+    this.setLocalStorageItem('gastos_buckets', buckets);
+
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.BUCKETS, 'readwrite');
+        const store = tx.objectStore(STORES.BUCKETS);
+        store.put(b);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al revertir ajuste puntual en IndexedDB:', e);
+    }
+
+    return b;
+  }
+
+  /**
+   * Retrocesión / Reversión global de todos los ajustes puntuales de un mes determinado.
+   */
+  static async revertAllMonthlyAdjustments(monthPrefix: string): Promise<number> {
+    const buckets = await this.getBuckets();
+    let revertedCount = 0;
+
+    const updatedBuckets = buckets.map((b) => {
+      if (b.monthlyAdjustments && monthPrefix in b.monthlyAdjustments) {
+        revertedCount++;
+        const nextAdj = { ...b.monthlyAdjustments };
+        delete nextAdj[monthPrefix];
+        return {
+          ...b,
+          monthlyAdjustments: Object.keys(nextAdj).length > 0 ? nextAdj : undefined,
+        };
+      }
+      return b;
+    });
+
+    if (revertedCount === 0) return 0;
+
+    this.setLocalStorageItem('gastos_buckets', updatedBuckets);
+
+    try {
+      const db = await this.getDB();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.BUCKETS, 'readwrite');
+        const store = tx.objectStore(STORES.BUCKETS);
+        for (const b of updatedBuckets) {
+          store.put(b);
+        }
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al revertir ajustes puntuales globales en IndexedDB:', e);
+    }
+
+    return revertedCount;
   }
 
   /**

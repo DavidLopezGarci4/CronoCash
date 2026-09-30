@@ -115,6 +115,18 @@ export const FAQ_DATA: FAQSection[] = [
         tags: ['reembolsos', 'inyecciones', 'bizum', 'bolsas', 'neto', 'devolución'],
         badge: 'Contabilidad Neta',
       },
+      {
+        id: 'ajustes-puntuales-bolsas',
+        question: '¿Los ajustes de Vasos Comunicantes y Sobregiros modifican los meses futuros?',
+        bullets: [
+          'Aislamiento mensual estricto: Las calibraciones de Vasos Comunicantes y el reequilibrio de sobregiros son estrictamente puntuales y quedan acotados al mes seleccionado (YYYY-MM).',
+          'Límites base inmutables: Los límites maestros que configuraste en tus bolsas no se modifican ni se contaminan; los meses siguientes conservan sus techos base originales de forma automática.',
+          'Insignia de Ajuste Puntual: En las bolsas calibradas se muestra el distintivo ⚡ Puntual (+X € / -X €) y el desglose de su límite base maestro original.',
+          'Botón de Retrocesión individual y global: Puedes pulsar el botón ↩ Revertir en cualquier bolsa o el botón de la cabecera para deshacer todos los ajustes del mes y restablecer los límites originales en 1 toque.',
+        ],
+        tags: ['ajustes puntuales', 'vasos comunicantes', 'sobregiro', 'retrocesión', 'revertir', 'meses futuros', 'límite base'],
+        badge: 'Nuevo v1.26.0',
+      },
     ],
   },
   {

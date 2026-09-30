@@ -17,7 +17,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { Bucket, Expense, ExtraIncome, RecurringRule, Settings, getExpenseEffectiveMonth } from '../../types';
+import { Bucket, Expense, ExtraIncome, RecurringRule, Settings, getExpenseEffectiveMonth, getBucketMonthLimit } from '../../types';
 import { IncomeAllocationService } from '../../services/incomeAllocationService';
 import { MASTER_ICON_MAP } from '../../constants/icons';
 import { usePrivacy } from '../../context/PrivacyContext';
@@ -107,7 +107,8 @@ export const BucketMovementsModal: React.FC<BucketMovementsModalProps> = ({
 
   // 3. Totales de límite y saldo neto
   const accumulated = bucket.rolloverSurplus ? (bucket.accumulatedSurplus || 0) : 0;
-  const effectiveLimit = bucket.budgetLimit + accumulated + injectionsTotal;
+  const monthBaseLimit = getBucketMonthLimit(bucket, monthPrefix);
+  const effectiveLimit = monthBaseLimit + accumulated + injectionsTotal;
   const netSpent = Math.max(0, grossExpensesTotal - refundsTotal);
   const isOver = netSpent > effectiveLimit;
   const diff = effectiveLimit - netSpent;
@@ -318,7 +319,7 @@ export const BucketMovementsModal: React.FC<BucketMovementsModalProps> = ({
                 {isPrivate ? '••••' : effectiveLimit.toFixed(2)}&nbsp;{currency}
               </div>
               <span className="text-[10px] text-slate-400 dark:text-slate-500 truncate block">
-                Base: {isPrivate ? '••••' : bucket.budgetLimit.toFixed(0)}€{injectionsTotal > 0 ? ` +${injectionsTotal.toFixed(0)}€ extra` : ''}
+                Base: {isPrivate ? '••••' : monthBaseLimit.toFixed(0)}€{injectionsTotal > 0 ? ` +${injectionsTotal.toFixed(0)}€ extra` : ''}
               </span>
             </div>
 

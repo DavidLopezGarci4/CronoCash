@@ -3,6 +3,28 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.26.0] - 2026-09-30
+
+### Added
+- **Ajustes Puntuales de Bolsas por Mes (Vasos Comunicantes & Sobregiros sin Contaminar Meses Futuros):**
+  - **Modelado en `Bucket` (`src/types/index.ts`):**
+    - Nuevo campo canónico `monthlyAdjustments?: Record<string, number>` indexado por clave de mes (`YYYY-MM`).
+    - Función pura `getBucketMonthLimit(bucket: Bucket, monthPrefix?: string): number` que computa el límite mensual efectivo (`budgetLimit + adjustment`) sin alterar el límite maestro template `bucket.budgetLimit`.
+  - **Métodos Atómicos en `DBService` (`src/services/db.ts`):**
+    - `transferBucketMonthlyBalance(fromId, toId, amount, monthPrefix)`: Trasvase puntual de vasos comunicantes acotado a un mes con suma cero ($\sum \Delta = 0$).
+    - `revertBucketMonthlyAdjustment(bucketId, monthPrefix)`: Retrocesión/eliminación del ajuste puntual de una bolsa para un mes concreto, devolviéndola limpiamente a su límite base maestro.
+    - `revertAllMonthlyAdjustments(monthPrefix)`: Retrocesión atómica de todos los ajustes puntuales del mes seleccionado.
+    - Delegación automática en `transferBucketBalance` cuando se suministra `monthPrefix`.
+  - **Asistente de Sobregiro Acotado (`CoverOverspendingModal.tsx`):**
+    - Al reequilibrar sobregiros mediante colchón, bolsa con mayor superávit o prorrateo proporcional, escribe exclusivamente en `monthlyAdjustments[targetMonthPrefix]`, garantizando que los meses siguientes conserven sus parámetros originales inalterados.
+  - **Integración Visual y Botones de Retrocesión en `BucketsView.tsx`:**
+    - Indicador visual `⚡ Puntual (+X € / -X €)` en tarjetas de bolsas calibradas con tooltip detallado.
+    - Botón de retrocesión individual `↩` en cada tarjeta de bolsa para restaurar su límite base en 1 toque.
+    - Banner interactivo de ajustes puntuales activos con botón global `↩ Revertir Ajustes` para todo el mes.
+    - Modal de Vasos Comunicantes actualizado con nota explicativa sobre calibración puntual y desglose del límite del mes.
+  - **Sincronización en `BudgetCapacityService` (`src/services/budgetCapacityService.ts`):**
+    - Cálculo de capacidad presupuestaria y asignación real usando `getBucketMonthLimit(b, monthKey)`.
+
 ## [1.25.0] - 2026-09-30
 
 ### Added

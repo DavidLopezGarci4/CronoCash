@@ -1,4 +1,4 @@
-import { Bucket, Settings } from '../types';
+import { Bucket, Settings, getBucketMonthLimit } from '../types';
 import { DBService } from './db';
 import { IncomeAllocationService } from './incomeAllocationService';
 
@@ -71,7 +71,7 @@ export class BudgetCapacityService {
     const incomeDetails = this.getMonthlyEstimatedIncome(settings, monthKey);
     const totalBucketsBudget = buckets.reduce((sum, b) => {
       const injected = IncomeAllocationService.getBucketInjectedBudget(b.id, monthKey, settings);
-      return sum + (Number(b.budgetLimit) || 0) + injected;
+      return sum + getBucketMonthLimit(b, monthKey) + injected;
     }, 0);
     const difference = incomeDetails.totalIncome - totalBucketsBudget;
 

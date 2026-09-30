@@ -47,11 +47,12 @@ import {
   Scale,
   CheckCircle2,
   ReceiptText,
+  RotateCcw,
 } from 'lucide-react';
 import { format, addMonths, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { usePrivacy } from '../../context/PrivacyContext';
-import { Bucket, Expense, RecurringRule, Settings, getExpenseEffectiveMonth } from '../../types';
+import { Bucket, Expense, RecurringRule, Settings, getExpenseEffectiveMonth, getBucketMonthLimit } from '../../types';
 import { DBService } from '../../services/db';
 import { HapticService } from '../../services/hapticService';
 import { useTouchSortable } from '../../hooks/useTouchSortable';
@@ -269,12 +270,32 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     }
 
     try {
-      await DBService.transferBucketBalance(vasoFrom, vasoTo, amt);
+      // Si estamos en vista mensual, el trasvase es puntual para ese mes sin alterar el límite maestro futuro
+      const targetMonth = viewMode === 'month' ? selectedMonthPrefix : undefined;
+      await DBService.transferBucketBalance(vasoFrom, vasoTo, amt, targetMonth);
       await HapticService.notificationSuccess();
       setVasoModalOpen(false);
       onRefresh();
     } catch (err: any) {
       alert(err.message || 'Error al ejecutar el trasvase.');
+    }
+  };
+
+  // Revertir todos los ajustes puntuales del mes seleccionado
+  const handleRevertAllAdjustments = async () => {
+    const monthLabel = format(selectedDate, 'MMMM yyyy', { locale: es });
+    const confirmed = window.confirm(
+      `¿Revertir todos los ajustes puntuales de ${monthLabel} (${selectedMonthPrefix})?\n\nTodas las bolsas volverán a sus límites base originales configurados sin alterar los gastos ya registrados.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const count = await DBService.revertAllMonthlyAdjustments(selectedMonthPrefix);
+      await HapticService.notificationSuccess();
+      onRefresh();
+      alert(`Se han revertido los ajustes puntuales en ${count} bolsas. Los límites base han quedado restaurados para ${monthLabel}.`);
+    } catch (err: any) {
+      alert(err.message || 'Error al revertir los ajustes puntuales.');
     }
   };
 
@@ -324,7 +345,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const totalRefundsMonthly = viewMode === 'month' ? IncomeAllocationService.getAllRefundsForMonth(selectedMonthPrefix, effectiveSettings) : 0;
 
   const totalBudgetMonthly = buckets.reduce(
-    (sum, b) => sum + b.budgetLimit + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0),
+    (sum, b) => sum + getBucketMonthLimit(b, selectedMonthPrefix) + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0),
     0
   ) + totalInjectedMonthly;
   const totalSpentMonthlyGross = currentExpenses.reduce((sum, e) => sum + e.amount, 0);
@@ -354,7 +375,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           .filter((e) => e.bucketId === b.id)
           .reduce((s, e) => s + e.amount, 0) - bRefunds
       );
-      const effectiveLimit = b.budgetLimit + bInjected;
+      const effectiveLimit = getBucketMonthLimit(b, selectedMonthPrefix) + bInjected;
       const rem = effectiveLimit - spent;
       return rem > 0 ? sum + rem : sum;
     }, 0);
@@ -363,7 +384,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const overspentBuckets = buckets.filter((b) => {
     const bInjected = IncomeAllocationService.getBucketInjectedBudget(b.id, selectedMonthPrefix, effectiveSettings);
     const bRefunds = IncomeAllocationService.getBucketRefunds(b.id, selectedMonthPrefix, effectiveSettings);
-    const effectiveLimit = b.budgetLimit + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0) + bInjected;
+    const effectiveLimit = getBucketMonthLimit(b, selectedMonthPrefix) + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0) + bInjected;
     const spent = Math.max(
       0,
       currentExpenses
@@ -376,7 +397,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const totalOverspending = overspentBuckets.reduce((acc, b) => {
     const bInjected = IncomeAllocationService.getBucketInjectedBudget(b.id, selectedMonthPrefix, effectiveSettings);
     const bRefunds = IncomeAllocationService.getBucketRefunds(b.id, selectedMonthPrefix, effectiveSettings);
-    const effectiveLimit = b.budgetLimit + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0) + bInjected;
+    const effectiveLimit = getBucketMonthLimit(b, selectedMonthPrefix) + (b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0) + bInjected;
     const spent = Math.max(
       0,
       currentExpenses
@@ -385,6 +406,14 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     );
     return acc + (spent - effectiveLimit);
   }, 0);
+
+  // Comprobar si existen ajustes puntuales en el mes seleccionado
+  const hasMonthlyAdjustments = viewMode === 'month' && buckets.some(
+    (b) => b.monthlyAdjustments && selectedMonthPrefix in b.monthlyAdjustments && b.monthlyAdjustments[selectedMonthPrefix] !== 0
+  );
+  const adjustedBucketsCount = viewMode === 'month' ? buckets.filter(
+    (b) => b.monthlyAdjustments && selectedMonthPrefix in b.monthlyAdjustments && b.monthlyAdjustments[selectedMonthPrefix] !== 0
+  ).length : 0;
 
   // Ordenación calculada de las bolsas según el criterio elegido
   const sortedBuckets = [...buckets].sort((a, b) => {
@@ -551,10 +580,41 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           <button
             type="button"
             onClick={() => setCoverOverspendingOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-400 hover:to-pink-400 active:scale-95 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-rose-950/40 transition-all cursor-pointer whitespace-nowrap"
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-400 hover:to-pink-400 active:scale-95 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-rose-950/40 transition-all cursor-pointer whitespace-nowrap shrink-0"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Equilibrar</span>
+          </button>
+        </div>
+      )}
+
+      {/* Banner de Ajustes Puntuales Activos en el Mes (calibraciones por sobregiro o trasvases) */}
+      {hasMonthlyAdjustments && (
+        <div className="p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-amber-50 dark:from-amber-500/15 via-white dark:via-slate-900 to-amber-50/50 dark:to-amber-500/10 border border-amber-300 dark:border-amber-500/40 flex items-center justify-between gap-3 shadow-md shadow-amber-950/5 dark:shadow-amber-950/20 backdrop-blur-md">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2.5 rounded-2xl bg-amber-100 dark:bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/40 shadow-inner shrink-0">
+              <Zap className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-xs font-bold text-amber-800 dark:text-amber-200 flex items-center gap-1.5 flex-wrap">
+                <span>Ajustes Puntuales Activos ({adjustedBucketsCount} {adjustedBucketsCount === 1 ? 'bolsa calibrada' : 'bolsas calibradas'})</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/30 text-amber-800 dark:text-amber-200 font-bold border border-amber-300 dark:border-amber-500/40">
+                  {format(selectedDate, 'MMMM yyyy', { locale: es })}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5 line-clamp-1">
+                Calibración puntual de este mes. Los meses siguientes conservan sus límites base inalterados.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleRevertAllAdjustments}
+            className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-amber-500/20 transition-all cursor-pointer whitespace-nowrap shrink-0"
+            title="Revertir todos los ajustes puntuales de este mes y restaurar los límites base maestros"
+          >
+            <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Revertir Ajustes</span>
           </button>
         </div>
       )}
@@ -917,7 +977,9 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           const accumulated = b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0;
           const injected = viewMode === 'month' ? IncomeAllocationService.getBucketInjectedBudget(b.id, selectedMonthPrefix, effectiveSettings) : 0;
           const refunds = viewMode === 'month' ? IncomeAllocationService.getBucketRefunds(b.id, selectedMonthPrefix, effectiveSettings) : 0;
-          const limit = viewMode === 'annual' ? (b.budgetLimit * 12) : (b.budgetLimit + accumulated + injected);
+          const monthAdjustment = viewMode === 'month' ? (b.monthlyAdjustments?.[selectedMonthPrefix] || 0) : 0;
+          const monthBaseLimit = getBucketMonthLimit(b, selectedMonthPrefix);
+          const limit = viewMode === 'annual' ? (b.budgetLimit * 12) : (monthBaseLimit + accumulated + injected);
           const grossSpent = activeExpenses
             .filter((e) => e.bucketId === b.id)
             .reduce((sum, e) => sum + e.amount, 0);
@@ -991,6 +1053,19 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                           <span>Reembolso -{isPrivate ? '••••' : refunds.toFixed(2)} {currency}</span>
                         </span>
                       )}
+                      {monthAdjustment !== 0 && viewMode === 'month' && (
+                        <span
+                          className={`text-[10px] px-2 py-0.5 rounded-full font-bold border flex items-center gap-1 shrink-0 ${
+                            monthAdjustment > 0
+                              ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/40'
+                              : 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/40'
+                          }`}
+                          title={`Límite base maestro: ${b.budgetLimit.toFixed(2)} ${currency}. Calibración puntual acotada a este mes: ${monthAdjustment > 0 ? '+' : ''}${monthAdjustment.toFixed(2)} ${currency}`}
+                        >
+                          <Zap className="w-3 h-3 text-amber-500" />
+                          <span>Puntual {monthAdjustment > 0 ? `+${monthAdjustment.toFixed(2)}` : monthAdjustment.toFixed(2)} {currency}</span>
+                        </span>
+                      )}
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
                       {b.notes || 'Partida presupuestaria'}
@@ -1018,6 +1093,25 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                         <ChevronDown className="w-3.5 h-3.5" />
                       </button>
                     </div>
+                  )}
+                  {monthAdjustment !== 0 && viewMode === 'month' && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const monthLabel = format(selectedDate, 'MMMM yyyy', { locale: es });
+                        const confirmed = window.confirm(
+                          `¿Revertir el ajuste puntual de "${b.name}" (${monthAdjustment > 0 ? '+' : ''}${monthAdjustment.toFixed(2)} ${currency}) y restaurar su límite base de ${b.budgetLimit.toFixed(2)} ${currency} para ${monthLabel}?`
+                        );
+                        if (!confirmed) return;
+                        await DBService.revertBucketMonthlyAdjustment(b.id, selectedMonthPrefix);
+                        await HapticService.notificationSuccess();
+                        onRefresh();
+                      }}
+                      title="Revertir ajuste puntual y restaurar límite base de esta bolsa"
+                      className="p-1.5 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 rounded-lg hover:bg-amber-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </button>
                   )}
                   <button
                     type="button"
@@ -1075,6 +1169,12 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   <div className="text-[10px] text-cyan-700 dark:text-cyan-300 font-mono flex items-center justify-between">
                     <span>Compensación por reembolso</span>
                     <span>-{isPrivate ? '••••' : refunds.toFixed(2)} {currency} (Bruto: {isPrivate ? '••••' : grossSpent.toFixed(2)}€)</span>
+                  </div>
+                )}
+                {monthAdjustment !== 0 && viewMode === 'month' && (
+                  <div className="text-[10px] text-amber-700 dark:text-amber-300 font-mono flex items-center justify-between">
+                    <span>Ajuste puntual de mes</span>
+                    <span>Base: {isPrivate ? '••••' : b.budgetLimit.toFixed(2)} {currency} ({monthAdjustment > 0 ? `+${monthAdjustment.toFixed(2)}` : monthAdjustment.toFixed(2)} €)</span>
                   </div>
                 )}
 
@@ -1457,6 +1557,15 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 remanente hacia una que esté en tensión o déficit.
               </p>
 
+              {viewMode === 'month' && (
+                <div className="p-3 rounded-2xl bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/30 flex items-start gap-2.5">
+                  <Info className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-cyan-800 dark:text-cyan-200 leading-tight">
+                    Este trasvase se aplicará como <strong>ajuste puntual para {format(selectedDate, 'MMMM yyyy', { locale: es })}</strong>. Los límites base configurados para los meses posteriores se mantendrán inalterados y podrás revertir este ajuste en cualquier momento.
+                  </p>
+                </div>
+              )}
+
               <form onSubmit={handleExecuteVasos} className="space-y-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-600 dark:text-slate-400">1. Bolsa Origen (Cede Saldo)</label>
@@ -1467,7 +1576,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   >
                     {buckets.map((b) => (
                       <option key={b.id} value={b.id} disabled={b.id === vasoTo}>
-                        {b.name} (Límite: {b.budgetLimit.toFixed(2)} {currency})
+                        {b.name} (Límite: {getBucketMonthLimit(b, selectedMonthPrefix).toFixed(2)} {currency})
                       </option>
                     ))}
                   </select>
@@ -1488,7 +1597,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   >
                     {buckets.map((b) => (
                       <option key={b.id} value={b.id} disabled={b.id === vasoFrom}>
-                        {b.name} (Límite: {b.budgetLimit.toFixed(2)} {currency})
+                        {b.name} (Límite: {getBucketMonthLimit(b, selectedMonthPrefix).toFixed(2)} {currency})
                       </option>
                     ))}
                   </select>

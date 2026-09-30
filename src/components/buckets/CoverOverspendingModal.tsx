@@ -11,7 +11,7 @@ import {
   TrendingDown,
   Info,
 } from 'lucide-react';
-import { Bucket, Expense, Settings, getExpenseEffectiveMonth } from '../../types';
+import { Bucket, Expense, Settings, getExpenseEffectiveMonth, getBucketMonthLimit } from '../../types';
 import { DBService } from '../../services/db';
 import { IncomeAllocationService } from '../../services/incomeAllocationService';
 
@@ -45,7 +45,7 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
     getExpenseEffectiveMonth(e) === targetMonthPrefix
   );
 
-  // Calcular gasto y balance por bolsa teniendo en cuenta reembolsos e inyecciones presupuestarias
+  // Calcular gasto y balance por bolsa teniendo en cuenta reembolsos, inyecciones y ajustes puntuales del mes
   const bucketStates = buckets.map((b) => {
     const grossSpent = currentMonthExpenses
       .filter((e) => e.bucketId === b.id)
@@ -54,7 +54,8 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
     const injected = IncomeAllocationService.getBucketInjectedBudget(b.id, targetMonthPrefix, settings);
     const accumulated = b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0;
     const spent = Math.max(0, grossSpent - refunds);
-    const limit = b.budgetLimit + accumulated + injected;
+    const monthBaseLimit = getBucketMonthLimit(b, targetMonthPrefix);
+    const limit = monthBaseLimit + accumulated + injected;
     const diff = limit - spent;
     return {
       bucket: b,
@@ -62,6 +63,7 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
       refunds,
       injected,
       accumulated,
+      monthBaseLimit,
       spent,
       limit,
       deficit: diff < 0 ? Math.abs(diff) : 0,
@@ -86,45 +88,61 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
   const [isApplying, setIsApplying] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Ejecutar el reequilibrio inteligente de vasos comunicantes
+  // Ejecutar el reequilibrio inteligente de vasos comunicantes acotado de forma puntual al mes
   const handleApplyRebalance = async () => {
     setIsApplying(true);
     try {
       const updatedBucketsMap = new Map<string, Bucket>();
       buckets.forEach((b) => updatedBucketsMap.set(b.id, { ...b }));
 
-      // 1. Ampliar límite de las bolsas en déficit para dejarlas en saldo neutro exacto
+      // 1. Ampliar límite puntual de las bolsas en déficit para dejarlas en saldo neutro exacto en este mes
       overspentItems.forEach((item) => {
         const target = updatedBucketsMap.get(item.bucket.id)!;
-        target.budgetLimit = Math.round((target.budgetLimit + item.deficit) * 100) / 100;
+        const currentAdj = target.monthlyAdjustments?.[targetMonthPrefix] || 0;
+        target.monthlyAdjustments = {
+          ...(target.monthlyAdjustments || {}),
+          [targetMonthPrefix]: Math.round((currentAdj + item.deficit) * 100) / 100,
+        };
       });
 
-      // 2. Deducir el déficit total según la estrategia elegida
+      // 2. Deducir el déficit total según la estrategia elegida de forma puntual para este mes
       if (selectedStrategy === 'buffer' && bufferItem) {
         // Opción A: Deducir del colchón
         const buf = updatedBucketsMap.get(bufferItem.bucket.id)!;
-        buf.budgetLimit = Math.max(0, Math.round((buf.budgetLimit - totalDeficit) * 100) / 100);
+        const currentAdj = buf.monthlyAdjustments?.[targetMonthPrefix] || 0;
+        buf.monthlyAdjustments = {
+          ...(buf.monthlyAdjustments || {}),
+          [targetMonthPrefix]: Math.round((currentAdj - totalDeficit) * 100) / 100,
+        };
       } else if (selectedStrategy === 'highest_surplus' && highestSurplusItem) {
         // Opción B: Deducir de la bolsa con mayor superávit
         const best = updatedBucketsMap.get(highestSurplusItem.bucket.id)!;
-        best.budgetLimit = Math.max(0, Math.round((best.budgetLimit - totalDeficit) * 100) / 100);
+        const currentAdj = best.monthlyAdjustments?.[targetMonthPrefix] || 0;
+        best.monthlyAdjustments = {
+          ...(best.monthlyAdjustments || {}),
+          [targetMonthPrefix]: Math.round((currentAdj - totalDeficit) * 100) / 100,
+        };
       } else {
         // Opción C: Prorratear entre todas las bolsas con margen positivo
         if (totalSurplus > 0) {
           surplusItems.forEach((item) => {
             const portion = (item.surplus / totalSurplus) * totalDeficit;
             const b = updatedBucketsMap.get(item.bucket.id)!;
-            b.budgetLimit = Math.max(0, Math.round((b.budgetLimit - portion) * 100) / 100);
+            const currentAdj = b.monthlyAdjustments?.[targetMonthPrefix] || 0;
+            b.monthlyAdjustments = {
+              ...(b.monthlyAdjustments || {}),
+              [targetMonthPrefix]: Math.round((currentAdj - portion) * 100) / 100,
+            };
           });
         }
       }
 
-      // Guardar de forma atómica todas las bolsas actualizadas
+      // Guardar de forma atómica todas las bolsas actualizadas (budgetLimit maestro preservado intacto)
       for (const updated of updatedBucketsMap.values()) {
         await DBService.saveBucket(updated);
       }
 
-      setSuccessMessage('¡Presupuesto reequilibrado con éxito! Vasos comunicantes actualizados.');
+      setSuccessMessage(`¡Presupuesto reequilibrado para ${targetMonthPrefix}! Límite base maestro preservado para futuros meses.`);
       onRefresh();
       setTimeout(() => {
         setSuccessMessage(null);
@@ -180,6 +198,14 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
             </div>
           ) : (
             <>
+              {/* Información de Calibración Puntual */}
+              <div className="p-3 rounded-2xl bg-purple-50/70 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-500/30 flex items-start gap-2.5 text-xs text-purple-800 dark:text-purple-300">
+                <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
+                <div className="min-w-0 flex-1 leading-relaxed">
+                  <strong>Ajuste puntual para {targetMonthPrefix}:</strong> Este reequilibrio se aplicará exclusivamente a este mes mediante vasos comunicantes elásticos. Tus límites base maestros configurados en cada bolsa permanecerán intactos para los meses siguientes.
+                </div>
+              </div>
+
               {/* Resumen del Déficit Detectado */}
               <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 space-y-2">
                 <div className="flex items-center justify-between text-xs font-bold text-rose-700 dark:text-rose-300">
