@@ -265,10 +265,28 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
             </div>
 
             {/* Selector de Icono Lucide */}
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-400">
-                Icono Vectorial ({MASTER_ICON_KEYS.length} disponibles)
-              </label>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-400">
+                  Icono Vectorial ({MASTER_ICON_KEYS.length} disponibles)
+                </label>
+                <div className="flex items-center space-x-1.5">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">Activo:</span>
+                  <div
+                    className="w-6 h-6 rounded-lg flex items-center justify-center border text-xs shadow-xs"
+                    style={{
+                      backgroundColor: `${formColor}20`,
+                      borderColor: `${formColor}50`,
+                      color: formColor,
+                    }}
+                  >
+                    {(() => {
+                      const SelectedComp = LUCIDE_CATEGORY_ICONS[formIcon] || Tag;
+                      return <SelectedComp className="w-3.5 h-3.5" />;
+                    })()}
+                  </div>
+                </div>
+              </div>
               <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 p-2 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 max-h-40 overflow-y-auto">
                 {Object.keys(LUCIDE_CATEGORY_ICONS).map((iconKey) => {
                   const Comp = LUCIDE_CATEGORY_ICONS[iconKey] || Tag;
@@ -280,9 +298,19 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
                       onClick={() => setFormIcon(iconKey)}
                       className={`p-2 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-emerald-500 text-slate-950 font-bold scale-105 shadow-md shadow-emerald-500/30'
+                          ? 'scale-110 font-bold shadow-md'
                           : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700'
                       }`}
+                      style={
+                        isSelected
+                          ? {
+                              backgroundColor: `${formColor}25`,
+                              borderColor: `${formColor}80`,
+                              borderWidth: '1.5px',
+                              color: formColor,
+                            }
+                          : undefined
+                      }
                       title={iconKey}
                     >
                       <Comp className="w-4 h-4" />

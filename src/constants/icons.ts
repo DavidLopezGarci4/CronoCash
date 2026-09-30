@@ -61,6 +61,12 @@ import {
   Smartphone,
   Wrench,
   Tag,
+  // Mascotas, Transferencias & Impuestos
+  PawPrint,
+  ArrowLeftRight,
+  ArrowRightLeft,
+  ReceiptText,
+  Receipt,
 } from 'lucide-react';
 
 /**
@@ -136,9 +142,16 @@ export const MASTER_ICON_MAP: Record<string, React.ElementType> = {
   Smartphone,
   Wrench,
   Tag,
+
+  // Mascotas, Transferencias & Impuestos
+  PawPrint,
+  ArrowLeftRight,
+  ArrowRightLeft,
+  ReceiptText,
+  Receipt,
 };
 
 /**
- * Lista ordenada de todas las claves de iconos disponibles (51 iconos).
+ * Lista ordenada de todas las claves de iconos disponibles (56 iconos).
  */
 export const MASTER_ICON_KEYS: string[] = Object.keys(MASTER_ICON_MAP);

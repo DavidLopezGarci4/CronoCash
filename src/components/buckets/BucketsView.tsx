@@ -46,6 +46,7 @@ import {
   Wallet,
   Scale,
   CheckCircle2,
+  ReceiptText,
 } from 'lucide-react';
 import { format, addMonths, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -55,6 +56,7 @@ import { DBService } from '../../services/db';
 import { HapticService } from '../../services/hapticService';
 import { useTouchSortable } from '../../hooks/useTouchSortable';
 import { CoverOverspendingModal } from './CoverOverspendingModal';
+import { BucketMovementsModal } from './BucketMovementsModal';
 import { BudgetCapacityService } from '../../services/budgetCapacityService';
 import { IncomeAllocationService } from '../../services/incomeAllocationService';
 
@@ -72,7 +74,7 @@ interface BucketsViewProps {
 
 import { MASTER_ICON_MAP, MASTER_ICON_KEYS } from '../../constants/icons';
 
-// Mapa de iconos dinámicos Lucide (51 disponibles)
+// Mapa de iconos dinámicos Lucide (56 disponibles)
 const ICON_MAP: Record<string, React.ElementType> = MASTER_ICON_MAP;
 
 export type BucketSortMode =
@@ -101,6 +103,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const [vasosModalOpen, setVasoModalOpen] = useState(false);
   const [rolloverModalOpen, setRolloverModalOpen] = useState(false);
   const [coverOverspendingOpen, setCoverOverspendingOpen] = useState(false);
+  const [movementsBucket, setMovementsBucket] = useState<Bucket | null>(null);
 
   // Ordenación de Bolsas
   const [sortMode, setSortMode] = useState<BucketSortMode>(() => {
@@ -307,7 +310,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     '#0284c7', // sky
   ];
 
-  // Iconos disponibles (Catálogo Maestro Unificado de 51 iconos)
+  // Iconos disponibles (Catálogo Maestro Unificado de 56 iconos)
   const availableIcons = MASTER_ICON_KEYS;
 
   // Totales mensuales con inyecciones y reembolsos
@@ -950,15 +953,19 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
               <div className="p-4 flex-1 flex flex-col justify-between min-w-0">
                 <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-3">
+                <div
+                  className="flex items-center space-x-3 cursor-pointer group"
+                  onClick={() => setMovementsBucket(b)}
+                  title="Ver desglose de movimientos (gastos y reembolsos)"
+                >
                   <div
-                    className="w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-white shadow-md shrink-0"
+                    className="w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-white shadow-md shrink-0 group-hover:scale-105 transition-transform"
                     style={{ backgroundColor: b.color }}
                   >
                     <IconComp className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                       <span>{b.name}</span>
                       {b.rolloverSurplus && viewMode === 'month' && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 font-bold border border-teal-200 dark:border-teal-500/40 flex items-center gap-1">
@@ -1007,6 +1014,14 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                     </div>
                   )}
                   <button
+                    type="button"
+                    onClick={() => setMovementsBucket(b)}
+                    title="Ver movimientos de esta bolsa (Gastos y Reembolsos)"
+                    className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  >
+                    <ReceiptText className="w-3.5 h-3.5" />
+                  </button>
+                  <button
                     onClick={() => {
                       setVasoTo(b.id);
                       const other = buckets.find((item) => item.id !== b.id);
@@ -1014,7 +1029,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                       setVasoModalOpen(true);
                     }}
                     title="Compensar con otra bolsa (Vasos Comunicantes)"
-                    className="p-1.5 text-cyan-600 dark:text-cyan-400 hover:text-cyan-800 dark:hover:text-cyan-200 rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-colors"
+                    className="p-1.5 text-cyan-600 dark:text-cyan-400 hover:text-cyan-800 dark:hover:text-cyan-200 rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   >
                     <ArrowRightLeft className="w-3.5 h-3.5" />
                   </button>
@@ -1104,10 +1119,31 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700/80 rounded-3xl w-full max-w-md max-h-[92vh] text-slate-900 dark:text-white shadow-2xl flex flex-col overflow-hidden">
             {/* Cabecera fija que NUNCA desaparece ni se bloquea al hacer scroll */}
             <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 shrink-0 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xs">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <PieChart className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>{editingBucket ? 'Editar Bolsa' : 'Nueva Bolsa de Presupuesto'}</span>
-              </h3>
+              <div className="flex items-center space-x-3">
+                {(() => {
+                  const CurrentHeaderIcon = ICON_MAP[icon] || PieChart;
+                  return (
+                    <div
+                      className="w-10 h-10 rounded-2xl flex items-center justify-center border shadow-xs shrink-0 transition-all"
+                      style={{
+                        backgroundColor: `${color}20`,
+                        borderColor: `${color}50`,
+                        color: color,
+                      }}
+                    >
+                      <CurrentHeaderIcon className="w-5 h-5" />
+                    </div>
+                  );
+                })()}
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    {editingBucket ? 'Editar Bolsa de Presupuesto' : 'Nueva Bolsa de Presupuesto'}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Límite mensual, icono y color con fondo adaptativo
+                  </p>
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
@@ -1218,23 +1254,53 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
               </div>
 
               {/* Selector de Icono Lucide */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600 dark:text-slate-400">
-                  Icono Representativo ({availableIcons.length} disponibles)
-                </label>
-                <div className="grid grid-cols-6 sm:grid-cols-8 gap-1.5 pt-1 max-h-36 overflow-y-auto pr-1">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400">
+                    Icono Representativo ({availableIcons.length} disponibles)
+                  </label>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">Activo:</span>
+                    <div
+                      className="w-6 h-6 rounded-lg flex items-center justify-center border text-xs shadow-xs"
+                      style={{
+                        backgroundColor: `${color}20`,
+                        borderColor: `${color}50`,
+                        color: color,
+                      }}
+                    >
+                      {(() => {
+                        const SelectedComp = ICON_MAP[icon] || PieChart;
+                        return <SelectedComp className="w-3.5 h-3.5" />;
+                      })()}
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-6 sm:grid-cols-8 gap-1.5 pt-1 max-h-36 overflow-y-auto pr-1 p-2 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
                   {availableIcons.map((ic) => {
                     const Comp = ICON_MAP[ic] || PieChart;
+                    const isSelected = icon === ic;
                     return (
                       <button
                         key={ic}
                         type="button"
                         onClick={() => setIcon(ic)}
-                        className={`p-2 rounded-xl flex items-center justify-center transition-all ${
-                          icon === ic
-                            ? 'bg-emerald-500 text-slate-950 font-bold scale-105 shadow-md shadow-emerald-500/30'
-                            : 'bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800'
+                        className={`p-2 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                          isSelected
+                            ? 'scale-110 font-bold shadow-md'
+                            : 'bg-white dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700'
                         }`}
+                        style={
+                          isSelected
+                            ? {
+                                backgroundColor: `${color}25`,
+                                borderColor: `${color}80`,
+                                borderWidth: '1.5px',
+                                color: color,
+                              }
+                            : undefined
+                        }
+                        title={ic}
                       >
                         <Comp className="w-4 h-4" />
                       </button>
@@ -1536,7 +1602,23 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           buckets={buckets}
           expenses={expenses}
           currency={currency}
+          settings={effectiveSettings}
+          selectedMonthPrefix={selectedMonthPrefix}
           onRefresh={onRefresh}
+        />
+      )}
+
+      {/* MODAL 6: Desglose Integral de Movimientos por Bolsa */}
+      {movementsBucket && (
+        <BucketMovementsModal
+          isOpen={!!movementsBucket}
+          onClose={() => setMovementsBucket(null)}
+          bucket={movementsBucket}
+          monthPrefix={selectedMonthPrefix}
+          monthLabel={format(selectedDate, 'MMMM yyyy', { locale: es })}
+          expenses={expenses}
+          settings={effectiveSettings}
+          currency={currency}
         />
       )}
     </div>

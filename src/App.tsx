@@ -564,6 +564,7 @@ export const App: React.FC = () => {
             recurringRules={recurringRules}
             buckets={buckets}
             settings={settings}
+            extraIncomes={settings.extraIncomes || []}
             currency={settings.currency || '€'}
             onAddExpense={handleSaveExpense}
             onRequestConfirmRecurring={handleOpenConfirmRecurring}

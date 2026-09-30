@@ -19,6 +19,8 @@ import {
   Hand,
   AlertTriangle,
   RotateCcw,
+  Coins,
+  ArrowRightLeft,
 } from 'lucide-react';
 import {
   format,
@@ -35,19 +37,52 @@ import {
   differenceInCalendarWeeks,
 } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Expense, RecurringRule, Bucket, Settings } from '../../types';
+import { Expense, RecurringRule, Bucket, Settings, ExtraIncome } from '../../types';
 import { HapticService } from '../../services/hapticService';
 import { usePrivacy } from '../../context/PrivacyContext';
+import { IncomeAllocationService } from '../../services/incomeAllocationService';
 
 interface CalendarViewProps {
   expenses: Expense[];
   recurringRules: RecurringRule[];
   buckets: Bucket[];
   settings?: Settings;
+  extraIncomes?: ExtraIncome[];
   currency: string;
   onAddExpense?: (expense: Expense) => void;
   onRequestConfirmRecurring?: (rule: RecurringRule, targetDate?: string) => void;
   onRevertExpense?: (expense: Expense) => void;
+}
+
+export function isIncomeOnDate(income: ExtraIncome, date: Date): boolean {
+  if (income.isActive === false) return false;
+  const dateStr = format(date, 'yyyy-MM-dd');
+
+  if (income.type === 'punctual') {
+    return (income.date || '').split('T')[0] === dateStr;
+  }
+
+  if (income.type === 'recurring') {
+    const startDateStr = (income.date || '').split('T')[0];
+    if (startDateStr && dateStr < startDateStr) return false;
+
+    const dayNum = date.getDate();
+    const targetDay =
+      income.dayOfMonth || (startDateStr ? parseInt(startDateStr.split('-')[2], 10) : 1);
+    if (dayNum !== targetDay) return false;
+
+    const monthNum = date.getMonth() + 1;
+    if (income.frequency === 'yearly') {
+      const targetM = startDateStr ? parseInt(startDateStr.split('-')[1], 10) : 1;
+      return monthNum === targetM;
+    }
+    if (income.frequency === 'quarterly') {
+      const startM = startDateStr ? parseInt(startDateStr.split('-')[1], 10) : 1;
+      return Math.abs(monthNum - startM) % 3 === 0;
+    }
+    return true; // mensual por defecto
+  }
+  return false;
 }
 
 export function isRuleOnDate(rule: RecurringRule, date: Date): boolean {
@@ -125,6 +160,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   recurringRules,
   buckets,
   settings,
+  extraIncomes,
   currency,
   onAddExpense,
   onRequestConfirmRecurring,
@@ -182,9 +218,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
   const activeDays = viewPeriod === 'week' ? weekDays : monthDays;
 
+  // Ingresos efectivos (consolidados desde props o settings)
+  const effectiveIncomes = extraIncomes || settings?.extraIncomes || [];
+
   // Gastos registrados en este mes
   const expensesInMonth = expenses.filter((e) => (e.date || '').startsWith(formattedMonthStr));
   const totalMonthSpent = expensesInMonth.reduce((acc, curr) => acc + curr.amount, 0);
+
+  // Ingresos y reembolsos registrados en este mes
+  const incomesInMonth = effectiveIncomes.filter((i) =>
+    IncomeAllocationService.isMatchingMonth(i, formattedMonthStr)
+  );
+  const totalMonthIncomes = incomesInMonth.reduce((sum, i) => sum + (Number(i.amount) || 0), 0);
 
   // Recurrentes comprometidos esperados en este mes (excluyendo tareas sin coste)
   const currentMonthNum = currentDate.getMonth() + 1;
@@ -221,14 +266,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     })
     .reduce((acc, curr) => acc + curr.amount, 0);
 
-  // Ingreso mensual para el cálculo de Cash-Flow Runway
-  const monthlyIncome = settings?.monthlyIncome || 1500;
-  const projectedBalanceEnd = monthlyIncome - totalMonthSpent - monthlyRecurringTotal;
+  // Ingreso mensual para el cálculo de Cash-Flow Runway (nómina/salario base del mes + ingresos extra)
+  const baseSalary =
+    settings?.monthlySalaries?.[formattedMonthStr]?.amount ?? settings?.monthlyIncome ?? 1500;
+  const projectedBalanceEnd = baseSalary + totalMonthIncomes - totalMonthSpent - monthlyRecurringTotal;
 
   // Detalle del día seleccionado
   const selectedDayStr = format(selectedDay, 'yyyy-MM-dd');
   const selectedDayExpenses = expenses.filter((e) => e.date === selectedDayStr);
   const selectedDayTotalSpent = selectedDayExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+  // Ingresos del día seleccionado
+  const selectedDayIncomes = effectiveIncomes.filter((i) => isIncomeOnDate(i, selectedDay));
+  const selectedDayIncomeTotal = selectedDayIncomes.reduce((sum, i) => sum + (Number(i.amount) || 0), 0);
+  const selectedDayNet = selectedDayIncomeTotal - selectedDayTotalSpent;
 
   // Recurrentes que caen en el día seleccionado respetando frecuencia
   const selectedDayRecurring = recurringRules.filter((r) => isRuleOnDate(r, selectedDay));
@@ -354,16 +405,28 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       {viewPeriod !== 'yoy' && (
         <>
           {/* Tarjetas de Cash-Flow Runway del Mes */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className={`grid gap-3 ${totalMonthIncomes > 0 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-1 sm:grid-cols-3'}`}>
             <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
               <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Gastado Real en el Mes</span>
-              <div className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
+              <div className="text-2xl font-black font-mono text-rose-600 dark:text-rose-400 mt-1">
                 {mask(totalMonthSpent, currency)}
               </div>
               <span className="text-[11px] text-slate-400 dark:text-slate-500">
                 {expensesInMonth.length} movimientos ejecutados
               </span>
             </div>
+
+            {totalMonthIncomes > 0 && (
+              <div className="p-4 rounded-3xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/30 shadow-xs">
+                <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400">Ingresos & Reembolsos</span>
+                <div className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
+                  +{mask(totalMonthIncomes, currency)}
+                </div>
+                <span className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80">
+                  {incomesInMonth.length} entradas en el mes
+                </span>
+              </div>
+            )}
 
             <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
               <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Recurrentes Comprometidos</span>
@@ -466,6 +529,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 const dayExpenses = expenses.filter((e) => e.date === dayDateStr);
                 const totalDaySpent = dayExpenses.reduce((sum, e) => sum + e.amount, 0);
 
+                // Ingresos y reembolsos de este día
+                const dayIncomes = effectiveIncomes.filter((i) => isIncomeOnDate(i, day));
+                const totalDayIncome = dayIncomes.reduce((sum, i) => sum + (Number(i.amount) || 0), 0);
+                const dayNet = totalDayIncome - totalDaySpent;
+                const hasIncome = totalDayIncome > 0;
+                const isNetPositiveDay = totalDayIncome > 0 && totalDaySpent > 0 && dayNet >= 0;
+
                 // Recurrentes de este día
                 const dayRecurring = recurringRules.filter((r) => isRuleOnDate(r, day));
                 const dayCompletedRecurring = dayRecurring.filter((r) =>
@@ -509,9 +579,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 ring-2 ring-emerald-500/40 shadow-lg'
                         : isToday(day)
                         ? 'border-emerald-500/60 bg-emerald-50/40 dark:bg-slate-900'
+                        : isNetPositiveDay
+                        ? 'border-emerald-300 dark:border-emerald-500/40 bg-emerald-50/40 dark:bg-emerald-950/20 hover:border-emerald-400'
                         : hasUnpaidManualBill
                         ? 'border-rose-300 dark:border-rose-500/60 bg-rose-50 dark:bg-rose-950/20 hover:border-rose-500'
-                        : hasActivity
+                        : hasActivity || hasIncome
                         ? 'border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-600'
                         : 'border-slate-100 dark:border-slate-800/40 bg-slate-50/50 dark:bg-slate-950/30 hover:border-slate-200 dark:hover:border-slate-800'
                     } ${!isCurrentMonth && viewPeriod === 'month' ? 'opacity-30' : 'opacity-100'}`}
@@ -530,17 +602,23 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       </span>
 
                       {/* Puntos de evento ultra-compactos y estrictamente deduplicados */}
-                      <div className="flex items-center space-x-0.5 shrink-0 max-w-[24px] overflow-hidden">
+                      <div className="flex items-center space-x-0.5 shrink-0 max-w-[28px] overflow-hidden">
+                        {hasIncome && (
+                          <span
+                            className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-xs shadow-emerald-400/50 shrink-0"
+                            title={`Ingreso o reembolso recibido: +${totalDayIncome.toFixed(2)}${currency}`}
+                          />
+                        )}
                         {hasUnpaidManualBill ? (
                           <span
                             className="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 shadow-xs shadow-rose-400/50 shrink-0 animate-pulse"
                             title="Pago manual vencido pendiente de abonar"
                           />
                         ) : null}
-                        {hasExecutedActivity && (
+                        {dayExpenses.length > 0 && (
                           <span
-                            className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 shrink-0"
-                            title="Gastos o tareas completadas en esta fecha"
+                            className="w-1.5 h-1.5 rounded-full bg-rose-500/80 dark:bg-rose-400/80 shrink-0"
+                            title={`Gastos ejecutados: -${totalDaySpent.toFixed(2)}${currency}`}
                           />
                         )}
                         {hasPendingBill && !hasUnpaidManualBill && (
@@ -558,18 +636,33 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       </div>
                     </div>
 
-                    {/* Desglose resumido de importes */}
+                    {/* Desglose resumido de importes con balance neto e ingresos */}
                     <div className="w-full truncate min-w-0">
-                      {totalDaySpent > 0 && (
+                      {totalDaySpent > 0 && totalDayIncome > 0 ? (
+                        <div
+                          className={`text-[9px] font-mono font-bold truncate leading-tight whitespace-nowrap ${
+                            dayNet >= 0
+                              ? 'text-emerald-600 dark:text-emerald-400'
+                              : 'text-rose-600 dark:text-rose-300'
+                          }`}
+                          title={`Gasto: -${totalDaySpent.toFixed(2)}${currency} | Ingreso/Reembolso: +${totalDayIncome.toFixed(2)}${currency} | Neto: ${dayNet >= 0 ? '+' : ''}${dayNet.toFixed(2)}${currency}`}
+                        >
+                          {dayNet >= 0 ? `+${dayNet.toFixed(0)}` : `-${Math.abs(dayNet).toFixed(0)}`}&nbsp;{currency}
+                          <span className="text-[8px] font-normal opacity-75 ml-0.5">neto</span>
+                        </div>
+                      ) : totalDayIncome > 0 ? (
+                        <div className="text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400 truncate leading-tight whitespace-nowrap">
+                          +{totalDayIncome.toFixed(0)}&nbsp;{currency}
+                        </div>
+                      ) : totalDaySpent > 0 ? (
                         <div className="text-[9px] font-mono font-bold text-rose-600 dark:text-rose-300 truncate leading-tight whitespace-nowrap">
                           -{totalDaySpent.toFixed(0)}&nbsp;{currency}
                         </div>
-                      )}
-                      {totalDayPendingRecurring > 0 && totalDaySpent === 0 && (
+                      ) : totalDayPendingRecurring > 0 ? (
                         <div className="text-[9px] font-mono font-bold text-blue-600 dark:text-blue-300 truncate leading-tight whitespace-nowrap">
                           ~{totalDayPendingRecurring.toFixed(0)}&nbsp;{currency}
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   </button>
                 );
@@ -579,7 +672,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
           {/* Panel de Detalle del Día Seleccionado */}
           <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 gap-3">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   <CalendarDays className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
@@ -587,8 +680,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     Detalle del {format(selectedDay, "d 'de' MMMM, yyyy", { locale: es })}
                   </span>
                 </h3>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                  {selectedDayExpenses.length} {selectedDayExpenses.length === 1 ? 'gasto ejecutado' : 'gastos ejecutados'}
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2 flex-wrap mt-0.5">
+                  <span>{selectedDayExpenses.length} {selectedDayExpenses.length === 1 ? 'gasto ejecutado' : 'gastos ejecutados'}</span>
+                  {selectedDayIncomes.length > 0 && (
+                    <span>• {selectedDayIncomes.length} {selectedDayIncomes.length === 1 ? 'ingreso/reembolso' : 'ingresos/reembolsos'}</span>
+                  )}
                   {selectedDayPendingRecurring.length > 0
                     ? ` • ${selectedDayPendingRecurring.length} ${selectedDayPendingRecurring.length === 1 ? 'pago pendiente' : 'pagos pendientes'}`
                     : selectedDayRecurring.length > 0
@@ -597,13 +693,100 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 </span>
               </div>
 
-              <div className="text-right shrink-0">
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Total del Día</span>
-                <div className="text-base font-mono font-black text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                  {selectedDayRealTotal.toFixed(2)}&nbsp;{currency}
+              <div className="flex items-center gap-3 self-end sm:self-auto font-mono text-xs">
+                {selectedDayTotalSpent > 0 && (
+                  <div className="text-right">
+                    <span className="text-[10px] text-slate-400 uppercase font-bold block">Gastado</span>
+                    <span className="text-rose-600 dark:text-rose-400 font-bold whitespace-nowrap">
+                      -{isPrivate ? '••••' : selectedDayTotalSpent.toFixed(2)} {currency}
+                    </span>
+                  </div>
+                )}
+                {selectedDayIncomeTotal > 0 && (
+                  <div className="text-right">
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 uppercase font-bold block">Ingresado</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold whitespace-nowrap">
+                      +{isPrivate ? '••••' : selectedDayIncomeTotal.toFixed(2)} {currency}
+                    </span>
+                  </div>
+                )}
+                <div className="text-right pl-2 border-l border-slate-200 dark:border-slate-700">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold block">
+                    {selectedDayIncomeTotal > 0 && selectedDayTotalSpent > 0 ? 'Balance Neto' : 'Total del Día'}
+                  </span>
+                  <div
+                    className={`text-base font-black whitespace-nowrap ${
+                      selectedDayIncomeTotal > 0 && selectedDayTotalSpent > 0
+                        ? selectedDayNet >= 0
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-rose-600 dark:text-rose-400'
+                        : 'text-slate-900 dark:text-white'
+                    }`}
+                  >
+                    {isPrivate
+                      ? '•••• ' + currency
+                      : selectedDayIncomeTotal > 0 && selectedDayTotalSpent > 0
+                      ? `${selectedDayNet >= 0 ? '+' : ''}${selectedDayNet.toFixed(2)} ${currency}`
+                      : `${selectedDayRealTotal.toFixed(2)} ${currency}`}
+                  </div>
                 </div>
               </div>
             </div>
+
+            {/* Listado de Ingresos y Reembolsos Recibidos en este día */}
+            {selectedDayIncomes.length > 0 && (
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                  <ArrowRightLeft className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Ingresos y Reembolsos Recibidos ({selectedDayIncomes.length}):</span>
+                </span>
+
+                <div className="space-y-2">
+                  {selectedDayIncomes.map((inc) => {
+                    const targetBucket = buckets.find((b) => b.id === inc.targetBucketId);
+                    const isRefund = inc.allocationMode === 'bucket_refund';
+                    const isInjection = inc.allocationMode === 'bucket_budget';
+
+                    return (
+                      <div
+                        key={inc.id}
+                        className="p-3 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-between gap-3"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                              {inc.title}
+                            </span>
+                            {isRefund && targetBucket && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-cyan-100 dark:bg-cyan-500/25 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-200 dark:border-cyan-500/40">
+                                Reembolso: {targetBucket.name}
+                              </span>
+                            )}
+                            {isInjection && targetBucket && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-500/40">
+                                Inyección: {targetBucket.name}
+                              </span>
+                            )}
+                            {!targetBucket && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold border border-slate-200 dark:border-slate-700">
+                                Ingreso General
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                            {inc.notes || 'Ingreso registrado en cuenta'}
+                          </div>
+                        </div>
+
+                        <div className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
+                          +{isPrivate ? '••••' : inc.amount.toFixed(2)}&nbsp;{currency}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Listado de Actos y Vencimientos Programados para este día */}
             {selectedDayRecurring.length > 0 && (
@@ -787,7 +970,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 </div>
               </div>
             ) : (
-              selectedDayRecurring.length === 0 && (
+              selectedDayRecurring.length === 0 && selectedDayIncomes.length === 0 && (
                 <div className="py-4 text-center text-xs text-slate-400 dark:text-slate-500">
                   No hay movimientos registrados ni cobros programados para esta fecha.
                 </div>

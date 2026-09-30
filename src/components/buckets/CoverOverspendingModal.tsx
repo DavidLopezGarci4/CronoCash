@@ -11,8 +11,9 @@ import {
   TrendingDown,
   Info,
 } from 'lucide-react';
-import { Bucket, Expense } from '../../types';
+import { Bucket, Expense, Settings } from '../../types';
 import { DBService } from '../../services/db';
+import { IncomeAllocationService } from '../../services/incomeAllocationService';
 
 interface CoverOverspendingModalProps {
   isOpen: boolean;
@@ -20,6 +21,8 @@ interface CoverOverspendingModalProps {
   buckets: Bucket[];
   expenses: Expense[];
   currency: string;
+  settings?: Settings;
+  selectedMonthPrefix?: string;
   onRefresh: () => void;
 }
 
@@ -31,24 +34,34 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
   buckets,
   expenses,
   currency,
+  settings,
+  selectedMonthPrefix,
   onRefresh,
 }) => {
   if (!isOpen) return null;
 
-  const currentMonthPrefix = new Date().toISOString().substring(0, 7);
+  const targetMonthPrefix = selectedMonthPrefix || new Date().toISOString().substring(0, 7);
   const currentMonthExpenses = expenses.filter((e) =>
-    (e.date || '').startsWith(currentMonthPrefix)
+    (e.date || '').startsWith(targetMonthPrefix)
   );
 
-  // Calcular gasto y balance por bolsa
+  // Calcular gasto y balance por bolsa teniendo en cuenta reembolsos e inyecciones presupuestarias
   const bucketStates = buckets.map((b) => {
-    const spent = currentMonthExpenses
+    const grossSpent = currentMonthExpenses
       .filter((e) => e.bucketId === b.id)
       .reduce((acc, curr) => acc + (curr.amount || 0), 0);
-    const limit = b.budgetLimit || 0;
+    const refunds = IncomeAllocationService.getBucketRefunds(b.id, targetMonthPrefix, settings);
+    const injected = IncomeAllocationService.getBucketInjectedBudget(b.id, targetMonthPrefix, settings);
+    const accumulated = b.rolloverSurplus ? (b.accumulatedSurplus || 0) : 0;
+    const spent = Math.max(0, grossSpent - refunds);
+    const limit = b.budgetLimit + accumulated + injected;
     const diff = limit - spent;
     return {
       bucket: b,
+      grossSpent,
+      refunds,
+      injected,
+      accumulated,
       spent,
       limit,
       deficit: diff < 0 ? Math.abs(diff) : 0,
@@ -183,20 +196,27 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
                   {overspentItems.map((item) => (
                     <div
                       key={item.bucket.id}
-                      className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-xs"
+                      className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-xs gap-2"
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
                         <span
                           className="w-2.5 h-2.5 rounded-full shrink-0"
                           style={{ backgroundColor: item.bucket.color }}
                         />
-                        <span className="font-medium text-slate-800 dark:text-slate-200">{item.bucket.name}</span>
+                        <div className="min-w-0">
+                          <span className="font-medium text-slate-800 dark:text-slate-200 truncate block">{item.bucket.name}</span>
+                          {item.refunds > 0 && (
+                            <span className="text-[10px] text-cyan-600 dark:text-cyan-400 font-mono block">
+                              Reembolso: -{item.refunds.toFixed(2)} {currency} (Bruto: {item.grossSpent.toFixed(2)}€)
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-right font-mono">
-                        <span className="text-slate-500 dark:text-slate-400 text-[11px] mr-2">
-                          Gastado: {item.spent.toFixed(2)} / {item.limit.toFixed(2)}
+                      <div className="text-right font-mono shrink-0">
+                        <span className="text-slate-500 dark:text-slate-400 text-[11px] block">
+                          Gastado neto: {item.spent.toFixed(2)} / {item.limit.toFixed(2)}
                         </span>
-                        <span className="text-rose-600 dark:text-rose-400 font-bold">
+                        <span className="text-rose-600 dark:text-rose-400 font-bold block">
                           +{item.deficit.toFixed(2)} {currency}
                         </span>
                       </div>

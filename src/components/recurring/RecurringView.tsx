@@ -86,7 +86,7 @@ interface RecurringViewProps {
 
 import { MASTER_ICON_MAP, MASTER_ICON_KEYS } from '../../constants/icons';
 
-// Iconos disponibles para recurrentes (Catálogo Maestro Unificado de 51 iconos 100% Lucide React)
+// Iconos disponibles para recurrentes (Catálogo Maestro Unificado de 56 iconos 100% Lucide React)
 const RECURRING_ICON_MAP: Record<string, React.ElementType> = MASTER_ICON_MAP;
 
 const AVAILABLE_OFFSETS: Array<{ id: ReminderOffset; label: string }> = [

@@ -84,14 +84,16 @@ export const DEFAULT_FUNCTIONAL_CATEGORIES: FunctionalCategory[] = [
   { id: 'bill', name: 'Recibos y Facturas', icon: 'CreditCard', color: '#3b82f6', isSystem: true, order: 2, description: 'Luz, agua, gas, comunidad, internet y alquiler' },
   { id: 'insurance', name: 'Seguros y Pólizas', icon: 'ShieldCheck', color: '#06b6d4', isSystem: true, order: 3, description: 'Seguro de coche, hogar, vida, salud privada y decesos' },
   { id: 'subscription', name: 'Suscripciones y Software', icon: 'Repeat', color: '#8b5cf6', isSystem: true, order: 4, description: 'Streaming, gimnasio, software y almacenamiento cloud' },
-  { id: 'tax', name: 'Impuestos y Tributos', icon: 'Landmark', color: '#f59e0b', isSystem: true, order: 5, description: 'IBI, modelos AEAT, tasas municipales y vados' },
+  { id: 'tax', name: 'Impuestos y Tributos', icon: 'ReceiptText', color: '#f59e0b', isSystem: true, order: 5, description: 'IBI, modelos AEAT, tasas municipales y vados' },
   { id: 'transport', name: 'Transporte y Movilidad', icon: 'Car', color: '#0284c7', isSystem: true, order: 6, description: 'Abono de transporte, peajes, parking y combustible' },
   { id: 'education', name: 'Educación y Formación', icon: 'GraduationCap', color: '#6366f1', isSystem: true, order: 7, description: 'Cursos, matrículas, libros y academias' },
   { id: 'health', name: 'Salud y Cuidado Personal', icon: 'Stethoscope', color: '#ec4899', isSystem: true, order: 8, description: 'Lentillas, dentista, farmacia y consultas médicas' },
-  { id: 'maintenance', name: 'Mantenimiento y Mascotas', icon: 'Wrench', color: '#14b8a6', isSystem: true, order: 9, description: 'Veterinario, ITV, revisiones de vehículo y reparaciones hogar' },
-  { id: 'leisure', name: 'Ocio y Recreación', icon: 'Sparkles', color: '#d946ef', isSystem: true, order: 10, description: 'Clubes, hobbies, salidas y actividades periódicas' },
-  { id: 'donation', name: 'Donaciones y Solidaridad', icon: 'HeartHandshake', color: '#ef4444', isSystem: true, order: 11, description: 'Cuotas de ONG, voluntariado y proyectos sociales' },
-  { id: 'personal', name: 'Personal y Familia', icon: 'Gift', color: '#f97316', isSystem: true, order: 12, description: 'Cumpleaños, aniversarios, celebraciones y compromisos familiares' },
+  { id: 'pets', name: 'Mascotas y Animales', icon: 'PawPrint', color: '#14b8a6', isSystem: true, order: 9, description: 'Veterinario, alimentación animal, cuidados y accesorios' },
+  { id: 'transfer', name: 'Transferencias entre Cuentas', icon: 'ArrowLeftRight', color: '#3b82f6', isSystem: true, order: 10, description: 'Traspasos entre cuentas, regularizaciones e importes interbancarios' },
+  { id: 'maintenance', name: 'Mantenimiento del Hogar', icon: 'Wrench', color: '#eab308', isSystem: true, order: 11, description: 'ITV, revisiones de vehículo y reparaciones hogar' },
+  { id: 'leisure', name: 'Ocio y Recreación', icon: 'Sparkles', color: '#d946ef', isSystem: true, order: 12, description: 'Clubes, hobbies, salidas y actividades periódicas' },
+  { id: 'donation', name: 'Donaciones y Solidaridad', icon: 'HeartHandshake', color: '#ef4444', isSystem: true, order: 13, description: 'Cuotas de ONG, voluntariado y proyectos sociales' },
+  { id: 'personal', name: 'Personal y Familia', icon: 'Gift', color: '#f97316', isSystem: true, order: 14, description: 'Cumpleaños, aniversarios, celebraciones y compromisos familiares' },
 ];
 
 export interface RecurringRule {
