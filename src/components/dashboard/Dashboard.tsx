@@ -262,10 +262,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <button
               onClick={onOpenImporter}
               className="px-3.5 py-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 hover:border-emerald-500/40 text-emerald-300 font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer transition-all"
-              title="Importar extracto bancario en CSV con deduplicación y auto-reglas"
+              title="Importar extracto bancario con deduplicación y auto-reglas"
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-              <span>Importar Banco (CSV)</span>
+              <span>Importar Banco</span>
             </button>
           )}
           {onOpenIncomeModal && (

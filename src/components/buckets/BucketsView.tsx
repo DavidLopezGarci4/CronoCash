@@ -64,35 +64,10 @@ interface BucketsViewProps {
   onOpenGoals?: () => void;
 }
 
-// Mapa de iconos dinámicos Lucide
-const ICON_MAP: Record<string, React.ElementType> = {
-  Home,
-  Zap,
-  ShoppingCart,
-  Car,
-  Fuel,
-  ShieldCheck,
-  Smartphone,
-  Utensils,
-  PiggyBank,
-  FileText,
-  PieChart,
-  Briefcase,
-  HeartPulse,
-  Coffee,
-  // Inversiones
-  TrendingUp,
-  Coins,
-  LineChart,
-  Landmark,
-  Gem,
-  // Muñecos de coleccionismo & aficiones
-  Bot,
-  Gamepad2,
-  Package,
-  Trophy,
-  Crown,
-};
+import { MASTER_ICON_MAP, MASTER_ICON_KEYS } from '../../constants/icons';
+
+// Mapa de iconos dinámicos Lucide (51 disponibles)
+const ICON_MAP: Record<string, React.ElementType> = MASTER_ICON_MAP;
 
 export type BucketSortMode =
   | 'manual'
@@ -310,35 +285,8 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     '#0284c7', // sky
   ];
 
-  // Iconos disponibles (14 base + 10 inversiones & coleccionables)
-  const availableIcons = [
-    'Home',
-    'Zap',
-    'ShoppingCart',
-    'Car',
-    'Fuel',
-    'ShieldCheck',
-    'Smartphone',
-    'Utensils',
-    'PiggyBank',
-    'FileText',
-    'PieChart',
-    'Briefcase',
-    'HeartPulse',
-    'Coffee',
-    // Inversiones
-    'TrendingUp',
-    'Coins',
-    'LineChart',
-    'Landmark',
-    'Gem',
-    // Coleccionismo y Aficiones
-    'Bot',
-    'Gamepad2',
-    'Package',
-    'Trophy',
-    'Crown',
-  ];
+  // Iconos disponibles (Catálogo Maestro Unificado de 51 iconos)
+  const availableIcons = MASTER_ICON_KEYS;
 
   // Totales mensuales
   const totalBudgetMonthly = buckets.reduce(
@@ -871,22 +819,25 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
       {/* MODAL 1: Crear / Editar Bolsa */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
-          <div className="bg-[#0f172a] border border-slate-700/80 rounded-3xl w-full max-w-md p-5 text-white shadow-2xl animate-in fade-in duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-[#0f172a] border border-slate-700/80 rounded-3xl w-full max-w-md max-h-[92vh] text-white shadow-2xl flex flex-col overflow-hidden">
+            {/* Cabecera fija que NUNCA desaparece ni se bloquea al hacer scroll */}
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800 shrink-0 bg-[#0f172a]/95 backdrop-blur-xs">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <PieChart className="w-4 h-4 text-emerald-400" />
                 <span>{editingBucket ? 'Editar Bolsa' : 'Nueva Bolsa de Presupuesto'}</span>
               </h3>
               <button
+                type="button"
                 onClick={() => setModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800"
+                className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                title="Cerrar modal"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSave} className="mt-4 space-y-3.5">
+            <form onSubmit={handleSave} className="p-4 sm:p-5 overflow-y-auto flex-1 space-y-3.5 overscroll-contain">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-400">Nombre de la Bolsa *</label>
                 <input
@@ -916,7 +867,9 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
               {/* Selector de Icono Lucide */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">Icono Representativo (24 disponibles)</label>
+                <label className="text-xs font-bold text-slate-400">
+                  Icono Representativo ({availableIcons.length} disponibles)
+                </label>
                 <div className="grid grid-cols-6 sm:grid-cols-8 gap-1.5 pt-1 max-h-36 overflow-y-auto pr-1">
                   {availableIcons.map((ic) => {
                     const Comp = ICON_MAP[ic] || PieChart;
@@ -1034,17 +987,17 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 />
               </div>
 
-              <div className="pt-2 flex justify-end space-x-2">
+              <div className="pt-3 border-t border-slate-800 flex justify-end space-x-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold"
+                  className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold cursor-pointer transition-all shadow-md shadow-emerald-500/20 active:scale-95"
                 >
                   Guardar Bolsa
                 </button>
@@ -1056,106 +1009,111 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
 
       {/* MODAL 2: Vasos Comunicantes (Trasvase Elástico de Límites) */}
       {vasosModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
-          <div className="bg-[#0f172a] border border-cyan-500/50 rounded-3xl w-full max-w-md p-5 text-white shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-[#0f172a] border border-cyan-500/50 rounded-3xl w-full max-w-md max-h-[92vh] text-white shadow-2xl flex flex-col overflow-hidden">
+            {/* Cabecera fija que NUNCA desaparece */}
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800 shrink-0 bg-[#0f172a]/95 backdrop-blur-xs">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <ArrowRightLeft className="w-5 h-5 text-cyan-400" />
                 <span>Vasos Comunicantes (Compensación)</span>
               </h3>
               <button
+                type="button"
                 onClick={() => setVasoModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800"
+                className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                title="Cerrar modal"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-xs text-slate-400 mt-2">
-              Reequilibra tus bolsas elásticamente: transfiere límite de presupuesto desde una bolsa con
-              remanente hacia una que esté en tensión o déficit.
-            </p>
+            <div className="p-4 sm:p-5 overflow-y-auto flex-1 space-y-4 overscroll-contain">
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Reequilibra tus bolsas elásticamente: transfiere límite de presupuesto desde una bolsa con
+                remanente hacia una que esté en tensión o déficit.
+              </p>
 
-            <form onSubmit={handleExecuteVasos} className="mt-4 space-y-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">1. Bolsa Origen (Cede Saldo)</label>
-                <select
-                  value={vasoFrom}
-                  onChange={(e) => setVasoFrom(e.target.value)}
-                  className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm"
-                >
-                  {buckets.map((b) => (
-                    <option key={b.id} value={b.id} disabled={b.id === vasoTo}>
-                      {b.name} (Límite: {b.budgetLimit.toFixed(2)} {currency})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex justify-center -my-2">
-                <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300">
-                  ↓
+              <form onSubmit={handleExecuteVasos} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-400">1. Bolsa Origen (Cede Saldo)</label>
+                  <select
+                    value={vasoFrom}
+                    onChange={(e) => setVasoFrom(e.target.value)}
+                    className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm"
+                  >
+                    {buckets.map((b) => (
+                      <option key={b.id} value={b.id} disabled={b.id === vasoTo}>
+                        {b.name} (Límite: {b.budgetLimit.toFixed(2)} {currency})
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">2. Bolsa Destino (Recibe Fondos)</label>
-                <select
-                  value={vasoTo}
-                  onChange={(e) => setVasoTo(e.target.value)}
-                  className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm"
-                >
-                  {buckets.map((b) => (
-                    <option key={b.id} value={b.id} disabled={b.id === vasoFrom}>
-                      {b.name} (Límite: {b.budgetLimit.toFixed(2)} {currency})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">
-                  Importe a Trasvasar ({currency})
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  required
-                  value={vasoAmount}
-                  onChange={(e) => setVasoAmount(e.target.value)}
-                  className="w-full h-11 px-3 bg-slate-900 border border-cyan-500/50 rounded-xl text-sm font-mono font-bold text-cyan-300"
-                />
-
-                <div className="flex items-center gap-2 pt-1">
-                  {[10, 25, 50, 100].map((val) => (
-                    <button
-                      key={val}
-                      type="button"
-                      onClick={() => setVasoAmount(String(val))}
-                      className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-300 border border-slate-700"
-                    >
-                      +{val} {currency}
-                    </button>
-                  ))}
+                <div className="flex justify-center -my-2">
+                  <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300">
+                    ↓
+                  </div>
                 </div>
-              </div>
 
-              <div className="pt-2 flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setVasoModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-extrabold cursor-pointer"
-                >
-                  Confirmar Trasvase
-                </button>
-              </div>
-            </form>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-400">2. Bolsa Destino (Recibe Fondos)</label>
+                  <select
+                    value={vasoTo}
+                    onChange={(e) => setVasoTo(e.target.value)}
+                    className="w-full h-11 px-3 bg-slate-900 border border-slate-700 rounded-xl text-sm"
+                  >
+                    {buckets.map((b) => (
+                      <option key={b.id} value={b.id} disabled={b.id === vasoFrom}>
+                        {b.name} (Límite: {b.budgetLimit.toFixed(2)} {currency})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-400">
+                    Importe a Trasvasar ({currency})
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    value={vasoAmount}
+                    onChange={(e) => setVasoAmount(e.target.value)}
+                    className="w-full h-11 px-3 bg-slate-900 border border-cyan-500/50 rounded-xl text-sm font-mono font-bold text-cyan-300"
+                  />
+
+                  <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    {[10, 25, 50, 100].map((val) => (
+                      <button
+                        key={val}
+                        type="button"
+                        onClick={() => setVasoAmount(String(val))}
+                        className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-300 border border-slate-700 transition-colors cursor-pointer"
+                      >
+                        +{val} {currency}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-800 flex justify-end space-x-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setVasoModalOpen(false)}
+                    className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-extrabold cursor-pointer transition-all shadow-md shadow-cyan-500/20 active:scale-95"
+                  >
+                    Confirmar Trasvase
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

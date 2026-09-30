@@ -147,6 +147,15 @@ export interface ExtraIncome {
   createdAt: string;
 }
 
+export interface MonthlySalaryOverride {
+  amount: number; // Importe neto real de la nómina para el mes específico
+  source: 'manual' | 'bank_import'; // Fijado a mano o importado de extracto bancario
+  concept?: string; // Concepto o descripción (ej. Nómina Octubre)
+  date?: string; // Fecha de percepción (YYYY-MM-DD)
+  rawHash?: string; // Hash SHA-256 para deduplicación bancaria
+  updatedAt: string; // Timestamp ISO
+}
+
 export interface Settings {
   id: string;
   pinSeguridad?: string;
@@ -155,6 +164,7 @@ export interface Settings {
   guardarContrasenaAuto: boolean;
   currency: string;
   monthlyIncome: number;
+  monthlySalaries?: Record<string, MonthlySalaryOverride>; // Salarios reales blindados por mes ('YYYY-MM')
   savingsBuffer?: number; // Importe del Colchón de Ahorro / Imprevistos blindado
   savingsBufferBucketId?: string; // ID de la bolsa designada como colchón
   extraIncomes?: ExtraIncome[]; // Ingresos extras (puntuales y recurrentes)

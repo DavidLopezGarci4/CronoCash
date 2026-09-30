@@ -456,7 +456,8 @@ export const App: React.FC = () => {
     .reduce((sum, inc) => sum + inc.amount, 0);
 
   const totalExtraIncomeMonth = punctualExtraIncome + recurringExtraIncome;
-  const effectiveMonthlyIncome = (settings.monthlyIncome || 0) + totalExtraIncomeMonth;
+  const effectiveBaseSalary = DBService.getEffectiveMonthlySalary(settings, currentMonthPrefix);
+  const effectiveMonthlyIncome = effectiveBaseSalary + totalExtraIncomeMonth;
 
   const safeMetrics = SafeToSpendService.calculate(
     expenses,
@@ -693,7 +694,7 @@ export const App: React.FC = () => {
           onClose={() => setIncomeModalOpen(false)}
           extraIncomes={settings.extraIncomes || []}
           currency={settings.currency || '€'}
-          monthlyBaseIncome={settings.monthlyIncome || 0}
+          monthlyBaseIncome={effectiveBaseSalary}
           onSaveIncome={handleSaveExtraIncome}
           onDeleteIncome={handleDeleteExtraIncome}
         />

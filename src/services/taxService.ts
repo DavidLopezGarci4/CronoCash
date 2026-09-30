@@ -1,4 +1,5 @@
 import { Expense, Settings, Quarter, TaxReport } from '../types';
+import { DBService } from './db';
 
 export class TaxService {
   /**
@@ -134,9 +135,15 @@ export class TaxService {
       nonInvoices.reduce((sum, e) => sum + (e.amount || 0), 0) * 100
     ) / 100;
 
-    // Ingresos brutos estimados del trimestre (3 meses de facturación)
-    const monthlyIncome = settings.monthlyIncome || 0;
-    const grossIncome = Math.round(monthlyIncome * 3 * 100) / 100;
+    // Ingresos brutos del trimestre sumando los 3 meses del período fiscal
+    const m1 = `${year}-${String((quarter - 1) * 3 + 1).padStart(2, '0')}`;
+    const m2 = `${year}-${String((quarter - 1) * 3 + 2).padStart(2, '0')}`;
+    const m3 = `${year}-${String((quarter - 1) * 3 + 3).padStart(2, '0')}`;
+    const grossIncome = Math.round(
+      (DBService.getEffectiveMonthlySalary(settings, m1) +
+       DBService.getEffectiveMonthlySalary(settings, m2) +
+       DBService.getEffectiveMonthlySalary(settings, m3)) * 100
+    ) / 100;
 
     // Rendimiento Neto para el Modelo 130
     const netYield = Math.round((grossIncome - deductibleExpenses) * 100) / 100;

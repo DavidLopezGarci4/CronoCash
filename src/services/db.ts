@@ -1,4 +1,4 @@
-import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule, SavingsGoal, GoalContribution, ExtraIncome, FunctionalCategory, DEFAULT_FUNCTIONAL_CATEGORIES } from '../types';
+import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule, SavingsGoal, GoalContribution, ExtraIncome, FunctionalCategory, DEFAULT_FUNCTIONAL_CATEGORIES, MonthlySalaryOverride } from '../types';
 import { VaultCryptoService } from './vaultCryptoService';
 
 const DB_NAME = 'GastosFacturacionDB';
@@ -124,7 +124,8 @@ export const DEFAULT_SETTINGS: Settings = {
   biometriaActiva: false,
   guardarContrasenaAuto: false,
   currency: '€',
-  monthlyIncome: 2200,
+  monthlyIncome: 1500,
+  monthlySalaries: {},
   savingsBuffer: 250,
   savingsBufferBucketId: 'bucket-colchon',
   extraIncomes: [],
@@ -837,6 +838,44 @@ export class DBService {
       ...s,
       extraIncomes: list,
     });
+  }
+
+  // --- NÓMINAS MENSUALES REALES BLINDADAS (MONTHLY SALARIES) ---
+  static getEffectiveMonthlySalary(settings: Settings, monthStr?: string): number {
+    const key = monthStr || new Date().toISOString().substring(0, 7);
+    if (settings.monthlySalaries && settings.monthlySalaries[key]) {
+      return Number(settings.monthlySalaries[key].amount) || 0;
+    }
+    return Number(settings.monthlyIncome) || 0;
+  }
+
+  static async setMonthlySalary(monthStr: string, salary: MonthlySalaryOverride): Promise<Settings> {
+    const s = this.getSettings();
+    const updatedSalaries = {
+      ...(s.monthlySalaries || {}),
+      [monthStr]: salary,
+    };
+    const updatedSettings: Settings = {
+      ...s,
+      monthlySalaries: updatedSalaries,
+      updatedAt: new Date().toISOString(),
+    };
+    await this.saveSettings(updatedSettings);
+    return updatedSettings;
+  }
+
+  static async removeMonthlySalary(monthStr: string): Promise<Settings> {
+    const s = this.getSettings();
+    if (!s.monthlySalaries || !s.monthlySalaries[monthStr]) return s;
+    const updatedSalaries = { ...s.monthlySalaries };
+    delete updatedSalaries[monthStr];
+    const updatedSettings: Settings = {
+      ...s,
+      monthlySalaries: updatedSalaries,
+      updatedAt: new Date().toISOString(),
+    };
+    await this.saveSettings(updatedSettings);
+    return updatedSettings;
   }
 
   // --- CATEGORÍAS FUNCIONALES DINÁMICAS (CRUD SEGURO) ---

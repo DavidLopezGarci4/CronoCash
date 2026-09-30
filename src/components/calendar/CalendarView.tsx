@@ -222,7 +222,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     .reduce((acc, curr) => acc + curr.amount, 0);
 
   // Ingreso mensual para el cálculo de Cash-Flow Runway
-  const monthlyIncome = settings?.monthlyIncome || 2200;
+  const monthlyIncome = settings?.monthlyIncome || 1500;
   const projectedBalanceEnd = monthlyIncome - totalMonthSpent - monthlyRecurringTotal;
 
   // Detalle del día seleccionado

@@ -84,49 +84,10 @@ interface RecurringViewProps {
   onRefresh?: () => void;
 }
 
-// Iconos disponibles para recurrentes (100% Lucide React)
-const RECURRING_ICON_MAP: Record<string, React.ElementType> = {
-  Home,
-  Zap,
-  Droplets,
-  Smartphone,
-  Car,
-  Utensils,
-  Music,
-  Shield,
-  ShieldCheck,
-  Repeat,
-  Bell,
-  Sparkles,
-  TrendingUp,
-  Coins,
-  LineChart,
-  Landmark,
-  Gem,
-  Bot,
-  Gamepad2,
-  Package,
-  Trophy,
-  Crown,
-  GraduationCap,
-  HeartHandshake,
-  BookOpen,
-  Wifi,
-  Tv,
-  Building2,
-  Key,
-  Pill,
-  Eye,
-  Fuel,
-  Bus,
-  Train,
-  Scissors,
-  Dumbbell,
-  FileCheck,
-  Stethoscope,
-  Wrench,
-  Gift,
-};
+import { MASTER_ICON_MAP, MASTER_ICON_KEYS } from '../../constants/icons';
+
+// Iconos disponibles para recurrentes (Catálogo Maestro Unificado de 51 iconos 100% Lucide React)
+const RECURRING_ICON_MAP: Record<string, React.ElementType> = MASTER_ICON_MAP;
 
 const AVAILABLE_OFFSETS: Array<{ id: ReminderOffset; label: string }> = [
   { id: 'same_day', label: 'Mismo día' },
@@ -1461,13 +1422,15 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     </span>
                   )}
                 </div>
-                <input
-                  type="date"
-                  required
-                  value={startDate}
-                  onChange={(e) => handleStartDateChange(e.target.value)}
-                  className="w-full h-11 px-3 bg-slate-950 border border-slate-700 rounded-xl text-sm font-medium text-white focus:border-emerald-500 focus:outline-hidden"
-                />
+                <div className="relative">
+                  <input
+                    type="date"
+                    required
+                    value={startDate}
+                    onChange={(e) => handleStartDateChange(e.target.value)}
+                    className="w-full h-11 px-3.5 bg-slate-950 border border-slate-700 rounded-xl text-sm font-mono font-medium text-white focus:border-emerald-500 focus:outline-hidden cursor-pointer [color-scheme:dark]"
+                  />
+                </div>
                 <p className="text-[11px] text-slate-400">
                   Día real en que comenzó o comenzará este compromiso. Los ciclos periódicos e intervalos se computan anclados a esta fecha.
                 </p>
@@ -1599,18 +1562,13 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                 </span>
               </label>
 
-              {/* Selector de Icono */}
+              {/* Selector de Icono Lucide */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400">Icono Identificativo</label>
+                <label className="text-xs font-bold text-slate-400">
+                  Icono Identificativo ({MASTER_ICON_KEYS.length} disponibles)
+                </label>
                 <div className="flex items-center gap-2 pt-1 flex-wrap max-h-40 overflow-y-auto pr-1">
-                  {[
-                    'Home', 'Zap', 'Droplets', 'Smartphone', 'Car', 'Fuel', 'Bus', 'Train',
-                    'Utensils', 'Music', 'Shield', 'ShieldCheck', 'FileCheck', 'Repeat', 'Bell',
-                    'Sparkles', 'TrendingUp', 'Coins', 'LineChart', 'Landmark', 'Gem',
-                    'Building2', 'Key', 'Wifi', 'Tv', 'GraduationCap', 'BookOpen',
-                    'Stethoscope', 'Pill', 'Eye', 'Wrench', 'Scissors', 'Dumbbell', 'Gift',
-                    'HeartHandshake', 'Bot', 'Gamepad2', 'Package', 'Trophy', 'Crown',
-                  ].map((ic) => {
+                  {MASTER_ICON_KEYS.map((ic) => {
                     const Comp = RECURRING_ICON_MAP[ic] || Repeat;
                     return (
                       <button

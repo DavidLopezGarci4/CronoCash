@@ -5,6 +5,7 @@ import { Share } from '@capacitor/share';
 import { Expense, Bucket, Settings, SavingsGoal, TaxReport } from '../types';
 import { TaxService } from './taxService';
 import { SinkingFundsService } from './sinkingFundsService';
+import { DBService } from './db';
 
 export class PdfReportService {
   /**
@@ -85,7 +86,15 @@ export class PdfReportService {
     const monthExpenses = expenses.filter((e) => (e.date || '').startsWith(monthStr));
 
     // Cálculos de KPI
-    const monthlyIncome = settings.monthlyIncome || 0;
+    const effectiveSalary = DBService.getEffectiveMonthlySalary(settings, monthStr);
+    const extraIncomes = settings.extraIncomes || [];
+    const punctualExtra = extraIncomes
+      .filter((inc) => inc.isActive !== false && inc.type === 'punctual' && (inc.date || '').startsWith(monthStr))
+      .reduce((sum, inc) => sum + inc.amount, 0);
+    const recurringExtra = extraIncomes
+      .filter((inc) => inc.isActive !== false && inc.type === 'recurring')
+      .reduce((sum, inc) => sum + inc.amount, 0);
+    const monthlyIncome = Math.round((effectiveSalary + punctualExtra + recurringExtra) * 100) / 100;
     const totalExpenses = Math.round(
       monthExpenses.reduce((sum, e) => sum + (e.amount || 0), 0) * 100
     ) / 100;

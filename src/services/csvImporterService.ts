@@ -1,5 +1,80 @@
-import { Expense, Bucket, SmartRule, ExtraIncome } from '../types';
+import { Expense, Bucket, SmartRule, ExtraIncome, MonthlySalaryOverride } from '../types';
 import * as XLSX from 'xlsx';
+
+export const isPayrollConcept = (concept: string): boolean => {
+  const norm = (concept || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase();
+  return /NOMINA|SALARIO|HABERES|SUELDO|RETRIBUCION|TRANSFERENCIA NOMINA|PAGA EXTRA|LIQUIDACION HABERES/.test(norm);
+};
+
+/**
+ * Determina el mes presupuestario al que se imputa una nómina según su fecha de cobro.
+ * Criterio financiero canónico de CronoCash:
+ * - Cobro a partir del día 20 (día >= 20): Imputa al MES SIGUIENTE (ej. 28 de septiembre -> octubre).
+ * - Cobro antes del día 20 (día < 20): Imputa al MES EN CURSO (ej. 2 de octubre -> octubre).
+ * - Fin de año: Si el cobro es el 28 de diciembre, imputa a enero del año siguiente (YYYY+1-01).
+ *
+ * @param dateStr Fecha en formato YYYY-MM-DD o ISO string
+ * @returns Clave del mes objetivo en formato 'YYYY-MM'
+ */
+export const resolveTargetSalaryMonth = (dateStr: string): string => {
+  if (!dateStr) {
+    return new Date().toISOString().substring(0, 7);
+  }
+
+  const clean = dateStr.trim().split('T')[0];
+  const parts = clean.split('-');
+
+  if (parts.length >= 3) {
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10); // 1 - 12
+    const day = parseInt(parts[2], 10);
+
+    if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+      if (day >= 20) {
+        // Imputación al mes siguiente (financiación del presupuesto próximo)
+        if (month === 12) {
+          return `${year + 1}-01`;
+        }
+        return `${year}-${String(month + 1).padStart(2, '0')}`;
+      } else {
+        // Imputación al mes en curso (cobro a mes vencido a primeros de mes)
+        return `${year}-${String(month).padStart(2, '0')}`;
+      }
+    }
+  }
+
+  // Fallback si la cadena tuviese otro formato parseable por Date
+  const d = new Date(clean);
+  if (!isNaN(d.getTime())) {
+    const day = d.getDate();
+    if (day >= 20) {
+      d.setMonth(d.getMonth() + 1);
+    }
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  return clean.substring(0, 7) || new Date().toISOString().substring(0, 7);
+};
+
+/**
+ * Formatea una clave 'YYYY-MM' a un texto legible en español (ej: "2026-10" -> "Octubre 2026")
+ */
+export const formatMonthName = (monthStr: string): string => {
+  if (!monthStr || !monthStr.includes('-')) return monthStr || '';
+  const [yearStr, mStr] = monthStr.split('-');
+  const m = parseInt(mStr, 10);
+  const months = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  if (m >= 1 && m <= 12) {
+    return `${months[m - 1]} ${yearStr}`;
+  }
+  return monthStr;
+};
 
 export interface RawBankTransaction {
   id: string;
@@ -23,6 +98,9 @@ export interface AnalyzedTransaction extends RawBankTransaction {
   matchedRulePattern?: string;
   isInvoice?: boolean;
   selected: boolean;
+  incomeCategoryMode?: 'salary' | 'extra'; // 'salary' para Nómina Mensual blindada, 'extra' para Ingreso Extra
+  targetSalaryMonth?: string; // 'YYYY-MM' mes al que imputa el salario (regla >= 20 -> mes siguiente)
+  targetExtraMonth?: string; // 'YYYY-MM' mes al que imputa el ingreso extra (por defecto mes actual de la tx)
 }
 
 export interface BatchAnalysisResult {
@@ -405,7 +483,8 @@ export class CsvImporterService {
     existingExpenses: Expense[],
     rules: SmartRule[],
     buckets: Bucket[],
-    existingExtraIncomes: ExtraIncome[] = []
+    existingExtraIncomes: ExtraIncome[] = [],
+    existingSalaries: Record<string, MonthlySalaryOverride> = {}
   ): Promise<BatchAnalysisResult> {
     const activeRules = [...rules]
       .filter((r) => r.isActive)
@@ -414,7 +493,7 @@ export class CsvImporterService {
     const validBucketIds = new Set(buckets.map((b) => b.id));
     const fallbackBucketId = buckets[0]?.id || 'bucket-super';
 
-    // Crear mapa de gastos e ingresos existentes por hash y por tupla (fecha + concepto + importe)
+    // Crear mapa de gastos, ingresos y nóminas existentes por hash y por tupla (fecha + concepto + importe)
     const existingHashSet = new Set<string>();
     const existingTupleSet = new Set<string>();
 
@@ -432,6 +511,16 @@ export class CsvImporterService {
       }
       const tupleKey = `${(inc.date || '').trim()}|${(inc.title || '').trim().toUpperCase()}|${(inc.amount || 0).toFixed(2)}`;
       existingTupleSet.add(tupleKey);
+    }
+
+    for (const sal of Object.values(existingSalaries)) {
+      if (sal.rawHash) {
+        existingHashSet.add(sal.rawHash);
+      }
+      if (sal.date) {
+        const tupleKey = `${(sal.date || '').trim()}|${(sal.concept || '').trim().toUpperCase()}|${(sal.amount || 0).toFixed(2)}`;
+        existingTupleSet.add(tupleKey);
+      }
     }
 
     const analyzedList: AnalyzedTransaction[] = [];
@@ -494,18 +583,33 @@ export class CsvImporterService {
         unassignedCount++;
       }
 
+      const txMonth = row.parsedDate ? row.parsedDate.substring(0, 7) : new Date().toISOString().substring(0, 7);
+      const isPayroll = row.isIncome ? isPayrollConcept(row.cleanConcept || row.rawConcept) : false;
+      const incomeCategoryMode: 'salary' | 'extra' | undefined = row.isIncome
+        ? (isPayroll ? 'salary' : 'extra')
+        : undefined;
+
+      // Criterio financiero de CronoCash:
+      // Nómina: si el cobro es >= día 20, financia el mes siguiente; si es < día 20, financia el mes actual.
+      // Ingreso Extra: computa por defecto para el mes en curso (mes de la transacción).
+      const targetSalaryMonth = resolveTargetSalaryMonth(row.parsedDate);
+      const targetExtraMonth = txMonth;
+
       const analyzed: AnalyzedTransaction = {
         ...row,
         rawHash: hash,
         isDuplicate,
         duplicateReason: isDuplicate
-          ? (row.isIncome ? 'Ingreso idéntico ya integrado en CronoCash' : 'Gasto idéntico ya registrado en historial')
+          ? (row.isIncome ? 'Ingreso o nómina idéntica ya integrada en CronoCash' : 'Gasto idéntico ya registrado en historial')
           : undefined,
         suggestedBucketId,
         matchedRuleId,
         matchedRulePattern,
         isInvoice,
         selected: !isDuplicate,
+        incomeCategoryMode,
+        targetSalaryMonth,
+        targetExtraMonth,
       };
 
       analyzedList.push(analyzed);

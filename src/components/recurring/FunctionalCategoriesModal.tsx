@@ -58,50 +58,10 @@ import { DBService } from '../../services/db';
 import { HapticService } from '../../services/hapticService';
 import { useTouchSortable } from '../../hooks/useTouchSortable';
 
-// Catálogo de 40 iconos 100% Lucide React
-export const LUCIDE_CATEGORY_ICONS: Record<string, React.ElementType> = {
-  TrendingUp,
-  CreditCard,
-  ShieldCheck,
-  Repeat,
-  Landmark,
-  Car,
-  GraduationCap,
-  Stethoscope,
-  Wrench,
-  Sparkles,
-  HeartHandshake,
-  Gift,
-  Home,
-  Zap,
-  Droplets,
-  Smartphone,
-  Fuel,
-  Bus,
-  Train,
-  Utensils,
-  Music,
-  Shield,
-  FileCheck,
-  Bell,
-  Coins,
-  LineChart,
-  Gem,
-  Building2,
-  Key,
-  Wifi,
-  Tv,
-  BookOpen,
-  Pill,
-  Eye,
-  Scissors,
-  Dumbbell,
-  Bot,
-  Gamepad2,
-  Package,
-  Trophy,
-  Crown,
-};
+import { MASTER_ICON_MAP, MASTER_ICON_KEYS } from '../../constants/icons';
+
+// Catálogo maestro de iconos 100% Lucide React
+export const LUCIDE_CATEGORY_ICONS: Record<string, React.ElementType> = MASTER_ICON_MAP;
 
 const COLOR_PALETTE = [
   '#3b82f6', // blue
@@ -307,7 +267,7 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
             {/* Selector de Icono Lucide */}
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-400">
-                Icono Vectorial (40 disponibles)
+                Icono Vectorial ({MASTER_ICON_KEYS.length} disponibles)
               </label>
               <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 p-2 bg-slate-900/60 rounded-2xl border border-slate-800 max-h-40 overflow-y-auto">
                 {Object.keys(LUCIDE_CATEGORY_ICONS).map((iconKey) => {

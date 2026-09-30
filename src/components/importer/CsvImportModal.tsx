@@ -16,7 +16,13 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Expense, Bucket, SmartRule, ExtraIncome } from '../../types';
-import { CsvImporterService, AnalyzedTransaction, BatchAnalysisResult } from '../../services/csvImporterService';
+import {
+  CsvImporterService,
+  AnalyzedTransaction,
+  BatchAnalysisResult,
+  resolveTargetSalaryMonth,
+  formatMonthName,
+} from '../../services/csvImporterService';
 import { DBService } from '../../services/db';
 import { AuthService } from '../../services/auth';
 
@@ -89,7 +95,16 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
       }
 
       const existingExtraIncomes = DBService.getExtraIncomes();
-      const analysis = await CsvImporterService.analyzeBatch(rawRows, expenses, rules, buckets, existingExtraIncomes);
+      const currentSettings = await DBService.getSettings();
+      const existingSalaries = currentSettings.monthlySalaries || {};
+      const analysis = await CsvImporterService.analyzeBatch(
+        rawRows,
+        expenses,
+        rules,
+        buckets,
+        existingExtraIncomes,
+        existingSalaries
+      );
       setTransactions(analysis.allTransactions);
       setStep('review');
     } catch (err: any) {
@@ -143,6 +158,20 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
     );
   };
 
+  const handleUpdateIncomeTarget = (id: string, compositeValue: string) => {
+    const [mode, month] = compositeValue.split(':');
+    setTransactions((prev) =>
+      prev.map((t) => {
+        if (t.id !== id) return t;
+        if (mode === 'salary') {
+          return { ...t, incomeCategoryMode: 'salary', targetSalaryMonth: month };
+        } else {
+          return { ...t, incomeCategoryMode: 'extra', targetExtraMonth: month };
+        }
+      })
+    );
+  };
+
   const handleToggleInvoice = (id: string) => {
     setTransactions((prev) =>
       prev.map((t) => (t.id === id ? { ...t, isInvoice: !t.isInvoice } : t))
@@ -178,21 +207,49 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
 
     const expensesToSave: Expense[] = [];
     const incomesToSave: ExtraIncome[] = [];
+    let salariesImportedCount = 0;
 
-    toImport.forEach((tx, idx) => {
+    for (let idx = 0; idx < toImport.length; idx++) {
+      const tx = toImport[idx];
       if (tx.isIncome) {
-        incomesToSave.push({
-          id: `inc_imp_${Date.now()}_${idx}`,
-          title: tx.cleanConcept || 'Ingreso bancario',
-          amount: tx.amount,
-          type: 'punctual',
-          category: 'other',
-          date: tx.parsedDate,
-          isActive: true,
-          rawHash: tx.rawHash,
-          notes: `Abono bancario importado (${fileName})`,
-          createdAt: timestamp,
-        });
+        if (tx.incomeCategoryMode === 'salary') {
+          // Nómina Mensual Real Blindada
+          // Si el cobro fue >= día 20, financia el mes siguiente; si fue < día 20, financia el mes en curso.
+          const targetMonth =
+            tx.targetSalaryMonth ||
+            resolveTargetSalaryMonth(tx.parsedDate);
+          await DBService.setMonthlySalary(targetMonth, {
+            amount: tx.amount,
+            source: 'bank_import',
+            concept: tx.cleanConcept || `Nómina ${formatMonthName(targetMonth)}`,
+            date: tx.parsedDate,
+            rawHash: tx.rawHash,
+            updatedAt: timestamp,
+          });
+          salariesImportedCount++;
+        } else {
+          // Ingreso Extra Puntual
+          // Imputa al mes actual de la transacción por defecto, salvo que se haya reasignado
+          const targetExtraMonth =
+            tx.targetExtraMonth ||
+            (tx.parsedDate ? tx.parsedDate.substring(0, 7) : new Date().toISOString().substring(0, 7));
+          let finalDate = tx.parsedDate;
+          if (tx.targetExtraMonth && !tx.parsedDate.startsWith(tx.targetExtraMonth)) {
+            finalDate = `${tx.targetExtraMonth}-01`;
+          }
+          incomesToSave.push({
+            id: `inc_imp_${Date.now()}_${idx}`,
+            title: tx.cleanConcept || 'Ingreso bancario',
+            amount: tx.amount,
+            type: 'punctual',
+            category: 'other',
+            date: finalDate,
+            isActive: true,
+            rawHash: tx.rawHash,
+            notes: `Abono bancario importado (${fileName})${finalDate !== tx.parsedDate ? ` • Imputado a ${formatMonthName(targetExtraMonth)} (cobro ${tx.parsedDate})` : ''}`,
+            createdAt: timestamp,
+          });
+        }
       } else {
         expensesToSave.push({
           id: `exp_imp_${Date.now()}_${idx}`,
@@ -208,7 +265,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
           createdAt: timestamp,
         });
       }
-    });
+    }
 
     if (expensesToSave.length > 0) {
       await DBService.saveExpensesBatch(expensesToSave);
@@ -247,7 +304,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
       }
     }
 
-    setImportSummary({ imported: expensesToSave.length + incomesToSave.length });
+    setImportSummary({ imported: expensesToSave.length + incomesToSave.length + salariesImportedCount });
     setIsProcessing(false);
     onImportComplete();
 
@@ -470,7 +527,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                 displayedTransactions.map((tx) => (
                   <div
                     key={tx.id}
-                    className={`p-3 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                    className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 ${
                       tx.isDuplicate
                         ? 'bg-slate-950/40 border-slate-900 opacity-60'
                         : tx.selected
@@ -496,18 +553,32 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                             {tx.cleanConcept}
                           </span>
                           {tx.isIncome && (
-                            <span className="text-[10px] px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
-                              Ingreso / Abono
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold flex items-center gap-1">
+                              {tx.incomeCategoryMode === 'salary' ? (
+                                <>
+                                  <span>🏦 Nómina</span>
+                                  <span className="text-emerald-400 font-mono">
+                                    &rarr; {formatMonthName(tx.targetSalaryMonth || resolveTargetSalaryMonth(tx.parsedDate))}
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>🎁 Ingreso Extra</span>
+                                  <span className="text-teal-300 font-mono">
+                                    &rarr; {formatMonthName(tx.targetExtraMonth || (tx.parsedDate ? tx.parsedDate.substring(0, 7) : ''))}
+                                  </span>
+                                </>
+                              )}
                             </span>
                           )}
                           {tx.isDuplicate && (
-                            <span className="text-[10px] px-2 py-0.2 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold flex items-center gap-1">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold flex items-center gap-1">
                               <AlertTriangle className="w-3 h-3 text-rose-400" />
                               Duplicado ya integrado
                             </span>
                           )}
                           {tx.matchedRulePattern && !tx.isDuplicate && (
-                            <span className="text-[10px] px-2 py-0.2 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold flex items-center gap-1">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold flex items-center gap-1">
                               <Sparkles className="w-3 h-3 text-cyan-400" />
                               {tx.matchedRulePattern}
                             </span>
@@ -528,8 +599,8 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/60">
-                      {/* Selector de Bolsa o Destino */}
+                    <div className="flex items-center justify-between sm:justify-end gap-3.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/60">
+                      {/* Selector de Destino: Bolsa para Gastos / Nómina vs Extra para Ingresos */}
                       {!tx.isIncome ? (
                         <select
                           value={tx.suggestedBucketId}
@@ -544,8 +615,68 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                           ))}
                         </select>
                       ) : (
-                        <div className="px-2.5 py-1.5 bg-emerald-950/30 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 font-semibold text-center min-w-[110px]">
-                          Ingreso Extra
+                        <div className="flex flex-col items-end gap-1">
+                          {(() => {
+                            const cleanDate = tx.parsedDate || new Date().toISOString().split('T')[0];
+                            const currentMonth = cleanDate.substring(0, 7);
+                            const day = parseInt(cleanDate.split('-')[2] || '0', 10);
+                            const targetSalaryMonth = resolveTargetSalaryMonth(cleanDate);
+
+                            const parts = currentMonth.split('-');
+                            const y = parseInt(parts[0], 10);
+                            const m = parseInt(parts[1], 10);
+                            const prevMonth = m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, '0')}`;
+                            const nextMonth = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`;
+
+                            const isAfter20 = day >= 20;
+                            const activeMode = tx.incomeCategoryMode || 'salary';
+                            const activeMonth =
+                              activeMode === 'salary'
+                                ? (tx.targetSalaryMonth || targetSalaryMonth)
+                                : (tx.targetExtraMonth || currentMonth);
+                            const selectVal = `${activeMode}:${activeMonth}`;
+
+                            return (
+                              <select
+                                value={selectVal}
+                                disabled={tx.isDuplicate}
+                                onChange={(e) => handleUpdateIncomeTarget(tx.id, e.target.value)}
+                                className="px-2.5 py-1.5 bg-slate-950 border border-emerald-500/40 rounded-xl text-xs text-emerald-300 font-semibold focus:outline-none focus:border-emerald-400 cursor-pointer max-w-[210px] sm:max-w-[270px] truncate"
+                              >
+                                {isAfter20 ? (
+                                  <>
+                                    <option value={`salary:${targetSalaryMonth}`}>
+                                      🏦 Nómina {formatMonthName(targetSalaryMonth)} (Financia prox. mes)
+                                    </option>
+                                    <option value={`salary:${currentMonth}`}>
+                                      🏦 Nómina {formatMonthName(currentMonth)} (Mes del cobro)
+                                    </option>
+                                    <option value={`extra:${currentMonth}`}>
+                                      🎁 Ingreso Extra {formatMonthName(currentMonth)} (Mes actual)
+                                    </option>
+                                    <option value={`extra:${nextMonth}`}>
+                                      🎁 Ingreso Extra {formatMonthName(nextMonth)} (Mes siguiente)
+                                    </option>
+                                  </>
+                                ) : (
+                                  <>
+                                    <option value={`salary:${currentMonth}`}>
+                                      🏦 Nómina {formatMonthName(currentMonth)} (Financia mes actual)
+                                    </option>
+                                    <option value={`salary:${prevMonth}`}>
+                                      🏦 Nómina {formatMonthName(prevMonth)} (Mes anterior)
+                                    </option>
+                                    <option value={`extra:${currentMonth}`}>
+                                      🎁 Ingreso Extra {formatMonthName(currentMonth)} (Mes actual)
+                                    </option>
+                                    <option value={`extra:${nextMonth}`}>
+                                      🎁 Ingreso Extra {formatMonthName(nextMonth)} (Mes siguiente)
+                                    </option>
+                                  </>
+                                )}
+                              </select>
+                            );
+                          })()}
                         </div>
                       )}
 
@@ -555,7 +686,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                           type="button"
                           onClick={() => handleToggleInvoice(tx.id)}
                           disabled={tx.isDuplicate}
-                          className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
+                          className={`px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all cursor-pointer ${
                             tx.isInvoice
                               ? 'bg-teal-500/20 border-teal-500/40 text-teal-300'
                               : 'bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300'
@@ -566,10 +697,10 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                         </button>
                       )}
 
-                      {/* Importe con signo y categoría */}
-                      <div className="text-right min-w-[85px]">
+                      {/* Importe con signo y categoría en cápsula estilizada con margen de respiro */}
+                      <div className="px-3.5 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800/80 min-w-[100px] sm:min-w-[110px] text-right shrink-0 shadow-inner flex flex-col justify-center">
                         <span
-                          className={`font-mono font-black text-sm ${
+                          className={`font-mono font-black text-xs sm:text-sm tracking-tight ${
                             tx.isIncome ? 'text-emerald-400' : 'text-slate-100'
                           }`}
                         >
@@ -577,10 +708,14 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                         </span>
                         <span
                           className={`block text-[9px] font-bold uppercase tracking-wider ${
-                            tx.isIncome ? 'text-emerald-400/90' : 'text-slate-500'
+                            tx.isIncome
+                              ? tx.incomeCategoryMode === 'salary'
+                                ? 'text-teal-400 font-extrabold'
+                                : 'text-emerald-400/90'
+                              : 'text-slate-500'
                           }`}
                         >
-                          {tx.isIncome ? 'Ingreso' : 'Gasto'}
+                          {tx.isIncome ? (tx.incomeCategoryMode === 'salary' ? 'Nómina Mes' : 'Ingreso Extra') : 'Gasto'}
                         </span>
                       </div>
                     </div>

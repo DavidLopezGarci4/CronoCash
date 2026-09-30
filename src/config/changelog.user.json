@@ -11,15 +11,14 @@
     {
       "version": "1.21.0",
       "build": 12100,
-      "date": "29 Sep 2026",
-      "title": "Reordenación Táctil Drag & Drop con Pestaña Lateral y Limpieza Visual",
+      "date": "30 Sep 2026",
+      "title": "Subsecciones de Configuración, Nómina Blindada por Mes y Limpieza Visual",
       "isCurrent": true,
       "highlights": [
-        "🎴 Reordenación Drag & Drop con Pestaña Lateral Táctil: Nueva experiencia interactiva fluida para ordenar Categorías, Bolsas y Recurrentes manteniendo pulsada y arrastrando la estilizada pestaña lateral izquierda con icono Lucide GripVertical.",
-        "📱 Cero Fricción de Scroll en Móvil: El gesto de arrastre está aislado en el tirador lateral (touch-action: none), permitiendo desplazarse en vertical por la lista con normalidad sin movimientos accidentales.",
-        "📳 Respuesta Háptica y Visual Flotante: Vibración de agarre táctil, elevación flotante de la tarjeta con sombra profunda y aro luminoso, e inserción dinámica.",
-        "💾 Persistencia Atómica Inmediata: El nuevo orden se consolida automáticamente en milisegundos en IndexedDB y copias de seguridad de Google Drive.",
-        "✨ Limpieza Visual en Informes y Fiscalidad: Eliminado el badge de versión residual v1.12.0 en la cabecera del modal para una estética minimalista y profesional."
+        "📑 Segmentación Desplegable en Configuración: Navegación modular por subsecciones (Perfil & Salario, Seguridad & Cifrado, Preferencias, Automatización & Fiscalidad, Copias de Seguridad, Documentación) que elimina el scroll vertical abrumador.",
+        "🏦 Nóminas Mensuales Blindadas (Manual y Extracto): Soporte para fijar o importar el importe salarial real mes a mes sin duplicar ingresos en Safe-to-Spend ni alterar el salario base estimado.",
+        "💳 Tarjetas de Importación Bancaria Perfeccionadas: Rediseño del layout de filas con contenedor independiente y padding óptimo para evitar colisiones visuales con el margen derecho.",
+        "✨ Limpieza Visual y Desahogo Estético: Retirados banners obsoletos ('Blindaje Activo', 'Offline Rules', 'Drive 2 Ranuras', '14 Módulos', '2:3 Mobile'), renombrado a 'Iconos' e 'Importar Banco', y aireado el bloque de verificación NIST SP 800-38D."
       ]
     },
     {

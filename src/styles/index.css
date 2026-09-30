@@ -55,3 +55,36 @@ select,
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
 }
+
+/* Selectores nativos de fecha y hora en modo oscuro con icono claro visible de alto contraste */
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="datetime-local"] {
+  color-scheme: dark !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="month"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.3) contrast(1.1) !important;
+  cursor: pointer;
+  opacity: 0.95 !important;
+  padding: 4px;
+  border-radius: 8px;
+  background-color: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  transition: all 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="date"]::-webkit-calendar-picker-indicator:active,
+input[type="month"]::-webkit-calendar-picker-indicator:hover,
+input[type="month"]::-webkit-calendar-picker-indicator:active {
+  filter: invert(1) brightness(1.6) !important;
+  background-color: rgba(16, 185, 129, 0.35);
+  border-color: rgba(16, 185, 129, 0.6);
+  transform: scale(1.08);
+}
+
