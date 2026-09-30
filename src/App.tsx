@@ -236,7 +236,60 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteExpense = async (id: string) => {
+    const targetExpense = expenses.find((e) => e.id === id);
+    if (targetExpense?.recurringRuleId) {
+      const targetRule = recurringRules.find((r) => r.id === targetExpense.recurringRuleId);
+      if (targetRule) {
+        const dateStr = (targetExpense.date || '').split('T')[0];
+        const existingCompleted = new Set(targetRule.completedDates || []);
+        if (dateStr && !existingCompleted.has(dateStr)) {
+          existingCompleted.add(dateStr);
+          await DBService.saveRecurringRule({
+            ...targetRule,
+            completedDates: Array.from(existingCompleted),
+          });
+        }
+      }
+    }
     await DBService.deleteExpense(id);
+    await loadData();
+  };
+
+  const handleReconcileExpenses = async (bankExpenseId: string, recurringExpenseId: string) => {
+    const bankExp = expenses.find((e) => e.id === bankExpenseId);
+    const recExp = expenses.find((e) => e.id === recurringExpenseId);
+    if (!bankExp || !recExp) return;
+
+    const ruleId = recExp.recurringRuleId || bankExp.recurringRuleId;
+
+    // 1. Actualizar apunte bancario con el vínculo a la regla recurrente
+    const updatedBankExp: Expense = {
+      ...bankExp,
+      recurringRuleId: ruleId,
+      notes: bankExp.notes
+        ? `${bankExp.notes} • Conciliado con regla: ${recExp.title}`
+        : `Conciliado con regla: ${recExp.title}`,
+    };
+    await DBService.saveExpense(updatedBankExp);
+
+    // 2. Asegurar que la fecha queda asentada en completedDates de la regla para no duplicar jamás
+    if (ruleId) {
+      const targetRule = recurringRules.find((r) => r.id === ruleId);
+      if (targetRule) {
+        const dateStr = (bankExp.date || recExp.date || '').split('T')[0];
+        const completedSet = new Set(targetRule.completedDates || []);
+        if (dateStr) completedSet.add(dateStr);
+        await DBService.saveRecurringRule({
+          ...targetRule,
+          completedDates: Array.from(completedSet),
+        });
+      }
+    }
+
+    // 3. Suprimir el apunte automático duplicado
+    await DBService.deleteExpense(recExp.id);
+
+    // 4. Recargar datos del sistema
     await loadData();
   };
 
@@ -536,8 +589,11 @@ export const App: React.FC = () => {
             expenses={expenses}
             currency={settings.currency || '€'}
             settings={settings}
+            recurringRules={recurringRules}
             onSaveBucket={handleSaveBucket}
             onDeleteBucket={handleDeleteBucket}
+            onDeleteExpense={handleDeleteExpense}
+            onReconcileExpenses={handleReconcileExpenses}
             onRefresh={loadData}
             onOpenSmartRules={() => setSmartRulesModalOpen(true)}
             onOpenGoals={() => setGoalsModalOpen(true)}

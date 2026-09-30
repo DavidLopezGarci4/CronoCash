@@ -18,6 +18,7 @@ import {
   Coins,
   ArrowRightLeft,
   TrendingUp,
+  Repeat,
 } from 'lucide-react';
 import { Expense, Bucket, SmartRule, ExtraIncome } from '../../types';
 import {
@@ -101,13 +102,15 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
       const existingExtraIncomes = DBService.getExtraIncomes();
       const currentSettings = await DBService.getSettings();
       const existingSalaries = currentSettings.monthlySalaries || {};
+      const currentRecurringRules = await DBService.getRecurringRules();
       const analysis = await CsvImporterService.analyzeBatch(
         rawRows,
         expenses,
         rules,
         buckets,
         existingExtraIncomes,
-        existingSalaries
+        existingSalaries,
+        currentRecurringRules
       );
       setTransactions(analysis.allTransactions);
       setStep('review');
@@ -289,6 +292,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
           });
         }
       } else {
+        const matchedRuleId = tx.matchedRecurringRuleId;
         expensesToSave.push({
           id: `exp_imp_${Date.now()}_${idx}`,
           title: tx.cleanConcept || 'Movimiento bancario',
@@ -297,11 +301,38 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
           bucketId: tx.suggestedBucketId,
           isInvoice: Boolean(tx.isInvoice),
           status: 'paid',
+          recurringRuleId: matchedRuleId,
           rawHash: tx.rawHash,
           importBatchId: batchId,
-          notes: `Importado de extracto bancario (${fileName})`,
+          notes: matchedRuleId
+            ? `Importado de extracto bancario (${fileName}) • Vinculado a regla: ${tx.matchedRecurringRuleTitle || ''}`
+            : `Importado de extracto bancario (${fileName})`,
           createdAt: timestamp,
         });
+
+        // Si coincide con regla recurrente, registrar en completedDates y suprimir posible cobro duplicado pre-generado
+        if (matchedRuleId) {
+          const rule = (await DBService.getRecurringRules()).find((r) => r.id === matchedRuleId);
+          if (rule) {
+            const completed = new Set(rule.completedDates || []);
+            if (tx.parsedDate) completed.add(tx.parsedDate);
+            await DBService.saveRecurringRule({
+              ...rule,
+              completedDates: Array.from(completed),
+            });
+          }
+
+          // Eliminar gasto automático pre-existente para esta regla en el mismo mes y con mismo importe
+          const autoExp = expenses.find(
+            (e) =>
+              (e.recurringRuleId === matchedRuleId || e.id.startsWith(`exp_rec_auto_${matchedRuleId}`)) &&
+              (e.date || '').startsWith(tx.parsedDate.substring(0, 7)) &&
+              Math.abs(e.amount - tx.amount) < 0.01
+          );
+          if (autoExp) {
+            await DBService.deleteExpense(autoExp.id);
+          }
+        }
       }
     }
 
@@ -615,7 +646,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                     }`}
                   >
                     <div
-                      className="flex items-center space-x-3 min-w-0 cursor-pointer select-none"
+                      className="flex items-center space-x-3 min-w-0 flex-1 cursor-pointer select-none"
                       onClick={() => !tx.isDuplicate && handleToggleSelect(tx.id)}
                     >
                       <input
@@ -626,7 +657,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                         className="rounded text-emerald-500 focus:ring-0 w-4 h-4 cursor-pointer shrink-0"
                       />
 
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <span className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">
                             {tx.parsedDate}
@@ -681,6 +712,12 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/30 font-semibold flex items-center gap-1">
                               <Sparkles className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
                               {tx.matchedRulePattern}
+                            </span>
+                          )}
+                          {tx.matchedRecurringRuleTitle && !tx.isDuplicate && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 font-semibold flex items-center gap-1">
+                              <Repeat className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+                              <span>Coincide: {tx.matchedRecurringRuleTitle}</span>
                             </span>
                           )}
                         </div>

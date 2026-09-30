@@ -1,4 +1,4 @@
-import { Expense, Bucket, SmartRule, ExtraIncome, MonthlySalaryOverride } from '../types';
+import { Expense, Bucket, SmartRule, ExtraIncome, MonthlySalaryOverride, RecurringRule } from '../types';
 import * as XLSX from 'xlsx';
 
 export const isPayrollConcept = (concept: string): boolean => {
@@ -96,6 +96,8 @@ export interface AnalyzedTransaction extends RawBankTransaction {
   suggestedBucketId: string;
   matchedRuleId?: string;
   matchedRulePattern?: string;
+  matchedRecurringRuleId?: string;
+  matchedRecurringRuleTitle?: string;
   isInvoice?: boolean;
   selected: boolean;
   incomeCategoryMode?: 'salary' | 'extra'; // 'salary' para Nómina Mensual blindada, 'extra' para Ingreso Extra
@@ -486,7 +488,8 @@ export class CsvImporterService {
     rules: SmartRule[],
     buckets: Bucket[],
     existingExtraIncomes: ExtraIncome[] = [],
-    existingSalaries: Record<string, MonthlySalaryOverride> = {}
+    existingSalaries: Record<string, MonthlySalaryOverride> = {},
+    recurringRules: RecurringRule[] = []
   ): Promise<BatchAnalysisResult> {
     const activeRules = [...rules]
       .filter((r) => r.isActive)
@@ -537,10 +540,12 @@ export class CsvImporterService {
 
       const isDuplicate = existingHashSet.has(hash) || existingTupleSet.has(tupleKey);
 
-      // Evaluación del motor de reglas
+      // Evaluación del motor de reglas inteligentes
       let suggestedBucketId = fallbackBucketId;
       let matchedRuleId: string | undefined;
       let matchedRulePattern: string | undefined;
+      let matchedRecurringRuleId: string | undefined;
+      let matchedRecurringRuleTitle: string | undefined;
       let isInvoice = false;
 
       const upperConcept = row.cleanConcept.toUpperCase();
@@ -570,7 +575,6 @@ export class CsvImporterService {
         }
 
         if (isMatch) {
-          // Verificar que la bolsa asignada exista
           suggestedBucketId = validBucketIds.has(rule.bucketId) ? rule.bucketId : fallbackBucketId;
           matchedRuleId = rule.id;
           matchedRulePattern = rule.pattern;
@@ -579,7 +583,34 @@ export class CsvImporterService {
         }
       }
 
-      if (matchedRuleId) {
+      // Evaluación heurística de coincidencia con Reglas Recurrentes (solo gastos)
+      if (!row.isIncome && recurringRules.length > 0) {
+        const rowDateStr = row.parsedDate || '';
+        const rowMonth = rowDateStr.substring(0, 7);
+
+        for (const rRule of recurringRules) {
+          if (rRule.isActive === false || rRule.costType === 'none' || rRule.amount <= 0) continue;
+
+          // Coincidencia exacta de importe (±0.01 €)
+          const isSameAmount = Math.abs(rRule.amount - row.amount) < 0.01;
+          const isTitleInConcept =
+            rRule.title &&
+            (upperConcept.includes(rRule.title.toUpperCase()) ||
+              rRule.title.toUpperCase().includes(upperConcept.substring(0, 8)));
+
+          if (isSameAmount && (rowMonth || isTitleInConcept)) {
+            matchedRecurringRuleId = rRule.id;
+            matchedRecurringRuleTitle = rRule.title;
+            // Pre-asignar la bolsa de la regla recurrente si no fue fijada por regla inteligente
+            if (!matchedRuleId && validBucketIds.has(rRule.bucketId)) {
+              suggestedBucketId = rRule.bucketId;
+            }
+            break;
+          }
+        }
+      }
+
+      if (matchedRuleId || matchedRecurringRuleId) {
         ruleMatchedCount++;
       } else {
         unassignedCount++;
@@ -607,6 +638,8 @@ export class CsvImporterService {
         suggestedBucketId,
         matchedRuleId,
         matchedRulePattern,
+        matchedRecurringRuleId,
+        matchedRecurringRuleTitle,
         isInvoice,
         selected: !isDuplicate,
         incomeCategoryMode,

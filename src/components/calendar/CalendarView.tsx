@@ -866,6 +866,12 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                                 <span>No pagado</span>
                               </span>
                             )}
+                            {rule.noticePeriodDays && rule.noticePeriodDays > 0 && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/40 flex items-center gap-1">
+                                <AlertTriangle className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
+                                <span>Preaviso {rule.noticePeriodDays}d</span>
+                              </span>
+                            )}
                           </div>
                           <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                             {bucket?.name || 'General'} • {rule.frequency}

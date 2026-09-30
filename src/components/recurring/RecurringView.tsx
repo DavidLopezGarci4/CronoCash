@@ -219,6 +219,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
   const [intervalNum, setIntervalNum] = useState<number>(1);
   const [startDate, setStartDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
   const [autoCreateExpense, setAutoCreateExpense] = useState(true);
+  const [noticePeriodDays, setNoticePeriodDays] = useState<0 | 30 | 60 | 90>(0);
 
   const handleStartDateChange = (val: string) => {
     setStartDate(val);
@@ -360,6 +361,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
     setReminderTime('09:00');
     setAutoAdaptNextDates(true);
     setAutoCreateExpense(true);
+    setNoticePeriodDays(0);
     setModalOpen(true);
   };
 
@@ -382,6 +384,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
     setReminderTime(r.reminderTime || '09:00');
     setAutoAdaptNextDates(r.autoAdaptNextDates ?? true);
     setAutoCreateExpense(r.autoCreateExpense ?? true);
+    setNoticePeriodDays((r.noticePeriodDays as any) || 0);
     setModalOpen(true);
   };
 
@@ -416,6 +419,7 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
       reminderOffsets,
       reminderTime,
       autoAdaptNextDates,
+      noticePeriodDays: noticePeriodDays || undefined,
     };
 
     onSaveRule(rule);
@@ -974,6 +978,12 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                       {rule.isActive && rule.startDate && rule.startDate.slice(0, 10) > new Date().toISOString().slice(0, 10) && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-500/30">
                           Programada
+                        </span>
+                      )}
+                      {rule.noticePeriodDays && rule.noticePeriodDays > 0 && daysLeft <= rule.noticePeriodDays && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/40 flex items-center gap-1 animate-pulse">
+                          <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
+                          <span>Preaviso {rule.noticePeriodDays}d (renegociar/cancelar)</span>
                         </span>
                       )}
                     </div>
@@ -1611,6 +1621,47 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
                     <div className="text-[10px] text-purple-700/80 dark:text-purple-300/80">
                       Se incluirá en el panel de auditoría para liberar ahorro mensual
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Ventana de Preaviso / Renegociación de Contratos y Seguros */}
+              {costType !== 'none' && (
+                <div className="p-3.5 rounded-2xl bg-cyan-50/70 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-500/30 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                      <span className="text-xs font-bold text-cyan-950 dark:text-cyan-200">
+                        Ventana de Preaviso / Renegociación
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-cyan-700 dark:text-cyan-400 font-semibold shrink-0">
+                      {noticePeriodDays > 0 ? `${noticePeriodDays} días antes` : 'Sin preaviso'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-cyan-800/80 dark:text-cyan-300/80">
+                    Alerta anticipada en panel y calendario para renegociar o cancelar pólizas, seguros, hipotecas y contratos.
+                  </p>
+                  <div className="grid grid-cols-4 gap-1.5 pt-0.5">
+                    {[
+                      { val: 0, label: 'Ninguno' },
+                      { val: 30, label: '30 días' },
+                      { val: 60, label: '60 días' },
+                      { val: 90, label: '90 días' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.val}
+                        type="button"
+                        onClick={() => setNoticePeriodDays(opt.val as any)}
+                        className={`py-1.5 px-2 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
+                          noticePeriodDays === opt.val
+                            ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 shadow-xs'
+                            : 'bg-white dark:bg-slate-900 border border-cyan-200 dark:border-cyan-800 text-slate-700 dark:text-slate-300 hover:bg-cyan-100/50 dark:hover:bg-cyan-900/30'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}

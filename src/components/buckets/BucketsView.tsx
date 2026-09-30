@@ -51,7 +51,7 @@ import {
 import { format, addMonths, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { usePrivacy } from '../../context/PrivacyContext';
-import { Bucket, Expense, Settings } from '../../types';
+import { Bucket, Expense, RecurringRule, Settings } from '../../types';
 import { DBService } from '../../services/db';
 import { HapticService } from '../../services/hapticService';
 import { useTouchSortable } from '../../hooks/useTouchSortable';
@@ -65,8 +65,11 @@ interface BucketsViewProps {
   expenses: Expense[];
   currency: string;
   settings?: Settings;
+  recurringRules?: RecurringRule[];
   onSaveBucket: (bucket: Bucket) => void;
   onDeleteBucket: (id: string) => void;
+  onDeleteExpense?: (id: string) => void;
+  onReconcileExpenses?: (bankExpenseId: string, recurringExpenseId: string) => void;
   onRefresh: () => void;
   onOpenSmartRules?: () => void;
   onOpenGoals?: () => void;
@@ -90,8 +93,11 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   expenses,
   currency,
   settings,
+  recurringRules = [],
   onSaveBucket,
   onDeleteBucket,
+  onDeleteExpense,
+  onReconcileExpenses,
   onRefresh,
   onOpenSmartRules,
   onOpenGoals,
@@ -954,7 +960,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
               <div className="p-4 flex-1 flex flex-col justify-between min-w-0">
                 <div className="flex items-start justify-between">
                 <div
-                  className="flex items-center space-x-3 cursor-pointer group"
+                  className="flex items-center space-x-3 cursor-pointer group min-w-0 flex-1"
                   onClick={() => setMovementsBucket(b)}
                   title="Ver desglose de movimientos (gastos y reembolsos)"
                 >
@@ -964,9 +970,9 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   >
                     <IconComp className="w-5 h-5 text-white" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                      <span>{b.name}</span>
+                      <span className="truncate">{b.name}</span>
                       {b.rolloverSurplus && viewMode === 'month' && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 font-bold border border-teal-200 dark:border-teal-500/40 flex items-center gap-1">
                           <PiggyBank className="w-3 h-3 text-teal-600 dark:text-teal-400" />
@@ -1619,6 +1625,9 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           expenses={expenses}
           settings={effectiveSettings}
           currency={currency}
+          recurringRules={recurringRules}
+          onDeleteExpense={onDeleteExpense}
+          onReconcileExpenses={onReconcileExpenses}
         />
       )}
     </div>

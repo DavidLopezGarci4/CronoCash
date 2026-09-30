@@ -120,6 +120,7 @@ export interface RecurringRule {
   reminderTime?: string; // 'HH:MM'
   autoAdaptNextDates?: boolean; // Si al completar/registrar se adapta automáticamente el ciclo futuro
   completedDates?: string[]; // Fechas YYYY-MM-DD en las que se ha completado esta regla/tarea
+  noticePeriodDays?: 0 | 30 | 60 | 90; // Días de preaviso para renegociación o cancelación de pólizas/contratos
   order?: number; // Índice de ordenación manual
 }
 
