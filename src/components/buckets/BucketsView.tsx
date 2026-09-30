@@ -714,18 +714,18 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             <div
               key={b.id}
               {...getItemProps(index)}
-              className={`rounded-3xl bg-slate-900/90 border transition-all flex items-stretch overflow-hidden ${
+              className={`rounded-3xl border flex items-stretch transition-all duration-300 ease-out overflow-hidden ${
                 dragIndex === index
-                  ? 'ring-2 ring-emerald-500 scale-[1.01] shadow-2xl shadow-emerald-500/30 z-20 bg-slate-800/95 border-emerald-400'
-                  : overIndex === index
-                  ? 'border-emerald-400/80 bg-emerald-950/30 shadow-md shadow-emerald-950/20'
+                  ? 'ring-2 ring-emerald-400 scale-[1.03] -translate-y-1 shadow-2xl shadow-emerald-500/25 z-30 bg-slate-800/95 border-emerald-400 opacity-95'
+                  : overIndex === index && dragIndex !== null
+                  ? 'scale-[0.97] translate-y-1 opacity-40 bg-slate-950/90 border-dashed border-2 border-emerald-500/50 shadow-inner ring-1 ring-emerald-500/20 z-10'
                   : b.isBuffer
-                  ? 'border-teal-500/40 bg-teal-950/10 shadow-lg shadow-teal-950/20'
+                  ? 'border-teal-500/40 bg-teal-950/10 shadow-lg shadow-teal-950/20 scale-100 translate-y-0 opacity-100'
                   : isOver
-                  ? 'border-rose-500/60 bg-rose-950/10'
+                  ? 'border-rose-500/60 bg-rose-950/10 scale-100 translate-y-0 opacity-100'
                   : isWarning
-                  ? 'border-amber-500/50 bg-amber-950/10'
-                  : 'border-slate-800 hover:border-slate-700'
+                  ? 'border-amber-500/50 bg-amber-950/10 scale-100 translate-y-0 opacity-100'
+                  : 'border-slate-800 hover:border-slate-700 bg-slate-900/90 scale-100 translate-y-0 opacity-100'
               }`}
             >
               {/* Pestaña lateral de arrastre táctil (visible en modo manual) */}

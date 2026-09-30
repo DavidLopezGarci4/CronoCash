@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback } from 'react';
-import { HapticService } from '../services/hapticService';
 
 interface UseTouchSortableProps<T> {
   items: T[];
@@ -37,9 +36,6 @@ export function useTouchSortable<T>({
       isDraggingRef.current = true;
       setDragIndex(index);
       setOverIndex(index);
-
-      // Feedback háptico al iniciar el agarre
-      HapticService.selection();
     },
     [enabled]
   );
@@ -56,13 +52,7 @@ export function useTouchSortable<T>({
       if (idxStr !== null) {
         const targetIdx = parseInt(idxStr, 10);
         if (!isNaN(targetIdx) && targetIdx >= 0 && targetIdx < itemsRef.current.length) {
-          setOverIndex((prev) => {
-            if (prev !== targetIdx) {
-              HapticService.selection();
-              return targetIdx;
-            }
-            return prev;
-          });
+          setOverIndex(targetIdx);
         }
       }
     }
@@ -93,7 +83,6 @@ export function useTouchSortable<T>({
         const [movedItem] = updated.splice(from, 1);
         updated.splice(to, 0, movedItem);
 
-        await HapticService.notificationSuccess();
         await onReorder(updated);
       }
     },

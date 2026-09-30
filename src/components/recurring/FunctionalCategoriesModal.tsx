@@ -163,6 +163,18 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
     }
   }, [isOpen]);
 
+  const handleReorderCategories = async (newCategories: FunctionalCategory[]) => {
+    setCategories(newCategories);
+    await DBService.updateFunctionalCategoriesOrder(newCategories);
+    onCategoriesChanged();
+  };
+
+  const { dragIndex, overIndex, getHandleProps, getItemProps } = useTouchSortable({
+    items: categories,
+    onReorder: handleReorderCategories,
+    enabled: isOpen && !isFormOpen && !categoryToDelete,
+  });
+
   if (!isOpen) return null;
 
   const handleOpenAdd = () => {
@@ -172,7 +184,6 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
     setFormColor('#3b82f6');
     setFormDesc('');
     setIsFormOpen(true);
-    HapticService.selection();
   };
 
   const handleOpenEdit = (cat: FunctionalCategory) => {
@@ -182,7 +193,6 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
     setFormColor(cat.color || '#3b82f6');
     setFormDesc(cat.description || '');
     setIsFormOpen(true);
-    HapticService.selection();
   };
 
   const handleSaveForm = async (e: React.FormEvent) => {
@@ -203,7 +213,6 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
     };
 
     await DBService.saveFunctionalCategory(category);
-    await HapticService.notificationSuccess();
     loadCategories();
     setIsFormOpen(false);
     onCategoriesChanged();
@@ -218,22 +227,9 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
     reordered.splice(targetIndex, 0, moved);
 
     await DBService.updateFunctionalCategoriesOrder(reordered);
-    await HapticService.impactLight();
     loadCategories();
     onCategoriesChanged();
   };
-
-  const handleReorderCategories = async (newCategories: FunctionalCategory[]) => {
-    setCategories(newCategories);
-    await DBService.updateFunctionalCategoriesOrder(newCategories);
-    onCategoriesChanged();
-  };
-
-  const { dragIndex, overIndex, getHandleProps, getItemProps } = useTouchSortable({
-    items: categories,
-    onReorder: handleReorderCategories,
-    enabled: !isFormOpen && !categoryToDelete,
-  });
 
   const handlePromptDelete = (cat: FunctionalCategory) => {
     const inUseCount = rules.filter((r) => r.categoryType === cat.id).length;
@@ -470,12 +466,12 @@ export const FunctionalCategoriesModal: React.FC<FunctionalCategoriesModalProps>
                 <div
                   key={cat.id}
                   {...getItemProps(idx)}
-                  className={`rounded-2xl bg-slate-900/90 border flex items-stretch transition-all overflow-hidden ${
+                  className={`rounded-2xl border flex items-stretch transition-all duration-300 ease-out overflow-hidden ${
                     dragIndex === idx
-                      ? 'ring-2 ring-blue-500 scale-[1.01] shadow-2xl shadow-blue-500/30 z-20 bg-slate-800/95 border-blue-400'
-                      : overIndex === idx
-                      ? 'border-blue-400/80 bg-blue-950/30 shadow-md shadow-blue-950/20'
-                      : 'border-slate-800 hover:border-slate-700'
+                      ? 'ring-2 ring-blue-400 scale-[1.03] -translate-y-1 shadow-2xl shadow-blue-500/25 z-30 bg-slate-800/95 border-blue-400 opacity-95'
+                      : overIndex === idx && dragIndex !== null
+                      ? 'scale-[0.97] translate-y-1 opacity-40 bg-slate-950/90 border-dashed border-2 border-blue-500/50 shadow-inner ring-1 ring-blue-500/20 z-10'
+                      : 'border-slate-800 hover:border-slate-700 bg-slate-900/90 scale-100 translate-y-0 opacity-100'
                   }`}
                 >
                   {/* Fina Pestaña Lateral Táctil (Drag Handle) */}

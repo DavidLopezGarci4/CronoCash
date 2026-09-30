@@ -901,20 +901,20 @@ export const RecurringView: React.FC<RecurringViewProps> = ({
               <div
                 key={rule.id}
                 {...getItemProps(idx)}
-                className={`rounded-3xl border transition-all flex items-stretch overflow-hidden ${
+                className={`rounded-3xl border flex items-stretch transition-all duration-300 ease-out overflow-hidden ${
                   dragIndex === idx
-                    ? 'ring-2 ring-blue-500 scale-[1.01] shadow-2xl shadow-blue-500/30 z-20 bg-slate-800/95 border-blue-400'
-                    : overIndex === idx
-                    ? 'border-blue-400/80 bg-blue-950/30 shadow-md shadow-blue-950/20'
+                    ? 'ring-2 ring-blue-400 scale-[1.03] -translate-y-1 shadow-2xl shadow-blue-500/25 z-30 bg-slate-800/95 border-blue-400 opacity-95'
+                    : overIndex === idx && dragIndex !== null
+                    ? 'scale-[0.97] translate-y-1 opacity-40 bg-slate-950/90 border-dashed border-2 border-blue-500/50 shadow-inner ring-1 ring-blue-500/20 z-10'
                     : !rule.isActive
-                    ? 'bg-slate-950/40 border-slate-800/80 opacity-75'
+                    ? 'bg-slate-950/40 border-slate-800/80 opacity-75 scale-100 translate-y-0'
                     : isCompletedForTargetDate
-                    ? 'bg-slate-900/90 border-emerald-500/30 shadow-md shadow-emerald-950/20'
+                    ? 'bg-slate-900/90 border-emerald-500/30 shadow-md shadow-emerald-950/20 scale-100 translate-y-0 opacity-100'
                     : isUnpaidManual
-                    ? 'border-rose-500/50 shadow-md shadow-rose-950/20 bg-rose-950/10'
+                    ? 'border-rose-500/50 shadow-md shadow-rose-950/20 bg-rose-950/10 scale-100 translate-y-0 opacity-100'
                     : daysLeft <= 1
-                    ? 'bg-slate-900/90 border-amber-500/40 shadow-md shadow-amber-950/20'
-                    : 'bg-slate-900/90 border-slate-800 hover:border-slate-700/80'
+                    ? 'bg-slate-900/90 border-amber-500/40 shadow-md shadow-amber-950/20 scale-100 translate-y-0 opacity-100'
+                    : 'bg-slate-900/90 border-slate-800 hover:border-slate-700/80 scale-100 translate-y-0 opacity-100'
                 }`}
               >
                 {/* Pestaña lateral de arrastre táctil (visible en modo manual) */}
