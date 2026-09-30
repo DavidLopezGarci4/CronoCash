@@ -422,7 +422,7 @@ export const FAQModal: React.FC<FAQModalProps> = ({
         {/* Pie del Modal */}
         <div className="px-4 sm:px-6 py-3 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between">
           <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">
-            Sincronizado con <span className="font-mono text-slate-700 dark:text-slate-300">docs/FAQ.md</span> • Versión v1.13.0
+            Sincronizado con <span className="font-mono text-slate-700 dark:text-slate-300">docs/FAQ.md</span> • Versión v1.25.0
           </p>
           <button
             onClick={onClose}

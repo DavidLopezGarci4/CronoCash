@@ -3,6 +3,31 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.25.0] - 2026-09-30
+
+### Added
+- **Imputación Dual de Gastos (Dual Date: Fecha de Origen / Pago vs Mes Efectivo de Imputación a Bolsa):**
+  - **Modelado en `Expense` (`src/types/index.ts`):**
+    - Nuevo campo canónico opcional `effectiveMonth?: string` (formato `YYYY-MM`).
+    - Función pura `getExpenseEffectiveMonth(expense: Expense): string` que retorna `effectiveMonth` si está presente, o `date.substring(0, 7)` como fallback defensivo.
+  - **Modal de Creación y Edición de Gastos (`ExpenseModal.tsx`):**
+    - Selector ergonómico de imputación presupuestaria con botón de acceso rápido *"⏩ Mes +1"* y selector de mes nativo (`<input type="month">`).
+    - Botón de restablecimiento al mes de compra real.
+    - Sincronización automática de fecha física de desembolso con el mes contable cuando no se personaliza.
+  - **Sincronización Integral en Bolsas de Presupuesto (`BucketsView.tsx`, `BucketMovementsModal.tsx`, `CoverOverspendingModal.tsx`):**
+    - Filtrado de gastos mensuales y anuales por `getExpenseEffectiveMonth(e) === monthPrefix`.
+    - En el desglose de movimientos de bolsa (`BucketMovementsModal.tsx`), las compras imputadas a otro mes muestran el distintivo explicativo: `🗓️ Compra DD/MM -> Imputado a Mes`.
+    - Los asistentes de sobregiro respetan el mes efectivo de imputación contable.
+  - **Integración en Importador Bancario (`CsvImportModal.tsx`):**
+    - Nuevo conmutador por fila para gastos que permite imputar directamente al mes entrante (`⏩ Imputa al Mes +1`) antes de asentar en la base de datos.
+    - Persistencia automática de `effectiveMonth` en los gastos importados.
+  - **Calendario Reactivo (`CalendarView.tsx`):**
+    - Los gastos mantienen su presencia física en el día en que se produjo la salida de dinero, incorporando la insignia `⏩ Imputado YYYY-MM` en el detalle diario para total transparencia de liquidez y contabilidad.
+- **Protección Táctil con Doble Paso de Conformidad:**
+  - En `BucketMovementsModal.tsx`, la eliminación de gastos y conciliación de movimientos bancarios duplicados con recibos recurrentes implementa confirmación estricta en dos pasos para salvaguardar la integridad de las reglas y evitar toques accidentales en pantallas móviles.
+- **Blindaje Visual Anti-Desborde y Anti-Sobreposición:**
+  - Arquitectura defensiva flexbox (`min-w-0 flex-1`, `truncate`, `shrink-0`, `flex-wrap`) para impedir colisiones o desbordes de texto en orientaciones verticales o pantallas reducidas.
+
 ## [1.24.0] - 2026-09-30
 
 ### Added

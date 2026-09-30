@@ -1,6 +1,6 @@
 {
-  "currentVersion": "1.24.0",
-  "buildNumber": 12400,
+  "currentVersion": "1.25.0",
+  "buildNumber": 12500,
   "lastUpdated": "2026-09-30",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
@@ -9,11 +9,25 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.25.0",
+      "build": 12500,
+      "date": "30 Sep 2026",
+      "title": "Imputación Dual de Gastos (Mes Efectivo), Conciliación con Doble Conformidad y Blindaje Visual",
+      "isCurrent": true,
+      "highlights": [
+        "🗓️ Imputación a Bolsa del Mes Siguiente (Dual Date): Permite realizar compras u oportunidades a fin de mes e imputar su límite contable al sobre presupuestario del mes siguiente (Mes +1), manteniendo la fecha física del pago en el calendario y extracto.",
+        "⏩ Selector Rápido Mes +1 en Formulario y Banco: Botón de un solo toque tanto al crear/editar gastos manuales como en el revisor de extractos bancarios CSV / Excel para diferir la imputación contable al instante.",
+        "🏷️ Insignias Informativas en Movimientos: Distintivo claro '🗓️ Compra DD/MM -> Imputado a Mes' en el desglose de cada bolsa y '⏩ Imputado Mes' en el calendario diario.",
+        "🛡️ Doble Paso de Conformidad en Gastos y Conciliación: Protección táctil de dos pasos para eliminar gastos o conciliar apuntes bancarios duplicados con recibos recurrentes, imposibilitando eliminaciones involuntarias con el dedo.",
+        "📐 Blindaje Visual Anti-Desborde y Anti-Sobreposición: Refuerzo tipográfico integral en pantallas verticales y estrechas con truncado inteligente, contenedores elásticos y espaciado defensivo."
+      ]
+    },
+    {
       "version": "1.24.0",
       "build": 12400,
       "date": "30 Sep 2026",
       "title": "Direccionamiento de Ingresos a Bolsas: Inyecciones de Presupuesto y Reembolsos de Gastos",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "🎯 Asignación Directa de Ingresos a Bolsas: Posibilidad de vincular cualquier ingreso extra (puntual o recurrente) directamente a una bolsa para cubrir sus costes específicos.",
         "🔄 Reembolso / Compensación de Gastos (Bizums y Devoluciones): Minora directamente los gastos registrados en la bolsa destino sin distorsionar tus ingresos brutos ni el cómputo de impuestos.",

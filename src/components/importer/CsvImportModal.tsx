@@ -293,11 +293,16 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
         }
       } else {
         const matchedRuleId = tx.matchedRecurringRuleId;
+        const effectiveMonth =
+          tx.targetExpenseMonth && tx.targetExpenseMonth !== tx.parsedDate?.substring(0, 7)
+            ? tx.targetExpenseMonth
+            : undefined;
         expensesToSave.push({
           id: `exp_imp_${Date.now()}_${idx}`,
           title: tx.cleanConcept || 'Movimiento bancario',
           amount: tx.amount,
           date: tx.parsedDate,
+          effectiveMonth,
           bucketId: tx.suggestedBucketId,
           isInvoice: Boolean(tx.isInvoice),
           status: 'paid',
@@ -720,6 +725,11 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                               <span>Coincide: {tx.matchedRecurringRuleTitle}</span>
                             </span>
                           )}
+                          {!tx.isIncome && tx.targetExpenseMonth && tx.targetExpenseMonth !== tx.parsedDate?.substring(0, 7) && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-500/20 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 font-semibold flex items-center gap-1 shrink-0">
+                              <span>⏩ Imputado a {formatMonthName(tx.targetExpenseMonth)}</span>
+                            </span>
+                          )}
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-slate-500 dark:text-slate-400">
@@ -739,18 +749,57 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                     <div className="flex items-center justify-between sm:justify-end gap-3.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-slate-800/60">
                       {/* Selector de Destino: Bolsa para Gastos / Nómina vs Extra para Ingresos */}
                       {!tx.isIncome ? (
-                        <select
-                          value={tx.suggestedBucketId}
-                          disabled={tx.isDuplicate}
-                          onChange={(e) => handleChangeBucket(tx.id, e.target.value)}
-                          className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer max-w-[150px]"
-                        >
-                          {buckets.map((b) => (
-                            <option key={b.id} value={b.id}>
-                              {b.name}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <select
+                            value={tx.suggestedBucketId}
+                            disabled={tx.isDuplicate}
+                            onChange={(e) => handleChangeBucket(tx.id, e.target.value)}
+                            className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer max-w-[150px] truncate"
+                          >
+                            {buckets.map((b) => (
+                              <option key={b.id} value={b.id}>
+                                {b.name}
+                              </option>
+                            ))}
+                          </select>
+
+                          {/* Selector / Toggle de Imputación a Mes Siguiente */}
+                          {(() => {
+                            const txDate = tx.parsedDate || '';
+                            const curMonth = txDate.substring(0, 7);
+                            const nextMonth = (() => {
+                              const [y, m] = (curMonth || '2026-09').split('-').map(Number);
+                              const d = new Date(y, m - 1 + 1, 1);
+                              return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                            })();
+                            const activeMonth = tx.targetExpenseMonth || curMonth;
+                            const isImputedNext = activeMonth === nextMonth;
+
+                            return (
+                              <button
+                                type="button"
+                                disabled={tx.isDuplicate}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newTarget = isImputedNext ? curMonth : nextMonth;
+                                  setTransactions((prev) =>
+                                    prev.map((item) =>
+                                      item.id === tx.id ? { ...item, targetExpenseMonth: newTarget } : item
+                                    )
+                                  );
+                                }}
+                                className={`text-[10px] px-2 py-0.5 rounded-lg border font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                                  isImputedNext
+                                    ? 'bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-500/30'
+                                    : 'bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:text-slate-700 dark:hover:text-slate-200'
+                                }`}
+                                title="Imputar gasto al presupuesto del mes siguiente sin inflar la bolsa actual"
+                              >
+                                <span>{isImputedNext ? '⏩ Imputa al Mes +1' : 'Imputar al Mes +1'}</span>
+                              </button>
+                            );
+                          })()}
+                        </div>
                       ) : (
                         <div className="flex flex-col items-end gap-1">
                           {(() => {

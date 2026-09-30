@@ -4,17 +4,24 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.24.0 — Direccionamiento de Ingresos a Bolsas (Inyecciones y Reembolsos) 🎯
-- [x] **Asignación Directa de Ingresos Extras a Bolsas:** Posibilidad de vincular cobros extras a sobres específicos.
-- [x] **Reembolso / Compensación de Gastos (Bizums y Devoluciones):** Minoración directa de gastos registrados en bolsa sin inflar ingresos brutos ni alterar tramos fiscales.
-- [x] **Inyecciones a Presupuesto (Top-Up):** Suplemento mensual directo de límite de bolsa blindado contra dilución en el gasto diario.
-- [x] **Integración con Extractos Bancarios (CSV / Excel):** Asignación inmediata de abonos a reembolsos o inyecciones con previsualización.
-- [x] **Motor Desacoplado `IncomeAllocationService`:** Arquitectura modular pura con blindaje contra el doble cómputo.
-- [x] **Sincronización SemVer Global:** `v1.24.0` (Build 12400) en todos los manifiestos, configuraciones y documentación.
+## Estado Actual: v1.25.0 — Imputación Dual de Gastos (Mes Efectivo), Doble Conformidad y Blindaje Visual 🎯
+- [x] **Imputación a Bolsa del Mes Siguiente (Dual Date):** Fecha física de pago vs mes efectivo de imputación a bolsa.
+- [x] **Selector Rápido "⏩ Mes +1":** Integrado en el formulario de gasto y en el importador de extractos bancarios.
+- [x] **Insignias y Desglose Informativo:** Identificación visual clara en movimientos de bolsa y vista diaria de calendario.
+- [x] **Doble Paso de Conformidad:** Protección táctil irreversible para eliminar o conciliar gastos de extracto sin dañar recurrencias.
+- [x] **Blindaje Tipográfico Anti-Desborde:** Arquitectura flexbox defensiva en vistas verticales y pantallas estrechas.
+- [x] **Sincronización SemVer Global:** `v1.25.0` (Build 12500) en todos los manifiestos, FAQ, Acerca de y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.24.0 (Completado)
+- [x] Direccionamiento de Ingresos a Bolsas (Inyecciones y Reembolsos).
+- [x] Reembolso / Compensación de Gastos (Bizums y Devoluciones).
+- [x] Inyecciones a Presupuesto (Top-Up) sin dilución en el gasto diario.
+- [x] Integración en Importador Bancario (CSV / Excel).
+- [x] Servicio desacoplado `IncomeAllocationService` anti-doble cómputo.
 
 ### 📦 v1.23.0 (Completado)
 - [x] Balance de Presupuesto Real (Zero-Based Envelopes) comparando capacidad de ingresos y límites de bolsas.

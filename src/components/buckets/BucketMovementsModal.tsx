@@ -17,8 +17,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { Bucket, Expense, ExtraIncome, RecurringRule, Settings } from '../../types';
+import { Bucket, Expense, ExtraIncome, RecurringRule, Settings, getExpenseEffectiveMonth } from '../../types';
 import { IncomeAllocationService } from '../../services/incomeAllocationService';
 import { MASTER_ICON_MAP } from '../../constants/icons';
 import { usePrivacy } from '../../context/PrivacyContext';
@@ -84,10 +83,10 @@ export const BucketMovementsModal: React.FC<BucketMovementsModalProps> = ({
 
   const IconComp = MASTER_ICON_MAP[bucket.icon] || Wallet;
 
-  // 1. Gastos de la bolsa en este mes
+  // 1. Gastos de la bolsa en este mes (respetando mes efectivo de imputación)
   const bucketExpenses = useMemo(() => {
     return expenses.filter(
-      (e) => e.bucketId === bucket.id && (e.date || '').startsWith(monthPrefix)
+      (e) => e.bucketId === bucket.id && getExpenseEffectiveMonth(e) === monthPrefix
     );
   }, [expenses, bucket.id, monthPrefix]);
 
@@ -503,6 +502,11 @@ export const BucketMovementsModal: React.FC<BucketMovementsModalProps> = ({
                         {isBankImport && (
                           <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-semibold border border-amber-200 dark:border-amber-500/30 shrink-0">
                             Banco
+                          </span>
+                        )}
+                        {isExpense && item.originalExpense?.effectiveMonth && item.originalExpense.effectiveMonth !== item.date.substring(0, 7) && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 font-semibold border border-purple-200 dark:border-purple-500/30 shrink-0 max-w-full truncate">
+                            🗓️ Compra {item.date.split('-').slice(1).reverse().join('/')} &rarr; Imputado a {monthLabel}
                           </span>
                         )}
                       </div>

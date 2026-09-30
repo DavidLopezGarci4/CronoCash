@@ -944,6 +944,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                                 <span>Cobro Automático</span>
                               </span>
                             )}
+                            {exp.effectiveMonth && exp.effectiveMonth !== (exp.date || '').substring(0, 7) && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 font-semibold border border-purple-200 dark:border-purple-500/30 shrink-0 flex items-center gap-1 whitespace-nowrap">
+                                <span>⏩ Imputado {exp.effectiveMonth}</span>
+                              </span>
+                            )}
                           </div>
                           <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
                             {bucket?.name || 'General'} {exp.supplier ? `• ${exp.supplier}` : ''}

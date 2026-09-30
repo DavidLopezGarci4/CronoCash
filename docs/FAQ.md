@@ -1,7 +1,7 @@
 # Preguntas Frecuentes y Guía de Herramientas (FAQ) — CronoCash 📖
 
 > Guía de referencia rápida, operativa y resolución de dudas sobre todas las funciones y herramientas activas en la versión oficial de **CronoCash** (Android APK y PWA).  
-> **Versión Actual:** `v1.20.0` (Build 12000) • **Actualizado:** 29 de Septiembre de 2026 • **Módulos Auditados:** 14/14 • **Guías Operativas:** 48
+> **Versión Actual:** `v1.25.0` (Build 12500) • **Actualizado:** 30 de Septiembre de 2026 • **Módulos Auditados:** 14/14 • **Guías Operativas:** 52
 
 ---
 
@@ -68,6 +68,16 @@
 * **Ideal para gastos no mensuales:** Perfecto para seguros (anuales, semestrales o trimestrales), revisiones de coche o impuestos periódicos. La bolsa retiene y acumula su remanente no gastado mes tras mes.
 * **Límite elástico efectivo:** En el mes en curso, el límite disponible de la bolsa será su asignación base más todo el remanente acumulado que traiga de periodos anteriores.
 * **Ajuste manual del remanente:** Dentro del modal de edición de la bolsa puedes corregir o inicializar el remanente acumulado actual con precisión de céntimos.
+
+### ¿Puedo imputar un gasto al presupuesto del mes siguiente (Fecha de Compra vs Mes Efectivo)?
+* **Fecha física vs Mes contable:** Ahora puedes realizar una compra a finales de mes o aprovechar una oferta puntual e imputar su gasto al sobre presupuestario del mes siguiente.
+* **Sin sobreinflar la bolsa actual:** La compra queda registrada en el día real que se desembolsó en el calendario y extracto bancario, pero su importe computa y descuenta límite en la bolsa del mes siguiente (identificada con la insignia `🗓️ Compra DD/MM -> Imputado a Mes`).
+* **Selector rápido en 1 toque:** En el modal de gasto o al importar desde el banco, dispones del botón *"⏩ Mes +1"* para diferir la imputación contable al instante sin cálculos manuales.
+
+### ¿Cómo funcionan los reembolsos e inyecciones directas en una bolsa?
+* **Reembolsos y Devoluciones:** Minoran directamente los gastos acumulados en la bolsa (`netSpent = gastos - reembolsos`), reflejando la realidad contable de Bizums o devoluciones sin inflar tus ingresos brutos.
+* **Inyecciones extraordinarias:** Incrementan temporalmente el límite asignado a la bolsa durante ese mes sin alterar el límite maestro ni el salario base configurado.
+* **Desglose unificado de movimientos:** Al pulsar sobre cualquier bolsa, puedes ver la lista cronológica completa de gastos y reembolsos con su neto exacto.
 
 ---
 
@@ -137,6 +147,11 @@
 * **Por categoría jerárquica:** Agrupa los compromisos según su criticidad contable (Recibos básicos, Suscripciones, Impuestos, Salud y Cuidado, Mantenimiento y Hogar, y Personal).
 * **Por orden alfabético:** Disponible tanto por orden alfabético de categorías como por título (A-Z y Z-A).
 * **Por importe:** Clasifica los cobros de mayor a menor importe (o viceversa) para un control estricto de las salidas de dinero más voluminosas.
+
+### ¿Cómo conciliar o eliminar un gasto del extracto sin borrar la regla recurrente configurada? (Doble Paso de Conformidad)
+* **Protección de recurrencias:** Al importar un extracto bancario con un gasto que ya estaba previsto en tus reglas recurrentes (ej. hipoteca, seguro o fibra), puedes conciliarlo con 1 solo toque o eliminar el apunte duplicado si correspondiera.
+* **Doble paso de conformidad anti-errores:** Para impedir toques involuntarios con el pulgar en pantallas móviles, el sistema exige un doble paso de confirmación ("¿Estás seguro?" + botón de acción definitiva irreversible).
+* **Regla intacta:** Eliminar un gasto puntual o apunte bancario duplicado jamás elimina ni altera la regla recurrente periódica configurada ni su historial.
 
 ---
 

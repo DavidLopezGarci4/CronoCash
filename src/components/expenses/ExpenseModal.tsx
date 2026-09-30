@@ -22,11 +22,16 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 }) => {
   const [title, setTitle] = useState(initialExpense?.title || '');
   const [amount, setAmount] = useState(initialExpense?.amount ? String(initialExpense.amount) : '');
+  const initialDate = initialExpense?.date || new Date().toISOString().split('T')[0];
   const [bucketId, setBucketId] = useState(
     initialExpense?.bucketId || (buckets.length > 0 ? buckets[0].id : '')
   );
-  const [date, setDate] = useState(
-    initialExpense?.date || new Date().toISOString().split('T')[0]
+  const [date, setDate] = useState(initialDate);
+  const [effectiveMonth, setEffectiveMonth] = useState(
+    initialExpense?.effectiveMonth || initialDate.substring(0, 7)
+  );
+  const [isCustomEffectiveMonth, setIsCustomEffectiveMonth] = useState(
+    Boolean(initialExpense?.effectiveMonth && initialExpense.effectiveMonth !== initialDate.substring(0, 7))
   );
   const [isInvoice, setIsInvoice] = useState(initialExpense?.isInvoice || false);
   const [invoiceNumber, setInvoiceNumber] = useState(initialExpense?.invoiceNumber || '');
@@ -35,12 +40,24 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   const [notes, setNotes] = useState(initialExpense?.notes || '');
   const [status, setStatus] = useState<'paid' | 'pending'>(initialExpense?.status || 'paid');
 
+  const getNextMonth = (monthStr: string) => {
+    const [y, m] = monthStr.split('-').map(Number);
+    const d = new Date(y, m - 1 + 1, 1);
+    const nextY = d.getFullYear();
+    const nextM = String(d.getMonth() + 1).padStart(2, '0');
+    return `${nextY}-${nextM}`;
+  };
+
   React.useEffect(() => {
     if (isOpen) {
       setTitle(initialExpense?.title || '');
       setAmount(initialExpense?.amount ? String(initialExpense.amount) : '');
       setBucketId(initialExpense?.bucketId || (buckets.length > 0 ? buckets[0].id : ''));
-      setDate(initialExpense?.date || new Date().toISOString().split('T')[0]);
+      const d = initialExpense?.date || new Date().toISOString().split('T')[0];
+      setDate(d);
+      const effM = initialExpense?.effectiveMonth || d.substring(0, 7);
+      setEffectiveMonth(effM);
+      setIsCustomEffectiveMonth(Boolean(initialExpense?.effectiveMonth && initialExpense.effectiveMonth !== d.substring(0, 7)));
       setIsInvoice(initialExpense?.isInvoice || false);
       setInvoiceNumber(initialExpense?.invoiceNumber || '');
       setSupplier(initialExpense?.supplier || '');
@@ -64,11 +81,14 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
     const parsedTaxRate = parseFloat(taxRate) || 0;
     const taxAmount = isInvoice ? (parsedAmount * parsedTaxRate) / (100 + parsedTaxRate) : 0;
 
+    const finalEffectiveMonth = (effectiveMonth && effectiveMonth !== date.substring(0, 7)) ? effectiveMonth : undefined;
+
     const expense: Expense = {
       id: initialExpense?.id || `exp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       title: title.trim() || 'Gasto sin título',
       amount: parsedAmount,
       date,
+      effectiveMonth: finalEffectiveMonth,
       bucketId: bucketId || (buckets[0]?.id ?? 'default'),
       isInvoice,
       invoiceNumber: isInvoice ? invoiceNumber.trim() : undefined,
@@ -169,13 +189,87 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 type="date"
                 required
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e) => {
+                  const newD = e.target.value;
+                  setDate(newD);
+                  if (!isCustomEffectiveMonth && newD) {
+                    setEffectiveMonth(newD.substring(0, 7));
+                  }
+                }}
                 className="w-full h-11 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-200 focus:outline-hidden focus:border-emerald-500"
               />
               <p className="text-[10px] text-slate-500">
                 Día en que se originó el desembolso o factura (no necesariamente hoy).
               </p>
             </div>
+          </div>
+
+          {/* Imputación Presupuestaria Dual (Mes Efectivo de Imputación a Bolsa) */}
+          <div className="p-3.5 bg-purple-50/70 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-500/30 rounded-2xl space-y-2.5">
+            <div className="flex items-center justify-between gap-2 flex-wrap min-w-0">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <span className="p-1.5 rounded-xl bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 shrink-0">
+                  <Calendar className="w-4 h-4" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                    Mes de Imputación a la Bolsa
+                  </div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                    {effectiveMonth !== date.substring(0, 7)
+                      ? `Imputado a bolsa de ${effectiveMonth} (compra en ${date.substring(0, 7)})`
+                      : `Imputado al mismo mes de compra (${date.substring(0, 7)})`}
+                  </div>
+                </div>
+              </div>
+              {effectiveMonth !== date.substring(0, 7) && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-500/30 text-purple-700 dark:text-purple-300 font-bold border border-purple-200 dark:border-purple-500/40 shrink-0">
+                  ⏩ Mes diferido
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1 min-w-0">
+              <input
+                type="month"
+                value={effectiveMonth}
+                onChange={(e) => {
+                  setEffectiveMonth(e.target.value);
+                  setIsCustomEffectiveMonth(e.target.value !== date.substring(0, 7));
+                }}
+                className="h-10 px-3 bg-white dark:bg-slate-900 border border-purple-300 dark:border-purple-600/50 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:border-purple-500 flex-1 min-w-0"
+              />
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    HapticService.selection();
+                    const nextM = getNextMonth(date.substring(0, 7));
+                    setEffectiveMonth(nextM);
+                    setIsCustomEffectiveMonth(true);
+                  }}
+                  className="px-3 py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white transition-all cursor-pointer shrink-0 shadow-xs flex items-center gap-1 active:scale-95 whitespace-nowrap"
+                >
+                  <span>⏩ Mes +1</span>
+                </button>
+                {effectiveMonth !== date.substring(0, 7) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      HapticService.selection();
+                      setEffectiveMonth(date.substring(0, 7));
+                      setIsCustomEffectiveMonth(false);
+                    }}
+                    className="px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-200/70 dark:bg-slate-800 transition-all cursor-pointer shrink-0 active:scale-95 whitespace-nowrap"
+                  >
+                    Mes de compra
+                  </button>
+                )}
+              </div>
+            </div>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              Permite registrar una compra u oportunidad de fin de mes imputándola al presupuesto del mes siguiente, evitando sobreinflar la bolsa actual.
+            </p>
           </div>
 
           {/* Toggle Factura Oficial Desgravable */}

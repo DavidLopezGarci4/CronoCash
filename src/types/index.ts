@@ -27,10 +27,22 @@ export interface Expense {
   receiptUri?: string;
   status: 'paid' | 'pending';
   recurringRuleId?: string;
+  effectiveMonth?: string; // Mes presupuestario de imputación a bolsa ('YYYY-MM'). Si no se define, computa en el mes de 'date'
   rawHash?: string;
   importBatchId?: string;
   createdAt: string;
   updatedAt?: string;
+}
+
+/**
+ * Obtiene el mes contable de imputación presupuestaria efectiva de un gasto ('YYYY-MM').
+ * Si tiene 'effectiveMonth' definido y válido, prevalece; de lo contrario toma el mes de 'date'.
+ */
+export function getExpenseEffectiveMonth(expense: { date?: string; effectiveMonth?: string }): string {
+  if (expense.effectiveMonth && /^\d{4}-\d{2}$/.test(expense.effectiveMonth)) {
+    return expense.effectiveMonth;
+  }
+  return (expense.date || '').substring(0, 7) || new Date().toISOString().substring(0, 7);
 }
 
 export interface SmartRule {

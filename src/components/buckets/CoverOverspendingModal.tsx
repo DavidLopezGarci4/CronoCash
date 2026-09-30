@@ -11,7 +11,7 @@ import {
   TrendingDown,
   Info,
 } from 'lucide-react';
-import { Bucket, Expense, Settings } from '../../types';
+import { Bucket, Expense, Settings, getExpenseEffectiveMonth } from '../../types';
 import { DBService } from '../../services/db';
 import { IncomeAllocationService } from '../../services/incomeAllocationService';
 
@@ -42,7 +42,7 @@ export const CoverOverspendingModal: React.FC<CoverOverspendingModalProps> = ({
 
   const targetMonthPrefix = selectedMonthPrefix || new Date().toISOString().substring(0, 7);
   const currentMonthExpenses = expenses.filter((e) =>
-    (e.date || '').startsWith(targetMonthPrefix)
+    getExpenseEffectiveMonth(e) === targetMonthPrefix
   );
 
   // Calcular gasto y balance por bolsa teniendo en cuenta reembolsos e inyecciones presupuestarias

@@ -51,7 +51,7 @@ import {
 import { format, addMonths, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { usePrivacy } from '../../context/PrivacyContext';
-import { Bucket, Expense, RecurringRule, Settings } from '../../types';
+import { Bucket, Expense, RecurringRule, Settings, getExpenseEffectiveMonth } from '../../types';
 import { DBService } from '../../services/db';
 import { HapticService } from '../../services/hapticService';
 import { useTouchSortable } from '../../hooks/useTouchSortable';
@@ -164,8 +164,8 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
     format(selectedDate, 'MMMM yyyy', { locale: es })
   );
 
-  const currentExpenses = expenses.filter((e) => (e.date || '').startsWith(selectedMonthPrefix));
-  const yearExpenses = expenses.filter((e) => (e.date || '').startsWith(selectedYearPrefix));
+  const currentExpenses = expenses.filter((e) => getExpenseEffectiveMonth(e) === selectedMonthPrefix);
+  const yearExpenses = expenses.filter((e) => getExpenseEffectiveMonth(e).startsWith(selectedYearPrefix));
   const activeExpenses = viewMode === 'annual' ? yearExpenses : currentExpenses;
 
   const handlePrevMonth = () => {

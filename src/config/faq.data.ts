@@ -93,6 +93,28 @@ export const FAQ_DATA: FAQSection[] = [
         tags: ['sinking fund', 'trasvase', 'remanente', 'seguros', 'acumulado', 'bolsas', 'rollover'],
         badge: 'Sinking Fund',
       },
+      {
+        id: 'imputacion-mes-siguiente',
+        question: '¿Puedo imputar un gasto al presupuesto del mes siguiente (Fecha de Compra vs Mes Efectivo)?',
+        bullets: [
+          'Fecha física vs Mes contable: Ahora puedes realizar una compra a finales de mes o aprovechar una oferta puntual e imputar su gasto al sobre presupuestario del mes siguiente.',
+          'Sin sobreinflar la bolsa actual: La compra queda registrada en el día real que se desembolsó en el calendario y extracto bancario, pero su importe computa y descuenta límite en la bolsa del mes siguiente (identificada con la insignia 🗓️ Compra DD/MM -> Imputado a Mes).',
+          'Selector rápido en 1 toque: En el modal de gasto o al importar desde el banco, dispones del botón "⏩ Mes +1" para diferir la imputación contable al instante sin cálculos manuales.',
+        ],
+        tags: ['imputación', 'mes siguiente', 'bolsas', 'fecha efectiva', 'adelanto', 'presupuesto'],
+        badge: 'Nuevo v1.25.0',
+      },
+      {
+        id: 'reembolsos-e-inyecciones-bolsas',
+        question: '¿Cómo funcionan los reembolsos e inyecciones directas en una bolsa?',
+        bullets: [
+          'Reembolsos y Devoluciones: Minoran directamente los gastos acumulados en la bolsa (netSpent = gastos - reembolsos), reflejando la realidad contable de Bizums o devoluciones sin inflar tus ingresos brutos.',
+          'Inyecciones extraordinarias: Incrementan temporalmente el límite asignado a la bolsa durante ese mes sin alterar el límite maestro ni el salario base configurado.',
+          'Desglose unificado de movimientos: Al pulsar sobre cualquier bolsa, puedes ver la lista cronológica completa de gastos y reembolsos con su neto exacto.',
+        ],
+        tags: ['reembolsos', 'inyecciones', 'bizum', 'bolsas', 'neto', 'devolución'],
+        badge: 'Contabilidad Neta',
+      },
     ],
   },
   {
@@ -236,6 +258,17 @@ export const FAQ_DATA: FAQSection[] = [
         ],
         tags: ['ordenación', 'recurrentes', 'manual', 'categoría', 'alfabético', 'importe', 'inminente', 'prioridad'],
         badge: 'Multicriterio',
+      },
+      {
+        id: 'doble-conformidad-conciliacion',
+        question: '¿Cómo conciliar o eliminar un gasto del extracto sin borrar la regla recurrente configurada?',
+        bullets: [
+          'Protección de recurrencias: Al importar un extracto bancario con un gasto que ya estaba previsto en tus reglas recurrentes (ej. hipoteca o fibra), puedes eliminar el apunte duplicado o conciliarlo con 1 solo toque.',
+          'Doble paso de conformidad: Para evitar eliminaciones involuntarias con un toque accidental, el sistema exige un doble paso de confirmación ("¿Estás seguro?" + botón de acción definitiva).',
+          'Regla intacta: Eliminar un gasto puntual o apunte bancario duplicado jamás elimina ni altera la regla recurrente periódica configurada.',
+        ],
+        tags: ['doble conformidad', 'conciliación', 'recurrentes', 'eliminar gasto', 'seguridad', 'protección'],
+        badge: 'Doble Conformidad',
       },
     ],
   },
