@@ -233,31 +233,31 @@ export const TipsView: React.FC<TipsViewProps> = ({
 
       {/* Banner Resumen y Escudo Activo */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-3.5 bg-white dark:bg-gradient-to-br dark:from-emerald-950/40 dark:to-slate-900/60 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl space-y-1 shadow-xs">
+        <div className="p-3.5 bg-white dark:bg-slate-900 bg-gradient-to-br from-emerald-50/70 to-white dark:from-emerald-950/50 dark:to-slate-900 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl space-y-1 shadow-xs">
           <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>Ahorro Estimado Anual</span>
           </div>
           <div className="text-lg font-mono font-black text-slate-900 dark:text-white">800€ - 2.500€</div>
-          <p className="text-[11px] text-slate-600 dark:text-slate-400">Renegociación de luz, telecos y corte de comisiones.</p>
+          <p className="text-[11px] text-slate-600 dark:text-slate-300">Renegociación de luz, telecos y corte de comisiones.</p>
         </div>
 
-        <div className="p-3.5 bg-white dark:bg-gradient-to-br dark:from-blue-950/40 dark:to-slate-900/60 border border-blue-200 dark:border-blue-500/30 rounded-2xl space-y-1 shadow-xs">
+        <div className="p-3.5 bg-white dark:bg-slate-900 bg-gradient-to-br from-blue-50/70 to-white dark:from-blue-950/50 dark:to-slate-900 border border-blue-200 dark:border-blue-500/30 rounded-2xl space-y-1 shadow-xs">
           <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400 flex items-center gap-1.5">
             <PiggyBank className="w-3.5 h-3.5" />
             <span>Ingresos Pasivos Legales</span>
           </div>
           <div className="text-lg font-mono font-black text-slate-900 dark:text-white">3% - 4% TAE</div>
-          <p className="text-[11px] text-slate-600 dark:text-slate-400">Cuentas remuneradas con FGD y fondos monetarios.</p>
+          <p className="text-[11px] text-slate-600 dark:text-slate-300">Cuentas remuneradas con FGD y fondos monetarios.</p>
         </div>
 
-        <div className="p-3.5 bg-white dark:bg-gradient-to-br dark:from-rose-950/40 dark:to-slate-900/60 border border-rose-200 dark:border-rose-500/30 rounded-2xl space-y-1 shadow-xs">
+        <div className="p-3.5 bg-white dark:bg-slate-900 bg-gradient-to-br from-rose-50/70 to-white dark:from-rose-950/50 dark:to-slate-900 border border-rose-200 dark:border-rose-500/30 rounded-2xl space-y-1 shadow-xs">
           <div className="text-[10px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
             <ShieldAlert className="w-3.5 h-3.5" />
             <span>Escudo Anti-Estafas</span>
           </div>
           <div className="text-lg font-mono font-black text-slate-900 dark:text-white">100% Protegido</div>
-          <p className="text-[11px] text-slate-600 dark:text-slate-400">Comprobación en CNMV y prevención de esquemas Ponzi.</p>
+          <p className="text-[11px] text-slate-600 dark:text-slate-300">Comprobación en CNMV y prevención de esquemas Ponzi.</p>
         </div>
       </div>
 
