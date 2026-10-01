@@ -139,6 +139,28 @@ export const FAQ_DATA: FAQSection[] = [
         tags: ['nómina', 'salario real', 'blindaje', 'ingreso extra', 'imputación inteligente', 'día 20', 'mes siguiente', 'dashboard'],
         badge: 'Nuevo v1.27.0',
       },
+      {
+        id: 'margen-libre-sin-asignar',
+        question: '¿Qué es el Margen Libre sin Asignar y cómo asignarlo a una bolsa o al Colchón de Ahorro?',
+        bullets: [
+          'Diferencial de Capacidad en tiempo real: Muestra los ingresos mensuales totales (nómina real blindada + ingresos extras) que aún no han sido repartidos entre tus bolsas de gasto.',
+          'Botón "+ Asignar a Bolsa": Si tienes margen libre, puedes transferirlo (o una porción usando atajos rápidos del 25%, 50%, 75% o 100%) a cualquier bolsa como ajuste puntual de ese mes (monthlyAdjustments), ampliando su techo sin alterar tus límites base maestros permanentes.',
+          'Cierre de Mes y Rollover automático: Si finaliza el mes y no asignaste ese margen libre a ninguna bolsa, el Rollover mensual lo transfiere automáticamente a tu Colchón de Ahorro e Imprevistos junto con los remanentes no gastados de las bolsas, asegurando que ningún céntimo quede olvidado.',
+        ],
+        tags: ['margen libre', 'sin asignar', 'capacidad', 'bolsas', 'ajuste puntual', 'rollover', 'colchón'],
+        badge: 'Nuevo v1.29.0',
+      },
+      {
+        id: 'reembolsos-dias-1-10',
+        question: '¿Puedo usar los ingresos cobrados en los primeros 10 días de mes para reembolsar excedentes del mes pasado?',
+        bullets: [
+          'Compensación de sobregiros del mes anterior: Si recibes un Bizum, cobro extra o devolución entre los días 1 y 10 de un mes, tanto el modal de Ingresos como el importador bancario detectan este periodo y te permiten elegir si imputarlo al mes en curso o al mes pasado (YYYY-MM-1).',
+          'Saneamiento contable inmediato: Al imputarlo al mes pasado, el importe actúa como reembolso neto directo de la bolsa seleccionada en dicho mes (netSpent = gastos - reembolsos), minorando el déficit o sobregiro acumulado de forma limpia.',
+          'Trazabilidad total: Los movimientos de la bolsa y el historial reflejan con claridad la etiqueta "💳 Cobro DD/MM ➔ Reembolsado a Mes Pasado", manteniendo total fidelidad de la fecha del cobro bancario real y de su imputación presupuestaria.',
+        ],
+        tags: ['reembolso', 'primeros 10 días', 'mes pasado', 'sobregiro', 'compensación', 'excedentes', 'bizum', 'devolución'],
+        badge: 'Nuevo v1.29.0',
+      },
     ],
   },
   {

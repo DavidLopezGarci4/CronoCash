@@ -1,4 +1,4 @@
-import { Bucket, Settings, getBucketMonthLimit } from '../types';
+import { Bucket, Settings, getBucketMonthLimit, getIncomeEffectiveMonth } from '../types';
 import { DBService } from './db';
 import { IncomeAllocationService } from './incomeAllocationService';
 
@@ -34,7 +34,7 @@ export class BudgetCapacityService {
         (inc) =>
           inc.isActive !== false &&
           inc.type === 'punctual' &&
-          (inc.date || '').startsWith(monthKey) &&
+          getIncomeEffectiveMonth(inc) === monthKey &&
           inc.allocationMode !== 'bucket_refund'
       )
       .reduce((sum, inc) => sum + (Number(inc.amount) || 0), 0);

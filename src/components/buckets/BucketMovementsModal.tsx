@@ -44,9 +44,11 @@ interface UnifiedMovement {
   title: string;
   amount: number;
   date: string; // YYYY-MM-DD
+  effectiveMonth?: string;
   notes?: string;
   categoryOrSupplier?: string;
   originalExpense?: Expense;
+  originalIncome?: ExtraIncome;
 }
 
 interface DuplicateCandidatePair {
@@ -135,9 +137,11 @@ export const BucketMovementsModal: React.FC<BucketMovementsModalProps> = ({
       title: inc.title,
       amount: inc.amount,
       date: (inc.date || '').split('T')[0],
+      effectiveMonth: inc.effectiveMonth,
       notes: inc.notes,
       categoryOrSupplier:
         inc.allocationMode === 'bucket_refund' ? 'Reembolso / Devolución' : 'Inyección de presupuesto',
+      originalIncome: inc,
     })),
   ];
 
@@ -508,6 +512,11 @@ export const BucketMovementsModal: React.FC<BucketMovementsModalProps> = ({
                         {isExpense && item.originalExpense?.effectiveMonth && item.originalExpense.effectiveMonth !== item.date.substring(0, 7) && (
                           <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 font-semibold border border-purple-200 dark:border-purple-500/30 shrink-0 max-w-full truncate">
                             🗓️ Compra {item.date.split('-').slice(1).reverse().join('/')} &rarr; Imputado a {monthLabel}
+                          </span>
+                        )}
+                        {isRefund && item.effectiveMonth && item.effectiveMonth !== item.date.substring(0, 7) && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 font-semibold border border-cyan-200 dark:border-cyan-500/30 shrink-0 max-w-full truncate">
+                            💳 Cobro {item.date.split('-').slice(1).reverse().join('/')} &rarr; Reembolsado a {monthLabel}
                           </span>
                         )}
                       </div>

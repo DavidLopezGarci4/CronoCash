@@ -60,6 +60,7 @@ import { CoverOverspendingModal } from './CoverOverspendingModal';
 import { BucketMovementsModal } from './BucketMovementsModal';
 import { BudgetCapacityService } from '../../services/budgetCapacityService';
 import { IncomeAllocationService } from '../../services/incomeAllocationService';
+import { AssignFreeMarginModal } from './AssignFreeMarginModal';
 
 interface BucketsViewProps {
   buckets: Bucket[];
@@ -111,6 +112,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const [rolloverModalOpen, setRolloverModalOpen] = useState(false);
   const [coverOverspendingOpen, setCoverOverspendingOpen] = useState(false);
   const [movementsBucket, setMovementsBucket] = useState<Bucket | null>(null);
+  const [assignMarginOpen, setAssignMarginOpen] = useState(false);
 
   // Ordenación de Bolsas
   const [sortMode, setSortMode] = useState<BucketSortMode>(() => {
@@ -379,6 +381,14 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
       const rem = effectiveLimit - spent;
       return rem > 0 ? sum + rem : sum;
     }, 0);
+
+  // Margen libre de ingresos sin asignar a bolsas en este mes
+  const unassignedFreeMargin = capacityMetrics.status === 'free' && capacityMetrics.difference > 0
+    ? Math.round(capacityMetrics.difference * 100) / 100
+    : 0;
+
+  // Total acumulado para rollover al colchón (remanentes no gastados + margen libre sin asignar)
+  const totalRolloverSurplus = Math.round((potentialSurplus + unassignedFreeMargin) * 100) / 100;
 
   // Detección de sobregiros para el Asistente Inteligente Cover Overspending
   const overspentBuckets = buckets.filter((b) => {
@@ -837,6 +847,18 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 ? '100% de ingresos asignados'
                 : 'Disponible para bolsas/ahorro'}
             </p>
+            {capacityMetrics.status === 'free' && capacityMetrics.difference > 0 && viewMode === 'month' && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setAssignMarginOpen(true);
+                }}
+                className="mt-2 w-full py-1 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer"
+              >
+                <span>+ Asignar a Bolsa</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -938,13 +960,13 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             )}
           </span>
 
-          {viewMode === 'month' && isCurrentMonth && potentialSurplus > 0 && (
+          {viewMode === 'month' && isCurrentMonth && totalRolloverSurplus > 0 && (
             <button
               onClick={() => setRolloverModalOpen(true)}
               className="px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-500/20 hover:bg-teal-100 dark:hover:bg-teal-500/30 text-teal-700 dark:text-teal-300 border border-teal-300 dark:border-teal-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
             >
               <TrendingUp className="w-3 h-3 text-teal-600 dark:text-teal-400" />
-              <span>Rollover Ahorro: +{isPrivate ? '••••' : potentialSurplus.toFixed(2)} {currency}</span>
+              <span>Rollover Ahorro: +{isPrivate ? '••••' : totalRolloverSurplus.toFixed(2)} {currency}</span>
             </button>
           )}
         </div>
@@ -1669,22 +1691,38 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             </div>
 
             <div className="mt-4 space-y-3">
-              <div className="p-4 rounded-2xl bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-500/30 text-center space-y-1">
+              <div className="p-4 rounded-2xl bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-500/30 text-center space-y-2">
                 <span className="text-xs text-teal-700 dark:text-teal-300 uppercase tracking-wider font-bold">
-                  Excedente No Gastado Identificado
+                  Superávit Total a Derivar al Colchón
                 </span>
                 <div className="text-3xl font-mono font-black text-emerald-600 dark:text-emerald-400">
-                  +{potentialSurplus.toFixed(2)} {currency}
+                  +{totalRolloverSurplus.toFixed(2)} {currency}
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Suma de presupuestos sobrantes de las bolsas activas
-                </p>
+                
+                {(potentialSurplus > 0 && unassignedFreeMargin > 0) ? (
+                  <div className="pt-1.5 flex flex-col gap-1 text-[11px] text-slate-600 dark:text-slate-300 border-t border-teal-200/60 dark:border-teal-800/40">
+                    <div className="flex justify-between items-center px-2">
+                      <span className="opacity-80">Bolsas no gastadas:</span>
+                      <span className="font-mono font-bold text-teal-600 dark:text-teal-400">+{potentialSurplus.toFixed(2)} {currency}</span>
+                    </div>
+                    <div className="flex justify-between items-center px-2">
+                      <span className="opacity-80">Margen libre sin asignar:</span>
+                      <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">+{unassignedFreeMargin.toFixed(2)} {currency}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    {unassignedFreeMargin > 0 && potentialSurplus === 0
+                      ? 'Margen libre mensual sin asignar a ninguna bolsa'
+                      : 'Suma de presupuestos sobrantes de las bolsas activas'}
+                  </p>
+                )}
               </div>
 
               <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                Al ejecutar el <strong>Rollover</strong>, este superávit se añade automáticamente a tu{' '}
+                Al ejecutar el <strong>Rollover</strong>, este superávit total (remanentes no gastados y margen libre no asignado) se añade automáticamente a tu{' '}
                 <strong>Colchón de Ahorro e Imprevistos</strong>, premiando tu disciplina financiera sin
-                perder el rastro del dinero.
+                perder el rastro de tus fondos.
               </p>
 
               <div className="pt-2 flex justify-end space-x-2">
@@ -1737,6 +1775,20 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           recurringRules={recurringRules}
           onDeleteExpense={onDeleteExpense}
           onReconcileExpenses={onReconcileExpenses}
+        />
+      )}
+
+      {/* MODAL 7: Asignar Margen Libre a Bolsa */}
+      {assignMarginOpen && (
+        <AssignFreeMarginModal
+          isOpen={assignMarginOpen}
+          onClose={() => setAssignMarginOpen(false)}
+          freeMargin={unassignedFreeMargin}
+          monthPrefix={selectedMonthPrefix}
+          monthName={format(selectedDate, 'MMMM yyyy', { locale: es })}
+          buckets={buckets}
+          currency={currency}
+          onMarginAssigned={onRefresh}
         />
       )}
     </div>

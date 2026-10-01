@@ -1,5 +1,6 @@
-import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule, SavingsGoal, GoalContribution, ExtraIncome, FunctionalCategory, DEFAULT_FUNCTIONAL_CATEGORIES, MonthlySalaryOverride } from '../types';
+import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule, SavingsGoal, GoalContribution, ExtraIncome, FunctionalCategory, DEFAULT_FUNCTIONAL_CATEGORIES, MonthlySalaryOverride, getBucketMonthLimit, getExpenseEffectiveMonth, getIncomeEffectiveMonth } from '../types';
 import { VaultCryptoService } from './vaultCryptoService';
+import { IncomeAllocationService } from './incomeAllocationService';
 
 const DB_NAME = 'GastosFacturacionDB';
 const DB_VERSION = 3;
@@ -1384,15 +1385,23 @@ export class DBService {
   }
 
   /**
-   * Rollover de Ahorro: Suma los remanentes no consumidos de las bolsas del mes y los transfiere al Colchón de Ahorro
+   * Rollover de Ahorro: Suma los remanentes no consumidos de las bolsas del mes y el margen libre
+   * sin asignar, transfiriéndolos automáticamente al Colchón de Ahorro
    */
   static async executeMonthlyRollover(
     currentMonthPrefix: string,
     targetBufferBucketId?: string
-  ): Promise<{ surplusTotal: number; transferredTo: string; bucketCount: number }> {
+  ): Promise<{
+    surplusTotal: number;
+    bucketsSurplus: number;
+    unassignedMargin: number;
+    transferredTo: string;
+    bucketCount: number;
+  }> {
     const buckets = await this.getBuckets();
     const expenses = await this.getExpenses();
-    const monthExpenses = expenses.filter((e) => (e.date || '').startsWith(currentMonthPrefix));
+    const settings = this.getSettings();
+    const monthExpenses = expenses.filter((e) => getExpenseEffectiveMonth(e) === currentMonthPrefix);
 
     // Buscar la bolsa amortiguadora de destino (o la primera con isBuffer === true)
     let bufferBucket = targetBufferBucketId
@@ -1407,45 +1416,115 @@ export class DBService {
       throw new Error('No existe una bolsa de Colchón o Ahorro para recibir el rollover');
     }
 
-    let surplusTotal = 0;
+    let bucketsSurplus = 0;
     let countedBuckets = 0;
 
-    // Calcular remanentes positivos de bolsas que no sean el colchón
+    // 1. Calcular remanentes positivos de bolsas que no sean el colchón
     for (const b of buckets) {
       if (b.id === bufferBucket.id) continue;
 
-      const spent = monthExpenses
+      const grossSpent = monthExpenses
         .filter((e) => e.bucketId === b.id)
-        .reduce((sum, e) => sum + e.amount, 0);
+        .reduce((sum, e) => sum + (e.amount || 0), 0);
+      const refunds = IncomeAllocationService.getBucketRefunds(b.id, currentMonthPrefix, settings);
+      const spent = Math.max(0, grossSpent - refunds);
+
+      const monthLimit = getBucketMonthLimit(b, currentMonthPrefix);
 
       // Si la bolsa tiene activo el trasvase de remanente propio (Sinking Fund / Hucha de Partida)
       if (b.rolloverSurplus) {
-        const effectiveLimit = b.budgetLimit + (b.accumulatedSurplus || 0);
+        const effectiveLimit = monthLimit + (b.accumulatedSurplus || 0);
         const ownRemaining = Math.max(0, effectiveLimit - spent);
         b.accumulatedSurplus = Math.round(ownRemaining * 100) / 100;
         await this.saveBucket(b);
         continue;
       }
 
-      const remaining = b.budgetLimit - spent;
+      const remaining = monthLimit - spent;
       if (remaining > 0) {
-        surplusTotal += remaining;
+        bucketsSurplus += remaining;
         countedBuckets++;
       }
     }
 
-    surplusTotal = Math.round(surplusTotal * 100) / 100;
+    bucketsSurplus = Math.round(bucketsSurplus * 100) / 100;
+
+    // 2. Calcular margen libre de ingresos no asignado a ninguna bolsa para ese mes
+    const effectiveSalary = this.getEffectiveMonthlySalary(settings, currentMonthPrefix);
+    const extraIncomes = settings.extraIncomes || [];
+    const punctualExtra = extraIncomes
+      .filter(
+        (inc) =>
+          inc.isActive !== false &&
+          inc.type === 'punctual' &&
+          getIncomeEffectiveMonth(inc) === currentMonthPrefix &&
+          inc.allocationMode !== 'bucket_refund'
+      )
+      .reduce((sum, inc) => sum + (Number(inc.amount) || 0), 0);
+    const recurringExtra = extraIncomes
+      .filter(
+        (inc) =>
+          inc.isActive !== false &&
+          inc.type === 'recurring' &&
+          inc.allocationMode !== 'bucket_refund' &&
+          IncomeAllocationService.isMatchingMonth(inc, currentMonthPrefix)
+      )
+      .reduce((sum, inc) => sum + (Number(inc.amount) || 0), 0);
+    const totalMonthIncome = effectiveSalary + punctualExtra + recurringExtra;
+
+    const totalBucketsAllocated = buckets.reduce((sum, b) => {
+      const injected = IncomeAllocationService.getBucketInjectedBudget(b.id, currentMonthPrefix, settings);
+      return sum + getBucketMonthLimit(b, currentMonthPrefix) + injected;
+    }, 0);
+
+    const unassignedMargin = Math.max(0, Math.round((totalMonthIncome - totalBucketsAllocated) * 100) / 100);
+    const surplusTotal = Math.round((bucketsSurplus + unassignedMargin) * 100) / 100;
 
     if (surplusTotal > 0) {
       bufferBucket.budgetLimit = Math.round((bufferBucket.budgetLimit + surplusTotal) * 100) / 100;
       await this.saveBucket(bufferBucket);
+
+      // Sincronizar de forma coherente con savingsBuffer en configuración
+      const updatedSettings: Settings = {
+        ...settings,
+        savingsBuffer: Math.round(((settings.savingsBuffer || 0) + surplusTotal) * 100) / 100,
+      };
+      await this.saveSettings(updatedSettings);
     }
 
     return {
       surplusTotal,
+      bucketsSurplus,
+      unassignedMargin,
       transferredTo: bufferBucket.name,
       bucketCount: countedBuckets,
     };
+  }
+
+  /**
+   * Asigna margen libre sin presupuestar a una bolsa específica para un mes puntual
+   */
+  static async assignFreeMarginToBucket(
+    bucketId: string,
+    amount: number,
+    monthPrefix: string
+  ): Promise<void> {
+    if (amount <= 0) return;
+    const buckets = await this.getBuckets();
+    const target = buckets.find((b) => b.id === bucketId);
+    if (!target) {
+      throw new Error(`Bolsa con ID ${bucketId} no encontrada`);
+    }
+
+    const currentAdjustment = target.monthlyAdjustments?.[monthPrefix] || 0;
+    const newAdjustment = Math.round((currentAdjustment + amount) * 100) / 100;
+
+    target.monthlyAdjustments = {
+      ...(target.monthlyAdjustments || {}),
+      [monthPrefix]: newAdjustment,
+    };
+
+    await this.saveBucket(target);
   }
 
 

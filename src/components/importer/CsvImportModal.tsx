@@ -166,7 +166,9 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
   };
 
   const handleUpdateIncomeTarget = (id: string, compositeValue: string) => {
-    const [mode, param] = compositeValue.split(':');
+    const parts = compositeValue.split(':');
+    const mode = parts[0];
+    const param = parts[1];
     setTransactions((prev) =>
       prev.map((t) => {
         if (t.id !== id) return t;
@@ -183,13 +185,24 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
             ...t,
             incomeCategoryMode: 'extra',
             targetBucketId: param,
+            targetExtraMonth: undefined,
             allocationMode: 'bucket_budget',
+          };
+        } else if (mode === 'bucket_refund_prev') {
+          const prevMonth = parts[2];
+          return {
+            ...t,
+            incomeCategoryMode: 'extra',
+            targetBucketId: param,
+            targetExtraMonth: prevMonth,
+            allocationMode: 'bucket_refund',
           };
         } else if (mode === 'bucket_refund') {
           return {
             ...t,
             incomeCategoryMode: 'extra',
             targetBucketId: param,
+            targetExtraMonth: undefined,
             allocationMode: 'bucket_refund',
           };
         } else {
@@ -268,26 +281,23 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
           salariesImportedCount++;
         } else {
           // Ingreso Extra Puntual
-          // Imputa al mes actual de la transacción por defecto, salvo que se haya reasignado
-          const targetExtraMonth =
-            tx.targetExtraMonth ||
-            (tx.parsedDate ? tx.parsedDate.substring(0, 7) : new Date().toISOString().substring(0, 7));
-          let finalDate = tx.parsedDate;
-          if (tx.targetExtraMonth && !tx.parsedDate.startsWith(tx.targetExtraMonth)) {
-            finalDate = `${tx.targetExtraMonth}-01`;
-          }
+          // Imputa al mes actual de la transacción por defecto, o al mes asignado (ej. mes pasado o siguiente)
+          const rawDateMonth = tx.parsedDate ? tx.parsedDate.substring(0, 7) : new Date().toISOString().substring(0, 7);
+          const effectiveMonth = tx.targetExtraMonth && tx.targetExtraMonth !== rawDateMonth ? tx.targetExtraMonth : undefined;
+
           incomesToSave.push({
             id: `inc_imp_${Date.now()}_${idx}`,
             title: tx.cleanConcept || 'Ingreso bancario',
             amount: tx.amount,
             type: 'punctual',
             category: 'other',
-            date: finalDate,
+            date: tx.parsedDate,
+            effectiveMonth,
             isActive: true,
             rawHash: tx.rawHash,
             targetBucketId: tx.targetBucketId,
             allocationMode: tx.allocationMode || (tx.targetBucketId ? 'bucket_budget' : 'general'),
-            notes: `Abono bancario importado (${fileName})${finalDate !== tx.parsedDate ? ` • Imputado a ${formatMonthName(targetExtraMonth)} (cobro ${tx.parsedDate})` : ''}`,
+            notes: `Abono bancario importado (${fileName})${effectiveMonth ? ` • Imputado/Reembolsado a ${formatMonthName(effectiveMonth)} (cobro ${tx.parsedDate})` : ''}`,
             createdAt: timestamp,
           });
         }
@@ -821,7 +831,9 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                                   ? (tx.targetSalaryMonth || targetSalaryMonth)
                                   : (tx.targetExtraMonth || currentMonth);
                             const selectVal = tx.targetBucketId
-                              ? `${tx.allocationMode || 'bucket_budget'}:${tx.targetBucketId}`
+                              ? (tx.allocationMode === 'bucket_refund' && tx.targetExtraMonth && tx.targetExtraMonth === prevMonth
+                                  ? `bucket_refund_prev:${tx.targetBucketId}:${prevMonth}`
+                                  : `${tx.allocationMode || 'bucket_budget'}:${tx.targetBucketId}`)
                               : `${activeMode}:${activeMonth}`;
 
                             return (
@@ -864,7 +876,16 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
 
                                 {buckets && buckets.length > 0 && (
                                   <>
-                                    <optgroup label="Reembolso de Gastos (Minora gasto)">
+                                    {day <= 10 && (
+                                      <optgroup label={`⏪ Reembolso Mes Pasado (${formatMonthName(prevMonth)})`}>
+                                        {buckets.map((b) => (
+                                          <option key={`refund_prev:${b.id}`} value={`bucket_refund_prev:${b.id}:${prevMonth}`}>
+                                            ⏪ Reembolso {b.name} (en {formatMonthName(prevMonth)})
+                                          </option>
+                                        ))}
+                                      </optgroup>
+                                    )}
+                                    <optgroup label={`Reembolso Mes Actual (${formatMonthName(currentMonth)})`}>
                                       {buckets.map((b) => (
                                         <option key={`refund:${b.id}`} value={`bucket_refund:${b.id}`}>
                                           Reembolso en {b.name} (-gasto)

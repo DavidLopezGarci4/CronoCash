@@ -91,6 +91,16 @@
 * **Botón rápido `⏩ Mes +1`:** Permite desplazar en 1 toque la fecha de cualquier ingreso puntual al primer día del mes siguiente para planificar compras o aportaciones futuras.
 * **Historial segregado y reversible:** En la pestaña Historial puedes visualizar todas tus nóminas mensuales blindadas con su origen (Manual o Extracto Bancario) y restablecerlas al salario base configurado cuando lo desees con 1 toque.
 
+### ¿Qué es el Margen Libre sin Asignar y cómo asignarlo a una bolsa o al Colchón de Ahorro?
+* **Diferencial de Capacidad en tiempo real:** Muestra los ingresos mensuales totales (nómina real blindada + ingresos extras) que aún no han sido repartidos entre tus bolsas de gasto.
+* **Botón `+ Asignar a Bolsa`:** Si tienes margen libre, puedes transferirlo (o una porción usando atajos rápidos del 25%, 50%, 75% o 100%) a cualquier bolsa como ajuste puntual de ese mes (`monthlyAdjustments`), ampliando su techo sin alterar tus límites base maestros permanentes.
+* **Cierre de Mes y Rollover automático:** Si finaliza el mes y no asignaste ese margen libre a ninguna bolsa, el Rollover mensual lo transfiere automáticamente a tu *Colchón de Ahorro e Imprevistos* junto con los remanentes no gastados de las bolsas, asegurando que ningún céntimo quede olvidado.
+
+### ¿Puedo usar los ingresos cobrados en los primeros 10 días de mes para reembolsar excedentes del mes pasado?
+* **Compensación de sobregiros del mes anterior:** Si recibes un Bizum, cobro extra o devolución entre los días 1 y 10 de un mes, tanto el modal de Ingresos como el importador bancario detectan este periodo y te permiten elegir si imputarlo al **mes en curso** o al **mes pasado** (`YYYY-MM-1`).
+* **Saneamiento contable inmediato:** Al imputarlo al mes pasado, el importe actúa como reembolso neto directo de la bolsa seleccionada en dicho mes (`netSpent = gastos - reembolsos`), minorando el déficit o sobregiro acumulado de forma limpia.
+* **Trazabilidad total:** Los movimientos de la bolsa y el historial reflejan con claridad la etiqueta `💳 Cobro DD/MM ➔ Reembolsado a Mes Pasado`, manteniendo total fidelidad de la fecha del cobro bancario real y de su imputación presupuestaria.
+
 ---
 
 ## 3. Gastos Recurrentes, Tareas Periódicas y Detector Vampiro

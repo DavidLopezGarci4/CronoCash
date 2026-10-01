@@ -97,6 +97,7 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
   const [targetBucketId, setTargetBucketId] = useState<string>('');
   const [allocationMode, setAllocationMode] = useState<IncomeAllocationMode>('bucket_budget');
   const [notes, setNotes] = useState('');
+  const [effectiveMonth, setEffectiveMonth] = useState<string>('');
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -122,6 +123,8 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
     setDate(newDate);
     if (entryMode === 'salary') {
       setSalaryMonth(resolveTargetSalaryMonth(newDate));
+    } else {
+      setEffectiveMonth(newDate.substring(0, 7));
     }
   };
 
@@ -136,6 +139,8 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
     setDate(newDateStr);
     if (entryMode === 'salary') {
       setSalaryMonth(resolveTargetSalaryMonth(newDateStr));
+    } else {
+      setEffectiveMonth(newDateStr.substring(0, 7));
     }
   };
 
@@ -175,6 +180,11 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
           return;
         }
 
+        const finalEffectiveMonth =
+          type === 'punctual' && effectiveMonth && effectiveMonth !== date.substring(0, 7)
+            ? effectiveMonth
+            : undefined;
+
         const newIncome: ExtraIncome = {
           id: `income_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
           title: title.trim(),
@@ -182,6 +192,7 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
           type,
           category,
           date: type === 'punctual' ? date : new Date().toISOString().split('T')[0],
+          effectiveMonth: finalEffectiveMonth,
           dayOfMonth: type === 'recurring' ? dayOfMonth : undefined,
           frequency: type === 'recurring' ? 'monthly' : undefined,
           isActive: true,
@@ -197,6 +208,7 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
         setAmount('');
         setTargetBucketId('');
         setAllocationMode('bucket_budget');
+        setEffectiveMonth('');
         setNotes('');
         setActiveTab('list');
       }
@@ -763,6 +775,72 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                             </p>
                           </button>
                         </div>
+
+                        {/* Imputación de Mes de Reembolso (especial para primeros 10 días de mes) */}
+                        {allocationMode === 'bucket_refund' && type === 'punctual' && (() => {
+                          const incomeDateDay = parseInt((date || '').split('-')[2] || '1', 10);
+                          const isFirst10Days = incomeDateDay >= 1 && incomeDateDay <= 10;
+                          const incomeCalMonth = (date || '').substring(0, 7);
+                          const [incYear, incMonthNum] = incomeCalMonth.split('-').map(Number);
+                          const incomePrevMonth = incMonthNum === 1 ? `${incYear - 1}-12` : `${incYear}-${String(incMonthNum - 1).padStart(2, '0')}`;
+                          const activeEffectiveMonth = effectiveMonth || incomeCalMonth;
+
+                          return (
+                            <div className="pt-2.5 border-t border-slate-200 dark:border-slate-800 space-y-2 animate-fadeIn">
+                              <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                <span className="flex items-center gap-1 min-w-0 flex-1 truncate">
+                                  <Calendar className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                                  <span className="truncate">Mes de Imputación del Reembolso</span>
+                                </span>
+                                {isFirst10Days && (
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-200 dark:border-cyan-500/30 shrink-0">
+                                    Día 1-10 de mes
+                                  </span>
+                                )}
+                              </div>
+
+                              {isFirst10Days && (
+                                <p className="text-[10px] text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/30 p-2 rounded-xl border border-cyan-200 dark:border-cyan-500/30 leading-snug">
+                                  💡 Recibido en los primeros 10 días: Puedes usar este reembolso para compensar excedentes o gastos de la bolsa del <strong>mes pasado ({formatMonthName(incomePrevMonth)})</strong> o del <strong>mes en curso ({formatMonthName(incomeCalMonth)})</strong>.
+                                </p>
+                              )}
+
+                              <div className="grid grid-cols-2 gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    HapticService.selection();
+                                    setEffectiveMonth(incomePrevMonth);
+                                  }}
+                                  className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                                    activeEffectiveMonth === incomePrevMonth
+                                      ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40 shadow-xs'
+                                      : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                                  }`}
+                                >
+                                  <div className="text-[11px] font-bold truncate">⏪ Mes Pasado</div>
+                                  <div className="text-[10px] opacity-80 truncate">{formatMonthName(incomePrevMonth)}</div>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    HapticService.selection();
+                                    setEffectiveMonth(incomeCalMonth);
+                                  }}
+                                  className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                                    activeEffectiveMonth === incomeCalMonth
+                                      ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40 shadow-xs'
+                                      : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                                  }`}
+                                >
+                                  <div className="text-[11px] font-bold truncate">Mes en Curso</div>
+                                  <div className="text-[10px] opacity-80 truncate">{formatMonthName(incomeCalMonth)}</div>
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>
@@ -957,6 +1035,11 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                                 {isCurrent && (
                                   <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 px-1 rounded">
                                     Activo este mes
+                                  </span>
+                                )}
+                                {inc.effectiveMonth && inc.effectiveMonth !== (inc.date || '').substring(0, 7) && (
+                                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/30 truncate shrink-0">
+                                    Imputado a {formatMonthName(inc.effectiveMonth)}
                                   </span>
                                 )}
                               </div>

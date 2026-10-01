@@ -4,17 +4,24 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.28.0 — Persistencia Total en Copias de Seguridad y Blindaje de Metas y Reglas ante Actualizaciones de la APK 🎯
-- [x] **Snapshot Integral en Copias de Seguridad:** Respaldo completo en Google Drive (`CronoCash_Actual.json` / `Previa.json`) y archivos locales JSON incluyendo `savingsGoals` y `smartRules`.
-- [x] **Blindaje Anti-Sobreescritura (Tombstone):** Persistencia indeleble (`hasEverSeeded` y `hasSeededDefaults`) que garantiza que metas o reglas eliminadas o modificadas no reaparezcan al abrir la app o actualizar la versión de la APK.
-- [x] **Comparador Lado a Lado Enriquecido:** Inspección previa con conteo de Metas y Reglas y visualización de deltas (`+` / `-`).
-- [x] **Botón de Plantilla Voluntaria:** Acceso directo en el panel de Metas para incorporar o reponer la plantilla recomendada de fondos sin pisar metas existentes.
-- [x] **Restauración Atómica sin Huérfanos:** Purga efectiva de colecciones vacías en IndexedDB y `localStorage`.
-- [x] **Sincronización SemVer Global:** `v1.28.0` (Build 12800) en manifiestos, FAQ, Acerca de y documentación.
+## Estado Actual: v1.29.0 — Margen Libre Asignable a Bolsas o Colchón de Ahorro y Reembolsos en Días 1-10 al Mes Pasado 🎯
+- [x] **Asignación de Margen Libre a Bolsas:** Nuevo botón `+ Asignar a Bolsa` en la tarjeta de capacidad presupuestaria mensual para transferir margen disponible sin asignar (con atajos del 25%, 50%, 75% o 100%) como ajuste puntual del mes sin tocar los límites base maestros.
+- [x] **Rollover Integral al Colchón Financiero:** Al cerrar el mes, el superávit absorbe y deriva tanto los presupuestos sobrantes de las bolsas como el margen libre no asignado a `settings.savingsBuffer` y a la bolsa del Colchón.
+- [x] **Reembolsos en Días 1 a 10 al Mes Pasado:** Detección de ingresos percibidos en los primeros 10 días de mes para compensar sobregiros de bolsas del mes anterior (`effectiveMonth: YYYY-MM-1`) o imputarlos al mes en curso.
+- [x] **Integración Dual en Ingreso Extra y Banco:** Opciones unificadas en el alta de ingresos manuales y en la importación de extractos bancarios CSV / Excel.
+- [x] **Desglose de Rollover y Trazabilidad:** Modal de Rollover con desglose de fuentes de ahorro y movimientos de bolsa con distintivo `💳 Cobro DD/MM ➔ Reembolsado a Mes Pasado`.
+- [x] **Sincronización SemVer Global:** `v1.29.0` (Build 12900) en manifiestos, FAQ, Acerca de y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.28.0 (Completado)
+- [x] Snapshot Integral en Copias de Seguridad: Respaldo completo en Google Drive (`CronoCash_Actual.json` / `Previa.json`) y archivos locales JSON incluyendo `savingsGoals` y `smartRules`.
+- [x] Blindaje Anti-Sobreescritura (Tombstone): Persistencia indeleble (`hasEverSeeded` y `hasSeededDefaults`) que garantiza que metas o reglas eliminadas o modificadas no reaparezcan al abrir la app o actualizar la versión de la APK.
+- [x] Comparador Lado a Lado Enriquecido: Inspección previa con conteo de Metas y Reglas y visualización de deltas (`+` / `-`).
+- [x] Botón de Plantilla Voluntaria: Acceso directo en el panel de Metas para incorporar o reponer la plantilla recomendada de fondos sin pisar metas existentes.
+- [x] Restauración Atómica sin Huérfanos: Purga efectiva de colecciones vacías en IndexedDB y `localStorage`.
 
 ### 📦 v1.27.0 (Completado)
 - [x] Nómina Real del Mes desde Dashboard: Selector en `+ Ingreso` para fijar la nómina como salario neto real blindado del mes (`monthlySalaries`) que sustituye el valor base sin duplicarse como ingreso extra.

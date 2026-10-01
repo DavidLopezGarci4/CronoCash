@@ -1,4 +1,4 @@
-import { ExtraIncome, Settings } from '../types';
+import { ExtraIncome, Settings, getIncomeEffectiveMonth } from '../types';
 
 /**
  * Servicio desacoplado para la gestión y cálculo de ingresos asignados a bolsas
@@ -11,9 +11,9 @@ export class IncomeAllocationService {
   static isMatchingMonth(income: ExtraIncome, monthKey: string): boolean {
     if (!income || income.isActive === false) return false;
 
-    // Ingresos puntuales: coinciden si la fecha pertenece al mes
+    // Ingresos puntuales: coinciden si el mes efectivo de imputación pertenece al mes
     if (income.type === 'punctual') {
-      return (income.date || '').startsWith(monthKey);
+      return getIncomeEffectiveMonth(income) === monthKey;
     }
 
     // Ingresos recurrentes

@@ -176,6 +176,18 @@ export interface ExtraIncome {
   createdAt: string;
   targetBucketId?: string;    // ID opcional de la bolsa a la que se destina
   allocationMode?: IncomeAllocationMode; // 'general' (liquidez general) | 'bucket_budget' (inyección a presupuesto de bolsa) | 'bucket_refund' (reembolso/minoración de gasto en bolsa)
+  effectiveMonth?: string;    // Mes contable de imputación ('YYYY-MM'). Prevalece sobre el mes de 'date' para reembolsos/inyecciones diferidos
+}
+
+/**
+ * Obtiene el mes contable de imputación efectiva de un ingreso ('YYYY-MM').
+ * Si tiene 'effectiveMonth' definido y válido, prevalece; de lo contrario toma el mes de 'date'.
+ */
+export function getIncomeEffectiveMonth(income: { date?: string; effectiveMonth?: string }): string {
+  if (income.effectiveMonth && /^\d{4}-\d{2}$/.test(income.effectiveMonth)) {
+    return income.effectiveMonth;
+  }
+  return (income.date || '').substring(0, 7) || new Date().toISOString().substring(0, 7);
 }
 
 export interface MonthlySalaryOverride {

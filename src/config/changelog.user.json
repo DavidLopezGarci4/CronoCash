@@ -1,6 +1,6 @@
 {
-  "currentVersion": "1.28.0",
-  "buildNumber": 12800,
+  "currentVersion": "1.29.0",
+  "buildNumber": 12900,
   "lastUpdated": "2026-10-01",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
@@ -9,11 +9,25 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.29.0",
+      "build": 12900,
+      "date": "01 Oct 2026",
+      "title": "Margen Libre Asignable a Bolsas o Colchón de Ahorro y Reembolsos en Días 1-10 al Mes Pasado",
+      "isCurrent": true,
+      "highlights": [
+        "💰 Asignación de Margen Libre a Bolsas: Nuevo botón '+ Asignar a Bolsa' en la tarjeta de capacidad presupuestaria para transferir margen disponible sin asignar (con atajos del 25%, 50%, 75% o 100%) a cualquier bolsa como ajuste puntual del mes sin tocar los límites base maestros.",
+        "🛡️ Rollover Integral al Colchón Financiero: Al cerrar el mes, el margen libre no asignado se transfiere automáticamente a tu Colchón de Ahorro e Imprevistos junto con los remanentes no gastados de las bolsas.",
+        "⏪ Reembolsos en Días 1 a 10 al Mes Pasado: Detección inteligente de ingresos o Bizums recibidos en los primeros 10 días de mes para compensar sobregiros y amortizar gastos de la bolsa en el mes anterior o imputarlos al mes en curso.",
+        "🏦 Integración Dual en Ingreso Extra y Banco: Soporte unificado tanto al registrar ingresos manuales desde Dashboard como al importar extractos bancarios CSV / Excel, con desglose de opciones específicas para mes pasado y mes actual.",
+        "📊 Desglose de Rollover y Trazabilidad de Movimientos: El modal de Rollover desglosa la suma de remanentes de bolsas y margen libre sin asignar, y el visor de movimientos exhibe la etiqueta 'Cobro DD/MM ➔ Reembolsado a Mes Pasado'."
+      ]
+    },
+    {
       "version": "1.28.0",
       "build": 12800,
       "date": "01 Oct 2026",
       "title": "Persistencia Total en Copias de Seguridad y Blindaje de Metas y Reglas ante Actualizaciones de la APK",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "🛡️ Snapshot Integral en Copias de Seguridad: Las copias en Google Drive (CronoCash_Actual.json / Previa.json) y los archivos JSON locales ahora empaquetan al 100% tus Metas de Ahorro (Sinking Funds) y Reglas Inteligentes (Smart Rules).",
         "🔒 Blindaje Anti-Sobreescritura (Tombstone): Al eliminar o personalizar tus metas y reglas, tus decisiones son inmutables; las actualizaciones de la APK respetan tus datos y no vuelven a inyectar las semillas de fábrica.",

@@ -3,6 +3,23 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.29.0] - 2026-10-01
+
+### Added
+- **Margen Libre sin Asignar y Transferencia a Bolsas (`AssignFreeMarginModal.tsx` & `BucketsView.tsx`):**
+  - **Asignación a Bolsas en 1 Toque:** Nuevo botón `+ Asignar a Bolsa` en la tarjeta de capacidad presupuestaria mensual que permite inyectar el margen no asignado (con atajos del 25%, 50%, 75% o 100%) a cualquier bolsa de gasto.
+  - **Aislamiento Puntual:** La inyección se computa como ajuste puntual del mes activo (`monthlyAdjustments[monthPrefix]`), sin contaminar los límites base maestros permanentes.
+  - **Método Atómico en `DBService`:** `assignFreeMarginToBucket(bucketId, amount, monthPrefix)` para consolidar el incremento puntual en la base de datos de forma transaccional.
+- **Rollover Integral al Colchón Financiero (`DBService.executeMonthlyRollover` & `BucketsView.tsx`):**
+  - **Preservación Total del Margen:** Al cerrar el mes, el superávit resultante no solo acumula los presupuestos no gastados de las bolsas (`potentialSurplus`), sino que absorbe de forma automática el margen libre no asignado (`unassignedMargin`).
+  - **Consolidación en el Colchón:** Ambos conceptos se derivan íntegramente a `settings.savingsBuffer` y a la bolsa del Colchón de Ahorro (`savingsBufferBucketId`), garantizando que ningún euro quede sin custodiar.
+  - **Desglose Transparente en el Modal:** Visualización clara de la suma total y de las subpartidas (*Bolsas no gastadas* vs *Margen libre sin asignar*).
+- **Reembolsos en Primeros 10 Días de Mes al Mes Pasado (`ExtraIncomeModal.tsx`, `CsvImportModal.tsx`, `BucketMovementsModal.tsx`):**
+  - **Detección Automática de Periodo (Días 1 a 10):** Tanto en el alta manual de ingresos como en el importador bancario CSV/Excel, los cobros percibidos en los primeros 10 días de mes activan la opción de compensar sobregiros de bolsas del **mes anterior** (`effectiveMonth: YYYY-MM-1`).
+  - **Compensación Neta Inmediata:** Al imputarse al mes anterior, `IncomeAllocationService.getBucketRefunds` minora los gastos registrados en dicho periodo (`netSpent = gastos - reembolsos`), amortizando directamente el déficit o sobregiro acumulado.
+  - **Trazabilidad de Movimientos:** Etiqueta distintiva `💳 Cobro DD/MM ➔ Reembolsado a Mes Pasado` en el desglose de movimientos de la bolsa y en el historial de ingresos extras.
+  - **Prevención de Desbordes Verticales:** Clases defensivas (`min-w-0 flex-1 truncate shrink-0`) para visualización fluida en cualquier pantalla móvil.
+
 ## [1.28.0] - 2026-10-01
 
 ### Added
