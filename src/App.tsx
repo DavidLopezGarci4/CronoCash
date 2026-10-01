@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthService } from './services/auth';
 import { DBService } from './services/db';
 import { NotificationService } from './services/notificationService';
-import { Expense, Bucket, RecurringRule, Settings, FinancialTip, SmartRule, SavingsGoal, ExtraIncome } from './types';
+import { Expense, Bucket, RecurringRule, Settings, FinancialTip, SmartRule, SavingsGoal, ExtraIncome, MonthlySalaryOverride } from './types';
 import { SafeToSpendService } from './services/safeToSpendService';
 import { AuthScreen } from './components/auth/AuthScreen';
 import { Header } from './components/layout/Header';
@@ -231,6 +231,35 @@ export const App: React.FC = () => {
 
   // CRUD Gastos
   const handleSaveExpense = async (expense: Expense) => {
+    // Si viene vinculado a una regla recurrente, marcar fecha completada y eliminar duplicado auto si existe
+    if (expense.recurringRuleId) {
+      const targetRule = recurringRules.find((r) => r.id === expense.recurringRuleId);
+      if (targetRule) {
+        const dateStr = (expense.date || '').split('T')[0];
+        const existingCompleted = new Set(targetRule.completedDates || []);
+        if (dateStr && !existingCompleted.has(dateStr)) {
+          existingCompleted.add(dateStr);
+          await DBService.saveRecurringRule({
+            ...targetRule,
+            completedDates: Array.from(existingCompleted),
+          });
+        }
+      }
+
+      // Eliminar posible gasto recurrente auto-generado duplicado en el mismo mes con mismo importe
+      const expenseMonth = (expense.date || '').substring(0, 7);
+      const duplicateAuto = expenses.find(
+        (e) =>
+          e.id !== expense.id &&
+          (e.recurringRuleId === expense.recurringRuleId || e.id.startsWith(`exp_rec_auto_${expense.recurringRuleId}`)) &&
+          (e.date || '').startsWith(expenseMonth) &&
+          Math.abs(e.amount - expense.amount) < 0.01
+      );
+      if (duplicateAuto) {
+        await DBService.deleteExpense(duplicateAuto.id);
+      }
+    }
+
     await DBService.saveExpense(expense);
     await loadData();
   };
@@ -652,6 +681,8 @@ export const App: React.FC = () => {
           buckets={buckets}
           currency={settings.currency || '€'}
           initialExpense={editingExpense}
+          smartRules={smartRules}
+          recurringRules={recurringRules}
         />
       )}
 
@@ -762,11 +793,22 @@ export const App: React.FC = () => {
           isOpen={incomeModalOpen}
           onClose={() => setIncomeModalOpen(false)}
           extraIncomes={settings.extraIncomes || []}
+          monthlySalaries={settings.monthlySalaries || {}}
           buckets={buckets}
           currency={settings.currency || '€'}
           monthlyBaseIncome={effectiveBaseSalary}
           onSaveIncome={handleSaveExtraIncome}
           onDeleteIncome={handleDeleteExtraIncome}
+          onSaveSalary={async (month: string, salary: MonthlySalaryOverride) => {
+            const updated = await DBService.setMonthlySalary(month, salary);
+            setSettings(updated);
+            await loadData();
+          }}
+          onDeleteSalary={async (month: string) => {
+            const updated = await DBService.removeMonthlySalary(month);
+            setSettings(updated);
+            await loadData();
+          }}
         />
       )}
 

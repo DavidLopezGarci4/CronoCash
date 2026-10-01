@@ -1,7 +1,7 @@
 # Preguntas Frecuentes y Guía de Herramientas (FAQ) — CronoCash 📖
 
 > Guía de referencia rápida, operativa y resolución de dudas sobre todas las funciones y herramientas activas en la versión oficial de **CronoCash** (Android APK y PWA).  
-> **Versión Actual:** `v1.26.0` (Build 12600) • **Actualizado:** 30 de Septiembre de 2026 • **Módulos Auditados:** 14/14 • **Guías Operativas:** 53
+> **Versión Actual:** `v1.27.0` (Build 12700) • **Actualizado:** 1 de Octubre de 2026 • **Módulos Auditados:** 14/14 • **Guías Operativas:** 55
 
 ---
 
@@ -85,6 +85,12 @@
 * **Insignia de Ajuste Puntual:** En las bolsas calibradas se muestra el distintivo `⚡ Puntual (+X € / -X €)` y el desglose de su límite base maestro original.
 * **Botón de Retrocesión individual y global:** Puedes pulsar el botón `↩ Revertir` en cualquier bolsa o el botón de la cabecera para deshacer todos los ajustes del mes y restablecer los límites originales en 1 toque.
 
+### ¿Cómo registro la Nómina Real del mes y en qué se diferencia de un Ingreso Extra?
+* **Nómina Real Blindada por Mes (`monthlySalaries`):** Ahora puedes registrar el cobro de tu nómina o sueldo real tanto desde el importador bancario como pulsando el botón `+ Ingreso` en el Dashboard. Al elegir **"🏦 Nómina del Mes"**, este importe sustituye de forma exacta al salario base estimado de ese mes específico en tus cálculos de liquidez y Safe-to-Spend, sin sumarse doble como si fuera un ingreso extra.
+* **Criterio Inteligente de Imputación (Día ≥ 20):** Si tu nómina se percibe a partir del día 20 del mes, CronoCash sugiere automáticamente imputarla al presupuesto del **mes siguiente** (ej. cobro el 28 de septiembre financia octubre). Si se cobra antes del día 20 (cobro a mes vencido a primeros de mes), se imputa al mes en curso. Puedes modificar el mes financiado en cualquier momento.
+* **Botón rápido `⏩ Mes +1`:** Permite desplazar en 1 toque la fecha de cualquier ingreso puntual al primer día del mes siguiente para planificar compras o aportaciones futuras.
+* **Historial segregado y reversible:** En la pestaña Historial puedes visualizar todas tus nóminas mensuales blindadas con su origen (Manual o Extracto Bancario) y restablecerlas al salario base configurado cuando lo desees con 1 toque.
+
 ---
 
 ## 3. Gastos Recurrentes, Tareas Periódicas y Detector Vampiro
@@ -158,6 +164,11 @@
 * **Protección de recurrencias:** Al importar un extracto bancario con un gasto que ya estaba previsto en tus reglas recurrentes (ej. hipoteca, seguro o fibra), puedes conciliarlo con 1 solo toque o eliminar el apunte duplicado si correspondiera.
 * **Doble paso de conformidad anti-errores:** Para impedir toques involuntarios con el pulgar en pantallas móviles, el sistema exige un doble paso de confirmación ("¿Estás seguro?" + botón de acción definitiva irreversible).
 * **Regla intacta:** Eliminar un gasto puntual o apunte bancario duplicado jamás elimina ni altera la regla recurrente periódica configurada ni su historial.
+
+### ¿Cómo interactúa "Nuevo Gasto" con las Reglas Inteligentes y los Cargos Recurrentes?
+* **Auto-categorización inteligente en tiempo real:** Al escribir el concepto del gasto en el modal de *Nuevo Gasto*, CronoCash evalúa al vuelo tus reglas inteligentes configuradas (`SmartRules`) para auto-asignar la bolsa de presupuesto correcta y marcar si es factura con IVA.
+* **Detección heurística de cargos recurrentes (±0.01 € y concepto):** Si el importe o nombre del gasto coincide con una regla recurrente programada activa (ej. recibo de luz, hipoteca o fibra), el formulario despliega una tarjeta de coincidencia destacada.
+* **Vinculación y prevención de duplicados:** Al marcar la casilla de vinculación, el gasto se asocia a la regla recurrente (`recurringRuleId`), se anota la fecha en su registro de pagos completados (`completedDates`) y se elimina automáticamente cualquier cargo recurrente pre-generado duplicado en el mismo mes, garantizando cuentas limpias sin desembolsos dobles.
 
 ---
 

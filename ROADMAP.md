@@ -4,17 +4,24 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.26.0 — Ajustes Puntuales de Bolsas por Mes y Retrocesión de Vasos Comunicantes 🎯
-- [x] **Ajustes Puntuales Acotados por Mes:** Reequilibrio de sobregiros y vasos comunicantes asignados exclusivamente al mes seleccionado (`YYYY-MM`).
-- [x] **Límites Maestros Base 100% Inmutables:** Los meses siguientes conservan sus techos base originales sin contaminación cruzada.
-- [x] **Insignias y Desglose Informativo:** Distintivo `⚡ Puntual (+X € / -X €)` y notas de límite base en tarjetas de bolsas.
-- [x] **Botones de Retrocesión en 1 Toque:** Reversión individual por bolsa y reversión global para todo el mes seleccionado.
-- [x] **Sincronización en Motor Presupuestario:** `BudgetCapacityService` calcula la capacidad real respetando ajustes puntuales.
-- [x] **Sincronización SemVer Global:** `v1.26.0` (Build 12600) en manifiestos, FAQ, Acerca de y documentación.
+## Estado Actual: v1.27.0 — Nómina Real Blindada del Mes y Detección Inteligente en Gastos e Ingresos Extras 🎯
+- [x] **Nómina Real del Mes desde Dashboard:** Selector en `+ Ingreso` para fijar la nómina como salario neto real blindado del mes (`monthlySalaries`) que sustituye el valor base sin duplicarse como ingreso extra.
+- [x] **Imputación Inteligente de Salario (Día ≥ 20):** Sugerencia automática del mes financiado (día ≥ 20 financia el mes siguiente; día < 20 financia el mes en curso) con acceso rápido `⏩ Mes +1`.
+- [x] **Auto-categorización en Nuevo Gasto:** Evaluación en tiempo real de `SmartRules` para auto-asignar la bolsa y clasificar facturas con IVA.
+- [x] **Detección y Vinculación de Cargos Recurrentes:** Detección de coincidencias por importe (±0.01 €) o título, marcando `completedDates` y purgando cobros duplicados automáticos.
+- [x] **Historial Reversible y Segregado:** Consulta y eliminación individual de nóminas blindadas para restablecer el salario base por defecto en 1 toque.
+- [x] **Sincronización SemVer Global:** `v1.27.0` (Build 12700) en manifiestos, FAQ, Acerca de y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.26.0 (Completado)
+- [x] Ajustes Puntuales Acotados por Mes: Reequilibrio de sobregiros y vasos comunicantes asignados exclusivamente al mes seleccionado (`YYYY-MM`).
+- [x] Límites Maestros Base 100% Inmutables: Los meses siguientes conservan sus techos base originales sin contaminación cruzada.
+- [x] Insignias y Desglose Informativo: Distintivo `⚡ Puntual (+X € / -X €)` y notas de límite base en tarjetas de bolsas.
+- [x] Botones de Retrocesión en 1 Toque: Reversión individual por bolsa y reversión global para todo el mes seleccionado.
+- [x] Sincronización en Motor Presupuestario: `BudgetCapacityService` calcula la capacidad real respetando ajustes puntuales.
 
 ### 📦 v1.25.0 (Completado)
 - [x] Imputación a Bolsa del Mes Siguiente (Dual Date): Fecha física de pago vs mes efectivo de imputación a bolsa.

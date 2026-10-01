@@ -18,6 +18,7 @@ import {
 import { Expense, Bucket, Settings, RecurringRule, SavingsGoal } from '../../types';
 import { SafeToSpendService } from '../../services/safeToSpendService';
 import { IncomeAllocationService } from '../../services/incomeAllocationService';
+import { DBService } from '../../services/db';
 import { SafeToSpendWidget } from './SafeToSpendWidget';
 import { usePrivacy } from '../../context/PrivacyContext';
 
@@ -57,10 +58,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const { isPrivate, mask } = usePrivacy();
   const [filterType, setFilterType] = useState<'all' | 'invoices' | 'pending'>('all');
   const currency = settings.currency || '€';
-  const monthlyIncome = settings.monthlyIncome || 0;
 
   // Filtrar gastos del mes actual (YYYY-MM)
   const currentMonthPrefix = new Date().toISOString().substring(0, 7);
+  const monthlyIncome = DBService.getEffectiveMonthlySalary(settings, currentMonthPrefix);
+  const isSalaryOverridden = Boolean(settings.monthlySalaries && settings.monthlySalaries[currentMonthPrefix]);
   const currentMonthExpenses = expenses.filter((e) =>
     (e.date || '').startsWith(currentMonthPrefix)
   );
@@ -204,10 +206,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
               '••••'
             ) : totalExtraIncomeMonth > 0 ? (
               <span>
-                De {effectiveMonthlyIncome.toFixed(0)} {currency} ({monthlyIncome.toFixed(0)} base + {totalExtraIncomeMonth.toFixed(0)} extras)
+                De {effectiveMonthlyIncome.toFixed(0)} {currency} ({monthlyIncome.toFixed(0)} {isSalaryOverridden ? 'nómina mes' : 'base'} + {totalExtraIncomeMonth.toFixed(0)} extras)
               </span>
             ) : (
-              <span>De {monthlyIncome.toFixed(0)} {currency} ingresos</span>
+              <span>De {monthlyIncome.toFixed(0)} {currency} {isSalaryOverridden ? 'nómina mes' : 'ingresos'}</span>
             )}
           </div>
         </div>

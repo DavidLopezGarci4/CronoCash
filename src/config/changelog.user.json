@@ -1,7 +1,7 @@
 {
-  "currentVersion": "1.26.0",
-  "buildNumber": 12600,
-  "lastUpdated": "2026-09-30",
+  "currentVersion": "1.27.0",
+  "buildNumber": 12700,
+  "lastUpdated": "2026-10-01",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
   "privacyBadge": "100% Local y Privado • Sin Rastreadores • Sin Servidores Externos",
@@ -9,11 +9,25 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.27.0",
+      "build": 12700,
+      "date": "01 Oct 2026",
+      "title": "Nómina Real Blindada por Mes y Detección Inteligente en Gastos e Ingresos Extras",
+      "isCurrent": true,
+      "highlights": [
+        "🏦 Nómina Real del Mes desde Dashboard: Nuevo selector en '+ Ingreso' para registrar la nómina percibida, fijándola como salario neto real blindado del mes que sustituye el estimado base sin duplicarse como extra.",
+        "💡 Imputación Salarial Inteligente (Día ≥ 20): Sugerencia automática del mes financiado (cobros desde el día 20 financian el presupuesto del mes siguiente; cobros a primeros financian el mes en curso) con selector de mes y acceso rápido ⏩ Mes +1.",
+        "✨ Auto-categorización en Nuevo Gasto: Al teclear el concepto de un gasto manual, CronoCash evalúa las reglas inteligentes (Smart Rules) para auto-asignar la bolsa adecuada y detectar facturas con IVA.",
+        "🔄 Detección y Vinculación de Cargos Recurrentes: Al dar de alta un gasto, detecta coincidencias de importe (±0.01 €) o título con pagos periódicos activos, permitiendo vincularlo para marcarlo completado y suprimir cobros automáticos duplicados.",
+        "📋 Historial Unificado y Reversible: Pestaña en Ingresos Extras para consultar nóminas blindadas con su origen (Manual o Extracto Bancario) y botón para restablecerlas al salario base cuando desees."
+      ]
+    },
+    {
       "version": "1.26.0",
       "build": 12600,
       "date": "30 Sep 2026",
       "title": "Ajustes Puntuales de Bolsas por Mes y Retrocesión de Vasos Comunicantes",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "⚡ Ajustes de Bolsas Estrictamente Puntuales por Mes: Al compensar gastos o reequilibrar sobregiros entre bolsas, las modificaciones se acotan única y exclusivamente al mes activo (YYYY-MM).",
         "🔒 Límites Maestros Base 100% Inmutables: Los meses siguientes (Mes +1, Mes +2...) conservan de forma automática sus límites base originales configurados sin sufrir alteraciones ni contaminación.",

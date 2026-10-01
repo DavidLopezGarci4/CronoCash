@@ -3,6 +3,20 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.27.0] - 2026-10-01
+
+### Added
+- **Nómina Real Blindada del Mes (`monthlySalaries`) y Conexión de Ingresos:**
+  - **Selector de Modo en `ExtraIncomeModal.tsx`:** Conmutador interactivo entre `[ 🏦 Nómina del Mes | 🎁 Ingreso Extra ]`.
+  - **Criterio Inteligente de Imputación (Día ≥ 20):** Al registrar la nómina percibida, el sistema sugiere financiar el mes siguiente (`YYYY-MM+1`) si el cobro ocurre a partir del día 20, o el mes en curso si se cobra antes.
+  - **Acceso Rápido `⏩ Mes +1`:** Permite desplazar la fecha de cobro al primer día del mes siguiente con 1 solo toque.
+  - **Cálculo en `Dashboard.tsx`:** Sustitución del salario base estático por `DBService.getEffectiveMonthlySalary(settings, currentMonthPrefix)`, garantizando que el saldo disponible, el Safe-to-Spend y el margen del mes reflejen la nómina real blindada sin duplicarse con ingresos extras.
+  - **Historial Unificado y Reversible:** Gestión de nóminas blindadas (`monthlySalaries`) con identificación de origen (Manual o Extracto Bancario) y botón de retrocesión individual para restaurar el salario base por defecto.
+- **Auto-categorización Inteligente y Detección de Recurrentes en `ExpenseModal.tsx`:**
+  - **Evaluación en Vivo de `SmartRules`:** Al escribir el concepto o título del gasto, la app evalúa en tiempo real las reglas inteligentes activas (`startsWith`, `contains`, `exact`, `regex`) para auto-asignar la bolsa de presupuesto adecuada y conmutar el estado de factura con IVA.
+  - **Detección Heurística de Coincidencias con `RecurringRules`:** Compara importe ($\pm 0.01$ €) y título/concepto con las reglas periódicas activas.
+  - **Vinculación y Supresión de Duplicados en `App.tsx`:** Checkbox para vincular el gasto a la regla recurrente (`recurringRuleId`), agregando la fecha del desembolso a `completedDates` y purgando automáticamente cualquier cargo automático pre-generado duplicado en el mismo mes.
+
 ## [1.26.0] - 2026-09-30
 
 ### Added
