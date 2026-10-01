@@ -4,17 +4,25 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.27.0 — Nómina Real Blindada del Mes y Detección Inteligente en Gastos e Ingresos Extras 🎯
-- [x] **Nómina Real del Mes desde Dashboard:** Selector en `+ Ingreso` para fijar la nómina como salario neto real blindado del mes (`monthlySalaries`) que sustituye el valor base sin duplicarse como ingreso extra.
-- [x] **Imputación Inteligente de Salario (Día ≥ 20):** Sugerencia automática del mes financiado (día ≥ 20 financia el mes siguiente; día < 20 financia el mes en curso) con acceso rápido `⏩ Mes +1`.
-- [x] **Auto-categorización en Nuevo Gasto:** Evaluación en tiempo real de `SmartRules` para auto-asignar la bolsa y clasificar facturas con IVA.
-- [x] **Detección y Vinculación de Cargos Recurrentes:** Detección de coincidencias por importe (±0.01 €) o título, marcando `completedDates` y purgando cobros duplicados automáticos.
-- [x] **Historial Reversible y Segregado:** Consulta y eliminación individual de nóminas blindadas para restablecer el salario base por defecto en 1 toque.
-- [x] **Sincronización SemVer Global:** `v1.27.0` (Build 12700) en manifiestos, FAQ, Acerca de y documentación.
+## Estado Actual: v1.28.0 — Persistencia Total en Copias de Seguridad y Blindaje de Metas y Reglas ante Actualizaciones de la APK 🎯
+- [x] **Snapshot Integral en Copias de Seguridad:** Respaldo completo en Google Drive (`CronoCash_Actual.json` / `Previa.json`) y archivos locales JSON incluyendo `savingsGoals` y `smartRules`.
+- [x] **Blindaje Anti-Sobreescritura (Tombstone):** Persistencia indeleble (`hasEverSeeded` y `hasSeededDefaults`) que garantiza que metas o reglas eliminadas o modificadas no reaparezcan al abrir la app o actualizar la versión de la APK.
+- [x] **Comparador Lado a Lado Enriquecido:** Inspección previa con conteo de Metas y Reglas y visualización de deltas (`+` / `-`).
+- [x] **Botón de Plantilla Voluntaria:** Acceso directo en el panel de Metas para incorporar o reponer la plantilla recomendada de fondos sin pisar metas existentes.
+- [x] **Restauración Atómica sin Huérfanos:** Purga efectiva de colecciones vacías en IndexedDB y `localStorage`.
+- [x] **Sincronización SemVer Global:** `v1.28.0` (Build 12800) en manifiestos, FAQ, Acerca de y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.27.0 (Completado)
+- [x] Nómina Real del Mes desde Dashboard: Selector en `+ Ingreso` para fijar la nómina como salario neto real blindado del mes (`monthlySalaries`) que sustituye el valor base sin duplicarse como ingreso extra.
+- [x] Imputación Inteligente de Salario (Día ≥ 20): Sugerencia automática del mes financiado (día ≥ 20 financia el mes siguiente; día < 20 financia el mes en curso) con acceso rápido `⏩ Mes +1`.
+- [x] Auto-categorización en Nuevo Gasto: Evaluación en tiempo real de `SmartRules` para auto-asignar la bolsa y clasificar facturas con IVA.
+- [x] Detección y Vinculación de Cargos Recurrentes: Detección de coincidencias por importe (±0.01 €) o título, marcando `completedDates` y purgando cobros duplicados automáticos.
+- [x] Historial Reversible y Segregado: Consulta y eliminación individual de nóminas blindadas para restablecer el salario base por defecto en 1 toque.
+- [x] Sincronización SemVer Global: `v1.27.0` (Build 12700) en manifiestos, FAQ, Acerca de y documentación.
 
 ### 📦 v1.26.0 (Completado)
 - [x] Ajustes Puntuales Acotados por Mes: Reequilibrio de sobregiros y vasos comunicantes asignados exclusivamente al mes seleccionado (`YYYY-MM`).

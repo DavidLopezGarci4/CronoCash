@@ -207,6 +207,7 @@ export interface Settings {
   notificationHour?: string;
   hapticsEnabled?: boolean;
   theme: 'system' | 'dark' | 'light';
+  hasSeededDefaults?: boolean;
   updatedAt: string;
 }
 

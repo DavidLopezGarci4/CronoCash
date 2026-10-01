@@ -3,6 +3,22 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.28.0] - 2026-10-01
+
+### Added
+- **Snapshot Integral en Copias de Seguridad (`GoogleDriveBackupService` & `BackupModal.tsx`):**
+  - **Inclusión de Metas de Ahorro y Reglas Inteligentes:** Las exportaciones a Google Drive (ranuras `CronoCash_Actual.json` y `CronoCash_Previa.json`) y las descargas JSON locales empaquetan íntegramente las colecciones `savingsGoals` y `smartRules`.
+  - **Métricas e Inspección Previa:** Extracción de `savingsGoalsCount` y `smartRulesCount` tanto en paquetes modernos v1.5.0 como en envelopes tradicionales v1.0.0.
+  - **Matriz Comparativa Lado a Lado (Side-by-Side):** Nuevas filas dedicadas a *"Metas / Fondos"* y *"Reglas Smart"* con cálculo dinámico de deltas (`+` / `-`) para verificar visualmente los cambios antes de ejecutar la restauración.
+- **Blindaje Anti-Sobreescritura e Inmutabilidad de Semillas (`DBService`):**
+  - **Tombstone de Inicialización (`hasEverSeeded` & `hasSeededDefaults`):** Protección de persistencia que impide la re-inyección automática de semillas de fábrica (`DEFAULT_SAVINGS_GOALS_SEEDS`, `INITIAL_SMART_RULES`, `DEFAULT_BUCKETS`) al abrir la base de datos o instalar nuevas versiones/actualizaciones de la APK.
+  - **Respeto a Eliminaciones Voluntarias:** `getSavingsGoals()` devuelve limpiamente `[]` cuando el usuario ha purgado sus metas, eliminando la resurrección no deseada de metas borradas.
+  - **Restauración Atómica (`clearAndRestore`):** Purga y sobreescritura atómica garantizada en IndexedDB y `localStorage` incluso con arrays vacíos (`length === 0`).
+  - **Importación Canónica (`importBackupEnvelope`):** Sincronización íntegra y delegación en `clearAndRestore` para evitar mezclar semillas previas con copias importadas.
+- **Carga Voluntaria de Plantilla Oficial de Metas (`GoalsModal.tsx`):**
+  - **Botón "Plantilla" en Toolbar y Estado Vacío:** Permite incorporar o restaurar las metas recomendadas (Fondo de Emergencia, Mantenimiento Hogar, Averías/Imprevistos) en cualquier momento mediante `DBService.applySavingsGoalsSeeds('append' | 'replace')` sin destruir las metas personalizadas existentes.
+  - **Defensiva Anti-Desborde:** Clases de contención elástica (`min-w-0 flex-1 truncate shrink-0`) para evitar solapamientos o desbordes verticales en pantallas estrechas.
+
 ## [1.27.0] - 2026-10-01
 
 ### Added

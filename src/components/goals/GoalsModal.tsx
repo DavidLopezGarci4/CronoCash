@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import { SavingsGoal, Bucket } from '../../types';
 import { SinkingFundsService } from '../../services/sinkingFundsService';
+import { DBService } from '../../services/db';
 import { GoalFormModal } from './GoalFormModal';
 import { SweepSurplusModal } from './SweepSurplusModal';
 import { QuickContributeModal } from './QuickContributeModal';
@@ -149,6 +150,21 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
     onRefresh();
   };
 
+  const handleLoadTemplate = async () => {
+    if (goals.length > 0) {
+      const confirmed = window.confirm(
+        '¿Deseas incorporar las metas de ahorro de la plantilla recomendada (Fondo de Emergencia, Mantenimiento Hogar, Averías/Imprevistos) manteniendo tus metas existentes?'
+      );
+      if (confirmed) {
+        await DBService.applySavingsGoalsSeeds('append');
+        onRefresh();
+      }
+    } else {
+      await DBService.applySavingsGoalsSeeds('replace');
+      onRefresh();
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
       <div className="relative w-full max-w-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col max-h-[92vh] text-slate-900 dark:text-white">
@@ -213,27 +229,36 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
           </div>
         </div>
 
-        {/* Barra de Acciones: Botón Nueva Meta y Botón Sweep & Fund */}
+        {/* Barra de Acciones: Botón Nueva Meta, Botón Sweep y Botón Plantilla */}
         <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 mb-2 border-b border-slate-100 dark:border-slate-800/60 flex-shrink-0">
-          <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
+          <div className="text-xs font-bold text-slate-700 dark:text-slate-300 min-w-0 truncate">
             Listado de Fondos Específicos
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <button
+              onClick={handleLoadTemplate}
+              className="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-500/15 dark:hover:bg-purple-500/25 border border-purple-300 dark:border-purple-500/30 text-purple-700 dark:text-purple-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+              title="Cargar o añadir las metas recomendadas de la plantilla oficial"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+              <span className="hidden sm:inline">Plantilla</span>
+            </button>
+
             <button
               onClick={() => setSweepOpen(true)}
-              className="px-2.5 py-1.5 rounded-xl bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-500/15 dark:hover:bg-cyan-500/25 border border-cyan-300 dark:border-cyan-500/30 text-cyan-700 dark:text-cyan-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+              className="px-2.5 py-1.5 rounded-xl bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-500/15 dark:hover:bg-cyan-500/25 border border-cyan-300 dark:border-cyan-500/30 text-cyan-700 dark:text-cyan-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
               title="Repartir superávit Safe-to-Spend entre metas de forma proporcional"
             >
-              <Coins className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+              <Coins className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
               <span className="hidden sm:inline">Repartir Excedente (Sweep)</span>
               <span className="sm:hidden">Sweep</span>
             </button>
 
             <button
               onClick={handleCreateNew}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 transition-all cursor-pointer shrink-0"
             >
-              <Plus className="w-4 h-4 stroke-[3]" />
+              <Plus className="w-4 h-4 stroke-[3] shrink-0" />
               <span>Nueva Meta</span>
             </button>
           </div>
@@ -242,12 +267,30 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
         {/* Lista Scrollable de Tarjetas de Metas */}
         <div className="flex-1 overflow-y-auto space-y-3 pr-1">
           {goals.length === 0 ? (
-            <div className="p-8 text-center rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
-              <Target className="w-10 h-10 mx-auto text-slate-400 dark:text-slate-600 mb-2" />
+            <div className="p-6 sm:p-8 text-center rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 space-y-3">
+              <Target className="w-10 h-10 mx-auto text-slate-400 dark:text-slate-600" />
               <p className="text-sm font-bold text-slate-800 dark:text-slate-300">No hay metas de ahorro configuradas</p>
-              <p className="text-xs text-slate-500 mt-1">
-                Crea tu primera meta (seguro del coche, IBI, vacaciones) y mantén tu ritmo de crucero financiero.
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
+                Tus metas eliminadas no volverán a aparecer solas. Puedes crear una nueva meta personalizada o cargar voluntariamente la plantilla recomendada cuando desees.
               </p>
+              <div className="pt-2 flex flex-wrap justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleLoadTemplate}
+                  className="px-3 py-2 rounded-xl bg-purple-100 hover:bg-purple-200 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 text-purple-700 dark:text-purple-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Cargar Plantilla Recomendada</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCreateNew}
+                  className="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>Nueva Meta</span>
+                </button>
+              </div>
             </div>
           ) : (
             goals.map((goal) => {

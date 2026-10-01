@@ -567,27 +567,35 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                       </div>
 
                       <div className="space-y-2 text-[11px]">
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-slate-400">Gastos:</span>
-                          <span className="font-mono font-bold text-slate-900 dark:text-white">{currentStats.expensesCount}</span>
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Gastos:</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white shrink-0 ml-1">{currentStats.expensesCount}</span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-slate-400">Bolsas:</span>
-                          <span className="font-mono font-bold text-slate-900 dark:text-white">{currentStats.bucketsCount}</span>
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Bolsas:</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white shrink-0 ml-1">{currentStats.bucketsCount}</span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-slate-400">Recurrentes:</span>
-                          <span className="font-mono font-bold text-slate-900 dark:text-white">{currentStats.recurringRulesCount}</span>
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Metas / Fondos:</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white shrink-0 ml-1">{currentStats.savingsGoalsCount ?? 0}</span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-slate-400">Total acumulado:</span>
-                          <span className="font-mono font-bold text-slate-700 dark:text-slate-200">
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Recurrentes:</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white shrink-0 ml-1">{currentStats.recurringRulesCount}</span>
+                        </div>
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Reglas Smart:</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white shrink-0 ml-1">{currentStats.smartRulesCount ?? 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Total acumulado:</span>
+                          <span className="font-mono font-bold text-slate-700 dark:text-slate-200 shrink-0 ml-1">
                             {currentStats.totalHistoricalSpent.toFixed(2)} {currency}
                           </span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-slate-400">Último gasto:</span>
-                          <span className="font-mono text-slate-700 dark:text-slate-300 text-[10px]">
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Último gasto:</span>
+                          <span className="font-mono text-slate-700 dark:text-slate-300 text-[10px] truncate shrink-0 ml-1">
                             {currentStats.latestExpenseRaw || 'Ninguno'}
                           </span>
                         </div>
@@ -601,15 +609,15 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                           Copia a Restaurar
                         </span>
                         <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1 mt-0.5">
-                          <Cloud className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                          <Cloud className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                           <span className="truncate">{inspectedBackup.inspection.fileNameSuggested}</span>
                         </div>
                       </div>
 
                       <div className="space-y-2 text-[11px]">
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-slate-400">Gastos:</span>
-                          <div className="flex items-center gap-1.5 font-mono font-bold">
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Gastos:</span>
+                          <div className="flex items-center gap-1.5 font-mono font-bold shrink-0 ml-1">
                             <span className="text-slate-900 dark:text-white">{inspectedBackup.inspection.expensesCount}</span>
                             {inspectedBackup.inspection.expensesCount !== currentStats.expensesCount && (
                               <span
@@ -626,30 +634,72 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-slate-400">Bolsas:</span>
-                          <span className="font-mono font-bold text-slate-900 dark:text-white">
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Bolsas:</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white shrink-0 ml-1">
                             {inspectedBackup.inspection.bucketsCount}
                           </span>
                         </div>
 
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-slate-400">Recurrentes:</span>
-                          <span className="font-mono font-bold text-slate-900 dark:text-white">
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Metas / Fondos:</span>
+                          <div className="flex items-center gap-1.5 font-mono font-bold shrink-0 ml-1">
+                            <span className="text-slate-900 dark:text-white">
+                              {inspectedBackup.inspection.savingsGoalsCount ?? 0}
+                            </span>
+                            {(inspectedBackup.inspection.savingsGoalsCount ?? 0) !== (currentStats.savingsGoalsCount ?? 0) && (
+                              <span
+                                className={`text-[10px] px-1 rounded ${
+                                  (inspectedBackup.inspection.savingsGoalsCount ?? 0) > (currentStats.savingsGoalsCount ?? 0)
+                                    ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400'
+                                    : 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400'
+                                }`}
+                              >
+                                {(inspectedBackup.inspection.savingsGoalsCount ?? 0) > (currentStats.savingsGoalsCount ?? 0) ? '+' : ''}
+                                {(inspectedBackup.inspection.savingsGoalsCount ?? 0) - (currentStats.savingsGoalsCount ?? 0)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Recurrentes:</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white shrink-0 ml-1">
                             {inspectedBackup.inspection.recurringRulesCount}
                           </span>
                         </div>
 
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-slate-400">Total acumulado:</span>
-                          <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Reglas Smart:</span>
+                          <div className="flex items-center gap-1.5 font-mono font-bold shrink-0 ml-1">
+                            <span className="text-slate-900 dark:text-white">
+                              {inspectedBackup.inspection.smartRulesCount ?? 0}
+                            </span>
+                            {(inspectedBackup.inspection.smartRulesCount ?? 0) !== (currentStats.smartRulesCount ?? 0) && (
+                              <span
+                                className={`text-[10px] px-1 rounded ${
+                                  (inspectedBackup.inspection.smartRulesCount ?? 0) > (currentStats.smartRulesCount ?? 0)
+                                    ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400'
+                                    : 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400'
+                                }`}
+                              >
+                                {(inspectedBackup.inspection.smartRulesCount ?? 0) > (currentStats.smartRulesCount ?? 0) ? '+' : ''}
+                                {(inspectedBackup.inspection.smartRulesCount ?? 0) - (currentStats.smartRulesCount ?? 0)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Total acumulado:</span>
+                          <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0 ml-1">
                             {inspectedBackup.inspection.totalHistoricalSpent.toFixed(2)} {currency}
                           </span>
                         </div>
 
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-slate-400">Último gasto:</span>
-                          <span className="font-mono text-emerald-700 dark:text-emerald-300 text-[10px]">
+                        <div className="flex justify-between items-center min-w-0">
+                          <span className="text-slate-500 dark:text-slate-400 truncate">Último gasto:</span>
+                          <span className="font-mono text-emerald-700 dark:text-emerald-300 text-[10px] truncate shrink-0 ml-1">
                             {inspectedBackup.inspection.latestExpenseRaw || 'Ninguno'}
                           </span>
                         </div>

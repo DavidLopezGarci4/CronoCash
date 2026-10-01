@@ -2,7 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { DBService } from './db';
-import { Expense, Bucket, RecurringRule, Settings, FinancialTip } from '../types';
+import { Expense, Bucket, RecurringRule, Settings, FinancialTip, SmartRule, SavingsGoal } from '../types';
 
 export const DRIVE_SLOT_ACTUAL = 'CronoCash_Actual.json';
 export const DRIVE_SLOT_PREVIA = 'CronoCash_Previa.json';
@@ -21,6 +21,8 @@ export interface BackupPackage {
     bucketsCount: number;
     recurringRulesCount: number;
     tipsCount: number;
+    savingsGoalsCount?: number;
+    smartRulesCount?: number;
     totalHistoricalSpent: number;
     latestExpenseDate: string;
     latestExpenseRaw: string | null;
@@ -33,6 +35,8 @@ export interface BackupPackage {
     recurringRules: RecurringRule[];
     settings?: Settings;
     tips?: FinancialTip[];
+    smartRules?: SmartRule[];
+    savingsGoals?: SavingsGoal[];
     [key: string]: any;
   };
 }
@@ -46,6 +50,8 @@ export interface BackupInspectionResult {
   bucketsCount: number;
   recurringRulesCount: number;
   tipsCount: number;
+  savingsGoalsCount?: number;
+  smartRulesCount?: number;
   totalHistoricalSpent: number;
   latestExpenseDate: string;
   latestExpenseRaw: string | null;
@@ -60,6 +66,8 @@ export interface DatabaseCurrentStats {
   bucketsCount: number;
   recurringRulesCount: number;
   tipsCount: number;
+  savingsGoalsCount?: number;
+  smartRulesCount?: number;
   totalHistoricalSpent: number;
   latestExpenseDate: string;
   latestExpenseRaw: string | null;
@@ -128,11 +136,13 @@ export class GoogleDriveBackupService {
    * Obtiene las métricas actuales del teléfono para la comparativa previa a restaurar
    */
   static async getCurrentStats(): Promise<DatabaseCurrentStats> {
-    const [expenses, buckets, recurringRules, tips] = await Promise.all([
+    const [expenses, buckets, recurringRules, tips, savingsGoals, smartRules] = await Promise.all([
       DBService.getExpenses(),
       DBService.getBuckets(),
       DBService.getRecurringRules(),
       DBService.getTips(),
+      DBService.getSavingsGoals(),
+      DBService.getSmartRules(),
     ]);
 
     const latest = this.extractLatestExpense(expenses);
@@ -146,6 +156,8 @@ export class GoogleDriveBackupService {
       bucketsCount: buckets.length,
       recurringRulesCount: recurringRules.length,
       tipsCount: tips.length,
+      savingsGoalsCount: savingsGoals.length,
+      smartRulesCount: smartRules.length,
       totalHistoricalSpent,
       latestExpenseDate: latest.formattedMadrid,
       latestExpenseRaw: latest.raw,
@@ -157,11 +169,13 @@ export class GoogleDriveBackupService {
    * Genera el paquete estructurado y validado con 2 ranuras canónicas para Google Drive
    */
   static async createBackupPayload(slot: 'actual' | 'previa' = 'actual'): Promise<BackupPackage> {
-    const [expenses, buckets, recurringRules, tips] = await Promise.all([
+    const [expenses, buckets, recurringRules, tips, savingsGoals, smartRules] = await Promise.all([
       DBService.getExpenses(),
       DBService.getBuckets(),
       DBService.getRecurringRules(),
       DBService.getTips(),
+      DBService.getSavingsGoals(),
+      DBService.getSmartRules(),
     ]);
 
     const settings = DBService.getSettings();
@@ -178,6 +192,8 @@ export class GoogleDriveBackupService {
       recurringRules,
       settings,
       tips,
+      savingsGoals,
+      smartRules,
     };
 
     const checksum = this.generateChecksum(JSON.stringify(dataBlock));
@@ -195,6 +211,8 @@ export class GoogleDriveBackupService {
         bucketsCount: buckets.length,
         recurringRulesCount: recurringRules.length,
         tipsCount: tips.length,
+        savingsGoalsCount: savingsGoals.length,
+        smartRulesCount: smartRules.length,
         totalHistoricalSpent,
         latestExpenseDate: latest.formattedMadrid,
         latestExpenseRaw: latest.raw,
@@ -301,6 +319,8 @@ export class GoogleDriveBackupService {
       bucketsCount: 0,
       recurringRulesCount: 0,
       tipsCount: 0,
+      savingsGoalsCount: 0,
+      smartRulesCount: 0,
       totalHistoricalSpent: 0,
       latestExpenseDate: 'Desconocida',
       latestExpenseRaw: null,
@@ -322,6 +342,8 @@ export class GoogleDriveBackupService {
         const buckets: Bucket[] = Array.isArray(parsed.data.buckets) ? parsed.data.buckets : [];
         const recurringRules: RecurringRule[] = Array.isArray(parsed.data.recurringRules) ? parsed.data.recurringRules : [];
         const tips: FinancialTip[] = Array.isArray(parsed.data.tips) ? parsed.data.tips : [];
+        const savingsGoals: SavingsGoal[] = Array.isArray(parsed.data.savingsGoals) ? parsed.data.savingsGoals : [];
+        const smartRules: SmartRule[] = Array.isArray(parsed.data.smartRules) ? parsed.data.smartRules : [];
 
         const latest = this.extractLatestExpense(expenses);
         const totalHistoricalSpent = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
@@ -336,6 +358,8 @@ export class GoogleDriveBackupService {
           bucketsCount: buckets.length,
           recurringRulesCount: recurringRules.length,
           tipsCount: tips.length,
+          savingsGoalsCount: savingsGoals.length,
+          smartRulesCount: smartRules.length,
           totalHistoricalSpent,
           latestExpenseDate: latest.formattedMadrid,
           latestExpenseRaw: latest.raw,
@@ -352,6 +376,8 @@ export class GoogleDriveBackupService {
         const buckets: Bucket[] = Array.isArray(parsed.buckets) ? parsed.buckets : [];
         const recurringRules: RecurringRule[] = Array.isArray(parsed.recurringRules) ? parsed.recurringRules : [];
         const tips: FinancialTip[] = Array.isArray(parsed.tips) ? parsed.tips : [];
+        const savingsGoals: SavingsGoal[] = Array.isArray(parsed.savingsGoals) ? parsed.savingsGoals : [];
+        const smartRules: SmartRule[] = Array.isArray(parsed.smartRules) ? parsed.smartRules : [];
 
         const latest = this.extractLatestExpense(expenses);
         const totalHistoricalSpent = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
@@ -365,6 +391,8 @@ export class GoogleDriveBackupService {
           bucketsCount: buckets.length,
           recurringRulesCount: recurringRules.length,
           tipsCount: tips.length,
+          savingsGoalsCount: savingsGoals.length,
+          smartRulesCount: smartRules.length,
           totalHistoricalSpent,
           latestExpenseDate: latest.formattedMadrid,
           latestExpenseRaw: latest.raw,
@@ -400,6 +428,8 @@ export class GoogleDriveBackupService {
       const recurringRules: RecurringRule[] = Array.isArray(rawData.recurringRules) ? rawData.recurringRules : [];
       const settings: Settings | undefined = rawData.settings;
       const tips: FinancialTip[] = Array.isArray(rawData.tips) ? rawData.tips : [];
+      const savingsGoals: SavingsGoal[] = Array.isArray(rawData.savingsGoals) ? rawData.savingsGoals : [];
+      const smartRules: SmartRule[] = Array.isArray(rawData.smartRules) ? rawData.smartRules : [];
 
       if (mode === 'overwrite') {
         await DBService.clearAndRestore({
@@ -408,6 +438,8 @@ export class GoogleDriveBackupService {
           recurringRules,
           settings,
           tips,
+          savingsGoals,
+          smartRules,
         });
       } else {
         await DBService.mergeAndRestore({
@@ -416,12 +448,14 @@ export class GoogleDriveBackupService {
           recurringRules,
           settings,
           tips,
+          savingsGoals,
+          smartRules,
         });
       }
 
       return {
         success: true,
-        message: `Restauración completada con éxito: ${expenses.length} gastos, ${buckets.length} bolsas y ${recurringRules.length} reglas recurrentes cargadas.`,
+        message: `Restauración completada con éxito: ${expenses.length} gastos, ${buckets.length} bolsas, ${savingsGoals.length} metas y ${recurringRules.length} reglas recurrentes cargadas.`,
       };
     } catch (e: any) {
       return {

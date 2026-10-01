@@ -213,9 +213,15 @@
 
 ### ¿Cómo me protege el Comparador Lado a Lado (Side-by-Side)?
 * **Inspección de integridad previa:** Al seleccionar un archivo `.json`, se valida su estructura y checksum determinista.
-* **Matriz comparativa:** Muestra en columnas paralelas los datos del teléfono frente a los de la copia (número de gastos, bolsas, reglas, total gastado y fechas) destacando los deltas (+/-).
+* **Matriz comparativa:** Muestra en columnas paralelas los datos del teléfono frente a los de la copia (número de gastos, bolsas, metas, reglas inteligentes, recurrentes, total gastado y fechas) destacando los deltas (+/-).
 * **Modos de restauración:** Permite elegir entre *Sobrescribir Completo* (reemplazo íntegro atómico) o *Fusionar Registros*.
 * **Confirmación obligatoria:** Requiere marcar una casilla de verificación antes de tocar la base de datos para impedir pérdidas involuntarias.
+
+### ¿Se respaldan mis Metas de Ahorro y Reglas Inteligentes en las Copias de Seguridad?
+* **Snapshot Integral 100%:** Tanto la ranura en Google Drive (`CronoCash_Actual.json` / `Previa.json`) como las descargas JSON locales empaquetan íntegramente tus Metas & Sinking Funds y tus Reglas Inteligentes de categorización.
+* **Blindaje contra reaparición involuntaria (Tombstone):** Si decides eliminar o modificar tus fondos de ahorro o reglas, tus decisiones son definitivas. Al instalar una nueva versión de la APK o actualizar la app, el sistema no volverá a regenerar ni forzar las semillas de fábrica.
+* **Comparador de restauración enriquecido:** La comparativa lado a lado visualiza el total de metas y reglas de tu teléfono versus la copia para una verificación total.
+* **Carga voluntaria de Plantilla Oficial:** En caso de desear restaurar las metas oficiales recomendadas (Fondo de Emergencia, Mantenimiento Hogar, Averías/Imprevistos), dispones de un botón directo "Plantilla" en el panel de Metas para incorporarlas en 1 toque.
 
 ---
 

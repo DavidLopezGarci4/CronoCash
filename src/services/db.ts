@@ -135,6 +135,7 @@ export const DEFAULT_SETTINGS: Settings = {
   notificationsEnabled: true,
   hapticsEnabled: true,
   theme: 'dark',
+  hasSeededDefaults: false,
   updatedAt: new Date().toISOString(),
 };
 
@@ -689,14 +690,26 @@ export class DBService {
     return this.dbPromise;
   }
 
+  static hasEverSeeded(): boolean {
+    if (this.cachedSettings && this.cachedSettings.hasSeededDefaults) return true;
+    if (typeof localStorage !== 'undefined') {
+      if (localStorage.getItem('cronocash_has_seeded_defaults') === 'true') return true;
+      const localSettings = this.getLocalStorageItem<Settings | null>('gastos_settings', null);
+      if (localSettings && localSettings.hasSeededDefaults) return true;
+    }
+    return false;
+  }
+
   private static async seedDefaultsIfEmpty(db: IDBDatabase): Promise<void> {
     try {
+      const alreadySeeded = this.hasEverSeeded();
+
       // 1. Buckets
       const bucketTx = db.transaction(STORES.BUCKETS, 'readonly');
       const bucketStore = bucketTx.objectStore(STORES.BUCKETS);
       const countReq = bucketStore.count();
       countReq.onsuccess = async () => {
-        if (countReq.result === 0) {
+        if (countReq.result === 0 && !alreadySeeded) {
           const writeTx = db.transaction(STORES.BUCKETS, 'readwrite');
           const writeStore = writeTx.objectStore(STORES.BUCKETS);
           for (const b of DEFAULT_BUCKETS) {
@@ -744,7 +757,7 @@ export class DBService {
       const rulesStore = rulesTx.objectStore(STORES.SMART_RULES);
       const rulesCount = rulesStore.count();
       rulesCount.onsuccess = () => {
-        if (rulesCount.result === 0) {
+        if (rulesCount.result === 0 && !alreadySeeded) {
           const writeTx = db.transaction(STORES.SMART_RULES, 'readwrite');
           const writeStore = writeTx.objectStore(STORES.SMART_RULES);
           for (const r of INITIAL_SMART_RULES) {
@@ -759,7 +772,7 @@ export class DBService {
         const goalsStore = goalsTx.objectStore(STORES.SAVINGS_GOALS);
         const goalsCount = goalsStore.count();
         goalsCount.onsuccess = () => {
-          if (goalsCount.result === 0) {
+          if (goalsCount.result === 0 && !alreadySeeded) {
             const writeTx = db.transaction(STORES.SAVINGS_GOALS, 'readwrite');
             const writeStore = writeTx.objectStore(STORES.SAVINGS_GOALS);
             for (const g of DEFAULT_SAVINGS_GOALS_SEEDS) {
@@ -767,6 +780,14 @@ export class DBService {
             }
           }
         };
+      }
+
+      // Marcar persistentemente que la inicialización ya ocurrió para no pisar eliminaciones de usuario
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('cronocash_has_seeded_defaults', 'true');
+      }
+      if (!this.cachedSettings.hasSeededDefaults) {
+        this.cachedSettings.hasSeededDefaults = true;
       }
     } catch (e) {
       console.warn('[DBService] Advertencia sembrando defaults:', e);
@@ -1724,6 +1745,11 @@ export class DBService {
         req.onsuccess = async () => {
           const raw = req.result || [];
           if (!raw || raw.length === 0) {
+            if (DBService.hasEverSeeded()) {
+              const local = DBService.getLocalStorageItem<SavingsGoal[]>('gastos_savings_goals', []);
+              resolve(local || []);
+              return;
+            }
             const local = DBService.getLocalStorageItem<SavingsGoal[]>('gastos_savings_goals', DEFAULT_SAVINGS_GOALS_SEEDS);
             resolve(local);
           } else {
@@ -1735,6 +1761,9 @@ export class DBService {
       });
     } catch (e) {
       console.warn('[DBService] Fallback localStorage para savings_goals:', e);
+      if (DBService.hasEverSeeded()) {
+        return this.getLocalStorageItem<SavingsGoal[]>('gastos_savings_goals', []);
+      }
       return this.getLocalStorageItem<SavingsGoal[]>('gastos_savings_goals', DEFAULT_SAVINGS_GOALS_SEEDS);
     }
   }
@@ -1832,6 +1861,39 @@ export class DBService {
     }
   }
 
+  static async applySavingsGoalsSeeds(mode: 'replace' | 'append' = 'append'): Promise<SavingsGoal[]> {
+    let result: SavingsGoal[];
+    if (mode === 'replace') {
+      result = [...DEFAULT_SAVINGS_GOALS_SEEDS];
+    } else {
+      const current = await this.getSavingsGoals();
+      const currentIds = new Set(current.map((g) => g.id));
+      const toAdd = DEFAULT_SAVINGS_GOALS_SEEDS.filter((g) => !currentIds.has(g.id));
+      result = [...current, ...toAdd];
+    }
+
+    this.setLocalStorageItem('gastos_savings_goals', result);
+    try {
+      const db = await this.getDB();
+      const encryptedList = await VaultCryptoService.encryptList<SavingsGoal>(result);
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.SAVINGS_GOALS, 'readwrite');
+        const store = tx.objectStore(STORES.SAVINGS_GOALS);
+        if (mode === 'replace') {
+          store.clear();
+        }
+        for (const g of encryptedList) {
+          store.put(g);
+        }
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+      console.warn('[DBService] Error al aplicar semillas de metas en IndexedDB:', e);
+    }
+    return result;
+  }
+
   // --- BACKUP & EXPORT/IMPORT ---
   static async exportBackupEnvelope(): Promise<BackupEnvelope> {
     const [expenses, buckets, recurringRules, tips, smartRules, savingsGoals] = await Promise.all([
@@ -1861,39 +1923,15 @@ export class DBService {
       throw new Error('Estructura de copia de seguridad no válida.');
     }
 
-    if (envelope.settings) {
-      await this.saveSettings(envelope.settings);
-    }
-
-    if (Array.isArray(envelope.buckets)) {
-      for (const b of envelope.buckets) {
-        await this.saveBucket(b);
-      }
-    }
-
-    if (Array.isArray(envelope.expenses)) {
-      for (const e of envelope.expenses) {
-        await this.saveExpense(e);
-      }
-    }
-
-    if (Array.isArray(envelope.recurringRules)) {
-      for (const r of envelope.recurringRules) {
-        await this.saveRecurringRule(r);
-      }
-    }
-
-    if (Array.isArray(envelope.smartRules)) {
-      for (const rule of envelope.smartRules) {
-        await this.saveSmartRule(rule);
-      }
-    }
-
-    if (Array.isArray(envelope.savingsGoals)) {
-      for (const goal of envelope.savingsGoals) {
-        await this.saveSavingsGoal(goal);
-      }
-    }
+    await this.clearAndRestore({
+      expenses: Array.isArray(envelope.expenses) ? envelope.expenses : [],
+      buckets: Array.isArray(envelope.buckets) ? envelope.buckets : [],
+      recurringRules: Array.isArray(envelope.recurringRules) ? envelope.recurringRules : [],
+      settings: envelope.settings,
+      tips: Array.isArray(envelope.tips) ? envelope.tips : [],
+      smartRules: Array.isArray(envelope.smartRules) ? envelope.smartRules : [],
+      savingsGoals: Array.isArray(envelope.savingsGoals) ? envelope.savingsGoals : [],
+    });
   }
 
   /**
@@ -1915,13 +1953,13 @@ export class DBService {
       this.cachedSettings = { ...DEFAULT_SETTINGS, ...data.settings };
       this.setLocalStorageItem('gastos_settings', this.cachedSettings);
     }
-    if (data.tips && data.tips.length > 0) {
+    if (Array.isArray(data.tips)) {
       this.setLocalStorageItem('gastos_tips', data.tips);
     }
-    if (data.smartRules && data.smartRules.length > 0) {
+    if (Array.isArray(data.smartRules)) {
       this.setLocalStorageItem('gastos_smart_rules', data.smartRules);
     }
-    if (data.savingsGoals && data.savingsGoals.length > 0) {
+    if (Array.isArray(data.savingsGoals)) {
       this.setLocalStorageItem('gastos_savings_goals', data.savingsGoals);
     }
 
@@ -1941,13 +1979,13 @@ export class DBService {
       tx.objectStore(STORES.EXPENSES).clear();
       tx.objectStore(STORES.BUCKETS).clear();
       tx.objectStore(STORES.RECURRING_RULES).clear();
-      if (data.tips && data.tips.length > 0) {
+      if (Array.isArray(data.tips)) {
         tx.objectStore(STORES.TIPS).clear();
       }
-      if (data.smartRules && data.smartRules.length > 0) {
+      if (Array.isArray(data.smartRules)) {
         tx.objectStore(STORES.SMART_RULES).clear();
       }
-      if (data.savingsGoals && data.savingsGoals.length > 0) {
+      if (Array.isArray(data.savingsGoals)) {
         tx.objectStore(STORES.SAVINGS_GOALS).clear();
       }
 
@@ -1970,21 +2008,21 @@ export class DBService {
         rStore.put(r);
       }
 
-      if (data.tips && data.tips.length > 0) {
+      if (Array.isArray(data.tips) && data.tips.length > 0) {
         const tStore = tx.objectStore(STORES.TIPS);
         for (const t of data.tips) {
           tStore.put(t);
         }
       }
 
-      if (data.smartRules && data.smartRules.length > 0) {
+      if (Array.isArray(data.smartRules) && data.smartRules.length > 0) {
         const sStore = tx.objectStore(STORES.SMART_RULES);
         for (const rule of data.smartRules) {
           sStore.put(rule);
         }
       }
 
-      if (data.savingsGoals && data.savingsGoals.length > 0) {
+      if (Array.isArray(data.savingsGoals) && data.savingsGoals.length > 0) {
         const gStore = tx.objectStore(STORES.SAVINGS_GOALS);
         for (const g of data.savingsGoals) {
           gStore.put(g);

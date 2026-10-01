@@ -1,6 +1,6 @@
 {
-  "currentVersion": "1.27.0",
-  "buildNumber": 12700,
+  "currentVersion": "1.28.0",
+  "buildNumber": 12800,
   "lastUpdated": "2026-10-01",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
@@ -9,11 +9,25 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.28.0",
+      "build": 12800,
+      "date": "01 Oct 2026",
+      "title": "Persistencia Total en Copias de Seguridad y Blindaje de Metas y Reglas ante Actualizaciones de la APK",
+      "isCurrent": true,
+      "highlights": [
+        "🛡️ Snapshot Integral en Copias de Seguridad: Las copias en Google Drive (CronoCash_Actual.json / Previa.json) y los archivos JSON locales ahora empaquetan al 100% tus Metas de Ahorro (Sinking Funds) y Reglas Inteligentes (Smart Rules).",
+        "🔒 Blindaje Anti-Sobreescritura (Tombstone): Al eliminar o personalizar tus metas y reglas, tus decisiones son inmutables; las actualizaciones de la APK respetan tus datos y no vuelven a inyectar las semillas de fábrica.",
+        "📊 Comparador Lado a Lado Enriquecido: Inspección previa previa a restaurar que desglosa recuentos de Metas y Reglas Inteligentes con distintivos de diferencia (+/-) entre el dispositivo y el archivo de respaldo.",
+        "✨ Botón de Plantilla Voluntaria: Botón 'Plantilla' en el panel de Metas para reincorporar cómodamente los fondos recomendados (Fondo de Emergencia, Mantenimiento Hogar, Averías/Imprevistos) cuando tú lo decidas.",
+        "📐 Blindaje Tipográfico y Anti-Desborde Móvil: Ajuste de layouts flex y texto vertical defensivo para una experiencia nítida y legible en cualquier tamaño de pantalla."
+      ]
+    },
+    {
       "version": "1.27.0",
       "build": 12700,
       "date": "01 Oct 2026",
       "title": "Nómina Real Blindada por Mes y Detección Inteligente en Gastos e Ingresos Extras",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "🏦 Nómina Real del Mes desde Dashboard: Nuevo selector en '+ Ingreso' para registrar la nómina percibida, fijándola como salario neto real blindado del mes que sustituye el estimado base sin duplicarse como extra.",
         "💡 Imputación Salarial Inteligente (Día ≥ 20): Sugerencia automática del mes financiado (cobros desde el día 20 financian el presupuesto del mes siguiente; cobros a primeros financian el mes en curso) con selector de mes y acceso rápido ⏩ Mes +1.",
