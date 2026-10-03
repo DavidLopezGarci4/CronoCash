@@ -776,67 +776,122 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                           </button>
                         </div>
 
-                        {/* Imputación de Mes de Reembolso (especial para primeros 10 días de mes) */}
-                        {allocationMode === 'bucket_refund' && type === 'punctual' && (() => {
-                          const incomeDateDay = parseInt((date || '').split('-')[2] || '1', 10);
-                          const isFirst10Days = incomeDateDay >= 1 && incomeDateDay <= 10;
+                        {/* Imputación Retroactiva Flexible a Meses Anteriores */}
+                        {type === 'punctual' && (() => {
                           const incomeCalMonth = (date || '').substring(0, 7);
                           const [incYear, incMonthNum] = incomeCalMonth.split('-').map(Number);
-                          const incomePrevMonth = incMonthNum === 1 ? `${incYear - 1}-12` : `${incYear}-${String(incMonthNum - 1).padStart(2, '0')}`;
+                          const getPastMonth = (offset: number) => {
+                            let y = incYear;
+                            let m = incMonthNum - offset;
+                            while (m < 1) {
+                              m += 12;
+                              y -= 1;
+                            }
+                            return `${y}-${String(m).padStart(2, '0')}`;
+                          };
+                          const incomePrevMonth = getPastMonth(1);
+                          const incomePrevMonth2 = getPastMonth(2);
+                          const incomePrevMonth3 = getPastMonth(3);
                           const activeEffectiveMonth = effectiveMonth || incomeCalMonth;
 
                           return (
-                            <div className="pt-2.5 border-t border-slate-200 dark:border-slate-800 space-y-2 animate-fadeIn">
+                            <div className="pt-2.5 border-t border-slate-200 dark:border-slate-800 space-y-2.5 animate-fadeIn">
                               <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                                <span className="flex items-center gap-1 min-w-0 flex-1 truncate">
+                                <span className="flex items-center gap-1.5 min-w-0 flex-1 truncate">
                                   <Calendar className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
-                                  <span className="truncate">Mes de Imputación del Reembolso</span>
+                                  <span className="truncate">Mes Contable de Imputación</span>
                                 </span>
-                                {isFirst10Days && (
-                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-200 dark:border-cyan-500/30 shrink-0">
-                                    Día 1-10 de mes
+                                {activeEffectiveMonth < incomeCalMonth && (
+                                  <span className="text-[9px] px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 font-bold border border-cyan-200 dark:border-cyan-500/30 shrink-0">
+                                    Desahogo Mes Anterior
                                   </span>
                                 )}
                               </div>
 
-                              {isFirst10Days && (
-                                <p className="text-[10px] text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/30 p-2 rounded-xl border border-cyan-200 dark:border-cyan-500/30 leading-snug">
-                                  💡 Recibido en los primeros 10 días: Puedes usar este reembolso para compensar excedentes o gastos de la bolsa del <strong>mes pasado ({formatMonthName(incomePrevMonth)})</strong> o del <strong>mes en curso ({formatMonthName(incomeCalMonth)})</strong>.
-                                </p>
-                              )}
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-snug">
+                                {allocationMode === 'bucket_refund'
+                                  ? '💡 Al imputar este reembolso a un mes anterior, se minora el gasto neto de esa bolsa en dicho mes, descargando su balance y liberando superávit que se derivará a tu Colchón de Ahorro.'
+                                  : 'Puedes imputar este ingreso al mes en curso o retroactivamente a cualquier mes anterior para equilibrar presupuestos.'}
+                              </p>
 
-                              <div className="grid grid-cols-2 gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    HapticService.selection();
-                                    setEffectiveMonth(incomePrevMonth);
-                                  }}
-                                  className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
-                                    activeEffectiveMonth === incomePrevMonth
-                                      ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40 shadow-xs'
-                                      : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
-                                  }`}
-                                >
-                                  <div className="text-[11px] font-bold truncate">⏪ Mes Pasado</div>
-                                  <div className="text-[10px] opacity-80 truncate">{formatMonthName(incomePrevMonth)}</div>
-                                </button>
-
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                                 <button
                                   type="button"
                                   onClick={() => {
                                     HapticService.selection();
                                     setEffectiveMonth(incomeCalMonth);
                                   }}
-                                  className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                                  className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
                                     activeEffectiveMonth === incomeCalMonth
-                                      ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40 shadow-xs'
+                                      ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40 shadow-xs font-bold'
                                       : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
                                   }`}
                                 >
-                                  <div className="text-[11px] font-bold truncate">Mes en Curso</div>
-                                  <div className="text-[10px] opacity-80 truncate">{formatMonthName(incomeCalMonth)}</div>
+                                  <div className="text-[10px] font-bold truncate">Mes del Cobro</div>
+                                  <div className="text-[9px] opacity-80 truncate">{formatMonthName(incomeCalMonth)}</div>
                                 </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    HapticService.selection();
+                                    setEffectiveMonth(incomePrevMonth);
+                                  }}
+                                  className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                                    activeEffectiveMonth === incomePrevMonth
+                                      ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40 shadow-xs font-bold'
+                                      : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                                  }`}
+                                >
+                                  <div className="text-[10px] font-bold truncate">⏪ Mes Pasado</div>
+                                  <div className="text-[9px] opacity-80 truncate">{formatMonthName(incomePrevMonth)}</div>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    HapticService.selection();
+                                    setEffectiveMonth(incomePrevMonth2);
+                                  }}
+                                  className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                                    activeEffectiveMonth === incomePrevMonth2
+                                      ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40 shadow-xs font-bold'
+                                      : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                                  }`}
+                                >
+                                  <div className="text-[10px] font-bold truncate">Hace 2 meses</div>
+                                  <div className="text-[9px] opacity-80 truncate">{formatMonthName(incomePrevMonth2)}</div>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    HapticService.selection();
+                                    setEffectiveMonth(incomePrevMonth3);
+                                  }}
+                                  className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                                    activeEffectiveMonth === incomePrevMonth3
+                                      ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40 shadow-xs font-bold'
+                                      : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                                  }`}
+                                >
+                                  <div className="text-[10px] font-bold truncate">Hace 3 meses</div>
+                                  <div className="text-[9px] opacity-80 truncate">{formatMonthName(incomePrevMonth3)}</div>
+                                </button>
+                              </div>
+
+                              <div className="flex items-center gap-2 pt-1">
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0">O indicar mes exacto:</span>
+                                <input
+                                  type="month"
+                                  value={activeEffectiveMonth}
+                                  onChange={(e) => {
+                                    if (e.target.value) {
+                                      setEffectiveMonth(e.target.value);
+                                    }
+                                  }}
+                                  className="h-8 px-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-teal-500 cursor-pointer"
+                                />
                               </div>
                             </div>
                           );

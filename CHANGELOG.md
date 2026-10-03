@@ -3,6 +3,22 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.30.0] - 2026-10-03
+
+### Added
+- **Imputación Retroactiva Libre a Meses Anteriores (`ExtraIncomeModal.tsx`, `CsvImportModal.tsx`, `IncomeAllocationService.ts`):**
+  - **Selector Flexible de Meses Históricos:** Ampliación del selector de imputación para abarcar el Mes del Cobro, Mes Pasado (M-1), Hace 2 Meses (M-2), Hace 3 Meses (M-3) o cualquier mes histórico mediante control nativo `<input type="month">`.
+  - **Desahogo de Carga en Bolsas Pasadas:** Los reembolsos e ingresos imputados a meses pasados minoran directamente el gasto neto acumulado (`netSpent = gastos - reembolsos`) de la bolsa seleccionada en ese periodo, aliviando la presión presupuestaria y subsanando déficits o sobregiros pasados.
+  - **Integración Homogénea:** Comportamiento idéntico tanto al registrar cobros puntuales desde el Dashboard como al procesar extractos bancarios en el importador CSV/Excel.
+- **Compensación de Desajustes de Suma Cero y Consolidación en Colchón (`DBService.executeMonthlyRollover`, `BucketsView.tsx`):**
+  - **Compensación Previa de Déficits:** Al ejecutar el Rollover mensual, el motor calcula los sobregiros de bolsas desajustadas (`totalDeficit`) y los compensa primero contra los remanentes positivos (`rawSurplus`), asegurando que solo el excedente neto compensado (`potentialSurplus = Math.max(0, rawSurplus - totalDeficit)`) se transfiera al Colchón.
+  - **Bolsa Amortiguadora Exclusiva:** La Bolsa de Ahorro e Imprevistos (`savingsBufferBucketId` / `settings.savingsBuffer`) actúa como el único receptáculo que custodia y acumula tanto los remanentes netos de bolsas como el margen libre no asignado.
+  - **Desglose Transparente:** La ventana modal de Rollover incluye ahora insignias informativas cuando se compensan desajustes entre bolsas (`⚖️ Desajustes/excesos compensados: -X.XX €`).
+- **Traspaso a Sinking Funds desde Colchón o Margen Libre con Adaptación de Crucero (`QuickContributeModal.tsx`, `GoalsModal.tsx`, `DBService.addGoalContribution`):**
+  - **Selector de Origen en 1 Toque:** Al aportar a cualquier meta (Sinking Fund), el usuario puede elegir entre transferir fondos del 🛡️ Colchón de Ahorro e Imprevistos (deduciendo de `settings.savingsBuffer` y del límite del buffer bucket), asignar del 💰 Margen Libre mensual disponible o realizar una 💵 Aportación Manual externa.
+  - **Simulación y Adaptación Dinámica del Ritmo de Crucero:** El motor recalcula en tiempo real el nuevo ritmo mensual: $\text{Nuevo Crucero} = (\text{targetAmount} - \text{currentAmount}) / \text{meses restantes}$.
+  - **Visualización Inmediata del Desahogo:** Muestra al instante el ahorro en la cuota obligatoria mensual (`✨ Desahogas tu esfuerzo mensual en -X.XX €/mes`), recompensando al usuario por acelerar sus fondos de amortización.
+
 ## [1.29.0] - 2026-10-01
 
 ### Added

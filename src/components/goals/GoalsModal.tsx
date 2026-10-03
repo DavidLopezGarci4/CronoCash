@@ -34,9 +34,10 @@ import {
   Trophy,
   Crown,
 } from 'lucide-react';
-import { SavingsGoal, Bucket } from '../../types';
+import { SavingsGoal, Bucket, Settings } from '../../types';
 import { SinkingFundsService } from '../../services/sinkingFundsService';
 import { DBService } from '../../services/db';
+import { BudgetCapacityService } from '../../services/budgetCapacityService';
 import { GoalFormModal } from './GoalFormModal';
 import { SweepSurplusModal } from './SweepSurplusModal';
 import { QuickContributeModal } from './QuickContributeModal';
@@ -54,10 +55,11 @@ interface GoalsModalProps {
   onAddContribution: (
     goalId: string,
     amount: number,
-    source: 'manual' | 'rollover' | 'safe_to_spend_surplus',
+    source: 'manual' | 'rollover' | 'safe_to_spend_surplus' | 'cushion_buffer' | 'free_margin',
     notes?: string
   ) => Promise<void>;
   onRefresh: () => void;
+  settings?: Settings;
 }
 
 const GOAL_ICON_MAP: Record<string, React.ElementType> = {
@@ -93,6 +95,7 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
   onDeleteGoal,
   onAddContribution,
   onRefresh,
+  settings,
 }) => {
   const { isPrivate } = usePrivacy();
   const [formOpen, setFormOpen] = useState(false);
@@ -100,6 +103,21 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
   const [sweepOpen, setSweepOpen] = useState(false);
   const [contributingGoal, setContributingGoal] = useState<SavingsGoal | null>(null);
   const [expandedGoalId, setExpandedGoalId] = useState<string | null>(null);
+
+  // Saldos disponibles del Colchón y Margen Libre del mes para derivar a Sinking Funds
+  const effectiveSettings = settings || DBService.getSettings();
+  const cushionBucket = buckets.find((b) => b.id === effectiveSettings.savingsBufferBucketId) || buckets.find((b) => b.isBuffer);
+  const cushionBalance = cushionBucket?.budgetLimit ?? effectiveSettings.savingsBuffer ?? 0;
+
+  const currentMonthKey = new Date().toISOString().substring(0, 7);
+  const capacityMetrics = BudgetCapacityService.calculateCapacity(
+    buckets,
+    effectiveSettings,
+    currentMonthKey
+  );
+  const freeMarginBalance = capacityMetrics.status === 'free' && capacityMetrics.difference > 0
+    ? capacityMetrics.difference
+    : 0;
 
   // Totales de la cabecera
   const totalSaved = useMemo(
@@ -558,8 +576,10 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({
           onClose={() => setContributingGoal(null)}
           goal={contributingGoal}
           currency={currency}
-          onAddContribution={async (goalId, amount, notes) => {
-            await onAddContribution(goalId, amount, 'manual', notes);
+          cushionBalance={cushionBalance}
+          freeMarginBalance={freeMarginBalance}
+          onAddContribution={async (goalId, amount, source, notes) => {
+            await onAddContribution(goalId, amount, source, notes);
             onRefresh();
           }}
         />

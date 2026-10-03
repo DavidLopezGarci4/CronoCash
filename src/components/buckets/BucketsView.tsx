@@ -365,10 +365,13 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const totalSpent = viewMode === 'annual' ? totalSpentAnnual : totalSpentMonthly;
   const globalPct = viewMode === 'annual' ? annualPct : monthlyPct;
 
-  // Cálculo del excedente potencial para rollover (excluyendo colchón y bolsas con sinking fund propio)
-  const potentialSurplus = buckets
+  // 1. Detección de sobregiros (déficits) y remanentes positivos para calcular el excedente neto compensado
+  let rawSurplus = 0;
+  let totalDeficit = 0;
+
+  buckets
     .filter((b) => !b.isBuffer && !b.rolloverSurplus)
-    .reduce((sum, b) => {
+    .forEach((b) => {
       const bInjected = IncomeAllocationService.getBucketInjectedBudget(b.id, selectedMonthPrefix, effectiveSettings);
       const bRefunds = IncomeAllocationService.getBucketRefunds(b.id, selectedMonthPrefix, effectiveSettings);
       const spent = Math.max(
@@ -378,16 +381,23 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
           .reduce((s, e) => s + e.amount, 0) - bRefunds
       );
       const effectiveLimit = getBucketMonthLimit(b, selectedMonthPrefix) + bInjected;
-      const rem = effectiveLimit - spent;
-      return rem > 0 ? sum + rem : sum;
-    }, 0);
+      const diff = effectiveLimit - spent;
+      if (diff > 0) {
+        rawSurplus += diff;
+      } else if (diff < 0) {
+        totalDeficit += Math.abs(diff);
+      }
+    });
+
+  // Saldo neto de bolsas tras compensar desajustes entre ellas
+  const potentialSurplus = Math.max(0, Math.round((rawSurplus - totalDeficit) * 100) / 100);
 
   // Margen libre de ingresos sin asignar a bolsas en este mes
   const unassignedFreeMargin = capacityMetrics.status === 'free' && capacityMetrics.difference > 0
     ? Math.round(capacityMetrics.difference * 100) / 100
     : 0;
 
-  // Total acumulado para rollover al colchón (remanentes no gastados + margen libre sin asignar)
+  // Total acumulado para rollover al colchón (remanentes netos compensados + margen libre sin asignar)
   const totalRolloverSurplus = Math.round((potentialSurplus + unassignedFreeMargin) * 100) / 100;
 
   // Detección de sobregiros para el Asistente Inteligente Cover Overspending
@@ -960,7 +970,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             )}
           </span>
 
-          {viewMode === 'month' && isCurrentMonth && totalRolloverSurplus > 0 && (
+          {viewMode === 'month' && selectedMonthPrefix <= currentMonthKey && totalRolloverSurplus > 0 && (
             <button
               onClick={() => setRolloverModalOpen(true)}
               className="px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-500/20 hover:bg-teal-100 dark:hover:bg-teal-500/30 text-teal-700 dark:text-teal-300 border border-teal-300 dark:border-teal-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
@@ -1699,22 +1709,36 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   +{totalRolloverSurplus.toFixed(2)} {currency}
                 </div>
                 
-                {(potentialSurplus > 0 && unassignedFreeMargin > 0) ? (
+                {(potentialSurplus > 0 || unassignedFreeMargin > 0 || totalDeficit > 0) ? (
                   <div className="pt-1.5 flex flex-col gap-1 text-[11px] text-slate-600 dark:text-slate-300 border-t border-teal-200/60 dark:border-teal-800/40">
-                    <div className="flex justify-between items-center px-2">
-                      <span className="opacity-80">Bolsas no gastadas:</span>
-                      <span className="font-mono font-bold text-teal-600 dark:text-teal-400">+{potentialSurplus.toFixed(2)} {currency}</span>
-                    </div>
-                    <div className="flex justify-between items-center px-2">
-                      <span className="opacity-80">Margen libre sin asignar:</span>
-                      <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">+{unassignedFreeMargin.toFixed(2)} {currency}</span>
-                    </div>
+                    {rawSurplus > 0 && (
+                      <div className="flex justify-between items-center px-2">
+                        <span className="opacity-80">Sobrante bruto de bolsas:</span>
+                        <span className="font-mono font-bold text-teal-600 dark:text-teal-400">+{rawSurplus.toFixed(2)} {currency}</span>
+                      </div>
+                    )}
+                    {totalDeficit > 0 && (
+                      <div className="flex justify-between items-center px-2 text-rose-600 dark:text-rose-400">
+                        <span className="opacity-90">⚖️ Desajustes/excesos compensados:</span>
+                        <span className="font-mono font-bold">-{totalDeficit.toFixed(2)} {currency}</span>
+                      </div>
+                    )}
+                    {totalDeficit > 0 && potentialSurplus > 0 && (
+                      <div className="flex justify-between items-center px-2">
+                        <span className="opacity-80 font-semibold">Sobrante neto bolsas:</span>
+                        <span className="font-mono font-bold text-teal-600 dark:text-teal-400">+{potentialSurplus.toFixed(2)} {currency}</span>
+                      </div>
+                    )}
+                    {unassignedFreeMargin > 0 && (
+                      <div className="flex justify-between items-center px-2">
+                        <span className="opacity-80">Margen libre sin asignar:</span>
+                        <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">+{unassignedFreeMargin.toFixed(2)} {currency}</span>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    {unassignedFreeMargin > 0 && potentialSurplus === 0
-                      ? 'Margen libre mensual sin asignar a ninguna bolsa'
-                      : 'Suma de presupuestos sobrantes de las bolsas activas'}
+                    Suma de presupuestos sobrantes de las bolsas activas
                   </p>
                 )}
               </div>

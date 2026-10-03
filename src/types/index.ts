@@ -244,7 +244,7 @@ export interface GoalContribution {
   amount: number;
   date: string; // ISO 'YYYY-MM-DD'
   notes?: string;
-  source: 'manual' | 'rollover' | 'safe_to_spend_surplus';
+  source: 'manual' | 'rollover' | 'safe_to_spend_surplus' | 'cushion_buffer' | 'free_margin';
 }
 
 export interface SavingsGoal {

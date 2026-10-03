@@ -4,17 +4,25 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.29.0 — Margen Libre Asignable a Bolsas o Colchón de Ahorro y Reembolsos en Días 1-10 al Mes Pasado 🎯
-- [x] **Asignación de Margen Libre a Bolsas:** Nuevo botón `+ Asignar a Bolsa` en la tarjeta de capacidad presupuestaria mensual para transferir margen disponible sin asignar (con atajos del 25%, 50%, 75% o 100%) como ajuste puntual del mes sin tocar los límites base maestros.
-- [x] **Rollover Integral al Colchón Financiero:** Al cerrar el mes, el superávit absorbe y deriva tanto los presupuestos sobrantes de las bolsas como el margen libre no asignado a `settings.savingsBuffer` y a la bolsa del Colchón.
-- [x] **Reembolsos en Días 1 a 10 al Mes Pasado:** Detección de ingresos percibidos en los primeros 10 días de mes para compensar sobregiros de bolsas del mes anterior (`effectiveMonth: YYYY-MM-1`) o imputarlos al mes en curso.
-- [x] **Integración Dual en Ingreso Extra y Banco:** Opciones unificadas en el alta de ingresos manuales y en la importación de extractos bancarios CSV / Excel.
-- [x] **Desglose de Rollover y Trazabilidad:** Modal de Rollover con desglose de fuentes de ahorro y movimientos de bolsa con distintivo `💳 Cobro DD/MM ➔ Reembolsado a Mes Pasado`.
-- [x] **Sincronización SemVer Global:** `v1.29.0` (Build 12900) en manifiestos, FAQ, Acerca de y documentación.
+## Estado Actual: v1.30.0 — Imputación Retroactiva a Meses Anteriores, Desahogo de Bolsas al Colchón y Traspaso Dinámico a Sinking Funds con Adaptación de Crucero 🎯
+- [x] **Imputación Retroactiva Libre:** Posibilidad de imputar cobros y reembolsos a cualquier mes histórico (M-1, M-2, M-3 o selector libre de mes) desde el Dashboard o extractos bancarios.
+- [x] **Desahogo de Bolsas:** Los reembolsos asignados a meses pasados reducen directamente el gasto neto acumulado en ese periodo, aliviando la presión presupuestaria y subsanando déficits.
+- [x] **Compensación de Suma Cero:** En el Rollover mensual, los sobregiros de bolsas se compensan primero contra los remanentes positivos antes de consolidar el ahorro neto.
+- [x] **Consolidación en Colchón:** La Bolsa de Ahorro e Imprevistos (`savingsBuffer`) custodia de forma exclusiva todos los remanentes netos compensados y el margen libre no asignado.
+- [x] **Traspaso a Sinking Funds:** Selector de origen para aportar a metas desde el Colchón de Ahorro, Margen Libre mensual o aportación manual.
+- [x] **Adaptación Dinámica del Crucero:** Recálculo instantáneo de la cuota mensual requerida según meses restantes y cuantificación del desahogo mensual.
+- [x] **Sincronización SemVer Global:** `v1.30.0` (Build 13000) en manifiestos, FAQ, Acerca de y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.29.0 (Completado)
+- [x] Asignación de Margen Libre a Bolsas: Botón `+ Asignar a Bolsa` en la tarjeta de capacidad presupuestaria mensual para transferir margen disponible sin asignar (25%, 50%, 75%, 100%) como ajuste puntual del mes.
+- [x] Rollover Integral al Colchón Financiero: Al cerrar el mes, el superávit absorbe tanto los presupuestos sobrantes de las bolsas como el margen libre no asignado a `settings.savingsBuffer` y a la bolsa del Colchón.
+- [x] Reembolsos en Días 1 a 10 al Mes Pasado: Detección de ingresos percibidos en los primeros 10 días de mes para compensar sobregiros de bolsas del mes anterior (`effectiveMonth: YYYY-MM-1`).
+- [x] Integración Dual en Ingreso Extra y Banco: Opciones unificadas en el alta de ingresos manuales y en la importación de extractos bancarios CSV / Excel.
+- [x] Desglose de Rollover y Trazabilidad: Modal de Rollover con desglose de fuentes de ahorro y movimientos de bolsa con distintivo `💳 Cobro DD/MM ➔ Reembolsado a Mes Pasado`.
 
 ### 📦 v1.28.0 (Completado)
 - [x] Snapshot Integral en Copias de Seguridad: Respaldo completo en Google Drive (`CronoCash_Actual.json` / `Previa.json`) y archivos locales JSON incluyendo `savingsGoals` y `smartRules`.

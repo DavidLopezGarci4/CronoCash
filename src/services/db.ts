@@ -1416,10 +1416,11 @@ export class DBService {
       throw new Error('No existe una bolsa de Colchón o Ahorro para recibir el rollover');
     }
 
-    let bucketsSurplus = 0;
+    let rawSurplus = 0;
+    let totalDeficit = 0;
     let countedBuckets = 0;
 
-    // 1. Calcular remanentes positivos de bolsas que no sean el colchón
+    // 1. Calcular remanentes positivos y posibles déficits de bolsas que no sean el colchón
     for (const b of buckets) {
       if (b.id === bufferBucket.id) continue;
 
@@ -1440,14 +1441,17 @@ export class DBService {
         continue;
       }
 
-      const remaining = monthLimit - spent;
-      if (remaining > 0) {
-        bucketsSurplus += remaining;
+      const diff = monthLimit - spent;
+      if (diff > 0) {
+        rawSurplus += diff;
         countedBuckets++;
+      } else if (diff < 0) {
+        totalDeficit += Math.abs(diff);
       }
     }
 
-    bucketsSurplus = Math.round(bucketsSurplus * 100) / 100;
+    // Compensar desajustes y excesos de otras bolsas con el saldo que sobró
+    const bucketsSurplus = Math.max(0, Math.round((rawSurplus - totalDeficit) * 100) / 100);
 
     // 2. Calcular margen libre de ingresos no asignado a ninguna bolsa para ese mes
     const effectiveSalary = this.getEffectiveMonthlySalary(settings, currentMonthPrefix);
@@ -1895,7 +1899,7 @@ export class DBService {
   static async addGoalContribution(
     goalId: string,
     amount: number,
-    source: 'manual' | 'rollover' | 'safe_to_spend_surplus',
+    source: 'manual' | 'rollover' | 'safe_to_spend_surplus' | 'cushion_buffer' | 'free_margin',
     notes?: string
   ): Promise<void> {
     if (amount <= 0) return;
@@ -1923,8 +1927,32 @@ export class DBService {
 
     await this.saveSavingsGoal(target);
 
+    // Si la fuente es el colchón de ahorro e imprevistos, descontar del buffer bucket y de settings.savingsBuffer
+    if (source === 'cushion_buffer') {
+      const buckets = await this.getBuckets();
+      const settings = this.getSettings();
+      let bufferBucket = settings.savingsBufferBucketId
+        ? buckets.find((b) => b.id === settings.savingsBufferBucketId)
+        : buckets.find((b) => b.isBuffer);
+
+      if (!bufferBucket && buckets.length > 0) {
+        bufferBucket = buckets.find((b) => b.isBuffer);
+      }
+
+      if (bufferBucket) {
+        bufferBucket.budgetLimit = Math.max(0, Math.round((bufferBucket.budgetLimit - amount) * 100) / 100);
+        await this.saveBucket(bufferBucket);
+      }
+
+      const updatedSettings: Settings = {
+        ...settings,
+        savingsBuffer: Math.max(0, Math.round(((settings.savingsBuffer || 0) - amount) * 100) / 100),
+      };
+      await this.saveSettings(updatedSettings);
+    }
+
     // Si tiene bolsa vinculada (bucketId), registrar opcionalmente el movimiento como Expense
-    if (target.bucketId) {
+    if (target.bucketId && source !== 'cushion_buffer') {
       const expense: Expense = {
         id: `exp_goal_${Date.now()}`,
         title: `Aportación a Meta: ${target.title}`,

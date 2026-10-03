@@ -497,7 +497,7 @@ export const App: React.FC = () => {
   const handleAddGoalContribution = async (
     goalId: string,
     amount: number,
-    source: 'manual' | 'rollover' | 'safe_to_spend_surplus',
+    source: 'manual' | 'rollover' | 'safe_to_spend_surplus' | 'cushion_buffer' | 'free_margin',
     notes?: string
   ) => {
     await DBService.addGoalContribution(goalId, amount, source, notes);
@@ -748,6 +748,7 @@ export const App: React.FC = () => {
           onClose={() => setGoalsModalOpen(false)}
           goals={savingsGoals}
           buckets={buckets}
+          settings={settings}
           currency={settings.currency || '€'}
           surplusAvailable={safeMetrics.netAvailable}
           onSaveGoal={handleSaveSavingsGoal}

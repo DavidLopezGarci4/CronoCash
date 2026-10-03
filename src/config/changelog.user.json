@@ -1,7 +1,7 @@
 {
-  "currentVersion": "1.29.0",
-  "buildNumber": 12900,
-  "lastUpdated": "2026-10-01",
+  "currentVersion": "1.30.0",
+  "buildNumber": 13000,
+  "lastUpdated": "2026-10-03",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
   "privacyBadge": "100% Local y Privado • Sin Rastreadores • Sin Servidores Externos",
@@ -9,11 +9,25 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.30.0",
+      "build": 13000,
+      "date": "03 Oct 2026",
+      "title": "Imputación Retroactiva a Meses Anteriores, Desahogo de Bolsas al Colchón y Traspaso Dinámico a Sinking Funds con Adaptación de Crucero",
+      "isCurrent": true,
+      "highlights": [
+        "⏪ Imputación Retroactiva Libre a Meses Anteriores: Posibilidad de imputar ingresos extras y reembolsos a cualquier mes pasado (M-1, M-2, M-3 o selector libre de mes) tanto desde el Dashboard como al importar extractos bancarios.",
+        "🌊 Desahogo de Bolsas y Compensación de Sobregiros: Los reembolsos asignados a meses pasados reducen directamente el gasto neto de la bolsa en ese periodo, aliviando su carga contable y subsanando posibles déficits.",
+        "🛡️ Rollover Neto al Colchón con Compensación de Suma Cero: El cierre de mes compensa primero los desajustes y excesos de bolsas con los saldos sobrantes de las demás; todo el superávit neto liberado se deriva exclusivamente a la Bolsa de Ahorro e Imprevistos.",
+        "🎯 Traspaso a Sinking Funds desde el Colchón o Margen Libre: En el modal de aportación rápida a metas puedes elegir transferir saldo acumulado del Colchón de Ahorro, asignar Margen Libre mensual o realizar aportaciones manuales.",
+        "⚡ Adaptación Dinámica del Ritmo de Crucero: El simulador recalcula al instante la cuota mensual requerida según los meses restantes hasta la fecha objetivo y muestra con exactitud cuánto desahogas tu esfuerzo mensual obligatorio."
+      ]
+    },
+    {
       "version": "1.29.0",
       "build": 12900,
       "date": "01 Oct 2026",
       "title": "Margen Libre Asignable a Bolsas o Colchón de Ahorro y Reembolsos en Días 1-10 al Mes Pasado",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "💰 Asignación de Margen Libre a Bolsas: Nuevo botón '+ Asignar a Bolsa' en la tarjeta de capacidad presupuestaria para transferir margen disponible sin asignar (con atajos del 25%, 50%, 75% o 100%) a cualquier bolsa como ajuste puntual del mes sin tocar los límites base maestros.",
         "🛡️ Rollover Integral al Colchón Financiero: Al cerrar el mes, el margen libre no asignado se transfiere automáticamente a tu Colchón de Ahorro e Imprevistos junto con los remanentes no gastados de las bolsas.",

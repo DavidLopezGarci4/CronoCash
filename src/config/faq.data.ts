@@ -161,6 +161,18 @@ export const FAQ_DATA: FAQSection[] = [
         tags: ['reembolso', 'primeros 10 días', 'mes pasado', 'sobregiro', 'compensación', 'excedentes', 'bizum', 'devolución'],
         badge: 'Nuevo v1.29.0',
       },
+      {
+        id: 'imputacion-retroactiva-desahogo-colchon',
+        question: '¿Cómo imputar ingresos o reembolsos a meses anteriores y cómo desahogan las bolsas hacia el Colchón?',
+        bullets: [
+          'Imputación retroactiva flexible (M-1, M-2, M-3 o selector libre): Tanto desde el panel de "+ Ingreso" en el Dashboard como desde el Importador Bancario CSV/Excel, puedes imputar un ingreso puntual o reembolso a cualquier mes histórico.',
+          'Desahogo de la bolsa seleccionada: Al asignar el reembolso a un mes anterior, se minora de inmediato el gasto neto acumulado de esa bolsa en dicho mes (netSpent = gastos - reembolsos), aliviando su carga presupuestaria y sanando posibles sobregiros pasados.',
+          'Compensación previa de desajustes (Suma Cero): Si en ese mes existieron otras bolsas con déficit o excesos de gasto, el sistema compensa primero dichos desajustes con los saldos sobrantes de las bolsas holgadas antes de consolidar el ahorro.',
+          'Consolidación exclusiva en el Colchón de Ahorro: Toda la descarga y superávit neto liberado (sobrantes netos de bolsas + margen libre sin asignar) se deriva exclusivamente a la Bolsa de Ahorro e Imprevistos (savingsBuffer), garantizando que ningún euro quede disperso.',
+        ],
+        tags: ['imputación retroactiva', 'meses anteriores', 'desahogo', 'bolsas', 'colchón', 'ahorro', 'compensación', 'superávit'],
+        badge: 'Nuevo v1.30.0',
+      },
     ],
   },
   {
@@ -669,6 +681,17 @@ export const FAQ_DATA: FAQSection[] = [
           'Ponderación por prioridad: Las metas esenciales (Prioridad 1) reciben 3 veces más ponderación que las de ocio (Prioridad 3), asegurando que los compromisos críticos se cubran primero.',
         ],
         tags: ['sweep and fund', 'barrido', 'superávit', 'reparto excedentes', 'prioridad'],
+      },
+      {
+        id: 'traspaso-colchon-margen-crucero',
+        question: '¿Cómo pasar dinero del Colchón o Margen Libre a un Sinking Fund y cómo adapta el Crucero?',
+        bullets: [
+          'Selector de origen en 1 toque: Al pulsar "Aportar" en cualquier meta, dispones de botones directos para elegir entre transferir fondos desde tu 🛡️ Colchón de Ahorro e Imprevistos (restando de su saldo), asignar desde tu 💰 Margen Libre mensual disponible (sin alterar tu presupuesto base) o ingresar una 💵 Aportación Manual externa.',
+          'Adaptación automática del Ritmo de Crucero: El simulador interactivo recalcula al instante tu cuota requerida hasta la fecha objetivo: Nuevo Crucero = (Objetivo - Saldo Actualizado) / Meses Restantes.',
+          'Visualización del desahogo mensual: Comprueba en tiempo real cuánto disminuye tu esfuerzo mensual obligatorio (ej. "✨ Desahogas tu esfuerzo mensual en -15.00 €/mes") al acelerar tu ahorro con dinero liberado.',
+        ],
+        tags: ['traspaso', 'colchón', 'margen libre', 'sinking funds', 'ritmo de crucero', 'desahogo', 'metas', 'adaptación'],
+        badge: 'Nuevo v1.30.0',
       },
     ],
   },

@@ -822,6 +822,10 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                             const y = parseInt(parts[0], 10);
                             const m = parseInt(parts[1], 10);
                             const prevMonth = m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, '0')}`;
+                            const prevMonth2 = (() => {
+                              const [py, pm] = prevMonth.split('-').map(Number);
+                              return pm === 1 ? `${py - 1}-12` : `${py}-${String(pm - 1).padStart(2, '0')}`;
+                            })();
                             const nextMonth = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`;
 
                             const isAfter20 = day >= 20;
@@ -831,8 +835,8 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                                   ? (tx.targetSalaryMonth || targetSalaryMonth)
                                   : (tx.targetExtraMonth || currentMonth);
                             const selectVal = tx.targetBucketId
-                              ? (tx.allocationMode === 'bucket_refund' && tx.targetExtraMonth && tx.targetExtraMonth === prevMonth
-                                  ? `bucket_refund_prev:${tx.targetBucketId}:${prevMonth}`
+                              ? (tx.allocationMode === 'bucket_refund' && tx.targetExtraMonth && tx.targetExtraMonth !== currentMonth
+                                  ? `bucket_refund_prev:${tx.targetBucketId}:${tx.targetExtraMonth}`
                                   : `${tx.allocationMode || 'bucket_budget'}:${tx.targetBucketId}`)
                               : `${activeMode}:${activeMonth}`;
 
@@ -869,6 +873,12 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                                   <option value={`extra:${currentMonth}`}>
                                     Ingreso Extra {formatMonthName(currentMonth)} (Mes actual)
                                   </option>
+                                  <option value={`extra:${prevMonth}`}>
+                                    Ingreso Extra {formatMonthName(prevMonth)} (Mes anterior)
+                                  </option>
+                                  <option value={`extra:${prevMonth2}`}>
+                                    Ingreso Extra {formatMonthName(prevMonth2)} (Hace 2 meses)
+                                  </option>
                                   <option value={`extra:${nextMonth}`}>
                                     Ingreso Extra {formatMonthName(nextMonth)} (Mes siguiente)
                                   </option>
@@ -876,15 +886,20 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
 
                                 {buckets && buckets.length > 0 && (
                                   <>
-                                    {day <= 10 && (
-                                      <optgroup label={`⏪ Reembolso Mes Pasado (${formatMonthName(prevMonth)})`}>
-                                        {buckets.map((b) => (
-                                          <option key={`refund_prev:${b.id}`} value={`bucket_refund_prev:${b.id}:${prevMonth}`}>
-                                            ⏪ Reembolso {b.name} (en {formatMonthName(prevMonth)})
-                                          </option>
-                                        ))}
-                                      </optgroup>
-                                    )}
+                                    <optgroup label={`⏪ Reembolso Mes Pasado (${formatMonthName(prevMonth)})`}>
+                                      {buckets.map((b) => (
+                                        <option key={`refund_prev:${b.id}`} value={`bucket_refund_prev:${b.id}:${prevMonth}`}>
+                                          ⏪ Reembolso {b.name} (en {formatMonthName(prevMonth)})
+                                        </option>
+                                      ))}
+                                    </optgroup>
+                                    <optgroup label={`⏪ Reembolso Hace 2 Meses (${formatMonthName(prevMonth2)})`}>
+                                      {buckets.map((b) => (
+                                        <option key={`refund_prev2:${b.id}`} value={`bucket_refund_prev:${b.id}:${prevMonth2}`}>
+                                          ⏪ Reembolso {b.name} (en {formatMonthName(prevMonth2)})
+                                        </option>
+                                      ))}
+                                    </optgroup>
                                     <optgroup label={`Reembolso Mes Actual (${formatMonthName(currentMonth)})`}>
                                       {buckets.map((b) => (
                                         <option key={`refund:${b.id}`} value={`bucket_refund:${b.id}`}>

@@ -1,7 +1,7 @@
 # Preguntas Frecuentes y Guía de Herramientas (FAQ) — CronoCash 📖
 
 > Guía de referencia rápida, operativa y resolución de dudas sobre todas las funciones y herramientas activas en la versión oficial de **CronoCash** (Android APK y PWA).  
-> **Versión Actual:** `v1.27.0` (Build 12700) • **Actualizado:** 1 de Octubre de 2026 • **Módulos Auditados:** 14/14 • **Guías Operativas:** 55
+> **Versión Actual:** `v1.30.0` (Build 13000) • **Actualizado:** 3 de Octubre de 2026 • **Módulos Auditados:** 14/14 • **Guías Operativas:** 57
 
 ---
 
@@ -100,6 +100,12 @@
 * **Compensación de sobregiros del mes anterior:** Si recibes un Bizum, cobro extra o devolución entre los días 1 y 10 de un mes, tanto el modal de Ingresos como el importador bancario detectan este periodo y te permiten elegir si imputarlo al **mes en curso** o al **mes pasado** (`YYYY-MM-1`).
 * **Saneamiento contable inmediato:** Al imputarlo al mes pasado, el importe actúa como reembolso neto directo de la bolsa seleccionada en dicho mes (`netSpent = gastos - reembolsos`), minorando el déficit o sobregiro acumulado de forma limpia.
 * **Trazabilidad total:** Los movimientos de la bolsa y el historial reflejan con claridad la etiqueta `💳 Cobro DD/MM ➔ Reembolsado a Mes Pasado`, manteniendo total fidelidad de la fecha del cobro bancario real y de su imputación presupuestaria.
+
+### ¿Cómo imputar ingresos o reembolsos a meses anteriores y cómo desahogan las bolsas hacia el Colchón?
+* **Imputación retroactiva flexible (M-1, M-2, M-3 o selector libre):** Tanto desde el panel de `+ Ingreso` en el Dashboard como desde el Importador Bancario CSV/Excel, puedes imputar un ingreso puntual o reembolso a cualquier mes histórico.
+* **Desahogo de la bolsa seleccionada:** Al asignar el reembolso a un mes anterior, se minora de inmediato el gasto neto acumulado de esa bolsa en dicho mes (`netSpent = gastos - reembolsos`), aliviando su carga presupuestaria y sanando posibles sobregiros pasados.
+* **Compensación previa de desajustes (Suma Cero):** Si en ese mes existieron otras bolsas con déficit o excesos de gasto, el sistema compensa primero dichos desajustes con los saldos sobrantes de las bolsas holgadas antes de consolidar el ahorro.
+* **Consolidación exclusiva en el Colchón de Ahorro:** Toda la descarga y superávit neto liberado (sobrantes netos de bolsas + margen libre sin asignar) se deriva exclusivamente a la Bolsa de Ahorro e Imprevistos (`savingsBuffer`), garantizando que ningún euro quede disperso.
 
 ---
 
@@ -356,6 +362,11 @@
 ### ¿Qué es el Asistente "Sweep & Fund" (Barrido de Superávit)?
 * **Reparto de excedentes con 1 toque:** Al finalizar el mes, si has acumulado superávit en tu Safe-to-Spend, este asistente distribuye el saldo sobrante entre tus metas activas.
 * **Ponderación por prioridad:** Las metas esenciales (Prioridad 1) reciben 3 veces más ponderación que las de ocio (Prioridad 3), asegurando que los compromisos críticos se cubran primero.
+
+### ¿Cómo pasar dinero del Colchón o Margen Libre a un Sinking Fund y cómo adapta el Crucero?
+* **Selector de origen en 1 toque:** Al pulsar "Aportar" en cualquier meta, dispones de botones directos para elegir entre transferir fondos desde tu 🛡️ Colchón de Ahorro e Imprevistos (restando de su saldo), asignar desde tu 💰 Margen Libre mensual disponible (sin alterar tu presupuesto base) o ingresar una 💵 Aportación Manual externa.
+* **Adaptación automática del Ritmo de Crucero:** El simulador interactivo recalcula al instante tu cuota requerida hasta la fecha objetivo: `Nuevo Crucero = (Objetivo - Saldo Actualizado) / Meses Restantes`.
+* **Visualización del desahogo mensual:** Comprueba en tiempo real cuánto disminuye tu esfuerzo mensual obligatorio (ej. "✨ Desahogas tu esfuerzo mensual en -15.00 €/mes") al acelerar tu ahorro con dinero liberado.
 
 ---
 
