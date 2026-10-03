@@ -48,6 +48,7 @@ import {
   CheckCircle2,
   ReceiptText,
   RotateCcw,
+  ArrowRightCircle,
 } from 'lucide-react';
 import { format, addMonths, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -110,6 +111,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   const [editingBucket, setEditingBucket] = useState<Bucket | null>(null);
   const [vasosModalOpen, setVasoModalOpen] = useState(false);
   const [rolloverModalOpen, setRolloverModalOpen] = useState(false);
+  const [rolloverDestination, setRolloverDestination] = useState<'cushion' | 'sinking_funds' | 'current_month'>('cushion');
   const [coverOverspendingOpen, setCoverOverspendingOpen] = useState(false);
   const [movementsBucket, setMovementsBucket] = useState<Bucket | null>(null);
   const [assignMarginOpen, setAssignMarginOpen] = useState(false);
@@ -304,12 +306,12 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
   // Ejecutar Rollover de Ahorro
   const handleExecuteRollover = async () => {
     try {
-      const result = await DBService.executeMonthlyRollover(selectedMonthPrefix);
+      const result = await DBService.executeMonthlyRollover(selectedMonthPrefix, undefined, rolloverDestination);
       await HapticService.notificationSuccess();
       setRolloverModalOpen(false);
       onRefresh();
       alert(
-        `¡Rollover Completado! Se han derivado ${result.surplusTotal.toFixed(2)} ${currency} de excedente de ${
+        `¡Cierre de Mes Completado! Se han derivado ${result.surplusTotal.toFixed(2)} ${currency} de excedente de ${
           result.bucketCount
         } bolsas a "${result.transferredTo}".`
       );
@@ -642,7 +644,7 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
       {/* Selector de Mes Navegable y Conmutador de Proyección Anual */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-2.5 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm">
         {/* Controles de Navegación Mensual */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <button
             type="button"
             onClick={handlePrevMonth}
@@ -674,6 +676,47 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
             >
               Hoy
             </button>
+          )}
+
+          {/* Month Health Status Badge */}
+          {viewMode === 'month' ? (
+            overspentBuckets.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => setCoverOverspendingOpen(true)}
+                title="Ver asistente para compensar sobregiros en este mes"
+                className="ml-1 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-500/40 cursor-pointer hover:bg-rose-100 dark:hover:bg-rose-950/60 transition-colors shadow-2xs"
+              >
+                <AlertTriangle className="w-3 h-3 text-rose-500 shrink-0" />
+                <span>{overspentBuckets.length} sobregiro{overspentBuckets.length > 1 ? 's' : ''}</span>
+              </button>
+            ) : totalRolloverSurplus > 0 ? (
+              <button
+                type="button"
+                onClick={() => setRolloverModalOpen(true)}
+                title="Abrir asistente de cierre de mes y rollover"
+                className="ml-1 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border border-teal-300 dark:border-teal-500/40 cursor-pointer hover:bg-teal-100 dark:hover:bg-teal-950/60 transition-colors shadow-2xs"
+              >
+                <Sparkles className="w-3 h-3 text-teal-600 dark:text-teal-400 shrink-0" />
+                <span>Remanente: +{totalRolloverSurplus.toFixed(2)} {currency}</span>
+              </button>
+            ) : (
+              <span
+                className="ml-1 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 shadow-2xs"
+                title="Presupuesto y gastos en equilibrio perfecto para este mes"
+              >
+                <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>Mes cuadrado</span>
+              </span>
+            )
+          ) : (
+            <span
+              className="ml-1 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-500/40 shadow-2xs"
+              title="Proyección anual consolidada"
+            >
+              <LineChart className="w-3 h-3 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <span>Proyección {selectedYear}</span>
+            </span>
           )}
         </div>
 
@@ -1743,17 +1786,96 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                 )}
               </div>
 
-              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                Al ejecutar el <strong>Rollover</strong>, este superávit total (remanentes no gastados y margen libre no asignado) se añade automáticamente a tu{' '}
-                <strong>Colchón de Ahorro e Imprevistos</strong>, premiando tu disciplina financiera sin
-                perder el rastro de tus fondos.
-              </p>
+              <div className="space-y-2 pt-1">
+                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                  Destino del superávit remanente:
+                </label>
+                <div className="grid grid-cols-1 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRolloverDestination('cushion');
+                      HapticService.selection();
+                    }}
+                    className={`p-2.5 rounded-xl border text-left transition-all flex items-start gap-2.5 cursor-pointer ${
+                      rolloverDestination === 'cushion'
+                        ? 'border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 ring-1 ring-emerald-500'
+                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center justify-between">
+                        <span>Colchón de Ahorro e Imprevistos</span>
+                        {rolloverDestination === 'cushion' && (
+                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-extrabold">Seleccionado</span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Aumenta tu red de seguridad ante imprevistos futuros.
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRolloverDestination('sinking_funds');
+                      HapticService.selection();
+                    }}
+                    className={`p-2.5 rounded-xl border text-left transition-all flex items-start gap-2.5 cursor-pointer ${
+                      rolloverDestination === 'sinking_funds'
+                        ? 'border-teal-500 bg-teal-50/80 dark:bg-teal-950/40 ring-1 ring-teal-500'
+                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <Target className="w-4 h-4 text-teal-600 dark:text-teal-400 mt-0.5 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center justify-between">
+                        <span>Metas & Sinking Funds</span>
+                        {rolloverDestination === 'sinking_funds' && (
+                          <span className="text-[10px] text-teal-600 dark:text-teal-400 font-extrabold">Seleccionado</span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Reparte entre metas por prioridad, acelerando el ritmo de crucero.
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRolloverDestination('current_month');
+                      HapticService.selection();
+                    }}
+                    className={`p-2.5 rounded-xl border text-left transition-all flex items-start gap-2.5 cursor-pointer ${
+                      rolloverDestination === 'current_month'
+                        ? 'border-blue-500 bg-blue-50/80 dark:bg-blue-950/40 ring-1 ring-blue-500'
+                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <ArrowRightCircle className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center justify-between">
+                        <span>Arrastrar al Mes en Curso</span>
+                        {rolloverDestination === 'current_month' && (
+                          <span className="text-[10px] text-blue-600 dark:text-blue-400 font-extrabold">Seleccionado</span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Inyecta el remanente como margen libre disponible en el mes actual.
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
 
               <div className="pt-2 flex justify-end space-x-2">
                 <button
                   type="button"
                   onClick={() => setRolloverModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold"
+                  className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -1761,7 +1883,11 @@ export const BucketsView: React.FC<BucketsViewProps> = ({
                   onClick={handleExecuteRollover}
                   className="px-5 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-extrabold cursor-pointer"
                 >
-                  Añadir al Ahorro
+                  {rolloverDestination === 'cushion'
+                    ? 'Añadir al Colchón'
+                    : rolloverDestination === 'sinking_funds'
+                    ? 'Repartir a Metas'
+                    : 'Arrastrar a Mes Actual'}
                 </button>
               </div>
             </div>

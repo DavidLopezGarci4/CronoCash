@@ -3,6 +3,41 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.32.0] - 2026-10-03
+
+### Changed
+- **Reestructuración Modular de la FAQ por Secciones de la APK (`src/config/faq.data.ts`, `docs/FAQ.md`, `FAQModal.tsx`):**
+  - **Alineación 1:1 con la Barra Inferior de Navegación:** Reorganización exhaustiva de las 61 guías oficiales en 11 módulos nítidos encabezados por las 5 pestañas maestras de la app:
+    1. **📊 Dashboard y Finanzas Diarias:** Safe-to-Spend, Burn-Rate, compras por impulso, nómina blindada, margen libre, reasignación de ingresos y reembolsos retroactivos.
+    2. **🥧 Bolsas de Presupuesto, Vasos Comunicantes y Rollover:** Sistema Envelopes, transferencias elásticas, Cover Overspending, aislamiento de meses futuros, ordenación y rollover multi-destino.
+    3. **🔁 Gastos Recurrentes, Tareas Periódicas y Detector Vampiro:** Recibos fijos, costes estimados, categorías dinámicas, drag & drop, desplazamientos y detector vampiro.
+    4. **📅 Calendario Reactivo, Cash-Flow Runway y Comparador YoY:** Días críticos, previsión de saldo a fin de mes, meses de supervivencia y comparativas interanuales.
+    5. **💡 Consejos Financieros, Estrategias de Ahorro y Escudo Anti-Estafas:** 14 métodos legales de ahorro, optimización de contratos y alertas CNMV.
+  - **Bloque Dedicado a Herramientas & Ajustes:** Secciones 6 a 11 agrupadas para Metas & Sinking Funds, Importador Bancario Offline, Seguridad & Bóveda Cifrada, Copias de Seguridad en Google Drive, Informes Ejecutivos PDF / Fiscalidad y Ajustes del Sistema.
+  - **Ergonomía de Navegación:** Sidebar en pantalla grande con divisores visuales por bloque y chips móviles optimizados con el icono `LayoutDashboard` integrado.
+  - **Conservación Íntegra:** Preservadas al 100% las 61 preguntas y respuestas con su contenido enriquecido.
+
+## [1.31.0] - 2026-10-03
+
+### Added
+- **Liquidación Multi-Destino de Remanentes (`DBService.executeMonthlyRollover`, `BucketsView.tsx`):**
+  - **Selector de 3 Destinos de Cierre:** El asistente de fin de mes y Rollover permite seleccionar interactivamente hacia dónde transferir el superávit neto resultante:
+    1. **🛡️ Colchón de Ahorro e Imprevistos:** Añade el superávit a la bolsa amortiguadora y a `settings.savingsBuffer` como red de seguridad ante contingencias.
+    2. **🎯 Metas & Sinking Funds:** Distribuye automáticamente el excedente entre las metas activas con `SinkingFundsService.distributeSurplus` (ponderado por prioridad) registrando aportaciones de origen `rollover` y acelerando el ritmo de crucero.
+    3. **⏩ Arrastrar al Mes en Curso:** Inyecta el excedente como un ingreso extraordinario disponible en concepto de margen libre general en el mes actual (`effectiveMonth: currentMonth`).
+  - **Botones y Retroalimentación Táctil:** Tarjetas seleccionables con selector visual activo y confirmación háptica.
+- **Reasignación y Edición Integral de Ingresos Extras (`ExtraIncomeModal.tsx`):**
+  - **Edición en 1 Toque desde el Historial:** Cada registro de ingreso en la pestaña *Historial* incluye un botón de edición con icono de lápiz.
+  - **Modificación In Situ de Parámetros:** Permite editar el concepto, importe, fecha, bolsa destino y modo de asignación (Liquidez general, Inyección al límite o Reembolso minorador de gasto) sin crear apuntes duplicados.
+  - **Cambio de Mes Contable de Imputación:** Facilita corregir o reasignar cobros hacia meses anteriores o futuros para desahogar bolsas de forma retroactiva.
+  - **Banner de Estado y Cancelación:** Indicador visual de modo edición activo con botón *Cancelar* para volver rápidamente al alta de nuevo ingreso.
+- **Insignia de Diagnóstico y Salud Presupuestaria Mensual (`BucketsView.tsx`):**
+  - **Monitor de Salud en la Barra de Navegación:** Distintivo dinámico en la cabecera `< [Mes Año] >` que diagnostica en tiempo real el equilibrio del mes:
+    - `✓ Mes cuadrado`: Presupuestos y gastos en equilibrio armónico.
+    - `⚠️ X sobregiro(s)`: Con acceso directo en 1 toque al asistente de compensación entre bolsas.
+    - `✨ Remanente neto: +X.XX €`: Con acceso directo al modal de cierre y liquidación multi-destino.
+  - **Aislamiento Mensual de Sobregiros (Presupuesto Base Cero):** Validación arquitectónica que confirma que la nivelación de déficits solo ajusta el mes puntual mediante `monthlyAdjustments[monthPrefix]`, dejando inmutables los límites base maestros de los meses futuros.
+
 ## [1.30.0] - 2026-10-03
 
 ### Added

@@ -1,6 +1,6 @@
 {
-  "currentVersion": "1.30.0",
-  "buildNumber": 13000,
+  "currentVersion": "1.32.0",
+  "buildNumber": 13200,
   "lastUpdated": "2026-10-03",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
@@ -9,11 +9,38 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.32.0",
+      "build": 13200,
+      "date": "03 Oct 2026",
+      "title": "Reestructuración Modular de la FAQ por Secciones de la APK y Navegación Ergonómica",
+      "isCurrent": true,
+      "highlights": [
+        "📚 Alineación 1:1 con la Barra Inferior de Navegación: El Centro de Ayuda & FAQ reorganiza sus 61 guías oficiales en 11 módulos lógicos encabezados por las 5 pestañas maestras de la app (Dashboard, Bolsas, Recurrentes, Calendario y Consejos).",
+        "⚙️ Bloque Dedicado a Herramientas & Ajustes: Agrupación segregada y nítida para Metas (Sinking Funds), Importador Bancario, Seguridad/Biometría, Copias de Seguridad, Informes/Fiscalidad y Sistema/Acerca de.",
+        "🖥️ Navegación Ergonómica en Desktop y Móvil: El panel lateral en pantalla grande incorpora encabezados visuales por bloque, mientras que en smartphones los selectores rápidos permiten filtrar instantáneamente por la pantalla activa.",
+        "🔍 Conservación Íntegra del Manual Operativo: Todas las preguntas, viñetas explicativas y etiquetas de búsqueda han sido preservadas con total fidelidad en la nueva arquitectura modular."
+      ]
+    },
+    {
+      "version": "1.31.0",
+      "build": 13100,
+      "date": "03 Oct 2026",
+      "title": "Liquidación Multi-Destino de Remanentes, Reasignación y Edición de Ingresos Extras e Insignia de Salud Mensual",
+      "isCurrent": false,
+      "highlights": [
+        "🔄 Liquidación Multi-Destino de Remanentes: Nuevo selector de 3 vías en el Cierre y Rollover de Bolsas para derivar el superávit neto al Colchón de Ahorro, repartirlo proporcionalmente entre Metas & Sinking Funds según prioridad acelerando el ritmo de crucero, o arrastrarlo al Mes en Curso como margen libre.",
+        "✏️ Edición y Reasignación Integral de Ingresos Extras: Botón de edición en cada apunte del historial de ingresos extras que permite modificar concepto, importe, fecha, bolsa destino y mes de imputación (retroactivo o futuro) in situ sin duplicar registros.",
+        "🩺 Insignia de Salud Presupuestaria Mensual: Indicador visual en la barra de navegación mensual (< [Mes Año] >) que diagnostica en tiempo real si el mes está en equilibrio ('✓ Mes cuadrado'), presenta déficits ('⚠️ X sobregiro(s)' con enlace a compensación) o superávit neto ('✨ Remanente neto: +X.XX €' con enlace directo al cierre).",
+        "⚖️ Aislamiento Presupuestario Mensual: Confirmación estricta del principio económico de Presupuesto Base Cero (Zero-Based Budgeting): los reajustes de sobregiros calibran el mes seleccionado mediante ajustes puntuales sin alterar los techos maestros de los meses futuros.",
+        "🛡️ Compensación Previa de Desajustes: El asistente de cierre de mes compensa primero cualquier bolsa deficitaria con los saldos sobrantes antes de liquidar el superávit neto a cualquiera de los tres destinos."
+      ]
+    },
+    {
       "version": "1.30.0",
       "build": 13000,
       "date": "03 Oct 2026",
       "title": "Imputación Retroactiva a Meses Anteriores, Desahogo de Bolsas al Colchón y Traspaso Dinámico a Sinking Funds con Adaptación de Crucero",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "⏪ Imputación Retroactiva Libre a Meses Anteriores: Posibilidad de imputar ingresos extras y reembolsos a cualquier mes pasado (M-1, M-2, M-3 o selector libre de mes) tanto desde el Dashboard como al importar extractos bancarios.",
         "🌊 Desahogo de Bolsas y Compensación de Sobregiros: Los reembolsos asignados a meses pasados reducen directamente el gasto neto de la bolsa en ese periodo, aliviando su carga contable y subsanando posibles déficits.",

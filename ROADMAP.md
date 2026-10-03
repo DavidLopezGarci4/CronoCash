@@ -4,18 +4,30 @@ Aplicación móvil Android para la gestión inteligente de gastos, facturación 
 
 ---
 
-## Estado Actual: v1.30.0 — Imputación Retroactiva a Meses Anteriores, Desahogo de Bolsas al Colchón y Traspaso Dinámico a Sinking Funds con Adaptación de Crucero 🎯
-- [x] **Imputación Retroactiva Libre:** Posibilidad de imputar cobros y reembolsos a cualquier mes histórico (M-1, M-2, M-3 o selector libre de mes) desde el Dashboard o extractos bancarios.
-- [x] **Desahogo de Bolsas:** Los reembolsos asignados a meses pasados reducen directamente el gasto neto acumulado en ese periodo, aliviando la presión presupuestaria y subsanando déficits.
-- [x] **Compensación de Suma Cero:** En el Rollover mensual, los sobregiros de bolsas se compensan primero contra los remanentes positivos antes de consolidar el ahorro neto.
-- [x] **Consolidación en Colchón:** La Bolsa de Ahorro e Imprevistos (`savingsBuffer`) custodia de forma exclusiva todos los remanentes netos compensados y el margen libre no asignado.
-- [x] **Traspaso a Sinking Funds:** Selector de origen para aportar a metas desde el Colchón de Ahorro, Margen Libre mensual o aportación manual.
-- [x] **Adaptación Dinámica del Crucero:** Recálculo instantáneo de la cuota mensual requerida según meses restantes y cuantificación del desahogo mensual.
-- [x] **Sincronización SemVer Global:** `v1.30.0` (Build 13000) en manifiestos, FAQ, Acerca de y documentación.
+## Estado Actual: v1.32.0 — Reestructuración Modular de la FAQ por Secciones de la APK y Navegación Ergonómica 🎯
+- [x] **Alineación 1:1 con la Barra Inferior:** Centro de Ayuda & FAQ reestructurado en 11 módulos lógicos encabezados por las 5 pestañas maestras (Dashboard, Bolsas, Recurrentes, Calendario y Consejos).
+- [x] **Bloque de Herramientas & Ajustes:** Secciones especializadas para Metas & Sinking Funds, Importador Banco, Seguridad, Copias Drive, Informes Fiscales y Sistema/Acerca de.
+- [x] **Ergonomía de Navegación:** Sidebar en pantalla grande con divisores visuales por bloque y selectores móviles optimizados con icono `LayoutDashboard`.
+- [x] **Preservación Integral:** Las 61 guías y preguntas oficiales conservadas íntegramente con sus viñetas y etiquetas de búsqueda.
+- [x] **Sincronización SemVer Global:** `v1.32.0` (Build 13200) en manifiestos, FAQ, Acerca de y documentación.
 
 ---
 
 ## Historial Completo de Versiones
+
+### 📦 v1.31.0 (Completado)
+- [x] Liquidación Multi-Destino: Selector de 3 vías en el Rollover para transferir el superávit neto al Colchón de Ahorro, repartir entre Metas & Sinking Funds según prioridad o arrastrar al Mes en Curso como margen libre.
+- [x] Reasignación y Edición de Ingresos Extras: Botón de edición en historial de ingresos extras para modificar importe, concepto, fecha, bolsa destino y mes contable de imputación in situ.
+- [x] Insignia de Salud Presupuestaria: Monitor de equilibrio del mes en la barra de navegación `< [Mes Año] >` (`✓ Mes cuadrado`, `⚠️ X sobregiro(s)`, `✨ Remanente neto: +X.XX €`).
+- [x] Aislamiento de Sobregiros (Presupuesto Base Cero): Modificación de límites restringida a `monthlyAdjustments[monthPrefix]`, garantizando la inmutabilidad de los límites base en meses futuros.
+
+### 📦 v1.30.0 (Completado)
+- [x] Imputación Retroactiva Libre: Posibilidad de imputar cobros y reembolsos a cualquier mes histórico (M-1, M-2, M-3 o selector libre de mes) desde el Dashboard o extractos bancarios.
+- [x] Desahogo de Bolsas: Los reembolsos asignados a meses pasados reducen directamente el gasto neto acumulado en ese periodo, aliviando la presión presupuestaria y subsanando déficits.
+- [x] Compensación de Suma Cero: En el Rollover mensual, los sobregiros de bolsas se compensan primero contra los remanentes positivos antes de consolidar el ahorro neto.
+- [x] Consolidación en Colchón: La Bolsa de Ahorro e Imprevistos (`savingsBuffer`) custodia de forma exclusiva todos los remanentes netos compensados y el margen libre no asignado.
+- [x] Traspaso a Sinking Funds: Selector de origen para aportar a metas desde el Colchón de Ahorro, Margen Libre mensual o aportación manual.
+- [x] Adaptación Dinámica del Crucero: Recálculo instantáneo de la cuota mensual requerida según meses restantes y cuantificación del desahogo mensual.
 
 ### 📦 v1.29.0 (Completado)
 - [x] Asignación de Margen Libre a Bolsas: Botón `+ Asignar a Bolsa` en la tarjeta de capacidad presupuestaria mensual para transferir margen disponible sin asignar (25%, 50%, 75%, 100%) como ajuste puntual del mes.

@@ -19,6 +19,7 @@ import {
   Building,
   FastForward,
   CheckCircle2,
+  Edit2,
 } from 'lucide-react';
 import {
   ExtraIncome,
@@ -98,8 +99,37 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
   const [allocationMode, setAllocationMode] = useState<IncomeAllocationMode>('bucket_budget');
   const [notes, setNotes] = useState('');
   const [effectiveMonth, setEffectiveMonth] = useState<string>('');
+  const [editingIncomeId, setEditingIncomeId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const handleStartEdit = (inc: ExtraIncome) => {
+    HapticService.selection();
+    setEditingIncomeId(inc.id);
+    setEntryMode('extra');
+    setTitle(inc.title);
+    setAmount(String(inc.amount));
+    setDate(inc.date || new Date().toISOString().split('T')[0]);
+    setType(inc.type);
+    setCategory(inc.category);
+    setDayOfMonth(inc.dayOfMonth || (inc.date ? parseInt(inc.date.split('-')[2], 10) : 1));
+    setTargetBucketId(inc.targetBucketId || '');
+    setAllocationMode(inc.allocationMode || 'bucket_budget');
+    setNotes(inc.notes || '');
+    setEffectiveMonth(inc.effectiveMonth || (inc.date || '').substring(0, 7));
+    setActiveTab('create');
+  };
+
+  const handleCancelEdit = () => {
+    HapticService.selection();
+    setEditingIncomeId(null);
+    setTitle('');
+    setAmount('');
+    setTargetBucketId('');
+    setAllocationMode('bucket_budget');
+    setEffectiveMonth('');
+    setNotes('');
+  };
 
   if (!isOpen) return null;
 
@@ -185,8 +215,9 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
             ? effectiveMonth
             : undefined;
 
-        const newIncome: ExtraIncome = {
-          id: `income_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        const existingIncome = editingIncomeId ? extraIncomes.find((i) => i.id === editingIncomeId) : null;
+        const incomeToSave: ExtraIncome = {
+          id: editingIncomeId || `income_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
           title: title.trim(),
           amount: parsedAmount,
           type,
@@ -195,15 +226,16 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
           effectiveMonth: finalEffectiveMonth,
           dayOfMonth: type === 'recurring' ? dayOfMonth : undefined,
           frequency: type === 'recurring' ? 'monthly' : undefined,
-          isActive: true,
+          isActive: existingIncome ? existingIncome.isActive : true,
           notes: notes.trim() || undefined,
-          createdAt: new Date().toISOString(),
+          createdAt: existingIncome?.createdAt || new Date().toISOString(),
           targetBucketId: targetBucketId || undefined,
           allocationMode: targetBucketId ? allocationMode : 'general',
         };
 
-        await onSaveIncome(newIncome);
+        await onSaveIncome(incomeToSave);
         HapticService.impactMedium();
+        setEditingIncomeId(null);
         setTitle('');
         setAmount('');
         setTargetBucketId('');
@@ -346,6 +378,25 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
 
           {activeTab === 'create' ? (
             <form onSubmit={handleSave} className="space-y-4">
+              {/* Banner de Edición Activa */}
+              {editingIncomeId && (
+                <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-500/40 flex items-center justify-between gap-2 text-xs animate-fadeIn">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Edit2 className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span className="font-bold text-amber-900 dark:text-amber-300 truncate">
+                      Modificando o Reasignando Ingreso
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="px-2.5 py-1 rounded-lg bg-amber-200/60 dark:bg-amber-500/20 text-amber-900 dark:text-amber-200 hover:bg-amber-200 font-bold text-[11px] shrink-0 cursor-pointer transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              )}
+
               {/* Selector de Modo: Nómina Real vs Ingreso Extra */}
               <div className="p-1 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center gap-1">
                 <button
@@ -919,7 +970,13 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                     className="w-full py-3 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-teal-500/20 active:scale-98 disabled:opacity-50"
                   >
                     <Check className="w-4 h-4 stroke-[3]" />
-                    <span>{saving ? 'Guardando...' : 'Registrar Ingreso Extra'}</span>
+                    <span>
+                      {saving
+                        ? 'Guardando...'
+                        : editingIncomeId
+                        ? 'Actualizar Ingreso'
+                        : 'Registrar Ingreso Extra'}
+                    </span>
                   </button>
                 </div>
               )}
@@ -1132,6 +1189,15 @@ export const ExtraIncomeModal: React.FC<ExtraIncomeModalProps> = ({
                                 {inc.isActive !== false ? 'Activo' : 'Pausado'}
                               </button>
                             )}
+
+                            <button
+                              type="button"
+                              onClick={() => handleStartEdit(inc)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors cursor-pointer"
+                              title="Editar o reasignar ingreso extra"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
 
                             <button
                               type="button"

@@ -1,6 +1,7 @@
 import { Expense, Bucket, RecurringRule, Settings, FinancialTip, BackupEnvelope, SmartRule, SavingsGoal, GoalContribution, ExtraIncome, FunctionalCategory, DEFAULT_FUNCTIONAL_CATEGORIES, MonthlySalaryOverride, getBucketMonthLimit, getExpenseEffectiveMonth, getIncomeEffectiveMonth } from '../types';
 import { VaultCryptoService } from './vaultCryptoService';
 import { IncomeAllocationService } from './incomeAllocationService';
+import { SinkingFundsService } from './sinkingFundsService';
 
 const DB_NAME = 'GastosFacturacionDB';
 const DB_VERSION = 3;
@@ -1390,7 +1391,8 @@ export class DBService {
    */
   static async executeMonthlyRollover(
     currentMonthPrefix: string,
-    targetBufferBucketId?: string
+    targetBufferBucketId?: string,
+    destination: 'cushion' | 'sinking_funds' | 'current_month' = 'cushion'
   ): Promise<{
     surplusTotal: number;
     bucketsSurplus: number;
@@ -1484,23 +1486,66 @@ export class DBService {
     const unassignedMargin = Math.max(0, Math.round((totalMonthIncome - totalBucketsAllocated) * 100) / 100);
     const surplusTotal = Math.round((bucketsSurplus + unassignedMargin) * 100) / 100;
 
-    if (surplusTotal > 0) {
-      bufferBucket.budgetLimit = Math.round((bufferBucket.budgetLimit + surplusTotal) * 100) / 100;
-      await this.saveBucket(bufferBucket);
+    let transferredTo = bufferBucket.name;
 
-      // Sincronizar de forma coherente con savingsBuffer en configuración
-      const updatedSettings: Settings = {
-        ...settings,
-        savingsBuffer: Math.round(((settings.savingsBuffer || 0) + surplusTotal) * 100) / 100,
-      };
-      await this.saveSettings(updatedSettings);
+    if (surplusTotal > 0) {
+      if (destination === 'sinking_funds') {
+        const goals = await this.getSavingsGoals();
+        const distribution = SinkingFundsService.distributeSurplus(surplusTotal, goals);
+        for (const item of distribution) {
+          if (item.amount > 0) {
+            await this.addGoalContribution(
+              item.goalId,
+              item.amount,
+              'rollover',
+              `Rollover remanente ${currentMonthPrefix}`
+            );
+          }
+        }
+        transferredTo = 'Metas & Sinking Funds';
+      } else if (destination === 'current_month') {
+        const nowMonth = new Date().toISOString().substring(0, 7);
+        const targetMonth = currentMonthPrefix < nowMonth ? nowMonth : nowMonth;
+        const currentIncomes = settings.extraIncomes || [];
+        const rolloverIncome: ExtraIncome = {
+          id: `inc_rollover_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          title: `Remanente bolsas (${currentMonthPrefix})`,
+          amount: surplusTotal,
+          type: 'punctual',
+          category: 'other',
+          date: new Date().toISOString().split('T')[0],
+          effectiveMonth: targetMonth,
+          allocationMode: 'general',
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          notes: `Superávit transferido desde el cierre contable de ${currentMonthPrefix}`,
+        };
+        const updatedSettings: Settings = {
+          ...settings,
+          extraIncomes: [rolloverIncome, ...currentIncomes],
+        };
+        await this.saveSettings(updatedSettings);
+        transferredTo = `Margen Libre (${targetMonth})`;
+      } else {
+        // destination === 'cushion' (por defecto)
+        bufferBucket.budgetLimit = Math.round((bufferBucket.budgetLimit + surplusTotal) * 100) / 100;
+        await this.saveBucket(bufferBucket);
+
+        // Sincronizar de forma coherente con savingsBuffer en configuración
+        const updatedSettings: Settings = {
+          ...settings,
+          savingsBuffer: Math.round(((settings.savingsBuffer || 0) + surplusTotal) * 100) / 100,
+        };
+        await this.saveSettings(updatedSettings);
+        transferredTo = bufferBucket.name;
+      }
     }
 
     return {
       surplusTotal,
       bucketsSurplus,
       unassignedMargin,
-      transferredTo: bufferBucket.name,
+      transferredTo,
       bucketCount: countedBuckets,
     };
   }

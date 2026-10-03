@@ -20,6 +20,7 @@ import {
   FileText,
   ChevronsUpDown,
   Tag,
+  LayoutDashboard,
 } from 'lucide-react';
 import { FAQ_DATA } from '../../config/faq.data';
 import { FAQSection } from '../../types/faq';
@@ -44,6 +45,8 @@ export const FAQModal: React.FC<FAQModalProps> = ({
   // Mapa de iconos temáticos por sección
   const getSectionIcon = (iconName?: string) => {
     switch (iconName) {
+      case 'LayoutDashboard':
+        return LayoutDashboard;
       case 'ShieldCheck':
         return ShieldCheck;
       case 'PieChart':
@@ -231,7 +234,7 @@ export const FAQModal: React.FC<FAQModalProps> = ({
           <aside className="hidden md:flex md:w-72 lg:w-80 flex-col border-r border-slate-200 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-950/40 p-3 space-y-1 overflow-y-auto">
             <div className="px-2 py-1 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
               <span>Secciones</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">14</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{FAQ_DATA.length}</span>
             </div>
 
             <button
@@ -252,27 +255,38 @@ export const FAQModal: React.FC<FAQModalProps> = ({
             </button>
 
             <div className="space-y-0.5 pt-1">
-              {FAQ_DATA.map((sec) => {
+              {FAQ_DATA.map((sec, idx) => {
                 const Icon = getSectionIcon(sec.iconName);
                 const isSelected = selectedCategory === sec.id;
                 return (
-                  <button
-                    key={sec.id}
-                    onClick={() => setSelectedCategory(sec.id)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left cursor-pointer ${
-                      isSelected
-                        ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 shadow-sm'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/40 dark:hover:bg-slate-800/40'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2.5 truncate pr-2">
-                      <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`} />
-                      <span className="truncate">{sec.title}</span>
-                    </div>
-                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 shrink-0">
-                      {sec.items.length}
-                    </span>
-                  </button>
+                  <React.Fragment key={sec.id}>
+                    {idx === 0 && (
+                      <div className="px-2 pt-1.5 pb-1 text-[9px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                        Vistas Inferiores (Barra App)
+                      </div>
+                    )}
+                    {idx === 5 && (
+                      <div className="px-2 pt-3 pb-1 text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider border-t border-slate-200/70 dark:border-slate-800/70 mt-2">
+                        Herramientas & Ajustes
+                      </div>
+                    )}
+                    <button
+                      onClick={() => setSelectedCategory(sec.id)}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left cursor-pointer ${
+                        isSelected
+                          ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/40 dark:hover:bg-slate-800/40'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2.5 truncate pr-2">
+                        <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`} />
+                        <span className="truncate">{sec.title}</span>
+                      </div>
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 shrink-0">
+                        {sec.items.length}
+                      </span>
+                    </button>
+                  </React.Fragment>
                 );
               })}
             </div>
