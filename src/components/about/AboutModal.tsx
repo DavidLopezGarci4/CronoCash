@@ -15,6 +15,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import userChangelog from '../../config/changelog.user.json';
+import stackConfig from '../../config/stack.config.json';
 
 interface AboutModalProps {
   isOpen: boolean;
@@ -160,7 +161,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
                     Manual Maestro & Centro de Ayuda FAQ
                   </h4>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    43 guías operativas en 14 módulos con buscador predictivo
+                    61 guías operativas en 11 módulos con buscador predictivo
                   </p>
                 </div>
               </div>
@@ -186,10 +187,10 @@ export const AboutModal: React.FC<AboutModalProps> = ({
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-slate-900 dark:text-white">
-                    Grafo de Arquitectura & Salud del Stack
+                    Grafo de Arquitectura & Salud del Stack (v{stackConfig.version})
                   </h4>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Inspecciona en tiempo real las 6 tecnologías nucleares a 60 FPS
+                    {stackConfig.nodes.length} nodos · {stackConfig.links.length} enlaces · {stackConfig.flows.length} rutas E2E a 60 FPS
                   </p>
                 </div>
               </div>

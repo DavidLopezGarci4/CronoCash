@@ -1,82 +1,223 @@
 {
   "appName": "CronoCash",
-  "version": "1.24.0",
+  "version": "1.33.0",
   "category": "Bóveda Financiera & Gestión de Gastos",
-  "description": "Arquitectura modular híbrida offline-first con persistencia ACID local y respaldo seguro en la nube.",
+  "description": "Arquitectura modular híbrida offline-first con bóveda cifrada AES-GCM-256 + PBKDF2-SHA256, biometría Clase 3 y respaldo diferencial de 2 ranuras.",
   "nodes": [
     {
       "id": "react",
       "label": "React 19",
       "version": "^19.0.0",
-      "role": "Runtime UI Declarativo y Motor de Componentes",
+      "role": "Runtime UI Concurrente, Safe-to-Spend y Sinking Funds",
       "category": "local_web_apps",
-      "color": "#3b82f6",
+      "color": "#f59e0b",
       "icon": "Atom",
       "healthType": "runtime",
-      "details": "Motor de renderizado concurrente y árbol virtual de componentes con estado reactivo."
+      "details": "Motor declarativo concurrente con cálculo en vivo de cubos presupuestarios, cierres mensuales y modelos fiscales.",
+      "computationalModel": "Reconciliación Fiber concurrente con aislamiento de modales y carga diferida (React.lazy + Suspense).",
+      "whyChosen": "Recalcula saldos, vasos comunicantes, ritmo de crucero de metas y modelos 130/303 al instante sin bloquear la UI.",
+      "useCases": [
+        "Cálculo reactivo de Safe-to-Spend, Burn-Rate y vasos comunicantes",
+        "Carga diferida (Code-Splitting) de grafo TecnoRed y generador PDF"
+      ]
     },
     {
       "id": "capacitor",
       "label": "Capacitor Mobile",
       "version": "^7.0.1",
-      "role": "Puente Nativo Multiplataforma Android / Web",
+      "role": "Puente Nativo Android Blindado (FLAG_SECURE + CSP)",
       "category": "mobile_apps",
       "color": "#10b981",
       "icon": "Smartphone",
       "healthType": "native_bridge",
-      "details": "Capa de abstracción de hardware y empaquetado nativo para Android (APK/AAB) y WebView."
+      "details": "Contenedor nativo Android con ventana protegida contra capturas (FLAG_SECURE), allowBackup=false y CSP estricto.",
+      "computationalModel": "Puente bidireccional asíncrono entre el WebView endurecido y el runtime nativo Java/Kotlin de Android.",
+      "whyChosen": "Unifica almacenamiento físico acotado (FileProvider), compartición SAF y bloqueo automático al pasar a segundo plano.",
+      "useCases": [
+        "Protección anti-capturas en multitarea (FLAG_SECURE) y bloqueo en background",
+        "Puente nativo con Filesystem, Share y LocalNotifications"
+      ]
     },
     {
       "id": "storage",
-      "label": "IndexedDB & Filesystem",
-      "version": "",
-      "role": "Persistencia Local Transaccional y Bóveda Cifrada",
+      "label": "IndexedDB & Vault AES-256",
+      "version": "v3 ACID + NIST",
+      "role": "Persistencia Cifrada AES-GCM-256 y Derivación PBKDF2",
       "category": "local_persistence",
-      "color": "#f59e0b",
+      "color": "#06b6d4",
       "icon": "Database",
       "healthType": "storage",
-      "details": "Base de datos transaccional local con soporte de snapshots JSON y bóveda con clave PIN/PBKDF2."
+      "details": "Base de datos transaccional con cifrado autenticado AES-GCM-256 en IndexedDB, Encrypt-then-MAC en fallback y PIN con PBKDF2-SHA256.",
+      "computationalModel": "Motor NoSQL transaccional asíncrono con sellado criptográfico WebCrypto (IV 96-bit) y derivación PBKDF2 (10.000 iteraciones).",
+      "whyChosen": "Garantiza operación 100% Offline-First en <5ms protegiendo gastos, metas y credenciales frente a extracciones físicas.",
+      "useCases": [
+        "Cifrado autenticado en reposo de gastos, metas, recurrentes y ajustes",
+        "Hashing de PIN con sal de 128 bits, tokens de sesión y rate-limiting"
+      ]
     },
     {
       "id": "cloud_backup",
-      "label": "Google Drive Cloud API",
-      "version": "2-Slot Sync",
-      "role": "Bóveda Externa en Nube (2 Ranuras y Comparador)",
+      "label": "Drive 2-Slot & Importer",
+      "version": "SheetJS 0.20.3",
+      "role": "Respaldo Verificado de 2 Ranuras, Excel/CSV y PDF",
       "category": "cloud_persistence",
-      "color": "#8b5cf6",
+      "color": "#0ea5e9",
       "icon": "Cloud",
       "healthType": "network",
-      "details": "Estrategia canónica de respaldo en nube (Ranura Actual y Ranura Previa) con comparador diferencial."
+      "details": "Sincronización rotativa de 2 ranuras (Actual/Previa) con validación de checksum, importador bancario anti-ReDoS e informes PDF.",
+      "computationalModel": "Paquetes JSON verificados por checksum determinista, parser matricial SheetJS 0.20.3 y deduplicación SHA-256.",
+      "whyChosen": "Impide restaurar copias alteradas o corruptas y concilia extractos bancarios offline con reglas inteligentes seguras.",
+      "useCases": [
+        "Rotación CronoCash_Actual.json / Previa.json con verificación de integridad",
+        "Importación bancaria CSV/Excel con escudo anti-ReDoS y exportación PDF"
+      ]
     },
     {
       "id": "ui_styling",
-      "label": "Tailwind CSS & Lucide",
+      "label": "Tailwind CSS 4 & Lucide",
       "version": "^4.0.9",
-      "role": "Diseño Atómico, Glassmorphism e Iconografía SVG",
+      "role": "Tokens Semánticos Claro/Oscuro e Iconografía SVG",
       "category": "graphics_multimedia",
       "color": "#ec4899",
       "icon": "Palette",
       "healthType": "static",
-      "details": "Sistema de estilos utilitarios compilados en tiempo de construcción y glifos vectoriales Lucide."
+      "details": "Sistema de diseño atómico compilado en build-time con arquitectura de tokens pareados Light/Dark y glifos vectoriales.",
+      "computationalModel": "Motor CSS estático Zero-Runtime combinado con iconos SVG Lucide importados nominalmente (Tree-Shaking estricto).",
+      "whyChosen": "Elimina sobrecarga de CSS-in-JS en móvil y asegura contraste WCAG AAA tanto en modo claro marfil como oscuro pizarra.",
+      "useCases": [
+        "Conmutación instantánea de tema Claro / Oscuro / Sistema sin parpadeos",
+        "Iconografía vectorial nítida y catálogo de iconos adaptativos Verticons"
+      ]
     },
     {
       "id": "native_hardware",
-      "label": "Biometría & Alarmas",
-      "version": "Capacitor Plugins",
-      "role": "Sensores Biométricos (Huella) y Notificaciones",
+      "label": "Biometría Strong & Alarmas",
+      "version": "BIOMETRIC_STRONG",
+      "role": "Autenticación Biométrica Clase 3, WebAuthn y Alarmas",
       "category": "mobile_apps",
-      "color": "#14b8a6",
+      "color": "#8b5cf6",
       "icon": "Fingerprint",
       "healthType": "hardware",
-      "details": "Desbloqueo biométrico nativo (Fingerprint/Biometrics) y alarmas de revisión de recibos."
+      "details": "Desbloqueo exclusivo mediante sensores biométricos fuertes Clase 3 (Android BiometricPrompt / WebAuthn) y alarmas exactas.",
+      "computationalModel": "Integración directa con hardware criptográfico BIOMETRIC_STRONG de Android, credenciales FIDO2/WebAuthn y AlarmManager.",
+      "whyChosen": "Rechaza sensores débiles 2D y asegura avisos puntuales de vencimiento de recibos aunque la app esté cerrada.",
+      "useCases": [
+        "Verificación de huella Clase 3 y bloqueo temporal tras 5 intentos fallidos",
+        "Notificaciones programadas de revisión diaria y vencimiento de recibos"
+      ]
     }
   ],
   "links": [
-    { "source": "capacitor", "target": "react", "relation": "aloja_webview" },
-    { "source": "react", "target": "storage", "relation": "persiste_acid" },
-    { "source": "react", "target": "ui_styling", "relation": "renderiza_ui" },
-    { "source": "storage", "target": "cloud_backup", "relation": "respaldo_2_ranuras" },
-    { "source": "capacitor", "target": "native_hardware", "relation": "acceso_sensores" },
-    { "source": "capacitor", "target": "storage", "relation": "acceso_filesystem" }
+    {
+      "source": "capacitor",
+      "target": "react",
+      "relation": "aloja_webview",
+      "type": "jerarquia",
+      "protocol": "Android WebView + FLAG_SECURE + CSP",
+      "description": "El contenedor nativo hospeda el árbol concurrente de React 19 bajo política CSP y bloqueo de capturas."
+    },
+    {
+      "source": "react",
+      "target": "storage",
+      "relation": "cifra_acid",
+      "type": "jerarquia",
+      "protocol": "DBService + VaultCrypto AES-GCM-256",
+      "description": "Los componentes persisten gastos, metas y ajustes sellados criptográficamente en IndexedDB."
+    },
+    {
+      "source": "react",
+      "target": "ui_styling",
+      "relation": "renderiza_ui",
+      "type": "jerarquia",
+      "protocol": "Zero-Runtime Semantic Tokens + SVG",
+      "description": "Composición visual de tarjetas financieras, modales y temas claro/oscuro."
+    },
+    {
+      "source": "storage",
+      "target": "cloud_backup",
+      "relation": "respaldo_verificado",
+      "type": "transversal",
+      "protocol": "Envelope JSON + Checksum Guard",
+      "description": "Exporta y restaura instantáneas verificando el checksum antes de recifrar en la bóveda local."
+    },
+    {
+      "source": "capacitor",
+      "target": "native_hardware",
+      "relation": "biometria_strong",
+      "type": "jerarquia",
+      "protocol": "BiometricPrompt STRONG & AlarmManager",
+      "description": "Invoca el sensor de huella Clase 3 y registra alarmas exactas en el sistema operativo."
+    },
+    {
+      "source": "capacitor",
+      "target": "storage",
+      "relation": "filesystem_scoped",
+      "type": "transversal",
+      "protocol": "Scoped FileProvider + Share SAF",
+      "description": "Escribe paquetes de respaldo e informes PDF en directorios privados acotados del dispositivo."
+    },
+    {
+      "source": "react",
+      "target": "native_hardware",
+      "relation": "programa_alarmas",
+      "type": "transversal",
+      "protocol": "AuthService & NotificationService",
+      "description": "Coordina el desbloqueo biométrico, el rate-limiting de PIN y las alertas de recibos periódicos."
+    }
+  ],
+  "flows": [
+    {
+      "id": "offline_expense_write",
+      "title": "⚡ Registro de Gasto y Sellado AES-GCM-256",
+      "category": "local_persistence",
+      "summary": "Ruta desde el alta de un gasto hasta su cifrado autenticado en IndexedDB y recálculo presupuestario.",
+      "explanation": "Cada movimiento se valida en React 19, se cifra en reposo con AES-GCM-256 (IV aleatorio de 96 bits) antes de tocar IndexedDB en <5ms, y actualiza las alarmas locales sin depender de la red.",
+      "steps": [
+        { "nodeId": "ui_styling", "role": "1. Captura importe, bolsa y mes efectivo en el modal adaptativo" },
+        { "nodeId": "react", "role": "2. Recalcula Safe-to-Spend, bolsas y detecta reglas recurrentes" },
+        { "nodeId": "storage", "role": "3. Cifra con AES-GCM-256 y persiste en GastosFacturacionDB" },
+        { "nodeId": "native_hardware", "role": "4. Sincroniza feedback háptico y alarmas de vencimiento" }
+      ]
+    },
+    {
+      "id": "cloud_two_slot_backup",
+      "title": "☁️ Respaldo de 2 Ranuras y Restauración Cifrada",
+      "category": "cloud_persistence",
+      "summary": "Empaquetado con firma de integridad, rotación en Google Drive y recifrado automático al restaurar.",
+      "explanation": "Al exportar o restaurar entre CronoCash_Actual.json y CronoCash_Previa.json, el motor verifica el checksum determinista para impedir manipulaciones y recifra todos los registros en la bóveda local.",
+      "steps": [
+        { "nodeId": "storage", "role": "1. Descifra registros autorizados y genera el paquete con checksum" },
+        { "nodeId": "react", "role": "2. Presenta el comparador diferencial lado a lado antes de restaurar" },
+        { "nodeId": "capacitor", "role": "3. Canaliza el archivo mediante FileProvider acotado y SAF nativo" },
+        { "nodeId": "cloud_backup", "role": "4. Valida integridad del checksum y sincroniza con Google Drive" }
+      ]
+    },
+    {
+      "id": "biometric_vault_guard",
+      "title": "🔐 Blindaje PBKDF2-SHA256 y Biometría Clase 3",
+      "category": "mobile_apps",
+      "summary": "Protección de pantalla (FLAG_SECURE), derivación de PIN con sal y desbloqueo biométrico fuerte.",
+      "explanation": "Al minimizar la app, Android oculta la miniatura (FLAG_SECURE) y bloquea la sesión. El acceso exige huella BIOMETRIC_STRONG o validación PBKDF2-SHA256 (10.000 iteraciones) con bloqueo tras 5 fallos.",
+      "steps": [
+        { "nodeId": "capacitor", "role": "1. Aplica FLAG_SECURE y detecta paso a segundo plano" },
+        { "nodeId": "native_hardware", "role": "2. Verifica huella BIOMETRIC_STRONG o credencial WebAuthn" },
+        { "nodeId": "storage", "role": "3. Valida hash PBKDF2-SHA256 en tiempo constante y emite token" },
+        { "nodeId": "react", "role": "4. Desbloquea AuthScreen e hidrata el panel financiero" }
+      ]
+    },
+    {
+      "id": "bank_import_and_tax",
+      "title": "📊 Importación Bancaria Anti-ReDoS y Fiscalidad PDF",
+      "category": "cloud_persistence",
+      "summary": "Conciliación offline de extractos Excel/CSV con deduplicación SHA-256 y liquidación Mod. 130/303.",
+      "explanation": "Procesa hojas bancarias con SheetJS 0.20.3, deduplica movimientos por hash SHA-256, evalúa reglas inteligentes protegidas contra ReDoS y genera informes ejecutivos PDF listos para compartir.",
+      "steps": [
+        { "nodeId": "cloud_backup", "role": "1. Parsea extracto Excel/CSV con SheetJS 0.20.3 y hash SHA-256" },
+        { "nodeId": "react", "role": "2. Clasifica con Smart Rules anti-ReDoS y calcula Mod. 130/303" },
+        { "nodeId": "storage", "role": "3. Persiste el lote conciliado y nóminas blindadas en la bóveda" },
+        { "nodeId": "capacitor", "role": "4. Exporta y comparte el informe ejecutivo PDF vía SAF nativo" }
+      ]
+    }
   ]
 }
+

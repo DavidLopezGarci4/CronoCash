@@ -1,7 +1,7 @@
 {
-  "currentVersion": "1.32.0",
-  "buildNumber": 13200,
-  "lastUpdated": "2026-10-03",
+  "currentVersion": "1.33.0",
+  "buildNumber": 13300,
+  "lastUpdated": "2026-10-14",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
   "privacyBadge": "100% Local y Privado • Sin Rastreadores • Sin Servidores Externos",
@@ -9,11 +9,24 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.33.0",
+      "build": 13300,
+      "date": "14 Oct 2026",
+      "title": "Blindaje Criptográfico Integral (AES-GCM-256 + PBKDF2), Biometría Fuerte Clase 3 y Grafo TecnoRed v2.0",
+      "isCurrent": true,
+      "highlights": [
+        "🔐 Bóveda Cifrada y PIN con PBKDF2-SHA256: Tu clave de seguridad ahora se protege mediante derivación criptográfica PBKDF2-HMAC-SHA256 (10.000 iteraciones con sal única de 128 bits), token opaco de sesión y bloqueo temporal inteligente tras 5 intentos fallidos.",
+        "🛡️ Cifrado en Reposo Total y Respaldo Verificado: Los gastos, metas de ahorro, reglas recurrentes y ajustes se cifran siempre antes de guardarse o restaurarse, y las copias de Google Drive validan su firma de integridad (checksum) antes de abrirse.",
+        "🧬 Biometría Fuerte Clase 3 y Pantalla Protegida (FLAG_SECURE): Exigencia estricta de sensores biométricos de hardware Clase 3 en Android (o WebAuthn real), ocultación automática de miniaturas en el selector de apps recientes y reglas bancarias protegidas frente a bloqueos.",
+        "🌐 Grafo Interactivo TecnoRed Engine v2.0: El mapa de Arquitectura y Salud en Ajustes estrena modo dual (Mapa Topológico y 4 Rutas de Flujo E2E animadas a 60 FPS) con telemetría criptográfica en vivo y fichas de decisión técnica."
+      ]
+    },
+    {
       "version": "1.32.0",
       "build": 13200,
       "date": "03 Oct 2026",
       "title": "Reestructuración Modular de la FAQ por Secciones de la APK y Navegación Ergonómica",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "📚 Alineación 1:1 con la Barra Inferior de Navegación: El Centro de Ayuda & FAQ reorganiza sus 61 guías oficiales en 11 módulos lógicos encabezados por las 5 pestañas maestras de la app (Dashboard, Bolsas, Recurrentes, Calendario y Consejos).",
         "⚙️ Bloque Dedicado a Herramientas & Ajustes: Agrupación segregada y nítida para Metas (Sinking Funds), Importador Bancario, Seguridad/Biometría, Copias de Seguridad, Informes/Fiscalidad y Sistema/Acerca de.",

@@ -3,6 +3,22 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.33.0] - 2026-10-14
+
+### Security
+- **Remediación Integral de 8 Vulnerabilidades Criptográficas, Nativas y de Dependencias:**
+  - **Cifrado Síncrono Autenticado Encrypt-then-MAC y Modo Fail-Closed (`src/services/vaultCryptoService.ts`):** Sustitución del antiguo fallback XOR por un cifrado de flujo autenticado mediante `HMAC-SHA256` (con IV aleatorio de 128 bits y etiqueta MAC de 128 bits verificada en tiempo constante) y eliminación del retorno silencioso en texto plano en `encryptRecord`.
+  - **Derivación PBKDF2-HMAC-SHA256, Token Opaco y Rate-Limiting (`src/services/auth.ts`, `AuthScreen.tsx`, `SettingsModal.tsx`):** El PIN de seguridad se almacena como hash `PBKDF2-HMAC-SHA256` (10.000 iteraciones + sal CSPRNG de 128 bits) con migración transparente desde texto plano; sustitución de la credencial `gastos_saved_credential_v1` en claro por un token aleatorio de 256 bits; eliminación del oráculo de longitud del PIN en el teclado numérico; y bloqueo escalonado tras 5 intentos fallidos.
+  - **Cifrado en Reposo Completo en Restauración y Semillas (`src/services/db.ts`, `src/services/googleDriveBackup.ts`):** Pre-cifrado obligatorio con `VaultCryptoService.encryptRecord` / `encryptList` en `clearAndRestore`, `seedDefaultsIfEmpty`, `updateRecurringRulesOrder` y `applyRecurringSeeds`, cifrado de todas las claves de fallback en `localStorage` y verificación estricta del checksum antes de restaurar copias de seguridad.
+  - **Autenticación Biométrica Fuerte Clase 3 y WebAuthn Fail-Closed (`src/services/nativeBiometric.ts`, `BiometricPlugin.java`):** Eliminación del bypass web `{ success: true }` (ahora exige un desafío real FIDO2/WebAuthn con `userVerification: 'required'`) y restricción del prompt nativo Android exclusivamente a `BiometricManager.Authenticators.BIOMETRIC_STRONG`.
+  - **Endurecimiento del Contenedor Android y Keystore (`MainActivity.java`, `AndroidManifest.xml`, `file_paths.xml`, `scripts/build-apk.cjs`):** Activación de `FLAG_SECURE` contra capturas en multitarea, desactivación de extracción ADB (`android:allowBackup="false"`), acotación de `FileProvider` a directorios privados de la aplicación y soporte para keystore de producción vía variables de entorno.
+  - **Content-Security-Policy (CSP), Protección Anti-ReDoS y Parcheo de `xlsx` (`index.html`, `csvImporterService.ts`, `SmartRulesModal.tsx`, `package.json`):** Incorporación de cabecera meta CSP estricta, validador `isSafeRegexPattern` (rechaza cuantificadores anidados y limita longitud a 120/256 caracteres) y actualización de `xlsx` a `0.20.3` oficial (`0 vulnerabilities` en `npm audit`).
+
+### Added
+- **Grafo Interactivo de Arquitectura TecnoRed Engine v2.0 (`src/config/stack.config.json`, `src/components/settings/AppArchitectureGraph.tsx`):**
+  - **Conmutador Dual (Mapa Topológico vs Rutas de Flujo E2E):** Exploración interactiva de los 6 nodos tecnológicos, 7 enlaces con protocolos y 4 recetas de ejecución paso a paso (*Registro de Gasto y Sellado AES-GCM-256*, *Respaldo de 2 Ranuras y Restauración Cifrada*, *Blindaje PBKDF2-SHA256 y Biometría Clase 3*, *Importación Bancaria Anti-ReDoS y Fiscalidad PDF*).
+  - **Telemetría Criptográfica en Vivo e Inspector Profundo:** Sonda activa con `VaultCryptoService.verifyIntegrity()`, visualización de modelo computacional, justificación arquitectónica (`whyChosen`), casos de uso (`useCases`) y navegación directa entre nodos conectados en un chunk diferido `< 10 KB` gzip.
+
 ## [1.32.0] - 2026-10-03
 
 ### Changed
