@@ -1,10 +1,16 @@
 import { DBService } from './db';
 import { NativeBiometricService } from './nativeBiometric';
+import { VaultCryptoService } from './vaultCryptoService';
 
 export class AuthService {
   private static SESSION_KEY = 'gastos_unlocked_session_v1';
   private static AUTO_LOGIN_KEY = 'gastos_auto_login_active_v1';
   private static SAVED_CREDENTIAL_KEY = 'gastos_saved_credential_v1';
+  private static SAVED_VERIFIER_KEY = 'gastos_saved_token_verifier_v1';
+  private static FAILED_ATTEMPTS_KEY = 'gastos_auth_failed_attempts_v1';
+  private static LOCKOUT_UNTIL_KEY = 'gastos_auth_lockout_until_v1';
+  private static MAX_FAILED_ATTEMPTS = 5;
+  private static LOCKOUT_DURATION_MS = 30_000;
   private static isPickingFile = false;
 
   /**
@@ -40,11 +46,60 @@ export class AuthService {
   }
 
   /**
-   * Obtiene la contraseña / PIN configurada actualmente
+   * Devuelve cuántos segundos restan de bloqueo temporal por intentos fallidos (0 si no está bloqueado)
    */
-  static getConfiguredPassword(): string {
-    const settings = DBService.getSettings();
-    return settings.pinSeguridad || '';
+  static getLockoutRemainingSeconds(): number {
+    try {
+      if (typeof localStorage === 'undefined') return 0;
+      const untilRaw = localStorage.getItem(this.LOCKOUT_UNTIL_KEY);
+      if (!untilRaw) return 0;
+      const untilMs = parseInt(untilRaw, 10) || 0;
+      const diffMs = untilMs - Date.now();
+      if (diffMs <= 0) {
+        localStorage.removeItem(this.LOCKOUT_UNTIL_KEY);
+        return 0;
+      }
+      return Math.ceil(diffMs / 1000);
+    } catch {
+      return 0;
+    }
+  }
+
+  /**
+   * Obtiene el número de intentos fallidos acumulados
+   */
+  static getFailedAttempts(): number {
+    try {
+      if (typeof localStorage === 'undefined') return 0;
+      return parseInt(localStorage.getItem(this.FAILED_ATTEMPTS_KEY) || '0', 10) || 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  private static recordFailedAttempt(): void {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      const current = this.getFailedAttempts() + 1;
+      localStorage.setItem(this.FAILED_ATTEMPTS_KEY, String(current));
+      if (current >= this.MAX_FAILED_ATTEMPTS) {
+        const multiplier = Math.min(4, Math.floor(current / this.MAX_FAILED_ATTEMPTS));
+        const lockoutUntil = Date.now() + this.LOCKOUT_DURATION_MS * multiplier;
+        localStorage.setItem(this.LOCKOUT_UNTIL_KEY, String(lockoutUntil));
+      }
+    } catch {
+      // Ignorar
+    }
+  }
+
+  static resetLockout(): void {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      localStorage.removeItem(this.FAILED_ATTEMPTS_KEY);
+      localStorage.removeItem(this.LOCKOUT_UNTIL_KEY);
+    } catch {
+      // Ignorar
+    }
   }
 
   /**
@@ -74,19 +129,8 @@ export class AuthService {
   }
 
   /**
-   * Obtiene la credencial guardada si se configuró auto-login
-   */
-  static getSavedCredential(): string {
-    try {
-      if (typeof localStorage === 'undefined') return '';
-      return localStorage.getItem(this.SAVED_CREDENTIAL_KEY) || '';
-    } catch {
-      return '';
-    }
-  }
-
-  /**
    * Comprueba si la app puede acceder automáticamente sin pedir credenciales
+   * utilizando un token de dispositivo vinculado al hash del PIN (sin guardar el PIN en claro).
    */
   static canAutoUnlock(): boolean {
     if (!this.isPasswordConfigured()) {
@@ -97,52 +141,97 @@ export class AuthService {
       return false;
     }
 
-    const savedCred = this.getSavedCredential();
-    const currentPass = this.getConfiguredPassword();
-    return Boolean(savedCred && savedCred === currentPass);
+    if (this.getLockoutRemainingSeconds() > 0) {
+      return false;
+    }
+
+    try {
+      if (typeof localStorage === 'undefined') return false;
+      const savedToken = localStorage.getItem(this.SAVED_CREDENTIAL_KEY) || '';
+      const savedVerifier = localStorage.getItem(this.SAVED_VERIFIER_KEY) || '';
+      const settings = DBService.getSettings();
+      const configuredHash = settings.pinSeguridad || '';
+
+      if (!savedToken || !configuredHash) return false;
+
+      if (savedVerifier) {
+        const expectedVerifier = VaultCryptoService.sha256Hex(`${savedToken}:${configuredHash}`);
+        return expectedVerifier === savedVerifier;
+      }
+
+      // Migración transparente de credencial legada si existía de versiones previas
+      if (VaultCryptoService.verifyPin(savedToken, configuredHash)) {
+        if (!VaultCryptoService.isHashedPin(configuredHash)) {
+          settings.pinSeguridad = VaultCryptoService.hashPin(savedToken);
+          DBService.saveSettings(settings);
+        }
+        this.markSessionUnlocked(true);
+        return true;
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
   }
 
   /**
-   * Valida la contraseña / PIN introducido y opcionalmente recuerda la credencial
+   * Valida la contraseña / PIN introducido y opcionalmente recuerda la sesión en el dispositivo
    */
   static unlockWithPassword(inputPassword: string, rememberOnDevice: boolean = false): boolean {
+    if (this.getLockoutRemainingSeconds() > 0) {
+      return false;
+    }
+
     const settings = DBService.getSettings();
-    const correctPassword = settings.pinSeguridad || '';
+    const configuredPinOrHash = settings.pinSeguridad || '';
 
     // Si aún no hay contraseña fijada y se pasa una no vacía (mínimo 4 caracteres), se inicializa
-    if (!correctPassword && inputPassword.trim().length >= 4) {
+    if (!configuredPinOrHash && inputPassword.trim().length >= 4) {
       this.setPassword(inputPassword.trim(), true);
-      this.markSessionUnlocked(rememberOnDevice, inputPassword.trim());
+      this.resetLockout();
+      this.markSessionUnlocked(rememberOnDevice);
       return true;
     }
 
-    if (inputPassword === correctPassword) {
-      this.markSessionUnlocked(rememberOnDevice, inputPassword);
+    if (VaultCryptoService.verifyPin(inputPassword, configuredPinOrHash)) {
+      // Si el PIN almacenado aún estaba en texto plano legado, migrarlo automáticamente a PBKDF2-SHA256
+      if (!VaultCryptoService.isHashedPin(configuredPinOrHash)) {
+        settings.pinSeguridad = VaultCryptoService.hashPin(inputPassword);
+        DBService.saveSettings(settings);
+      }
+      this.resetLockout();
+      this.markSessionUnlocked(rememberOnDevice);
       return true;
     }
 
+    this.recordFailedAttempt();
     return false;
   }
 
   /**
-   * Registra el desbloqueo y guarda la credencial si se solicitó recordar
+   * Registra el desbloqueo y emite un token criptográfico efímero si se solicitó recordar dispositivo
    */
-  private static markSessionUnlocked(remember: boolean, credential?: string): void {
+  private static markSessionUnlocked(remember: boolean): void {
     try {
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.setItem(this.SESSION_KEY, 'true');
       }
+      const settings = DBService.getSettings();
       if (typeof localStorage !== 'undefined') {
-        if (remember && credential) {
+        if (remember && settings.pinSeguridad) {
+          const deviceToken = VaultCryptoService.generateSecureToken(32);
+          const verifier = VaultCryptoService.sha256Hex(`${deviceToken}:${settings.pinSeguridad}`);
           localStorage.setItem(this.AUTO_LOGIN_KEY, 'true');
-          localStorage.setItem(this.SAVED_CREDENTIAL_KEY, credential);
+          localStorage.setItem(this.SAVED_CREDENTIAL_KEY, deviceToken);
+          localStorage.setItem(this.SAVED_VERIFIER_KEY, verifier);
         } else {
           localStorage.removeItem(this.AUTO_LOGIN_KEY);
           localStorage.removeItem(this.SAVED_CREDENTIAL_KEY);
+          localStorage.removeItem(this.SAVED_VERIFIER_KEY);
         }
       }
 
-      const settings = DBService.getSettings();
       settings.guardarContrasenaAuto = remember;
       DBService.saveSettings(settings);
     } catch {
@@ -163,6 +252,7 @@ export class AuthService {
       if (manualLogout && typeof localStorage !== 'undefined') {
         localStorage.removeItem(this.AUTO_LOGIN_KEY);
         localStorage.removeItem(this.SAVED_CREDENTIAL_KEY);
+        localStorage.removeItem(this.SAVED_VERIFIER_KEY);
         const settings = DBService.getSettings();
         settings.guardarContrasenaAuto = false;
         DBService.saveSettings(settings);
@@ -173,21 +263,24 @@ export class AuthService {
   }
 
   /**
-   * Configura una nueva contraseña / PIN maestro
+   * Configura una nueva contraseña / PIN maestro almacenando únicamente su hash PBKDF2-SHA256
    */
-  static setPassword(newPassword: string, activate: boolean = true): void {
+  static setPassword(newPassword: string, activate: boolean = true): string {
     const settings = DBService.getSettings();
-    settings.pinSeguridad = newPassword;
-    settings.bloqueoPinActivo = activate && Boolean(newPassword);
+    const hashed = newPassword ? VaultCryptoService.hashPin(newPassword.trim()) : '';
+    settings.pinSeguridad = hashed;
+    settings.bloqueoPinActivo = activate && Boolean(hashed);
     DBService.saveSettings(settings);
+    this.resetLockout();
     this.lock(false);
+    return hashed;
   }
 
   /**
    * Alias de compatibilidad
    */
-  static setPin(newPin: string, activate: boolean = true): void {
-    this.setPassword(newPin, activate);
+  static setPin(newPin: string, activate: boolean = true): string {
+    return this.setPassword(newPin, activate);
   }
 
   static unlockWithPin(pin: string): boolean {
@@ -219,19 +312,19 @@ export class AuthService {
    */
   static async authenticateWithBiometrics(): Promise<boolean> {
     try {
-      const settings = DBService.getSettings();
       if (!this.isPasswordConfigured()) {
         return false;
       }
 
       const res = await NativeBiometricService.authenticate({
-        title: 'Acceso a Gastos Facturación',
-        subtitle: 'Verifica tu huella para acceder al panel financiero',
+        title: 'Acceso a CronoCash',
+        subtitle: 'Verifica tu identidad biométrica para abrir la bóveda cifrada',
         cancelText: 'Usar Contraseña / PIN',
       });
 
       if (res.success) {
-        this.markSessionUnlocked(this.isAutoLoginEnabled(), settings.pinSeguridad);
+        this.resetLockout();
+        this.markSessionUnlocked(this.isAutoLoginEnabled());
         return true;
       }
 
@@ -241,3 +334,4 @@ export class AuthService {
     }
   }
 }
+

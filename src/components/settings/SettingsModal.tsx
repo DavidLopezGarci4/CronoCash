@@ -332,9 +332,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         alert('Los PINs introducidos no coinciden.');
         return;
       }
-      updated.pinSeguridad = newPin.trim();
+      const hashedPin = AuthService.setPassword(newPin.trim(), true);
+      updated.pinSeguridad = hashedPin;
       updated.bloqueoPinActivo = true;
-      AuthService.setPassword(newPin.trim(), true);
     }
 
     await DBService.saveSettings(updated);

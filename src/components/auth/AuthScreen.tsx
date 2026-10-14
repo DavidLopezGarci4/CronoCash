@@ -30,6 +30,19 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onUnlocked, onRequestExi
   const [errorMsg, setErrorMsg] = useState('');
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
   const [isAuthenticatingBiometric, setIsAuthenticatingBiometric] = useState(false);
+  const [lockoutSeconds, setLockoutSeconds] = useState(() => AuthService.getLockoutRemainingSeconds());
+
+  useEffect(() => {
+    if (lockoutSeconds <= 0) return;
+    const timer = setInterval(() => {
+      const remaining = AuthService.getLockoutRemainingSeconds();
+      setLockoutSeconds(remaining);
+      if (remaining <= 0) {
+        setErrorMsg('');
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lockoutSeconds]);
 
   useEffect(() => {
     // Comprobar soporte biométrico nativo (sensor de huella Android o WebAuthn)
@@ -62,6 +75,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onUnlocked, onRequestExi
     if (e) e.preventDefault();
     setErrorMsg('');
 
+    const currentLockout = AuthService.getLockoutRemainingSeconds();
+    if (currentLockout > 0) {
+      setLockoutSeconds(currentLockout);
+      await HapticService.notificationError();
+      setErrorMsg(`Demasiados intentos fallidos. Espera ${currentLockout}s antes de reintentar.`);
+      return;
+    }
+
     if (!password) {
       await HapticService.notificationWarning();
       setErrorMsg('Por favor, introduce tu contraseña o código PIN.');
@@ -93,32 +114,28 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onUnlocked, onRequestExi
       onUnlocked();
     } else {
       await HapticService.notificationError();
-      setErrorMsg('Contraseña o PIN incorrecto.');
+      const remainingLockout = AuthService.getLockoutRemainingSeconds();
+      setLockoutSeconds(remainingLockout);
+      if (remainingLockout > 0) {
+        setErrorMsg(`Bloqueo de seguridad activo: espera ${remainingLockout}s por intentos fallidos.`);
+      } else {
+        setErrorMsg('Contraseña o PIN incorrecto.');
+      }
       setPassword('');
     }
   };
 
   const handleNumpadPress = async (digit: string) => {
+    const currentLockout = AuthService.getLockoutRemainingSeconds();
+    if (currentLockout > 0) {
+      setLockoutSeconds(currentLockout);
+      setErrorMsg(`Bloqueo de seguridad activo: espera ${currentLockout}s.`);
+      return;
+    }
     if (password.length >= 12) return;
     setErrorMsg('');
     await HapticService.impactLight();
-    const newPass = password + digit;
-    setPassword(newPass);
-
-    const configured = AuthService.getConfiguredPassword();
-    if (isConfigured && configured && newPass.length === configured.length) {
-      if (AuthService.unlockWithPassword(newPass, rememberMe)) {
-        await HapticService.notificationSuccess();
-        onUnlocked();
-      } else {
-        await HapticService.notificationError();
-        setErrorMsg('Código PIN incorrecto.');
-        setTimeout(() => {
-          setPassword('');
-          setErrorMsg('');
-        }, 500);
-      }
-    }
+    setPassword((prev) => prev + digit);
   };
 
   const handleDeleteDigit = async () => {
@@ -270,9 +287,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onUnlocked, onRequestExi
           {/* Botón principal */}
           <button
             type="submit"
-            className="w-full h-13 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-98 text-slate-950 font-extrabold rounded-2xl flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
+            disabled={lockoutSeconds > 0}
+            className="w-full h-13 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 disabled:opacity-50 disabled:cursor-not-allowed active:scale-98 text-slate-950 font-extrabold rounded-2xl flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
           >
-            <span>{isConfigured ? 'Desbloquear Bóveda' : 'Guardar PIN y Entrar'}</span>
+            <span>
+              {lockoutSeconds > 0
+                ? `Bloqueado temporalmente (${lockoutSeconds}s)`
+                : isConfigured
+                ? 'Desbloquear Bóveda'
+                : 'Guardar PIN y Entrar'}
+            </span>
             <ArrowRight className="w-4 h-4 stroke-[2.5]" />
           </button>
         </form>

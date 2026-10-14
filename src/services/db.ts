@@ -727,11 +727,18 @@ export class DBService {
       settingsReq.onsuccess = async () => {
         if (settingsReq.result) {
           const decrypted = await VaultCryptoService.decryptRecord<Settings>(settingsReq.result);
-          this.cachedSettings = { ...DEFAULT_SETTINGS, ...decrypted };
+          const merged = { ...DEFAULT_SETTINGS, ...decrypted };
+          if (merged.pinSeguridad && !VaultCryptoService.isHashedPin(merged.pinSeguridad)) {
+            merged.pinSeguridad = VaultCryptoService.hashPin(merged.pinSeguridad);
+          }
+          this.cachedSettings = merged;
           this.settingsLoaded = true;
         } else {
           // Inicializar desde localStorage si existe o defaults
           const localSettings = this.getLocalStorageItem<Settings>('gastos_settings', DEFAULT_SETTINGS);
+          if (localSettings.pinSeguridad && !VaultCryptoService.isHashedPin(localSettings.pinSeguridad)) {
+            localSettings.pinSeguridad = VaultCryptoService.hashPin(localSettings.pinSeguridad);
+          }
           const encSettings = await VaultCryptoService.encryptRecord(localSettings);
           const writeTx = db.transaction(STORES.SETTINGS, 'readwrite');
           writeTx.objectStore(STORES.SETTINGS).put(encSettings);
@@ -773,11 +780,12 @@ export class DBService {
         const goalsTx = db.transaction(STORES.SAVINGS_GOALS, 'readonly');
         const goalsStore = goalsTx.objectStore(STORES.SAVINGS_GOALS);
         const goalsCount = goalsStore.count();
-        goalsCount.onsuccess = () => {
+        goalsCount.onsuccess = async () => {
           if (goalsCount.result === 0 && !alreadySeeded) {
+            const encryptedGoals = await VaultCryptoService.encryptList(DEFAULT_SAVINGS_GOALS_SEEDS);
             const writeTx = db.transaction(STORES.SAVINGS_GOALS, 'readwrite');
             const writeStore = writeTx.objectStore(STORES.SAVINGS_GOALS);
-            for (const g of DEFAULT_SAVINGS_GOALS_SEEDS) {
+            for (const g of encryptedGoals) {
               writeStore.put(g);
             }
           }
@@ -801,20 +809,28 @@ export class DBService {
     if (!this.settingsLoaded) {
       // Si la BD aún no ha respondido, leer de localStorage de respaldo
       const fromLocal = this.getLocalStorageItem<Settings>('gastos_settings', DEFAULT_SETTINGS);
+      if (fromLocal.pinSeguridad && !VaultCryptoService.isHashedPin(fromLocal.pinSeguridad)) {
+        fromLocal.pinSeguridad = VaultCryptoService.hashPin(fromLocal.pinSeguridad);
+      }
       this.cachedSettings = { ...DEFAULT_SETTINGS, ...fromLocal };
     }
     return this.cachedSettings;
   }
 
   static async saveSettings(settings: Settings): Promise<void> {
+    const normalizedPin =
+      settings.pinSeguridad && !VaultCryptoService.isHashedPin(settings.pinSeguridad)
+        ? VaultCryptoService.hashPin(settings.pinSeguridad)
+        : settings.pinSeguridad;
     const updated: Settings = {
       ...settings,
+      pinSeguridad: normalizedPin,
       updatedAt: new Date().toISOString(),
     };
     this.cachedSettings = updated;
     this.settingsLoaded = true;
 
-    // Guardar en localStorage inmediatamente
+    // Guardar en localStorage inmediatamente (cifrado en reposo)
     this.setLocalStorageItem('gastos_settings', updated);
 
     // Guardar en IndexedDB cifrado con AES-GCM-256
@@ -1649,20 +1665,16 @@ export class DBService {
     this.setLocalStorageItem('gastos_recurring_rules', updated);
 
     try {
+      const encryptedList = await VaultCryptoService.encryptList(updated);
       const db = await this.getDB();
-      await new Promise<void>(async (resolve, reject) => {
-        try {
-          const tx = db.transaction(STORES.RECURRING_RULES, 'readwrite');
-          const store = tx.objectStore(STORES.RECURRING_RULES);
-          for (const r of updated) {
-            const enc = await VaultCryptoService.encryptRecord(r);
-            store.put(enc);
-          }
-          tx.oncomplete = () => resolve();
-          tx.onerror = () => reject(tx.error);
-        } catch (err) {
-          reject(err);
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.RECURRING_RULES, 'readwrite');
+        const store = tx.objectStore(STORES.RECURRING_RULES);
+        for (const enc of encryptedList) {
+          store.put(enc);
         }
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
       });
     } catch (e) {
       console.warn('[DBService] Error al actualizar orden de recurrentes:', e);
@@ -1685,6 +1697,7 @@ export class DBService {
 
     this.setLocalStorageItem('gastos_recurring_rules', result);
     try {
+      const encryptedList = await VaultCryptoService.encryptList(result);
       const db = await this.getDB();
       await new Promise<void>((resolve, reject) => {
         const tx = db.transaction(STORES.RECURRING_RULES, 'readwrite');
@@ -1692,7 +1705,7 @@ export class DBService {
         if (mode === 'replace') {
           store.clear();
         }
-        for (const r of result) {
+        for (const r of encryptedList) {
           store.put(r);
         }
         tx.oncomplete = () => resolve();
@@ -2088,6 +2101,7 @@ export class DBService {
 
   /**
    * Sobrescribe de forma atómica y completa la base de datos (IndexedDB y localStorage)
+   * aplicando cifrado en reposo AES-GCM-256 a todas las colecciones sensibles.
    */
   static async clearAndRestore(data: {
     expenses: Expense[];
@@ -2102,7 +2116,11 @@ export class DBService {
     this.setLocalStorageItem('gastos_buckets', data.buckets);
     this.setLocalStorageItem('gastos_recurring_rules', data.recurringRules);
     if (data.settings) {
-      this.cachedSettings = { ...DEFAULT_SETTINGS, ...data.settings };
+      const mergedSettings = { ...DEFAULT_SETTINGS, ...data.settings };
+      if (mergedSettings.pinSeguridad && !VaultCryptoService.isHashedPin(mergedSettings.pinSeguridad)) {
+        mergedSettings.pinSeguridad = VaultCryptoService.hashPin(mergedSettings.pinSeguridad);
+      }
+      this.cachedSettings = mergedSettings;
       this.setLocalStorageItem('gastos_settings', this.cachedSettings);
     }
     if (Array.isArray(data.tips)) {
@@ -2116,7 +2134,16 @@ export class DBService {
     }
 
     try {
-      const db = await this.getDB();
+      const [encSettings, encExpenses, encRecurringRules, encSavingsGoals, db] = await Promise.all([
+        data.settings ? VaultCryptoService.encryptRecord(this.cachedSettings!) : Promise.resolve(null),
+        VaultCryptoService.encryptList(data.expenses || []),
+        VaultCryptoService.encryptList(data.recurringRules || []),
+        Array.isArray(data.savingsGoals)
+          ? VaultCryptoService.encryptList(data.savingsGoals)
+          : Promise.resolve([]),
+        this.getDB(),
+      ]);
+
       const storesToTransact = [
         STORES.EXPENSES,
         STORES.BUCKETS,
@@ -2141,12 +2168,12 @@ export class DBService {
         tx.objectStore(STORES.SAVINGS_GOALS).clear();
       }
 
-      if (data.settings) {
-        tx.objectStore(STORES.SETTINGS).put(this.cachedSettings!);
+      if (data.settings && encSettings) {
+        tx.objectStore(STORES.SETTINGS).put(encSettings);
       }
 
       const expStore = tx.objectStore(STORES.EXPENSES);
-      for (const e of data.expenses) {
+      for (const e of encExpenses) {
         expStore.put(e);
       }
 
@@ -2156,7 +2183,7 @@ export class DBService {
       }
 
       const rStore = tx.objectStore(STORES.RECURRING_RULES);
-      for (const r of data.recurringRules) {
+      for (const r of encRecurringRules) {
         rStore.put(r);
       }
 
@@ -2174,9 +2201,9 @@ export class DBService {
         }
       }
 
-      if (Array.isArray(data.savingsGoals) && data.savingsGoals.length > 0) {
+      if (Array.isArray(data.savingsGoals) && encSavingsGoals.length > 0) {
         const gStore = tx.objectStore(STORES.SAVINGS_GOALS);
-        for (const g of data.savingsGoals) {
+        for (const g of encSavingsGoals) {
           gStore.put(g);
         }
       }
@@ -2246,12 +2273,14 @@ export class DBService {
     });
   }
 
-  // --- HELPERS LOCALSTORAGE ---
+  // --- HELPERS LOCALSTORAGE CIFRADO EN REPOSO ---
   private static getLocalStorageItem<T>(key: string, defaultValue: T): T {
     try {
       if (typeof localStorage === 'undefined') return defaultValue;
-      const data = localStorage.getItem(key);
-      return data ? JSON.parse(data) : defaultValue;
+      const rawData = localStorage.getItem(key);
+      if (!rawData) return defaultValue;
+      const plainJson = VaultCryptoService.decryptSyncString(rawData);
+      return plainJson ? JSON.parse(plainJson) : defaultValue;
     } catch {
       return defaultValue;
     }
@@ -2260,7 +2289,9 @@ export class DBService {
   private static setLocalStorageItem<T>(key: string, value: T): void {
     try {
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(key, JSON.stringify(value));
+        const jsonStr = JSON.stringify(value);
+        const encryptedStr = VaultCryptoService.encryptSyncString(jsonStr);
+        localStorage.setItem(key, encryptedStr);
       }
     } catch {
       // Ignorar quota errors

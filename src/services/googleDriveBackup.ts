@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { DBService } from './db';
+import { VaultCryptoService } from './vaultCryptoService';
 import { Expense, Bucket, RecurringRule, Settings, FinancialTip, SmartRule, SavingsGoal } from '../types';
 
 export const DRIVE_SLOT_ACTUAL = 'CronoCash_Actual.json';
@@ -266,9 +267,12 @@ export class GoogleDriveBackupService {
           }
         }
 
-        // Si es Ranura 1 (Actual), guardar snapshot persistente que sobrescribe a la anterior
+        // Si es Ranura 1 (Actual), guardar snapshot persistente cifrado que sobrescribe a la anterior
         if (fileName === DRIVE_SLOT_ACTUAL && typeof localStorage !== 'undefined') {
-          localStorage.setItem('cronocash_slot_actual_payload', content);
+          localStorage.setItem(
+            'cronocash_slot_actual_payload',
+            VaultCryptoService.encryptSyncString(content)
+          );
           localStorage.setItem('cronocash_slot_actual_date', new Date().toISOString());
         }
 
@@ -338,6 +342,14 @@ export class GoogleDriveBackupService {
 
       // Formato v1.5.0 con Envelope y Metadata
       if (parsed.format === 'CRONOCASH_BACKUP' && parsed.data) {
+        if (parsed.checksum && typeof parsed.checksum === 'string') {
+          const computedChecksum = this.generateChecksum(JSON.stringify(parsed.data));
+          if (parsed.checksum !== computedChecksum) {
+            return emptyResult(
+              'Error de integridad: El checksum del archivo de respaldo no coincide (posible alteración o corrupción).'
+            );
+          }
+        }
         const expenses: Expense[] = Array.isArray(parsed.data.expenses) ? parsed.data.expenses : [];
         const buckets: Bucket[] = Array.isArray(parsed.data.buckets) ? parsed.data.buckets : [];
         const recurringRules: RecurringRule[] = Array.isArray(parsed.data.recurringRules) ? parsed.data.recurringRules : [];
