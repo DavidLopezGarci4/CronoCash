@@ -21,7 +21,7 @@ public class BiometricPlugin extends Plugin {
         try {
             BiometricManager biometricManager = BiometricManager.from(getContext());
             int canAuthenticate = biometricManager.canAuthenticate(
-                BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK
+                BiometricManager.Authenticators.BIOMETRIC_STRONG
             );
 
             boolean isAvailable = (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS);
@@ -81,7 +81,7 @@ public class BiometricPlugin extends Plugin {
                     .setTitle(title)
                     .setSubtitle(subtitle)
                     .setNegativeButtonText(cancelText)
-                    .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK)
+                    .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
                     .build();
 
                 biometricPrompt.authenticate(promptInfo);

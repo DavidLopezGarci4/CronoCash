@@ -58,8 +58,49 @@ export class NativeBiometricService {
         };
       }
 
-      // Fallback navegador / pruebas web
-      return { success: true };
+      // En navegador web: verificar mediante WebAuthn de plataforma si existe credencial local o rechazar (fail-closed)
+      if (
+        typeof window !== 'undefined' &&
+        window.PublicKeyCredential &&
+        navigator.credentials &&
+        typeof navigator.credentials.create === 'function'
+      ) {
+        const available = await this.isAvailable();
+        if (!available) {
+          return {
+            success: false,
+            error: 'Autenticador biométrico de plataforma no disponible en este navegador',
+          };
+        }
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+        const userId = new Uint8Array(16);
+        window.crypto.getRandomValues(userId);
+
+        const cred = await navigator.credentials.create({
+          publicKey: {
+            challenge,
+            rp: { name: 'CronoCash Vault' },
+            user: {
+              id: userId,
+              name: 'cronocash-local-user',
+              displayName: 'Titular CronoCash',
+            },
+            pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+            authenticatorSelection: {
+              authenticatorAttachment: 'platform',
+              userVerification: 'required',
+            },
+            timeout: 30000,
+          },
+        });
+        return { success: Boolean(cred) };
+      }
+
+      return {
+        success: false,
+        error: 'Sensor biométrico nativo disponible únicamente en la app Android',
+      };
     } catch (err: any) {
       return { success: false, error: err?.message || 'Error en sensor biométrico' };
     }

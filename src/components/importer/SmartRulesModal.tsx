@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { SmartRule, Bucket } from '../../types';
 import { DBService, INITIAL_SMART_RULES } from '../../services/db';
+import { isSafeRegexPattern } from '../../services/csvImporterService';
 
 interface SmartRulesModalProps {
   isOpen: boolean;
@@ -73,10 +74,8 @@ export const SmartRulesModal: React.FC<SmartRulesModalProps> = ({
     }
 
     if (newMatchType === 'regex') {
-      try {
-        new RegExp(newPattern);
-      } catch {
-        setErrorMsg('La expresión regular ingresada no es válida.');
+      if (!isSafeRegexPattern(newPattern)) {
+        setErrorMsg('Expresión regular inválida o rechazada por seguridad (máx. 120 caracteres, sin cuantificadores anidados).');
         return;
       }
     }

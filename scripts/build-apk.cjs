@@ -74,7 +74,16 @@ const possibleSigners = [
   path.join(androidSdk, 'build-tools', '35.0.0', 'apksigner.bat'),
 ];
 const sdkBuildTools = possibleSigners.find((p) => fs.existsSync(p)) || possibleSigners[0];
-const keystore = path.join(process.env.USERPROFILE, '.android', 'debug.keystore');
+const keystore = process.env.CRONO_KEYSTORE_PATH || path.join(process.env.USERPROFILE, '.android', 'debug.keystore');
+const ksPass = process.env.CRONO_KEYSTORE_PASS || 'android';
+const keyPass = process.env.CRONO_KEY_PASS || ksPass;
+const keyAlias = process.env.CRONO_KEY_ALIAS || 'androiddebugkey';
+
+if (!process.env.CRONO_KEYSTORE_PATH) {
+  console.log('ℹ️  Usando keystore de desarrollo local (define CRONO_KEYSTORE_PATH para firma de producción).');
+} else {
+  console.log(`🔒 Usando keystore de producción: ${keystore}`);
+}
 
 function getUnsignedApk() {
   const possibleUnsigned = [
@@ -118,7 +127,7 @@ const targetReleaseApk = path.join(releaseDir, 'app-release.apk');
 const targetCronoNamed = path.join(releaseDir, `crono-cash-v${version}-release.apk`);
 
 console.log('🔑 Firmando APK Estándar...');
-const signCmdStandard = `"${sdkBuildTools}" sign --ks "${keystore}" --ks-pass pass:android --key-pass pass:android --ks-key-alias androiddebugkey --out "${targetStandardApk}" "${unsignedStandard}"`;
+const signCmdStandard = `"${sdkBuildTools}" sign --ks "${keystore}" --ks-pass pass:${ksPass} --key-pass pass:${keyPass} --ks-key-alias ${keyAlias} --out "${targetStandardApk}" "${unsignedStandard}"`;
 execSync(signCmdStandard, { env, stdio: 'inherit' });
 
 fs.copyFileSync(targetStandardApk, targetStandardNamed);
@@ -160,7 +169,7 @@ const targetVerticonApk = path.join(releaseDir, `app-v${version}-verticon-releas
 const targetVerticonNamed = path.join(releaseDir, `crono-cash-v${version}-verticon-release.apk`);
 
 console.log('🔑 Firmando APK Verticons...');
-const signCmdVerticon = `"${sdkBuildTools}" sign --ks "${keystore}" --ks-pass pass:android --key-pass pass:android --ks-key-alias androiddebugkey --out "${targetVerticonApk}" "${unsignedVerticon}"`;
+const signCmdVerticon = `"${sdkBuildTools}" sign --ks "${keystore}" --ks-pass pass:${ksPass} --key-pass pass:${keyPass} --ks-key-alias ${keyAlias} --out "${targetVerticonApk}" "${unsignedVerticon}"`;
 execSync(signCmdVerticon, { env, stdio: 'inherit' });
 
 fs.copyFileSync(targetVerticonApk, targetVerticonNamed);

@@ -1,6 +1,25 @@
 import { Expense, Bucket, SmartRule, ExtraIncome, MonthlySalaryOverride, RecurringRule } from '../types';
 import * as XLSX from 'xlsx';
 
+/**
+ * Valida que una expresión regular de usuario o respaldo sea segura contra ataques ReDoS
+ * (rechaza cuantificadores anidados, retroreferencias y patrones excesivamente largos).
+ */
+export const isSafeRegexPattern = (pattern: string): boolean => {
+  if (!pattern || typeof pattern !== 'string') return false;
+  const trimmed = pattern.trim();
+  if (trimmed.length === 0 || trimmed.length > 120) return false;
+  // Rechazar cuantificadores anidados sobre grupos: ej. (a+)+, (.*)*, (a|aa)+ y retroreferencias \1
+  if (/(\+|\*|\{[0-9,]+\})\s*\)\s*(\+|\*|\{[0-9,]+\}|\?)/.test(trimmed)) return false;
+  if (/\\[1-9]/.test(trimmed)) return false;
+  try {
+    new RegExp(trimmed, 'i');
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const isPayrollConcept = (concept: string): boolean => {
   const norm = (concept || '')
     .normalize('NFD')
@@ -564,7 +583,9 @@ export class CsvImporterService {
             break;
           case 'regex':
             try {
-              isMatch = new RegExp(rule.pattern, 'i').test(row.cleanConcept);
+              if (isSafeRegexPattern(rule.pattern)) {
+                isMatch = new RegExp(rule.pattern, 'i').test(row.cleanConcept.slice(0, 256));
+              }
             } catch {
               isMatch = false;
             }
