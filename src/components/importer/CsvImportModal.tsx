@@ -42,6 +42,8 @@ interface CsvImportModalProps {
   currency: string;
   onImportComplete: () => void;
   onOpenRulesManager?: () => void;
+  /** Extracto recibido con "Compartir a CronoCash" para analizar nada más abrir. */
+  initialFile?: File | null;
 }
 
 export const CsvImportModal: React.FC<CsvImportModalProps> = ({
@@ -53,6 +55,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
   currency,
   onImportComplete,
   onOpenRulesManager,
+  initialFile = null,
 }) => {
   const [step, setStep] = useState<'upload' | 'review'>('upload');
   const [isDragging, setIsDragging] = useState(false);
@@ -65,6 +68,8 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
   const [parseReport, setParseReport] = useState<StatementParseReport | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const processFileRef = useRef<((file: File) => Promise<void>) | null>(null);
+  const consumedInitialFileRef = useRef<File | null>(null);
 
   React.useEffect(() => {
     const handleFocus = () => {
@@ -75,6 +80,13 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
+
+  // Extracto recibido con "Compartir a CronoCash": se analiza automáticamente una sola vez
+  React.useEffect(() => {
+    if (!isOpen || !initialFile || consumedInitialFileRef.current === initialFile) return;
+    consumedInitialFileRef.current = initialFile;
+    processFileRef.current?.(initialFile);
+  }, [isOpen, initialFile]);
 
   if (!isOpen) return null;
 
@@ -122,6 +134,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
       setIsProcessing(false);
     }
   };
+  processFileRef.current = handleProcessFile;
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

@@ -27,6 +27,7 @@ import { IncomeAllocationService } from './services/incomeAllocationService';
 import { App as CapApp } from '@capacitor/app';
 import { ExitConfirmModal } from './components/common/ExitConfirmModal';
 import { ThemeService } from './services/themeService';
+import { SharedStatementService } from './services/sharedStatementService';
 
 export const App: React.FC = () => {
   // Estado de Bloqueo / Autenticación:
@@ -80,6 +81,47 @@ export const App: React.FC = () => {
       }
     };
   }, []);
+
+  // "Compartir a CronoCash": abrir el importador con el extracto compartido desde la app del banco.
+  // Solo se recoge con la bóveda desbloqueada; mientras está bloqueada, el extracto espera en memoria nativa.
+  const [sharedStatementFile, setSharedStatementFile] = useState<File | null>(null);
+  useEffect(() => {
+    if (isLocked) return;
+    let cancelled = false;
+
+    const pickUpSharedStatement = async () => {
+      const result = await SharedStatementService.consume();
+      if (cancelled || !result) return;
+      if ('error' in result) {
+        alert(result.error);
+        return;
+      }
+      setSharedStatementFile(result.file);
+      setCsvModalOpen(true);
+    };
+
+    pickUpSharedStatement();
+    let removeShareListener: () => void = () => undefined;
+    SharedStatementService.onAvailable(pickUpSharedStatement).then((remove) => {
+      if (cancelled) remove();
+      else removeShareListener = remove;
+    });
+    let resumeListener: { remove: () => void } | null = null;
+    CapApp.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) pickUpSharedStatement();
+    })
+      .then((handle) => {
+        if (cancelled) handle.remove();
+        else resumeListener = handle;
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+      removeShareListener();
+      resumeListener?.remove();
+    };
+  }, [isLocked]);
 
   // Sincronizar tema de la aplicación (Claro / Oscuro / Sistema) y escuchar preferencias del SO
   useEffect(() => {
@@ -717,7 +759,11 @@ export const App: React.FC = () => {
       {csvModalOpen && (
         <CsvImportModal
           isOpen={csvModalOpen}
-          onClose={() => setCsvModalOpen(false)}
+          onClose={() => {
+            setCsvModalOpen(false);
+            setSharedStatementFile(null);
+          }}
+          initialFile={sharedStatementFile}
           expenses={expenses}
           buckets={buckets}
           rules={smartRules}
@@ -725,6 +771,7 @@ export const App: React.FC = () => {
           onImportComplete={loadData}
           onOpenRulesManager={() => {
             setCsvModalOpen(false);
+            setSharedStatementFile(null);
             setSmartRulesModalOpen(true);
           }}
         />
