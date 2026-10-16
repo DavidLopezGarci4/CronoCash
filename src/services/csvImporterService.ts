@@ -1,5 +1,6 @@
 import { Expense, Bucket, SmartRule, ExtraIncome, MonthlySalaryOverride, RecurringRule } from '../types';
 import * as XLSX from 'xlsx';
+import { matchBankProfile, nonEmptyCount, normalizeCell, StatementColumnMap } from './bankProfiles';
 
 /**
  * Valida que una expresión regular de usuario o respaldo sea segura contra ataques ReDoS
@@ -136,31 +137,52 @@ export interface BatchAnalysisResult {
   allTransactions: AnalyzedTransaction[];
 }
 
+/** Resumen de cómo se ha leído un extracto, para informar al usuario en la previsualización. */
+export interface StatementParseReport {
+  /** 'bankinter' si el fichero coincide con el perfil verificado, 'generic' en otro caso. */
+  profileId: string;
+  profileName: string;
+  /** Fila (0-based, sin contar líneas vacías en CSV) de la cabecera usada. -1 si no se encontró. */
+  headerRowIndex: number;
+  /** Filas no vacías anteriores a la cabecera (título, IBAN, filtros…), sin contar pendientes. */
+  skippedPreambleRows: number;
+  /** Movimientos pendientes (aún no imputados) que se han omitido. */
+  skippedPendingRows: number;
+  /** Filas tras la cabecera descartadas por no ser movimientos (sin fecha, importe 0, totales…). */
+  skippedInvalidRows: number;
+}
+
+export interface StatementParseResult {
+  transactions: RawBankTransaction[];
+  report: StatementParseReport;
+}
+
 export class CsvImporterService {
   /**
-   * Detecta automáticamente el delimitador más probable en el archivo CSV (;, ,, o \t)
+   * Detecta el delimitador del CSV (;, , o tabulador).
+   * Para cada candidato calcula el número de separadores por línea (fuera de comillas) y se queda
+   * con el recuento más repetido. Gana el delimitador cuyo recuento modal aparece en más líneas, de modo
+   * que un preámbulo bancario (titular, IBAN, saldo) es ruido minoritario y no invalida la detección.
+   * En empate se prioriza ';' (exportaciones bancarias españolas), luego ',' y luego tabulador.
    */
   static detectDelimiter(sampleLines: string[]): string {
+    const lines = sampleLines.filter((line) => line.trim().length > 0).slice(0, 200);
     const delimiters = [';', ',', '\t'];
     let bestDelimiter = ';';
-    let maxConsistency = -1;
+    let bestScore = 0;
 
     for (const delim of delimiters) {
-      const counts = sampleLines
-        .filter((line) => line.trim().length > 0)
-        .map((line) => (line.split(delim).length - 1));
-
-      if (counts.length === 0) continue;
-
-      // Calcular si el delimitador aparece regularmente y con cuenta > 0
-      const firstCount = counts[0];
-      const isConsistent = counts.every((c) => c > 0 && Math.abs(c - firstCount) <= 1);
-      const avg = counts.reduce((a, b) => a + b, 0) / counts.length;
-
-      if (isConsistent && avg > maxConsistency) {
-        maxConsistency = avg;
-        bestDelimiter = delim;
-      } else if (avg > maxConsistency && maxConsistency === -1) {
+      const frequency = new Map<number, number>();
+      for (const line of lines) {
+        const count = this.countDelimiter(line, delim);
+        if (count > 0) frequency.set(count, (frequency.get(count) || 0) + 1);
+      }
+      let score = 0;
+      frequency.forEach((lineCount) => {
+        if (lineCount > score) score = lineCount;
+      });
+      if (score > bestScore) {
+        bestScore = score;
         bestDelimiter = delim;
       }
     }
@@ -168,8 +190,25 @@ export class CsvImporterService {
     return bestDelimiter;
   }
 
+  /** Cuenta las apariciones de un delimitador fuera de comillas dobles. */
+  private static countDelimiter(line: string, delimiter: string): number {
+    let count = 0;
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') i++;
+        else inQuotes = !inQuotes;
+      } else if (char === delimiter && !inQuotes) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   /**
-   * Tokeniza una línea CSV respetando comillas y delimitadores escapados
+   * Tokeniza una línea CSV respetando comillas dobles y comillas escapadas ("").
+   * El apóstrofo no actúa como comilla, para no romper comercios como "McDonald's".
    */
   static tokenizeLine(line: string, delimiter: string): string[] {
     const result: string[] = [];
@@ -180,8 +219,8 @@ export class CsvImporterService {
       const char = line[i];
       const nextChar = line[i + 1];
 
-      if (char === '"' || char === "'") {
-        if (inQuotes && nextChar === char) {
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
           current += char;
           i++; // saltar comilla escapada
         } else {
@@ -199,41 +238,36 @@ export class CsvImporterService {
   }
 
   /**
-   * Parsea fechas españolas o ISO comunes:
-   * DD/MM/YYYY, DD-MM-YYYY, YYYY-MM-DD, DD/MM/YY
+   * Parsea fechas españolas o ISO comunes: DD/MM/YYYY, DD-MM-YYYY, DD/MM/YY y YYYY-MM-DD.
+   * Devuelve null si el texto no es una fecha real (nunca sustituye por la fecha de hoy,
+   * para que subtítulos, filtros o totales del extracto no se cuelen como movimientos).
    */
-  static parseDate(dateStr: string): string {
-    if (!dateStr) return new Date().toISOString().split('T')[0];
-    const cleaned = dateStr.trim().replace(/^["']|["']$/g, '').split(' ')[0]; // Quitar horas si vienen incluidas
+  static parseDate(dateStr: string): string | null {
+    if (!dateStr) return null;
+    const cleaned = dateStr.trim().replace(/^["']|["']$/g, '').split(/[ T]/)[0]; // Quitar horas si vienen incluidas
 
-    // Formato DD/MM/YYYY o DD-MM-YYYY
-    const dmyMatch = cleaned.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/);
-    if (dmyMatch) {
-      const day = dmyMatch[1].padStart(2, '0');
-      const month = dmyMatch[2].padStart(2, '0');
-      let year = dmyMatch[3];
-      if (year.length === 2) {
-        year = `20${year}`;
-      }
-      return `${year}-${month}-${day}`;
-    }
+    let year: number;
+    let month: number;
+    let day: number;
 
-    // Formato YYYY/MM/DD o YYYY-MM-DD
+    const dmyMatch = cleaned.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2}|\d{4})$/);
     const ymdMatch = cleaned.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/);
-    if (ymdMatch) {
-      const year = ymdMatch[1];
-      const month = ymdMatch[2].padStart(2, '0');
-      const day = ymdMatch[3].padStart(2, '0');
-      return `${year}-${month}-${day}`;
+    if (dmyMatch) {
+      day = parseInt(dmyMatch[1], 10);
+      month = parseInt(dmyMatch[2], 10);
+      year = parseInt(dmyMatch[3].length === 2 ? `20${dmyMatch[3]}` : dmyMatch[3], 10);
+    } else if (ymdMatch) {
+      year = parseInt(ymdMatch[1], 10);
+      month = parseInt(ymdMatch[2], 10);
+      day = parseInt(ymdMatch[3], 10);
+    } else {
+      return null;
     }
 
-    // Fallback: Date.parse si es legible
-    const parsed = new Date(cleaned);
-    if (!isNaN(parsed.getTime())) {
-      return parsed.toISOString().split('T')[0];
-    }
+    const daysInMonth = new Date(year, month, 0).getDate();
+    if (month < 1 || month > 12 || day < 1 || day > daysInMonth) return null;
 
-    return new Date().toISOString().split('T')[0];
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   }
 
   /**
@@ -298,204 +332,333 @@ export class CsvImporterService {
   }
 
   /**
-   * Parsea un libro de Excel (.xlsx / .xls) convirtiendo la primera hoja a matriz de transacciones
+   * Parsea un libro de Excel (.xlsx / .xls) a partir de su primera hoja.
+   * Lee importes y saldos como número de la celda (raw) para evitar la ambigüedad
+   * entre separadores de miles y decimales del texto formateado ("1,234" vs "1.234").
    */
-  static parseExcel(data: ArrayBuffer): RawBankTransaction[] {
+  static parseExcel(data: ArrayBuffer): StatementParseResult {
     try {
       const wb = XLSX.read(data, { type: 'array', cellDates: true });
-      if (!wb.SheetNames || wb.SheetNames.length === 0) return [];
+      if (!wb.SheetNames || wb.SheetNames.length === 0) return this.emptyResult();
       const firstSheet = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(firstSheet, {
         header: 1,
-        raw: false,
-        dateNF: 'yyyy-mm-dd',
+        raw: true,
         defval: '',
-      }) as (string | number)[][];
+      }) as unknown[][];
 
-      // Normalizar cada celda a string limpio
-      const matrix: string[][] = rows.map((r) =>
-        r.map((cell) => (cell !== null && cell !== undefined ? String(cell).trim() : ''))
-      );
-
+      const matrix: string[][] = rows.map((r) => r.map((cell) => this.cellToString(cell)));
       return this.parseMatrix(matrix);
     } catch (e) {
       console.error('[CsvImporterService] Error al parsear archivo Excel:', e);
-      return [];
+      return this.emptyResult();
     }
+  }
+
+  /**
+   * Convierte una celda cruda de SheetJS a texto normalizado.
+   * Las fechas de Excel se desplazan 12 h antes de leer sus componentes locales para que
+   * los desfases de zona horaria de la conversión de SheetJS nunca cambien el día.
+   */
+  private static cellToString(cell: unknown): string {
+    if (cell === null || cell === undefined) return '';
+    if (cell instanceof Date) {
+      if (isNaN(cell.getTime())) return '';
+      const d = new Date(cell.getTime() + 12 * 60 * 60 * 1000);
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${d.getFullYear()}-${mm}-${dd}`;
+    }
+    if (typeof cell === 'number') return Number.isFinite(cell) ? String(cell) : '';
+    return String(cell).trim();
   }
 
   /**
    * Parsea el contenido CSV/TSV y extrae las transacciones bancarias
    */
-  static parseCsv(fileContent: string): RawBankTransaction[] {
-    if (!fileContent || !fileContent.trim()) return [];
+  static parseCsv(fileContent: string): StatementParseResult {
+    if (!fileContent || !fileContent.trim()) return this.emptyResult();
 
-    const rawLines = fileContent.split(/\r?\n/).filter((l) => l.trim().length > 0);
-    if (rawLines.length === 0) return [];
+    const rawLines = fileContent
+      .replace(/^\uFEFF/, '')
+      .split(/\r?\n/)
+      .filter((l) => l.trim().length > 0);
+    if (rawLines.length === 0) return this.emptyResult();
 
-    const delimiter = this.detectDelimiter(rawLines.slice(0, 15));
+    const delimiter = this.detectDelimiter(rawLines);
     const matrix: string[][] = rawLines.map((line) => this.tokenizeLine(line, delimiter));
 
     return this.parseMatrix(matrix);
   }
 
+  /** Títulos de sección cuyos movimientos aún no están imputados y nunca se importan. */
+  private static readonly PENDING_SECTION = /pendiente|retenid|no consolidad|en curso|autorizacion/;
+
+  /** Conceptos de pie de extracto (saldos y totales) que no son movimientos. */
+  private static readonly FOOTER_CONCEPT =
+    /^(saldo (final|inicial|anterior|actual|disponible)|total|suma|fin de extracto)/;
+
+  private static emptyResult(): StatementParseResult {
+    return {
+      transactions: [],
+      report: {
+        profileId: 'generic',
+        profileName: 'Genérico',
+        headerRowIndex: -1,
+        skippedPreambleRows: 0,
+        skippedPendingRows: 0,
+        skippedInvalidRows: 0,
+      },
+    };
+  }
+
   /**
-   * Parsea una matriz de filas buscando dinámicamente la cabecera canónica bancaria:
-   * "Fecha contable | Fecha valor | Descripción | Importe | Saldo | Divisa"
-   * Omitiendo de forma segura el preámbulo inicial de resúmenes de cuenta o movimientos no consolidados.
+   * Parsea una matriz de filas de un extracto bancario.
+   * 1. Si el fichero coincide con un perfil conocido (Bankinter), usa su mapeo exacto.
+   * 2. Si no, busca una cabecera genérica validada por las filas que la siguen,
+   *    saltando preámbulos y bloques de movimientos pendientes.
+   * Solo se devuelven filas con fecha válida e importe distinto de cero.
    */
-  static parseMatrix(rawRows: string[][]): RawBankTransaction[] {
-    if (!rawRows || rawRows.length === 0) return [];
+  static parseMatrix(rawRows: string[][]): StatementParseResult {
+    if (!rawRows || rawRows.length === 0) return this.emptyResult();
 
-    let headerRowIdx = -1;
-    let fechaValorCol = -1;
-    let fechaContableCol = -1;
-    let conceptCol = -1;
-    let amountCol = -1;
-    let saldoCol = -1;
-    let divisaCol = -1;
-    let debeCol = -1;
-    let haberCol = -1;
+    let profileId = 'generic';
+    let profileName = 'Genérico';
+    let headerRowIndex = -1;
+    let pendingRows = 0;
+    let columns: StatementColumnMap = {
+      date: 0,
+      valueDate: -1,
+      concept: 1,
+      amount: 2,
+      debit: -1,
+      credit: -1,
+      balance: -1,
+      currency: -1,
+    };
 
-    const fechaValorKeywords = ['fecha valor', 'f.valor', 'f. valor', 'value date'];
-    const fechaContableKeywords = ['fecha contable', 'f.contable', 'f. contable', 'fecha operacion', 'f.operacion', 'f. operacion', 'fecha', 'date'];
-    const conceptKeywords = ['descripcion', 'descripción', 'concepto', 'movimiento', 'detalle', 'beneficiario', 'description', 'asunto', 'texto'];
-    const amountKeywords = ['importe', 'cantidad', 'monto', 'amount', 'total'];
-    const saldoKeywords = ['saldo', 'balance'];
-    const divisaKeywords = ['divisa', 'moneda', 'currency'];
-    const debeKeywords = ['debe', 'cargo', 'gastos', 'salidas', 'debit'];
-    const haberKeywords = ['haber', 'abono', 'ingresos', 'entradas', 'credit'];
-
-    // Escanear hasta 150 filas para omitir resúmenes de cuenta, datos de titular y movimientos no consolidados
-    const maxScanLines = Math.min(rawRows.length, 150);
-
-    for (let i = 0; i < maxScanLines; i++) {
-      const cols = rawRows[i].map((c) =>
-        (c || '').toLowerCase().trim().replace(/^["']|["']$/g, '')
-      );
-      if (cols.length <= 1) continue;
-
-      const fvIdx = cols.findIndex((c) => fechaValorKeywords.some((k) => c.includes(k)));
-      const fcIdx = cols.findIndex((c) => fechaContableKeywords.some((k) => c.includes(k)));
-      const cIdx = cols.findIndex((c) => conceptKeywords.some((k) => c.includes(k)));
-      const aIdx = cols.findIndex((c) => amountKeywords.some((k) => c === k || c.startsWith(k)));
-      const sIdx = cols.findIndex((c) => saldoKeywords.some((k) => c === k || c.startsWith(k)));
-      const divIdx = cols.findIndex((c) => divisaKeywords.some((k) => c === k || c.startsWith(k)));
-      const debIdx = cols.findIndex((c) => debeKeywords.some((k) => c === k || c.startsWith(k)));
-      const habIdx = cols.findIndex((c) => haberKeywords.some((k) => c === k || c.startsWith(k)));
-
-      const hasDate = fvIdx !== -1 || fcIdx !== -1;
-      const hasConcept = cIdx !== -1;
-      const hasAmountOrDebit = aIdx !== -1 || debIdx !== -1 || habIdx !== -1;
-
-      // Si encontramos la combinación bancaria típica (fecha + concepto + importe/saldo)
-      if (hasDate && (hasConcept || hasAmountOrDebit)) {
-        headerRowIdx = i;
-        fechaValorCol = fvIdx;
-        fechaContableCol = fcIdx;
-        conceptCol = cIdx;
-        amountCol = aIdx;
-        saldoCol = sIdx;
-        divisaCol = divIdx;
-        debeCol = debIdx;
-        haberCol = habIdx;
-        break;
+    const profileMatch = matchBankProfile(rawRows);
+    if (profileMatch) {
+      profileId = profileMatch.profileId;
+      profileName = profileMatch.profileName;
+      headerRowIndex = profileMatch.headerRowIndex;
+      pendingRows = profileMatch.pendingRows;
+      columns = profileMatch.columns;
+    } else {
+      const generic = this.findGenericHeader(rawRows);
+      if (generic) {
+        headerRowIndex = generic.headerRowIndex;
+        pendingRows = generic.pendingRows;
+        columns = generic.columns;
       }
+      // Sin cabecera reconocible: se mantiene la heurística por posición (fecha | concepto | importe)
+      // y la validación estricta de filas descarta todo lo que no sea un movimiento.
     }
 
-    // Si no se encontró cabecera explícita, usar heurística por posición
-    if (headerRowIdx === -1) {
-      headerRowIdx = 0;
-      fechaValorCol = 0;
-      conceptCol = 1;
-      amountCol = 2;
-    }
+    const { transactions, skippedInvalidRows } = this.extractRows(rawRows, headerRowIndex, columns);
+    const nonEmptyBefore = rawRows
+      .slice(0, Math.max(0, headerRowIndex))
+      .filter((r) => nonEmptyCount(r) > 0).length;
 
-    // Priorizar 'Fecha valor' como fecha real de liquidación del cargo/abono
-    const dateCol = fechaValorCol !== -1 ? fechaValorCol : (fechaContableCol !== -1 ? fechaContableCol : 0);
-    const resolvedConceptCol = conceptCol !== -1 ? conceptCol : (dateCol === 0 ? 1 : 0);
+    return {
+      transactions,
+      report: {
+        profileId,
+        profileName,
+        headerRowIndex,
+        skippedPreambleRows: Math.max(0, nonEmptyBefore - pendingRows),
+        skippedPendingRows: pendingRows,
+        skippedInvalidRows,
+      },
+    };
+  }
 
-    const transactions: RawBankTransaction[] = [];
-    const rows = rawRows.slice(headerRowIdx + 1);
+  /**
+   * Identifica las columnas de una fila candidata a cabecera.
+   * Solo cuenta celdas cortas que no son datos (ni fechas ni números), de modo que líneas del
+   * preámbulo como "Movimientos desde fecha 01/09/2026" no se confunden con una cabecera.
+   */
+  private static detectHeaderColumns(row: string[]): StatementColumnMap | null {
+    const cols = (row || []).map(normalizeCell);
+    const isLabel = (c: string) =>
+      c.length > 0 && c.length <= 30 && this.parseDate(c) === null && !/^[-+]?[\d.,\s€]+$/.test(c);
 
-    for (let r = 0; r < rows.length; r++) {
-      const cols = rows[r];
-      if (!cols || cols.length <= 1) continue;
+    const findIncludes = (keywords: string[], exclude = -1) =>
+      cols.findIndex((c, idx) => idx !== exclude && isLabel(c) && keywords.some((k) => c.includes(k)));
+    const findPrefix = (keywords: string[]) =>
+      cols.findIndex((c) => isLabel(c) && keywords.some((k) => c === k || c.startsWith(k)));
 
-      const rawDate = cols[dateCol] || (fechaContableCol !== -1 ? cols[fechaContableCol] : '') || '';
-      const rawConcept = cols[resolvedConceptCol] || 'Movimiento bancario';
-      let rawAmount = 0;
-      let isIncome = false;
+    const valueDate = findIncludes(['fecha valor', 'f.valor', 'f. valor', 'value date']);
+    const date = findIncludes(
+      ['fecha contable', 'f.contable', 'f. contable', 'fecha operacion', 'f.operacion', 'f. operacion', 'fecha', 'date'],
+      valueDate
+    );
+    const concept = findIncludes([
+      'descripcion', 'concepto', 'movimiento', 'detalle', 'beneficiario', 'description', 'asunto', 'texto',
+    ]);
+    const amount = findPrefix(['importe', 'cantidad', 'monto', 'amount']);
+    const balance = findPrefix(['saldo', 'balance']);
+    const currency = findPrefix(['divisa', 'moneda', 'currency']);
+    const debit = findPrefix(['debe', 'cargo', 'gastos', 'salidas', 'debit']);
+    const credit = findPrefix(['haber', 'abono', 'ingresos', 'entradas', 'credit']);
 
-      if (amountCol !== -1 && cols[amountCol] !== undefined && cols[amountCol] !== '') {
-        rawAmount = this.parseAmount(cols[amountCol]);
-        if (debeCol === -1) {
-          // Si el importe es positivo es un abono/ingreso (+), si es negativo es gasto (-)
-          isIncome = rawAmount > 0;
-        }
-      } else if (debeCol !== -1) {
-        const debeVal = cols[debeCol] ? this.parseAmount(cols[debeCol]) : 0;
-        const haberVal = haberCol !== -1 && cols[haberCol] ? this.parseAmount(cols[haberCol]) : 0;
-        if (Math.abs(debeVal) > 0) {
-          rawAmount = -Math.abs(debeVal);
-          isIncome = false;
-        } else if (Math.abs(haberVal) > 0) {
-          rawAmount = Math.abs(haberVal);
-          isIncome = true;
-        }
-      } else {
-        // Probar cualquier columna numérica
-        for (let c = 0; c < cols.length; c++) {
-          if (c !== dateCol && c !== resolvedConceptCol) {
-            const val = this.parseAmount(cols[c]);
-            if (val !== 0) {
-              rawAmount = val;
-              isIncome = val > 0;
-              break;
-            }
-          }
-        }
-      }
+    const hasDate = date !== -1 || valueDate !== -1;
+    const hasAmount = amount !== -1 || debit !== -1 || credit !== -1;
+    if (!hasDate || !hasAmount) return null;
 
-      if (rawAmount === 0 && (!rawConcept || rawConcept === 'Movimiento bancario')) continue;
+    return { date, valueDate, concept, amount, debit, credit, balance, currency };
+  }
 
-      // Omitir posibles pies de página o totales
-      const lowerConcept = rawConcept.toLowerCase();
-      if (
-        lowerConcept.includes('saldo final') ||
-        lowerConcept.includes('total movimientos') ||
-        lowerConcept.includes('fin de extracto')
-      ) {
+  /**
+   * Busca la cabecera genérica del bloque de movimientos consolidados.
+   * Una cabecera solo se acepta si las filas siguientes son movimientos reales;
+   * los bloques titulados como pendientes/retenidos se cuentan y se saltan.
+   */
+  private static findGenericHeader(
+    rows: string[][]
+  ): { headerRowIndex: number; columns: StatementColumnMap; pendingRows: number } | null {
+    const maxScan = Math.min(rows.length, 150);
+    let pendingRows = 0;
+    let sectionTitle = '';
+
+    for (let i = 0; i < maxScan; i++) {
+      const row = rows[i] || [];
+      const filled = nonEmptyCount(row);
+      if (filled === 0) continue;
+      if (filled === 1) {
+        sectionTitle = normalizeCell(row.find((c) => c && c.trim()) || '');
         continue;
       }
 
-      const parsedDate = this.parseDate(rawDate);
-      const cleanConcept = rawConcept
-        .replace(/\s+/g, ' ')
-        .replace(/^["']|["']$/g, '')
-        .trim();
+      const columns = this.detectHeaderColumns(row);
+      if (!columns) continue;
 
-      // Convertir siempre a importe absoluto para cálculo en CronoCash, preservando isIncome
-      const expenseAmount = Math.abs(rawAmount);
-      const rawBalance = saldoCol !== -1 && cols[saldoCol] ? this.parseAmount(cols[saldoCol]) : undefined;
-      const rawCurrency = divisaCol !== -1 && cols[divisaCol] ? cols[divisaCol].trim() : undefined;
+      // Validar con las filas de datos que siguen a la cabecera
+      const blockRows: string[][] = [];
+      for (let j = i + 1; j < rows.length; j++) {
+        const next = rows[j] || [];
+        const nextFilled = nonEmptyCount(next);
+        if (nextFilled === 0) continue;
+        if (nextFilled === 1 || this.detectHeaderColumns(next)) break;
+        blockRows.push(next);
+      }
+      const sample = blockRows.slice(0, 3);
+      const validSample = sample.filter((r) => this.readDataRow(r, columns) !== null).length;
+      if (validSample === 0 || (sample.length >= 2 && validSample < 2)) continue;
+
+      if (this.PENDING_SECTION.test(sectionTitle)) {
+        pendingRows += blockRows.filter((r) => this.readDataRow(r, columns) !== null).length;
+        sectionTitle = '';
+        continue;
+      }
+
+      return { headerRowIndex: i, columns, pendingRows };
+    }
+    return null;
+  }
+
+  /**
+   * Lee una fila de datos con el mapeo de columnas indicado.
+   * Devuelve null si no es un movimiento: sin fecha válida, importe cero o pie de extracto.
+   */
+  private static readDataRow(
+    cols: string[],
+    columns: StatementColumnMap
+  ): { rawDate: string; parsedDate: string; rawConcept: string; rawAmount: number; balance?: number; currency?: string } | null {
+    const primaryDateCol = columns.valueDate !== -1 ? columns.valueDate : columns.date;
+    let rawDate = primaryDateCol !== -1 ? cols[primaryDateCol] || '' : '';
+    let parsedDate = this.parseDate(rawDate);
+    if (!parsedDate && columns.date !== -1 && columns.date !== primaryDateCol) {
+      rawDate = cols[columns.date] || '';
+      parsedDate = this.parseDate(rawDate);
+    }
+    if (!parsedDate) return null;
+
+    const conceptCol = columns.concept !== -1 ? columns.concept : primaryDateCol === 0 ? 1 : 0;
+    const rawConcept = (cols[conceptCol] || '').trim();
+
+    let rawAmount = 0;
+    const amountCell = columns.amount !== -1 ? (cols[columns.amount] || '').trim() : '';
+    if (amountCell !== '') {
+      rawAmount = this.parseAmount(amountCell);
+    } else if (columns.debit !== -1 || columns.credit !== -1) {
+      const debit = columns.debit !== -1 ? Math.abs(this.parseAmount(cols[columns.debit] || '')) : 0;
+      const credit = columns.credit !== -1 ? Math.abs(this.parseAmount(cols[columns.credit] || '')) : 0;
+      rawAmount = debit > 0 ? -debit : credit;
+    } else if (columns.amount === -1) {
+      // Sin columna de importe identificada: primera columna numérica que no sea fecha, concepto ni saldo
+      for (let c = 0; c < cols.length; c++) {
+        if (c === primaryDateCol || c === columns.date || c === conceptCol || c === columns.balance) continue;
+        const val = this.parseAmount(cols[c] || '');
+        if (val !== 0) {
+          rawAmount = val;
+          break;
+        }
+      }
+    }
+    if (rawAmount === 0) return null;
+    if (this.FOOTER_CONCEPT.test(normalizeCell(rawConcept))) return null;
+
+    const balanceCell = columns.balance !== -1 ? (cols[columns.balance] || '').trim() : '';
+    const currencyCell = columns.currency !== -1 ? (cols[columns.currency] || '').trim() : '';
+    return {
+      rawDate,
+      parsedDate,
+      rawConcept,
+      rawAmount,
+      balance: balanceCell !== '' ? this.parseAmount(balanceCell) : undefined,
+      currency: currencyCell || undefined,
+    };
+  }
+
+  /** Extrae los movimientos que siguen a la cabecera hasta el final o hasta una sección de pendientes. */
+  private static extractRows(
+    rows: string[][],
+    headerRowIndex: number,
+    columns: StatementColumnMap
+  ): { transactions: RawBankTransaction[]; skippedInvalidRows: number } {
+    const transactions: RawBankTransaction[] = [];
+    let skippedInvalidRows = 0;
+    const batchStamp = Date.now();
+
+    for (let r = headerRowIndex + 1; r < rows.length; r++) {
+      const cols = rows[r] || [];
+      const filled = nonEmptyCount(cols);
+      if (filled === 0) continue;
+
+      if (filled === 1) {
+        const title = normalizeCell(cols.find((c) => c && c.trim()) || '');
+        if (this.PENDING_SECTION.test(title)) break;
+        skippedInvalidRows++;
+        continue;
+      }
+
+      const row = this.readDataRow(cols, columns);
+      if (!row) {
+        skippedInvalidRows++;
+        continue;
+      }
+
+      const cleanConcept =
+        row.rawConcept.replace(/\s+/g, ' ').replace(/^["']|["']$/g, '').trim() || 'Movimiento bancario';
 
       transactions.push({
-        id: `raw_tx_${Date.now()}_${r}`,
-        rawDate,
-        rawConcept,
-        rawAmount,
-        parsedDate,
+        id: `raw_tx_${batchStamp}_${r}`,
+        rawDate: row.rawDate,
+        rawConcept: row.rawConcept || cleanConcept,
+        rawAmount: row.rawAmount,
+        parsedDate: row.parsedDate,
         cleanConcept,
-        amount: Math.round(expenseAmount * 100) / 100,
-        isIncome,
+        // Importe siempre absoluto en CronoCash; el signo se conserva en rawAmount e isIncome
+        amount: Math.round(Math.abs(row.rawAmount) * 100) / 100,
+        isIncome: row.rawAmount > 0,
         rawHash: '',
-        balance: rawBalance,
-        currency: rawCurrency,
+        balance: row.balance,
+        currency: row.currency,
       });
     }
 
-    return transactions;
+    return { transactions, skippedInvalidRows };
   }
 
   /**

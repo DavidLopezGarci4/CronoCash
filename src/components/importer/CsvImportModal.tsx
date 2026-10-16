@@ -25,6 +25,8 @@ import {
   CsvImporterService,
   AnalyzedTransaction,
   BatchAnalysisResult,
+  StatementParseReport,
+  StatementParseResult,
   resolveTargetSalaryMonth,
   formatMonthName,
 } from '../../services/csvImporterService';
@@ -60,6 +62,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
   const [saveAsRules, setSaveAsRules] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [importSummary, setImportSummary] = useState<{ imported: number } | null>(null);
+  const [parseReport, setParseReport] = useState<StatementParseReport | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -80,20 +83,19 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
       setIsProcessing(true);
       setFileName(file.name);
 
-      let rawRows = [];
       const lowerName = file.name.toLowerCase();
-
-      if (lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')) {
-        const buffer = await file.arrayBuffer();
-        rawRows = CsvImporterService.parseExcel(buffer);
-      } else {
-        const text = await file.text();
-        rawRows = CsvImporterService.parseCsv(text);
-      }
+      const parsed: StatementParseResult =
+        lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')
+          ? CsvImporterService.parseExcel(await file.arrayBuffer())
+          : CsvImporterService.parseCsv(await file.text());
+      const rawRows = parsed.transactions;
+      setParseReport(parsed.report);
 
       if (rawRows.length === 0) {
         alert(
-          'No se detectaron transacciones válidas en el archivo. Asegúrate de que contenga la cabecera bancaria (ej. Fecha contable, Fecha valor, Descripción, Importe).'
+          parsed.report.skippedPendingRows > 0
+            ? `El extracto solo contiene ${parsed.report.skippedPendingRows} movimiento(s) pendiente(s) que el banco aún no ha imputado. Vuelve a exportarlo cuando estén consolidados.`
+            : 'No se detectaron movimientos válidos en el archivo. Asegúrate de que contenga la cabecera bancaria (ej. Fecha contable, Fecha valor, Descripción, Importe).'
         );
         setIsProcessing(false);
         return;
@@ -411,7 +413,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                 <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate">Importador Bancario Universal</h2>
               </div>
               <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
-                Compatible con extractos Excel (.xlsx, .xls) y CSV de Santander, BBVA, Bankinter, CaixaBank, ING, etc.
+                Extractos Excel (.xlsx, .xls) y CSV • Formato de Bankinter verificado
               </p>
             </div>
           </div>
@@ -540,6 +542,31 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {/* Resumen superior con contadores */}
             <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900/20 space-y-2.5 sm:space-y-3 shrink-0">
+              {parseReport && (
+                <div className="flex items-start gap-2 p-2.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-500/30 text-[11px] sm:text-xs text-cyan-900 dark:text-cyan-200">
+                  <Building className="w-4 h-4 shrink-0 mt-0.5 text-cyan-600 dark:text-cyan-400" />
+                  <span>
+                    {parseReport.profileId === 'generic' ? (
+                      <>Formato genérico detectado.</>
+                    ) : (
+                      <>
+                        Extracto de <strong>{parseReport.profileName}</strong> detectado.
+                      </>
+                    )}
+                    {parseReport.skippedPreambleRows > 0 &&
+                      ` Se han omitido ${parseReport.skippedPreambleRows} fila(s) de cabecera del banco.`}
+                    {parseReport.skippedPendingRows > 0 && (
+                      <>
+                        {' '}
+                        <strong>{parseReport.skippedPendingRows} movimiento(s) pendiente(s)</strong> no se importan porque
+                        el banco aún no los ha imputado; entrarán en tu próximo extracto.
+                      </>
+                    )}
+                    {parseReport.skippedInvalidRows > 0 &&
+                      ` ${parseReport.skippedInvalidRows} fila(s) sin fecha o importe válidos descartadas.`}
+                  </span>
+                </div>
+              )}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
                 <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs">
                   <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Total Detectadas</div>
