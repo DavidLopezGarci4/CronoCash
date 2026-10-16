@@ -1417,6 +1417,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </div>
 
+                {/* Icono de escritorio multi-resolución (.ico) */}
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center gap-4">
+                  <div className="w-16 h-16 shrink-0 flex items-center justify-center">
+                    <img src="/icon-192.png" alt="Icono de escritorio CronoCash" className="w-16 h-16" />
+                  </div>
+                  <div className="flex-1 text-center sm:text-left space-y-1">
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-center sm:justify-start gap-1">
+                      <Monitor className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                      <span>Icono de escritorio (.ico)</span>
+                    </span>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      7 tamaños nítidos (16 a 256 px) con fondo transparente para accesos directos de Windows y la barra de tareas.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadImage('/app.ico', 'crono-cash.ico', 'Icono de escritorio CronoCash')}
+                    disabled={downloadingFile === 'crono-cash.ico'}
+                    className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1 border border-slate-200 dark:border-slate-700 cursor-pointer disabled:opacity-50 transition-all shadow-xs shrink-0"
+                  >
+                    {downloadingFile === 'crono-cash.ico' ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-500" />
+                    ) : (
+                      <Download className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    )}
+                    <span>{downloadingFile === 'crono-cash.ico' ? 'Guardando...' : 'Descargar .ico'}</span>
+                  </button>
+                </div>
+
                 {/* Instrucciones de aplicación en Android */}
                 <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2 text-xs text-slate-700 dark:text-slate-300">
                   <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
