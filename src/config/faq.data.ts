@@ -825,8 +825,8 @@ export const FAQ_DATA: FAQSection[] = [
         "question": "¿Cómo funciona el Importador de Extractos Bancarios Excel y CSV?",
         "bullets": [
           "Privacidad 100% offline: El extracto bancario se procesa de forma íntegra en la memoria de tu dispositivo mediante Web Workers y Web Crypto API; ningún dato bancario o personal sale a Internet.",
-          "Compatibilidad con hojas Excel y CSV: Acepta archivos .xlsx, .xls, .csv y .tsv de cualquier banco nacional e internacional (Santander, BBVA, CaixaBank, ING, Sabadell, Openbank, Revolut, N26, etc.).",
-          "Omisión automática de preámbulos y resúmenes: Escanea las filas del documento saltando automáticamente metadatos iniciales, resúmenes globales y movimientos no consolidados hasta dar con la cabecera canónica bancaria (Fecha contable, Fecha valor, Descripción, Importe, Saldo, Divisa).",
+          "Compatibilidad con hojas Excel y CSV: Acepta archivos .xlsx, .xls, .csv y .tsv. El formato de Bankinter está verificado con un extracto real; el resto de bancos se leen en modo genérico detectando su cabecera.",
+          "Omisión automática de preámbulos y resúmenes: Salta el título, el IBAN, los filtros de la consulta y los bloques de movimientos pendientes hasta dar con la cabecera de movimientos consolidados (Fecha contable, Fecha valor, Descripción, Importe, Saldo, Divisa). La bandeja de revisión te indica cuántas filas se han omitido.",
           "Prioridad en Fecha Valor: Asigna como fecha de liquidación real la \"Fecha valor\" para reflejar con fidelidad la salida o entrada de fondos."
         ],
         "tags": [
@@ -841,6 +841,27 @@ export const FAQ_DATA: FAQSection[] = [
           "privacidad",
           "cabeceras",
           "fecha valor"
+        ]
+      },
+      {
+        "id": "bankinter-compartir",
+        "question": "¿Cómo conecto Bankinter sin dar mis claves?",
+        "bullets": [
+          "Compartir a CronoCash: En la app o la web de Bankinter exporta tus movimientos en Excel y pulsa Compartir ➔ CronoCash (o ábrelo con CronoCash desde Descargas). El importador se abre solo con el extracto ya analizado.",
+          "Solo movimientos imputados: CronoCash reconoce el extracto de Bankinter e importa únicamente los movimientos consolidados. Los movimientos pendientes no se importan porque aún pueden cambiar o no llegar a cargarse; entrarán en tu siguiente extracto.",
+          "Sin claves y sin servidores: No se pide usuario, contraseña ni acceso a tu banca online. El archivo se lee en la memoria del teléfono, nunca se guarda suelto en el almacenamiento y no sale del dispositivo.",
+          "Con la app bloqueada: Si compartes el extracto con CronoCash bloqueado, espera en memoria hasta que lo desbloquees con tu PIN o huella.",
+          "Sin duplicados: Puedes compartir extractos que se solapen en fechas; los movimientos ya registrados se marcan como duplicados y se desmarcan automáticamente."
+        ],
+        "tags": [
+          "bankinter",
+          "compartir",
+          "extracto",
+          "excel",
+          "conectar banco",
+          "pendientes",
+          "sin claves",
+          "privacidad"
         ]
       },
       {

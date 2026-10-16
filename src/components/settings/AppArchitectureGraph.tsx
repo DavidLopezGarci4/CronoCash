@@ -16,6 +16,7 @@ import {
 import { Capacitor } from '@capacitor/core';
 import { DBService } from '../../services/db';
 import { VaultCryptoService } from '../../services/vaultCryptoService';
+import { BANK_STATEMENT_PROFILES } from '../../services/bankProfiles';
 import stackConfig from '../../config/stack.config.json';
 
 interface TechNodeConfig {
@@ -185,7 +186,7 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
         metric: `${platform} · FLAG_SECURE + CSP`,
         timestamp: now,
         diagnostic: isNative
-          ? 'Puente nativo Android activo con ventana FLAG_SECURE y FileProvider acotado.'
+          ? 'Puente nativo Android activo con FLAG_SECURE, FileProvider acotado y recepción de extractos compartidos en memoria.'
           : 'Entorno Web protegido por Content-Security-Policy estricta.',
       };
     } catch (e: any) {
@@ -223,14 +224,15 @@ export const AppArchitectureGraph: React.FC<AppArchitectureGraphProps> = ({ isOp
 
     try {
       const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+      const profiles = BANK_STATEMENT_PROFILES.map((p) => p.name).join(', ') || 'genérico';
       results['cloud_backup'] = {
         status: isOnline ? 'healthy' : 'degraded',
         badge: isOnline ? 'Checksum Activo' : 'Modo Local',
-        metric: isOnline ? 'SheetJS 0.20.3 · 2 Ranuras' : 'Offline 100% Local',
+        metric: `Perfil: ${profiles} · 2 Ranuras`,
         timestamp: now,
         diagnostic: isOnline
-          ? 'Respaldo de 2 ranuras con verificación de checksum e importador anti-ReDoS listos.'
-          : 'Sin red. Importación bancaria e informes PDF operan 100% en local.',
+          ? `Respaldo de 2 ranuras con checksum e importador con perfil ${profiles} (solo movimientos consolidados).`
+          : `Sin red. El importador (perfil ${profiles}) y los informes PDF operan 100% en local.`,
       };
     } catch {
       results['cloud_backup'] = {

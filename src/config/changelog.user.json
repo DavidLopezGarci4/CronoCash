@@ -1,7 +1,7 @@
 {
-  "currentVersion": "1.33.0",
-  "buildNumber": 13300,
-  "lastUpdated": "2026-10-14",
+  "currentVersion": "1.34.0",
+  "buildNumber": 13400,
+  "lastUpdated": "2026-10-16",
   "appName": "CronoCash",
   "appSubtitle": "Bóveda Financiera Inteligente & Control de Gastos",
   "privacyBadge": "100% Local y Privado • Sin Rastreadores • Sin Servidores Externos",
@@ -9,11 +9,24 @@
   "license": "Licencia Abierta Personal / Uso Privado",
   "versions": [
     {
+      "version": "1.34.0",
+      "build": 13400,
+      "date": "16 Oct 2026",
+      "title": "Extractos de Bankinter en 2 toques e icono nítido para escritorio",
+      "isCurrent": true,
+      "highlights": [
+        "🏦 Compartir a CronoCash: Exporta tus movimientos en Excel desde Bankinter, pulsa Compartir y elige CronoCash. El importador se abre solo con el extracto listo para revisar, sin claves bancarias ni servidores.",
+        "✅ Solo lo que ya está cobrado: CronoCash reconoce el extracto de Bankinter e importa únicamente los movimientos consolidados. Los pendientes se omiten y te avisa de cuántos son, para que no se dupliquen cuando se imputen.",
+        "🧹 Importación más fiable: Las filas de título, IBAN, filtros y totales ya no se cuelan como gastos, y los CSV con líneas de cabecera del banco se leen correctamente.",
+        "🖥️ Icono de escritorio nítido: Nuevo icono con fondo transparente en 7 tamaños para la pestaña del navegador y los accesos directos de Windows, descargable desde Ajustes."
+      ]
+    },
+    {
       "version": "1.33.0",
       "build": 13300,
       "date": "14 Oct 2026",
       "title": "Blindaje Criptográfico Integral (AES-GCM-256 + PBKDF2), Biometría Fuerte Clase 3 y Grafo TecnoRed v2.0",
-      "isCurrent": true,
+      "isCurrent": false,
       "highlights": [
         "🔐 Bóveda Cifrada y PIN con PBKDF2-SHA256: Tu clave de seguridad ahora se protege mediante derivación criptográfica PBKDF2-HMAC-SHA256 (10.000 iteraciones con sal única de 128 bits), token opaco de sesión y bloqueo temporal inteligente tras 5 intentos fallidos.",
         "🛡️ Cifrado en Reposo Total y Respaldo Verificado: Los gastos, metas de ahorro, reglas recurrentes y ajustes se cifran siempre antes de guardarse o restaurarse, y las copias de Google Drive validan su firma de integridad (checksum) antes de abrirse.",

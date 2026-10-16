@@ -3,6 +3,26 @@
 Todas las modificaciones notables en este proyecto serán documentadas en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.34.0] - 2026-10-16
+
+### Added
+- **Compartir a CronoCash (`SharedStatementPlugin.java`, `MainActivity.java`, `AndroidManifest.xml`, `sharedStatementService.ts`, `App.tsx`):**
+  - CronoCash aparece como destino de *Compartir* y *Abrir con* para extractos `.xlsx`, `.xls` y `.csv` (`ACTION_SEND` / `ACTION_VIEW`, solo `content://`).
+  - El fichero se mantiene únicamente en memoria (máx. 10 MB), nunca se escribe en disco, y se entrega al importador solo con la bóveda desbloqueada (al arrancar, al volver a la app o al recibir uno nuevo).
+  - Validación del tipo real por firma binaria (ZIP para `.xlsx`, OLE para `.xls`, texto para `.csv`) y saneado del nombre de archivo.
+- **Perfil de extracto Bankinter (`bankProfiles.ts`):** verificado con una exportación real. Importa solo el bloque de movimientos consolidados (*Fecha valor*, *Descripción*, *Importe* con signo, *Saldo*) y omite el bloque `MOVIMIENTOS PENDIENTES` y los filtros de la consulta.
+- **Aviso en la bandeja de revisión (`CsvImportModal.tsx`):** perfil detectado y filas omitidas (cabecera del banco, movimientos pendientes y filas sin fecha o importe).
+- **`/app-icon-forge` (`scripts/build_multi_res_ico.py`):** `public/app.ico` con 7 capas RGBA (16–256 px), recorte del azulejo con máscara redondeada suavizada, margen seguro transparente del 9 %, LOD simplificado en 16/24 px y nitidez en ≤ 32 px. Nuevos `icon-32.png`, `icon-192.png` y `apple-touch-icon.png`, enlazados en `index.html`, y descarga del `.ico` en Ajustes.
+- **TecnoRed v2.0:** 5.ª ruta de flujo *«Extracto de Bankinter compartido a CronoCash»*, enlace `capacitor → cloud_backup` y sonda del importador que informa de los perfiles registrados.
+- **Pruebas con `vitest`** (solo desarrollo, `npm test`): 19 casos sobre el parser de extractos y la recepción de archivos compartidos.
+
+### Fixed
+- **Importación del extracto de Bankinter:** antes devolvía 13 movimientos y ninguno correcto (importaba los pendientes, convertía filtros y cabecera en gastos de 0 € con fecha de hoy y desalineaba las columnas). Ahora importa exactamente los movimientos consolidados.
+- **Detección del separador CSV:** cualquier preámbulo bancario hacía elegir el tabulador y la importación devolvía 0 movimientos.
+- **Fechas no válidas:** `parseDate` ya no sustituye por la fecha de hoy; las filas sin fecha real se descartan.
+- **Importes de Excel:** se leen como número de celda, sin ambigüedad entre separadores de miles y decimales.
+- **CSV con apóstrofos:** el apóstrofo deja de tratarse como comilla (p. ej. comercios como *McDonald's*).
+
 ## [1.33.0] - 2026-10-14
 
 ### Security

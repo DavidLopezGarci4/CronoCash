@@ -1,6 +1,6 @@
 {
   "appName": "CronoCash",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "category": "Bóveda Financiera & Gestión de Gastos",
   "description": "Arquitectura modular híbrida offline-first con bóveda cifrada AES-GCM-256 + PBKDF2-SHA256, biometría Clase 3 y respaldo diferencial de 2 ranuras.",
   "nodes": [
@@ -59,17 +59,17 @@
       "id": "cloud_backup",
       "label": "Drive 2-Slot & Importer",
       "version": "SheetJS 0.20.3",
-      "role": "Respaldo Verificado de 2 Ranuras, Excel/CSV y PDF",
+      "role": "Respaldo Verificado de 2 Ranuras, Extractos Bankinter/CSV y PDF",
       "category": "cloud_persistence",
       "color": "#0ea5e9",
       "icon": "Cloud",
       "healthType": "network",
-      "details": "Sincronización rotativa de 2 ranuras (Actual/Previa) con validación de checksum, importador bancario anti-ReDoS e informes PDF.",
-      "computationalModel": "Paquetes JSON verificados por checksum determinista, parser matricial SheetJS 0.20.3 y deduplicación SHA-256.",
-      "whyChosen": "Impide restaurar copias alteradas o corruptas y concilia extractos bancarios offline con reglas inteligentes seguras.",
+      "details": "Sincronización rotativa de 2 ranuras (Actual/Previa) con validación de checksum, importador bancario con perfil Bankinter verificado e informes PDF.",
+      "computationalModel": "Perfiles de extracto por huella (título + cabecera exacta) con modo genérico validado por filas, lectura numérica directa de celdas Excel y deduplicación SHA-256.",
+      "whyChosen": "Importa solo movimientos ya imputados (descarta pendientes, filtros y totales) y concilia extractos offline sin pedir nunca claves bancarias.",
       "useCases": [
         "Rotación CronoCash_Actual.json / Previa.json con verificación de integridad",
-        "Importación bancaria CSV/Excel con escudo anti-ReDoS y exportación PDF"
+        "Extracto de Bankinter compartido a CronoCash: solo movimientos consolidados, sin duplicados"
       ]
     },
     {
@@ -163,6 +163,14 @@
       "type": "transversal",
       "protocol": "AuthService & NotificationService",
       "description": "Coordina el desbloqueo biométrico, el rate-limiting de PIN y las alertas de recibos periódicos."
+    },
+    {
+      "source": "capacitor",
+      "target": "cloud_backup",
+      "relation": "comparte_extracto",
+      "type": "transversal",
+      "protocol": "ACTION_SEND / ACTION_VIEW content:// en memoria (máx. 10 MB)",
+      "description": "Recibe el extracto compartido desde la app de Bankinter sin escribirlo en disco y lo entrega al importador al desbloquear."
     }
   ],
   "flows": [
@@ -216,6 +224,20 @@
         { "nodeId": "react", "role": "2. Clasifica con Smart Rules anti-ReDoS y calcula Mod. 130/303" },
         { "nodeId": "storage", "role": "3. Persiste el lote conciliado y nóminas blindadas en la bóveda" },
         { "nodeId": "capacitor", "role": "4. Exporta y comparte el informe ejecutivo PDF vía SAF nativo" }
+      ]
+    },
+    {
+      "id": "bankinter_shared_statement",
+      "title": "🏦 Extracto de Bankinter compartido a CronoCash",
+      "category": "local_persistence",
+      "summary": "Del botón Compartir de Bankinter a los movimientos cifrados en la bóveda, sin claves ni servidores.",
+      "explanation": "Android entrega el Excel por content:// y se guarda solo en memoria hasta que desbloqueas la app. El perfil Bankinter importa únicamente los movimientos consolidados (los pendientes se omiten), revisas y se guardan cifrados con AES-GCM-256.",
+      "steps": [
+        { "nodeId": "capacitor", "role": "1. Recibe el Excel compartido en memoria (content://, máx. 10 MB)" },
+        { "nodeId": "native_hardware", "role": "2. Espera al desbloqueo con PIN o huella Clase 3" },
+        { "nodeId": "cloud_backup", "role": "3. Perfil Bankinter: solo consolidados, pendientes y filtros fuera" },
+        { "nodeId": "react", "role": "4. Bandeja de revisión con reglas inteligentes y duplicados" },
+        { "nodeId": "storage", "role": "5. Cifra con AES-GCM-256 y guarda en GastosFacturacionDB" }
       ]
     }
   ]
